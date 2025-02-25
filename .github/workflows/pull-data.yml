@@ -49,6 +49,11 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ env.AWS_DEFAULT_REGION }}
 
+      - name: Install MariaDB Connector/C dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libmariadb-dev
+
       - name: Install requirmenets
         run: |
           pip install -r ./.scripts/requirements.txt
