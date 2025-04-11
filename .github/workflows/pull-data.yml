@@ -3,12 +3,10 @@ name: Pull Data
 on:
   push:
     branches: ["main"]
-  pull_request:
-    branches: ["main"]
   workflow_dispatch:
 
-  # schedule:
-  #   - cron: "0 */6 * * *" # Runs every 6 hours
+  schedule:
+    - cron: "0 0 * * *" # Every day at midnight UTC
 
 permissions:
   contents: write
