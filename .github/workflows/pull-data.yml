@@ -1,4 +1,4 @@
-name: Pull Data
+name: Pull Data and Build Dashboard
 
 on:
   push:
@@ -6,13 +6,13 @@ on:
   workflow_dispatch:
 
   schedule:
-    - cron: "0 0 * * *" # Every day at midnight UTC
+    - cron: "0 0 * * *"
 
 permissions:
   contents: write
 
 jobs:
-  update-db:
+  update-and-deploy:
     runs-on: ubuntu-latest
 
     env:
@@ -47,25 +47,43 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ env.AWS_DEFAULT_REGION }}
 
-      - name: Install MariaDB Connector/C dependencies
+      - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y libmariadb-dev
 
-      - name: Install requirmenets
-        run: |
           pip install -r ./.scripts/requirements.txt
+          pip install polars plotly pandas
 
-      - uses: actions/checkout@v4
-        name: Pull data from database and push to repository
-      - run: |
-          python3 .scripts/pull_data.py 
+      - name: Pull data from database
+        run: |
+          python3 .scripts/pull_data.py
+
+      - name: Commit data changes
+        run: |
           echo "Updated at $(date)" >> updated_at.txt
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add .
-          git commit -m "Updated at $(date)"
-          git push
+          git add data/ updated_at.txt
+          git commit -m "Updated data at $(date)" || echo "No data changes"
+          git push || echo "No changes to push"
+
+      - name: Generate dashboard
+        run: |
+          python3 .scripts/modified_dashboard.py
+
+      - name: Prepare deployment directory
+        run: |
+          mkdir -p public
+          mv dashboard.html public/index.html
+          mv plots/ public/
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+          force_orphan: true
 
       - name: Remove GitHub Actions IP from security group
         if: always()
