@@ -70,13 +70,14 @@ jobs:
 
       - name: Generate dashboard
         run: |
-          python3 .scripts/modified_dashboard.py
+          cd .scripts
+          python3 modified_dashboard.py
 
       - name: Prepare deployment directory
         run: |
           mkdir -p public
-          mv dashboard.html public/index.html
-          mv plots/ public/
+          mv .scripts/dashboard.html public/index.html
+          mv .scripts/plots/ public/
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
