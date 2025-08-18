@@ -383,7 +383,7 @@ for round_number in range(1, 101):
             remaining_triplets.at[i, "diff-answers"] = time_diff.min().total_seconds()
             num_matches_this_round += 1
 
-    print(f" - Number of matches in this round: {num_matches_this_round}")
+    print(f" - Number of matches in this round: {num_matches_this_round:,}")
     if num_matches_this_round == 0:
         print("No more matches found. Stopping.")
         break
@@ -409,7 +409,7 @@ for round_number in range(1, 101):
 
     answers_already_used.update(remaining_triplets["answers"].values)
 
-    print(f" - Total number of matches so far: {triplets_plus_answers.shape[0]}")
+    print(f" - Total number of matches so far: {triplets_plus_answers.shape[0]:,}")
 
 print()
 print(
