@@ -16,7 +16,7 @@ kiwisolver==1.4.8
 mariadb==1.1.10
 matplotlib==3.10.0
 matplotlib-inline==0.1.7
-mysql-connector-python==9.0.0
+mysql-connector-python==9.1.0
 nest-asyncio==1.6.0
 numpy==2.1.2
 packaging==24.1
