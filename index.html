@@ -1,0 +1,346 @@
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Data Analysis Dashboard</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            
+            :root {
+                --primary: #2C3E50;
+                --secondary: #3498DB;
+                --accent: #E74C3C;
+                --success: #27AE60;
+                --warning: #F39C12;
+                --light: #F8F9FA;
+                --medium: #95A5A6;
+                --dark: #34495E;
+            }
+            
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+                background: #FAFBFC;
+                min-height: 100vh;
+                padding: 0;
+                margin: 0;
+            }
+            
+            .header {
+                background: white;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            }
+            
+            .header-content {
+                max-width: 1600px;
+                margin: 0 auto;
+                padding: 2rem;
+            }
+            
+            h1 {
+                font-size: 1.75rem;
+                font-weight: 600;
+                color: var(--primary);
+                margin-bottom: 1.5rem;
+            }
+            
+            .filter-section {
+                display: flex;
+                align-items: flex-end;
+                gap: 1rem;
+                margin-bottom: 1.5rem;
+                flex-wrap: wrap;
+            }
+            
+            .filter-group {
+                display: flex;
+                flex-direction: column;
+                gap: 0.375rem;
+            }
+            
+            .filter-label {
+                font-size: 0.875rem;
+                color: var(--dark);
+                font-weight: 500;
+            }
+            
+            input[type="date"] {
+                padding: 0.5rem 0.75rem;
+                border: 1px solid #DDD;
+                border-radius: 4px;
+                font-size: 0.875rem;
+                background: white;
+                height: 36px;
+                min-width: 140px;
+            }
+            
+            .button-group {
+                display: flex;
+                gap: 0.5rem;
+            }
+            
+            .filter-button, .clear-button {
+                padding: 0.5rem 1.25rem;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 0.875rem;
+                font-weight: 500;
+                transition: all 0.2s;
+                height: 36px;
+                display: flex;
+                align-items: center;
+            }
+            
+            .filter-button {
+                background: var(--primary);
+                color: white;
+            }
+            
+            .filter-button:hover {
+                background: var(--dark);
+                transform: translateY(-1px);
+            }
+            
+            .clear-button {
+                background: white;
+                color: var(--medium);
+                border: 1px solid #DDD;
+            }
+            
+            .clear-button:hover {
+                background: var(--light);
+                border-color: var(--medium);
+            }
+            
+            .timestamp {
+                margin-left: auto;
+                font-size: 0.8125rem;
+                color: var(--medium);
+                display: flex;
+                align-items: center;
+            }
+            
+            .stats-bar {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 1.5rem;
+                padding: 1.5rem;
+                background: var(--light);
+                border-radius: 8px;
+            }
+            
+            .stat-item {
+                text-align: center;
+            }
+            
+            .stat-value {
+                font-size: 1.5rem;
+                font-weight: 600;
+                color: var(--primary);
+                margin-bottom: 0.25rem;
+            }
+            
+            .stat-label {
+                font-size: 0.75rem;
+                color: var(--medium);
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+            
+            .container {
+                max-width: 1600px;
+                margin: 0 auto;
+                padding: 2rem;
+            }
+            
+            .grid {
+                display: grid;
+                gap: 2rem;
+                margin-bottom: 2rem;
+            }
+            
+            .grid-2 {
+                grid-template-columns: repeat(auto-fit, minmax(700px, 1fr));
+            }
+            
+            .card {
+                background: white;
+                border-radius: 8px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+                overflow: hidden;
+            }
+            
+            .card-header {
+                background: white;
+                color: var(--primary);
+                padding: 1.25rem 1.5rem;
+                font-size: 1rem;
+                font-weight: 600;
+                border-bottom: 1px solid var(--light);
+            }
+            
+            .plot-frame {
+                width: 100%;
+                height: 500px;
+                border: none;
+                background: white;
+            }
+            
+            .full-width {
+                grid-column: 1 / -1;
+            }
+            
+            @media (max-width: 768px) {
+                .grid-2 {
+                    grid-template-columns: 1fr;
+                }
+                
+                .stats-bar {
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 1rem;
+                }
+                
+                .filter-section {
+                    flex-direction: column;
+                    align-items: stretch;
+                }
+                
+                .timestamp {
+                    margin-left: 0;
+                    margin-top: 1rem;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <header class="header">
+            <div class="header-content">
+                <h1>Data Analysis Dashboard</h1>
+                
+                <div class="filter-section">
+                    <div class="filter-group">
+                        <label class="filter-label">Start Date</label>
+                        <input type="date" id="start-date" />
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">End Date</label>
+                        <input type="date" id="end-date" />
+                    </div>
+                    <div class="button-group">
+                        <button class="filter-button" onclick="applyFilters()">Apply Filter</button>
+                        <button class="clear-button" onclick="clearFilters()">Clear</button>
+                    </div>
+                    <div class="timestamp">
+                        Last updated: 2026-03-02 00:35
+                    </div>
+                </div>
+                
+                <div class="stats-bar">
+                    <div class="stat-item">
+                        <div class="stat-value">2,972</div>
+                        <div class="stat-label">Statements</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">72,756</div>
+                        <div class="stat-label">Sessions</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">11.4</div>
+                        <div class="stat-label">Avg Responses</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">0.662</div>
+                        <div class="stat-label">Avg Consensus</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">0.758</div>
+                        <div class="stat-label">Avg Awareness</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">0.783</div>
+                        <div class="stat-label">Avg Commonsense</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <div class="container">
+            <!-- Summary Statistics -->
+            <div class="card full-width">
+                <div class="card-header">Summary Statistics</div>
+                <iframe src="plots/summary_stats.html" class="plot-frame" style="height: 320px;" loading="lazy"></iframe>
+            </div>
+            
+            <!-- Main Analysis Grid -->
+            <div class="grid grid-2">
+                <div class="card">
+                    <div class="card-header">Statement-Level Analysis</div>
+                    <iframe src="plots/consensus_awareness.html" class="plot-frame" loading="lazy"></iframe>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">Session-Level Analysis</div>
+                    <iframe src="plots/individual_consensus_awareness.html" class="plot-frame" loading="lazy"></iframe>
+                </div>
+            </div>
+            
+            <!-- Distributions Section -->
+            <div class="card full-width">
+                <div class="card-header">Metrics Distributions</div>
+                <iframe src="plots/statement_metrics_dist.html" class="plot-frame" style="height: 400px;" loading="lazy"></iframe>
+            </div>
+            
+            <div class="grid grid-2">
+                <div class="card">
+                    <div class="card-header">Commonsensicality Distribution</div>
+                    <iframe src="plots/commonsensicality_dist.html" class="plot-frame" loading="lazy"></iframe>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">Response Count Distribution</div>
+                    <iframe src="plots/response_count_dist.html" class="plot-frame" loading="lazy"></iframe>
+                </div>
+            </div>
+        </div>
+        
+        <script>
+            function applyFilters() {
+                const startDate = document.getElementById('start-date').value;
+                const endDate = document.getElementById('end-date').value;
+                
+                if (startDate || endDate) {
+                    localStorage.setItem('filterStartDate', startDate);
+                    localStorage.setItem('filterEndDate', endDate);
+                    alert('Date filter applied. In production, this would reload the data with the specified date range.');
+                }
+            }
+            
+            function clearFilters() {
+                document.getElementById('start-date').value = '';
+                document.getElementById('end-date').value = '';
+                localStorage.removeItem('filterStartDate');
+                localStorage.removeItem('filterEndDate');
+            }
+            
+            // Load saved filters on page load
+            window.onload = function() {
+                const savedStartDate = localStorage.getItem('filterStartDate');
+                const savedEndDate = localStorage.getItem('filterEndDate');
+                
+                if (savedStartDate) {
+                    document.getElementById('start-date').value = savedStartDate;
+                }
+                if (savedEndDate) {
+                    document.getElementById('end-date').value = savedEndDate;
+                }
+            };
+        </script>
+    </body>
+    </html>
+    
