@@ -1,451 +1,551 @@
-import ast
+"""
+recover_demo.py
+
+Two-stage matching of survey records for participants where the platform bug
+created a distinct userSessionId for each component (answers, CRT, RME, demo)
+instead of reusing the same ID throughout the session.
+
+Key insight
+-----------
+`secondsElapsed` stored in each experimentInfo blob is the *total* elapsed time
+from the moment the participant loaded the survey, not just the time spent on
+that individual component.  Therefore:
+
+    startAt = createdAt - secondsElapsed
+
+converges to the same timestamp (the session start) across CRT, RME, and demo
+records that belong to the same participant.  This shared startAt is the primary
+matching signal.
+
+Additionally, the platform accumulates all prior responses into each new
+submission:
+  RME  experimentInfo  embeds the CRT answers.
+  Demo experimentInfo  embeds the CRT + RME answers.
+We extract the CRT answer subset as a secondary "fingerprint" signal.
+
+Two-stage pipeline
+------------------
+Stage 1  Match each Demo record to one CRT record and one RME record using
+         the Hungarian algorithm (globally optimal bipartite matching).
+         Cost = |startAt difference| in seconds, plus a penalty when non-empty
+         fingerprints disagree.  Processing is done in 1-hour windows so that
+         cost matrices stay small; a global used-set prevents a record near a
+         window boundary from being claimed twice.
+
+Stage 2  Match each (Demo, CRT, RME) triplet to one answer session.
+         The CRT startAt is used as the triplet's reference time (it is the
+         first individual component, occurring right after the last answer).
+         Same Hungarian / windowed approach.
+
+Records whose userSessionId already appears identically in all four sources
+(pre-bug / post-bug cohort) are carried over directly without matching.
+
+Output
+------
+demo_matches/triplet_results_hungarian.csv   – stage-1 results
+demo_matches/all_matches_hungarian.csv       – final quintets (answers+CRT+RME+demo)
+"""
+
+import json
+import os
+
 import numpy as np
 import pandas as pd
-import os
+from scipy.optimize import linear_sum_assignment
 from tqdm import tqdm
-import ast
 
-# All answers
+# ─────────────────────────────────────────────────────────────────────────────
+# Tuneable parameters
+# ─────────────────────────────────────────────────────────────────────────────
+
+THRESHOLD_S = 5.0  # max |startAt| difference (s) to consider a valid match
+FP_MISMATCH_COST_S = 5  # extra cost (s) when non-empty fingerprints disagree
+LARGE_COST = 1e9  # sentinel for forbidden pairings inside the cost matrix
+WINDOW_S = 3600  # processing-window width (s); must satisfy WINDOW_S >> THRESHOLD_S
+MIN_ANSWERS = 5  # minimum answers a session must have to be considered
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 1.  Load and prepare data
+# ─────────────────────────────────────────────────────────────────────────────
+
 print("=" * 80)
-print("LOADING ANSWERS\n")
-base_path = "../answers"
+print("LOADING DATA\n")
 
-# Get the name of all files in the directory
-files = filter(lambda s: s.endswith(".csv"), sorted(os.listdir(base_path)))
-files = list(map(lambda s: os.path.join(base_path, s), files))
-print("Information about survey answers are in the following files:")
-for file in files:
-    print("  -", file)
 
-df_answers = pd.concat([pd.read_csv(f) for f in files])
+def _read_csvs(base_path):
+    files = sorted(f for f in os.listdir(base_path) if f.endswith(".csv"))
+    return pd.concat(
+        [pd.read_csv(os.path.join(base_path, f)) for f in files],
+        ignore_index=True,
+    )
+
+
+# — Answers ——————————————————————————————————————————————————————————————————
+print("Loading answers …")
+df_answers = _read_csvs("../answers")
+df_answers.rename(columns={"sessionId": "userSessionId"}, inplace=True)
 df_answers["createdAt"] = pd.to_datetime(df_answers["createdAt"])
 
-print("\nSummary")
-print(f"- Raw number of answers: {df_answers.shape[0]:,}")
-print(f"- Number of unique session IDs: {df_answers['sessionId'].unique().shape[0]:,}")
+# Keep only sessions with enough answers; retain the *last* answer per session.
+# The createdAt of the last answer is the best proxy for when the participant
+# finished the rating task and moved on to the CRT.
+session_counts = df_answers.groupby("userSessionId")["createdAt"].count()
+df_answers = df_answers[
+    df_answers["userSessionId"].isin(
+        session_counts[session_counts >= MIN_ANSWERS].index
+    )
+]
+df_answers_last = (
+    df_answers.sort_values("createdAt")
+    .drop_duplicates(subset=["userSessionId"], keep="last")
+    .set_index("userSessionId")
+)
+print(f"  Answer sessions (≥{MIN_ANSWERS} answers): {len(df_answers_last):,}")
 
-print("\n")
+# — Individuals (CRT / RME / Demo) ————————————————————————————————————————————
+print("Loading individuals …")
+df_ind = _read_csvs("../individuals")
+df_ind["createdAt"] = pd.to_datetime(df_ind["createdAt"])
 
-# Individual data
-print("=" * 80)
-print("LOADING INDIVIDUALS' DATA\n")
-base_path = "../individuals"
+# Compute startAt = createdAt − secondsElapsed.
+# secondsElapsed is cumulative from session start, so startAt ≈ session start
+# for every component of the same participant.
+df_ind["secondsElapsed"] = df_ind["experimentInfo"].map(
+    lambda x: json.loads(x)["secondsElapsed"]
+)
+df_ind["startAt"] = df_ind["createdAt"] - pd.to_timedelta(
+    df_ind["secondsElapsed"], unit="s"
+)
 
-# Get the name of all files in the directory
-files = filter(lambda s: s.endswith(".csv"), sorted(os.listdir(base_path)))
-files = list(map(lambda s: os.path.join(base_path, s), files))
-print("Information about survey respondents are in the following files:")
-for file in files:
-    print("  -", file)
 
-df_individuals = pd.concat([pd.read_csv(f) for f in files])
-df_individuals["createdAt"] = pd.to_datetime(df_individuals["createdAt"])
+def _prep_individuals(df, info_types):
+    """Filter to the given informationType(s), deduplicate (keep last per
+    session), drop nulls, and index by userSessionId."""
+    out = df[df["informationType"].isin(info_types)].copy()
+    out.sort_values("createdAt", inplace=True)
+    out.drop_duplicates(subset=["userSessionId"], keep="last", inplace=True)
+    out.dropna(subset=["userSessionId"], inplace=True)
+    out["userSessionId"] = out["userSessionId"].astype(str)
+    return out.set_index("userSessionId")
 
-print("\nSummary")
-print(f"- Raw number of rows: {df_individuals.shape[0]:,}")
-print("\nNumber of unique session IDs")
+
+df_crt = _prep_individuals(df_ind, ["CRT"])
+df_rme = _prep_individuals(df_ind, ["rmeTen"])
+df_demo = _prep_individuals(df_ind, ["demographics", "demographicsLongInternational"])
+del df_ind
+
+print(f"  CRT records : {len(df_crt):9,}")
+print(f"  RME records : {len(df_rme):9,}")
+print(f"  Demo records: {len(df_demo):9,}")
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 2.  Sessions already complete (same userSessionId in all four sources)
+# ─────────────────────────────────────────────────────────────────────────────
+
+common_ids = (
+    set(df_answers_last.index)
+    & set(df_crt.index)
+    & set(df_rme.index)
+    & set(df_demo.index)
+)
+print(f"\nSessions with matching IDs across all 4 sources: {len(common_ids):,}")
+
+df_crt_rem = df_crt.drop(index=common_ids)
+df_rme_rem = df_rme.drop(index=common_ids)
+df_demo_rem = df_demo.drop(index=common_ids)
+df_ans_rem = df_answers_last.drop(index=common_ids)
 print(
-    f" - CRT: {df_individuals[df_individuals['informationType'] == 'CRT'].shape[0]:,}"
-)
-print(
-    f" - RME: {df_individuals[df_individuals['informationType'] == 'rmeTen'].shape[0]:,}"
-)
-print(
-    f" - Demo: {df_individuals[(df_individuals['informationType'] == 'demographics')
-                                 | (df_individuals['informationType'] == 'demographicsLongInternational')].shape[0]:,}"
-)
-
-print("\n")
-
-# Process sessions
-print("=" * 80)
-print("PROCESSING SESSIONS\n")
-
-print("Only keep sessions that have at least 5 answers")
-
-# Number of individuals
-# (Each individual is identified by a unique sessionId)
-gb = df_answers.groupby("sessionId")
-# Count how many answers each individual gave
-gb_counts = gb.count().iloc[:, 1]
-# Only keep individuals who answered at least 15 questions
-gb_counts = gb_counts[gb_counts >= 5]
-
-df_answers = df_answers[df_answers["sessionId"].isin(gb_counts.index)]
-print(f"Total number of answers after filtering: {df_answers.shape[0]:,}")
-
-print()
-print(
-    "For all answers with the same session ID, keep only the last answer using createdAt"
+    f"Remaining"
+    + "\n"
+    + f"  CRT    : {len(df_crt_rem):9,}  "
+    + "\n"
+    + f"  RME    : {len(df_rme_rem):9,}  "
+    + "\n"
+    + f"  Demo   : {len(df_demo_rem):9,}  "
+    + "\n"
+    + f"  Answers: {len(df_ans_rem):9,}"
 )
 
-# df_answers_last now contains only the sessions with at least 15 answers and their last answer
-df_answers_last = df_answers.sort_values("createdAt").drop_duplicates(
-    subset=["sessionId"], keep="last"
-)
-df_answers_last.set_index("sessionId", inplace=True)
-print(f"Number of unique session IDs from answers: {df_answers_last.shape[0]:,}")
+# ─────────────────────────────────────────────────────────────────────────────
+# 3.  Fingerprint helpers
+#
+#     The survey platform stores cumulative responses in each submission:
+#       CRT record  → contains CRT answers only
+#       RME record  → contains CRT answers + RME answers
+#       Demo record → contains CRT answers + RME answers + demo answers
+#
+#     We extract just the CRT answer keys as a frozenset fingerprint.
+#     When two records belong to the same participant, their CRT fingerprints
+#     must be identical; mismatches add evidence *against* a proposed pairing.
+#     Note: fingerprints are NOT globally unique (many participants give the
+#     same CRT answers), so they serve as a tiebreaker, not a primary key.
+# ─────────────────────────────────────────────────────────────────────────────
 
-print()
-print("Create a 'startAt' column using createdAt and secondsElapsed")
-
-# startAt
-df_individuals["secondsElapsed"] = df_individuals["experimentInfo"].map(
-    lambda x: ast.literal_eval(x)["secondsElapsed"]
-)
-
-df_individuals["startAt"] = df_individuals["createdAt"] - pd.to_timedelta(
-    df_individuals["secondsElapsed"], unit="s"
-)
-
-print()
-print("Split the individuals dataframe into CRT, RME and Demographic dataframes")
-
-df_individuals_crt = df_individuals[df_individuals["informationType"] == "CRT"].copy(
-    deep=True
-)
-df_individuals_rme = df_individuals[df_individuals["informationType"] == "rmeTen"].copy(
-    deep=True
-)
-df_individuals_demo = df_individuals[
-    (df_individuals["informationType"] == "demographics")
-    | (df_individuals["informationType"] == "demographicsLongInternational")
-].copy(deep=True)
-
-for df in [df_individuals_crt, df_individuals_rme, df_individuals_demo]:
-
-    # If there are duplicates of one session ID, only keep the record with the
-    # latest createdAt value
-    df.sort_values("createdAt", inplace=True)
-
-    df.drop_duplicates(subset=["userSessionId"], keep="last", inplace=True)
-
-    df.dropna(subset=["userSessionId"], inplace=True)
-    df["userSessionId"] = df["userSessionId"].astype(str)
-
-    df.set_index("userSessionId", inplace=True)
-
-unique_session_ids = {
-    "ratings": df_answers_last.index.unique(),
-    "crt": df_individuals_crt.index.unique(),
-    "rme": df_individuals_rme.index.unique(),
-    "demo": df_individuals_demo.index.unique(),
-}
-
-print("Number of unique session IDs for each information type:")
-for key, value in unique_session_ids.items():
-    print(f"- {key.upper()}: {len(value):,}")
-
-print()
-# User IDs common to all four information types
-common_session_ids = (
-    set(unique_session_ids["crt"])
-    & set(unique_session_ids["rme"])
-    & set(unique_session_ids["demo"])
-    & set(unique_session_ids["ratings"])
-)
-print(
-    f"Number of user IDs common to all four information types: {len(common_session_ids):,}"
-)
-
-# Match CRT, RME and Demographic records
-print("=" * 80)
-print("MATCHING CRT, RME AND DEMOGRAPHIC TRIPLES\n")
+CRT_KEYS = frozenset({"drill_hammer", "rachel", "toaster", "apples", "eggs", "dog_cat"})
 
 
-def find_closest_triplets(
-    df_individuals_crt_rem,
-    df_individuals_rme_rem,
-    df_individuals_demo_rem,
-    threshold=1.5,
+def _parse_responses(info_str):
+    try:
+        return json.loads(info_str).get("responses", {})
+    except Exception:
+        return {}
+
+
+def _crt_fingerprint(responses):
+    subset = {k: v for k, v in responses.items() if k in CRT_KEYS}
+    return frozenset(subset.items())
+
+
+def _build_fps(df):
+    return df["experimentInfo"].map(_parse_responses).map(_crt_fingerprint)
+
+
+crt_fps = _build_fps(df_crt_rem)
+rme_fps = _build_fps(df_rme_rem)  # CRT keys embedded in the RME record
+demo_fps = _build_fps(df_demo_rem)  # CRT keys embedded in the Demo record
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 4.  Core matching function — windowed Hungarian bipartite matching
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+def match_bipartite_hungarian(
+    df_anchor,
+    df_target,
+    threshold_s=THRESHOLD_S,
+    anchor_fps=None,
+    target_fps=None,
+    fp_mismatch_cost=FP_MISMATCH_COST_S,
+    window_s=WINDOW_S,
+    desc="matching",
 ):
+    """Optimally match anchor records to target records (1-to-1).
 
-    # Matching results. Note that the smallest collection is the demographics
-    # because it was collected last. Thus, the maximum number of matches we
-    # can reconstruct is as large as the number of demographic records.
-    triplet_match_results = pd.DataFrame(
-        index=df_individuals_demo_rem.index,
-        columns=[
-            "num-crt-matches",
-            "crt",
-            "diff-crt",
-            "num-rme-matches",
-            "rme",
-            "diff-rme",
-        ],
-    )
-    triplet_match_results.index.name = "demo"
+    The matching minimises total |startAt_anchor − startAt_target| across all
+    accepted pairs.  Pairs separated by more than `threshold_s` are forbidden.
 
-    for demo_id in tqdm(
-        triplet_match_results.index,
-    ):
-        demo_start_time = df_individuals_demo.loc[demo_id, "startAt"]
+    Parameters
+    ----------
+    df_anchor / df_target
+        DataFrames indexed by userSessionId with a 'startAt' column.
+    threshold_s
+        Maximum allowed |startAt| difference (seconds) for a valid match.
+    anchor_fps / target_fps
+        Optional pd.Series[frozenset] of CRT fingerprints, indexed like the
+        corresponding DataFrame.  When both are provided, a fingerprint
+        mismatch (both non-empty but unequal) adds `fp_mismatch_cost` to the
+        pair's cost.
+    fp_mismatch_cost
+        Penalty in seconds for a fingerprint mismatch.
+    window_s
+        Width of the processing window (seconds).  Must satisfy
+        window_s >> threshold_s so that records from different windows never
+        compete for the same match.
 
-        # Find the index of the closest record, but this record must also be within
-        # the threshold of 1.5 seconds. If we can't find any, then it's empty.
-        diff_demo_crt = (demo_start_time - df_individuals_crt_rem["startAt"]).abs()
-        diff_demo_threshold = diff_demo_crt[
-            diff_demo_crt <= pd.Timedelta(seconds=threshold)
-        ]
-        diff_demo_rme = (demo_start_time - df_individuals_rme_rem["startAt"]).abs()
-        diff_demo_rme_threshold = diff_demo_rme[
-            diff_demo_rme <= pd.Timedelta(seconds=threshold)
-        ]
-
-        triplet_match_results.at[demo_id, "num-crt-matches"] = (
-            diff_demo_threshold.shape[0]
-        )
-        triplet_match_results.at[demo_id, "num-rme-matches"] = (
-            diff_demo_rme_threshold.shape[0]
+    Returns
+    -------
+    pd.DataFrame with columns:
+        anchor_id, target_id, time_diff_s, fp_match
+    """
+    if df_anchor.empty or df_target.empty:
+        return pd.DataFrame(
+            columns=["anchor_id", "target_id", "time_diff_s", "fp_match"]
         )
 
-        triplet_match_results.at[demo_id, "crt"] = diff_demo_crt.idxmin()
-        triplet_match_results.at[demo_id, "diff-crt"] = (
-            diff_demo_crt.min().total_seconds()
-        )
-        triplet_match_results.at[demo_id, "rme"] = diff_demo_rme.idxmin()
-        triplet_match_results.at[demo_id, "diff-rme"] = (
-            diff_demo_rme.min().total_seconds()
-        )
+    # Convert startAt to float seconds since Unix epoch (handles tz-naive datetimes)
+    t_anchor = df_anchor["startAt"].astype("int64").values / 1e9
+    t_target = df_target["startAt"].astype("int64").values / 1e9
+    a_ids = df_anchor.index.values
+    t_ids = df_target.index.values
 
-    # Only retain triplet for which we have at least one match for CRT and RME
-    triplet_only_one = triplet_match_results[
-        (triplet_match_results["num-crt-matches"] >= 1)
-        & (triplet_match_results["num-rme-matches"] >= 1)
-    ]
+    # used_targets prevents a target near a window boundary from being
+    # claimed by two successive windows.
+    used_targets = set()
+    records = []
 
-    # There can be a CRT record that is the closest to two Demo records.
-    # In this casem we deduplicate by keeping the one with the smallest time difference. Same for RME.
-    triplet_only_one_dedup = (
-        triplet_only_one.sort_values(by="diff-crt")
-        .groupby("crt")
-        .nth(0)
-        .sort_values(by="diff-rme")
-        .groupby("rme")
-        .nth(0)
-    )
+    t_min, t_max = t_anchor.min(), t_anchor.max()
+    n_windows = int(np.ceil((t_max - t_min) / window_s)) + 1
 
-    return triplet_only_one_dedup.reset_index(drop=False)
+    for w in tqdm(range(n_windows), desc=f"  {desc}", leave=False):
+        # Define the time boundaries of this window (in seconds since epoch).
+        w_lo = t_min + w * window_s
+        w_hi = w_lo + window_s
+
+        # ── Select anchors ────────────────────────────────────────────────────
+        # Only anchors whose startAt falls strictly inside [w_lo, w_hi) are
+        # processed here.  Because windows are non-overlapping for anchors,
+        # every anchor is processed in exactly one window.
+        a_mask = (t_anchor >= w_lo) & (t_anchor < w_hi)
+        if not a_mask.any():
+            continue
+        ai = np.where(a_mask)[0]
+        a_t, a_id = t_anchor[ai], a_ids[ai]
+
+        # ── Select candidate targets ──────────────────────────────────────────
+        # A target is a candidate if it could possibly be within threshold_s of
+        # any anchor in this window — i.e. its startAt is in
+        # [w_lo − threshold_s, w_hi + threshold_s).  The extra ±threshold_s
+        # fringe captures targets that sit just outside the window boundaries
+        # but are still close enough to an anchor inside it.
+        # We also skip targets already claimed by a previous window (used_targets)
+        # to prevent the same target from being matched twice at a boundary.
+        t_cand = (t_target >= w_lo - threshold_s) & (t_target < w_hi + threshold_s)
+        if not t_cand.any():
+            continue
+        ti = np.where(t_cand)[0]
+        avail = np.array([t_ids[k] not in used_targets for k in ti])
+        if not avail.any():
+            continue
+        ti = ti[avail]
+        t_t, t_id = t_target[ti], t_ids[ti]
+
+        n_a, n_t = len(a_t), len(t_t)
+
+        # ── Build the cost matrix ─────────────────────────────────────────────
+        # Entry [i, j] = |startAt_anchor[i] − startAt_target[j]| in seconds.
+        # This is the primary matching cost: smaller = more likely the same user.
+        diff = np.abs(a_t[:, None] - t_t[None, :])  # shape (n_a, n_t)
+        cost = diff.astype(float)
+
+        # ── Apply fingerprint mismatch penalty ────────────────────────────────
+        # If both the anchor and target carry a non-empty CRT fingerprint and
+        # those fingerprints disagree, add fp_mismatch_cost to the pair's cost.
+        # This steers the solver away from pairings where the accumulated CRT
+        # responses are inconsistent, without making fingerprint agreement a
+        # hard requirement (which would break demographicsLongInternational
+        # records that carry no embedded fingerprint).
+        if anchor_fps is not None and target_fps is not None:
+            for i, aid in enumerate(a_id):
+                afp = anchor_fps.get(aid, frozenset())
+                if not afp:
+                    # Anchor has no fingerprint (e.g. demographicsLongInternational);
+                    # skip — we have no signal to penalise anything.
+                    continue
+                for j, tid in enumerate(t_id):
+                    if diff[i, j] > threshold_s:
+                        continue  # will be masked to LARGE_COST below; skip the lookup
+                    tfp = target_fps.get(tid, frozenset())
+                    if tfp and afp != tfp:
+                        cost[i, j] += fp_mismatch_cost
+
+        # ── Forbid pairs outside the time threshold ───────────────────────────
+        # Set their cost to LARGE_COST so the solver never picks them.
+        # Any assignment the solver returns with cost ≥ LARGE_COST is filtered
+        # out after the solve step.
+        cost[diff > threshold_s] = LARGE_COST
+
+        # ── Pad to a square matrix ────────────────────────────────────────────
+        # scipy's linear_sum_assignment requires a square (or at least
+        # rectangular) matrix.  We pad with LARGE_COST so that dummy rows/
+        # columns are never chosen as real matches.
+        n = max(n_a, n_t)
+        cost_sq = np.full((n, n), LARGE_COST)
+        cost_sq[:n_a, :n_t] = cost
+
+        # ── Solve the assignment problem ──────────────────────────────────────
+        # linear_sum_assignment implements the Hungarian algorithm and returns
+        # the pair of index arrays (row_ind, col_ind) that minimises the total
+        # cost.  Each row and each column appears in the solution at most once,
+        # giving a globally optimal 1-to-1 matching within this window.
+        row_ind, col_ind = linear_sum_assignment(cost_sq)
+
+        # ── Collect valid matches ─────────────────────────────────────────────
+        for r, c in zip(row_ind, col_ind):
+            # Discard padding rows/columns introduced when n_a ≠ n_t.
+            if r >= n_a or c >= n_t:
+                continue
+            # Discard pairs the solver was forced to pick but that are
+            # actually forbidden (outside the time threshold).
+            if diff[r, c] > threshold_s:
+                continue
+            aid, tid = a_id[r], t_id[c]
+            afp = (
+                anchor_fps.get(aid, frozenset())
+                if anchor_fps is not None
+                else frozenset()
+            )
+            tfp = (
+                target_fps.get(tid, frozenset())
+                if target_fps is not None
+                else frozenset()
+            )
+            # fp_match is True only when both fingerprints are non-empty and equal.
+            fp_match = bool(afp and tfp and afp == tfp)
+
+            # Mark this target as used so it cannot be re-matched in a later window.
+            used_targets.add(tid)
+            records.append(
+                {
+                    "anchor_id": aid,
+                    "target_id": tid,
+                    "time_diff_s": float(diff[r, c]),
+                    "fp_match": fp_match,
+                }
+            )
+
+    return pd.DataFrame(records)
 
 
-# Final results
-triplet_results_all = None
+# ─────────────────────────────────────────────────────────────────────────────
+# 5.  Stage 1 — Match Demo → CRT and Demo → RME to form triplets
+# ─────────────────────────────────────────────────────────────────────────────
 
-# Start with the set of session IDs that are common to all
-# 4 collections. They don't need any matching.
-processed_crt_ids = common_session_ids.copy()
-processed_rme_ids = common_session_ids.copy()
-processed_demo_ids = common_session_ids.copy()
+print("\n" + "=" * 80)
+print("STAGE 1 — MATCHING CRT / RME / DEMO TRIPLETS\n")
 
-for i in range(1, 100):
-    print(f"Iteration {i}...")
+print("Matching Demo → CRT …")
+demo_crt = match_bipartite_hungarian(
+    df_demo_rem,
+    df_crt_rem,
+    anchor_fps=demo_fps,
+    target_fps=crt_fps,
+    desc="Demo→CRT",
+)
+print(f"  Matches: {len(demo_crt):,}")
 
-    # Remaining records. Starting with the records that are NOT common
-    # in all four datasets
-    df_individuals_crt_rem = df_individuals_crt.drop(index=processed_crt_ids)
-    df_individuals_rme_rem = df_individuals_rme.drop(index=processed_rme_ids)
-    df_individuals_demo_rem = df_individuals_demo.drop(index=processed_demo_ids)
-    triplet_results = find_closest_triplets(
-        df_individuals_crt_rem,
-        df_individuals_rme_rem,
-        df_individuals_demo_rem,
-        threshold=1.5,
-    )
+print("Matching Demo → RME …")
+demo_rme = match_bipartite_hungarian(
+    df_demo_rem,
+    df_rme_rem,
+    anchor_fps=demo_fps,
+    target_fps=rme_fps,
+    desc="Demo→RME",
+)
+print(f"  Matches: {len(demo_rme):,}")
 
-    triplet_results["iter"] = i
-    triplet_results = triplet_results[
-        [
-            "crt",
-            "rme",
-            "demo",
-            "iter",
-            "diff-crt",
-            "num-crt-matches",
-            "diff-rme",
-            "num-rme-matches",
-        ]
-    ]
-
-    # Only keep triplets where there is exactly one match for CRT and RME
-    # triplet_results = triplet_results[(triplet_results["num-crt-matches"] == 1) & (triplet_results["num-rme-matches"] == 1)]
-
-    print(f"Number of triplets found in this iteration: {triplet_results.shape[0]:,}")
-
-    if triplet_results.shape[0] == 0:
-        print("No more triplets found.")
-        break
-    if triplet_results_all is None:
-        triplet_results_all = triplet_results.copy()
-    else:
-        triplet_results_all = pd.concat(
-            [triplet_results_all, triplet_results], axis=0
-        ).reset_index(drop=True)
-
-    processed_crt_ids.update(triplet_results["crt"])
-    processed_rme_ids.update(triplet_results["rme"])
-    processed_demo_ids.update(triplet_results["demo"])
-    print(f"Total number of triplets found: {triplet_results.shape[0]:,}")
-
-# Number of triplets for which there is exactly one match for CRT and RME
-print()
-print(f"Total number of triplets found: {triplet_results_all.shape[0]:,}")
-
-print()
-print(
-    "Number of triplets for which there is exactly one match for CRT and RME:"
-    f" {triplet_results_all[(triplet_results_all['num-crt-matches'] == 1)
-                              & (triplet_results_all['num-rme-matches'] == 1)].shape[0]:,}"
+# Join into triplets: only keep Demo records matched to both CRT and RME.
+triplets = demo_crt.rename(
+    columns={
+        "anchor_id": "demo",
+        "target_id": "crt",
+        "time_diff_s": "diff_demo_crt_s",
+        "fp_match": "fp_demo_crt",
+    }
+).merge(
+    demo_rme.rename(
+        columns={
+            "anchor_id": "demo",
+            "target_id": "rme",
+            "time_diff_s": "diff_demo_rme_s",
+            "fp_match": "fp_demo_rme",
+        }
+    ),
+    on="demo",
+    how="inner",
 )
 
-print()
-triplet_path = "../demo_matches/triplet_results_highconf.csv"
-print(f"Saving the triplets to {triplet_path}")
-triplet_results_all.to_csv(triplet_path)
-
-# Match triples with ratings
-print("=" * 80)
-print("MATCHING CRT, RME AND DEMOGRAPHIC TRIPLES WITH RATINGS\n")
-
-triplet_results_all["crt_created"] = df_individuals_crt.loc[
-    triplet_results_all["crt"], "createdAt"
-].values
-triplet_results_all["crt_started"] = df_individuals_crt.loc[
-    triplet_results_all["crt"], "startAt"
-].values
-
-triplet_results_all["rme_created"] = df_individuals_rme.loc[
-    triplet_results_all["rme"], "createdAt"
-].values
-triplet_results_all["rme_started"] = df_individuals_rme.loc[
-    triplet_results_all["rme"], "startAt"
-].values
-
-triplet_results_all["demo_created"] = df_individuals_demo.loc[
-    triplet_results_all["demo"], "createdAt"
-].values
-triplet_results_all["demo_started"] = df_individuals_demo.loc[
-    triplet_results_all["demo"], "startAt"
-].values
-
-THRESHOLD = 1.5
-df_answers_last_rem = df_answers_last.drop(index=common_session_ids)
-
-# Results
-triplets_plus_answers = None
-
-# Initialize with "NO MATCH", meaning these triplets do not have a match yet
-triplet_results_all["answers"] = "NO MATCH"
-triplet_results_all.at[i, "diff-answers"] = np.nan
-triplet_results_all["round"] = np.nan
-
-answers_already_used = set(common_session_ids)
-
-for round_number in range(1, 101):
-    # Find the remaining triplets that do not have a match yet
-    if triplets_plus_answers is None:
-        remaining_triplets = triplet_results_all.copy()
-    else:
-        remaining_triplets = triplet_results_all[
-            ~triplet_results_all["crt"].isin(triplets_plus_answers["crt"])
-        ].copy()
-
-    print(f"Round {round_number}: {remaining_triplets.shape[0]:,} remaining triplets")
-
-    num_matches_this_round = 0
-
-    for i, row in tqdm(
-        remaining_triplets.iterrows(), total=remaining_triplets.shape[0]
-    ):
-        # Compare CRT start time with the creation time of the last answer.
-        # Eligible differences must be within the threshold.
-        crt_start_time = row["crt_started"]
-        rme_start_time = row["rme_started"]
-        demo_start_time = row["demo_started"]
-
-        time_diff_crt = (crt_start_time - df_answers_last_rem["createdAt"]).abs()
-        time_diff_rme = (rme_start_time - df_answers_last_rem["createdAt"]).abs()
-        time_diff_demo = (demo_start_time - df_answers_last_rem["createdAt"]).abs()
-
-        # Element-wise min
-        time_diff = pd.concat(
-            [time_diff_crt, time_diff_rme, time_diff_demo], axis=1
-        ).min(axis=1)
-
-        # Don't use answers that have already been matched
-        time_diff = time_diff[~time_diff.index.isin(answers_already_used)]
-
-        # Restrict to the threshold
-        time_diff = time_diff[time_diff <= pd.Timedelta(seconds=THRESHOLD)]
-
-        remaining_triplets.at[i, "num-answers-matches"] = time_diff.shape[0]
-        if time_diff.shape[0] > 0:
-            remaining_triplets.at[i, "answers"] = time_diff.idxmin()
-            remaining_triplets.at[i, "diff-answers"] = time_diff.min().total_seconds()
-            num_matches_this_round += 1
-
-    print(f" - Number of matches in this round: {num_matches_this_round:,}")
-    if num_matches_this_round == 0:
-        print("No more matches found. Stopping.")
-        break
-
-    # Deduplicate record with the same answer
-    remaining_triplets = remaining_triplets[remaining_triplets["answers"] != "NO MATCH"]
-    remaining_triplets = (
-        remaining_triplets.sort_values(by="diff-answers")
-        .groupby("answers")
-        .nth(0)
-        .reset_index(drop=False)
-    )
-
-    print(" - Number of matches after deduplication:", remaining_triplets.shape[0])
-
-    # Add to final results
-    if triplets_plus_answers is None:
-        triplets_plus_answers = remaining_triplets.copy()
-    else:
-        triplets_plus_answers = pd.concat(
-            [triplets_plus_answers, remaining_triplets], axis=0
-        ).reset_index(drop=True)
-
-    answers_already_used.update(remaining_triplets["answers"].values)
-
-    print(f" - Total number of matches so far: {triplets_plus_answers.shape[0]:,}")
-
-print()
-print(
-    f"Total number of complete (answer-CRT-RME-Demo) matches: {triplets_plus_answers.shape[0]:,}"
+# Cross-validate: do the CRT record and RME record agree on the CRT fingerprint?
+# This is independent of how they were matched to Demo and catches cases where
+# two different users happen to share the same startAt.
+triplets["fp_crt_rme"] = triplets.apply(
+    lambda row: bool(
+        crt_fps.get(row["crt"], frozenset())
+        and rme_fps.get(row["rme"], frozenset())
+        and crt_fps.get(row["crt"]) == rme_fps.get(row["rme"])
+    ),
+    axis=1,
 )
 
+print(f"\nComplete triplets (Demo + CRT + RME): {len(triplets):,}")
+print(f"  fp_demo_crt agreement : {triplets['fp_demo_crt'].mean():.1%}")
+print(f"  fp_demo_rme agreement : {triplets['fp_demo_rme'].mean():.1%}")
+print(f"  fp_crt_rme  agreement : {triplets['fp_crt_rme'].mean():.1%}")
 
-# Add the all-4 data in
-print("=" * 80)
-print("MATCHING CRT, RME AND DEMOGRAPHIC TRIPLES\n")
+triplets.to_csv("../demo_matches/triplet_results_hungarian.csv", index=False)
+print("Saved → demo_matches/triplet_results_hungarian.csv")
 
-# Add the common session IDs to the triplet results
-for session_id in tqdm(
-    common_session_ids, desc="Processing common sessions", unit=" sessions", leave=True
-):
-    answer = df_answers_last.loc[session_id]
-    crt = df_individuals_crt.loc[session_id]
-    rme = df_individuals_rme.loc[session_id]
-    demo = df_individuals_demo.loc[session_id]
+# ─────────────────────────────────────────────────────────────────────────────
+# 6.  Stage 2 — Match triplets to answer sessions
+#
+#     All four startAt values (answers last-createdAt, CRT startAt, RME startAt,
+#     demo startAt) converge to the same session-start timestamp.  We use the
+#     CRT startAt as the triplet's reference because CRT is the first individual
+#     component and therefore closest in time to the last answer.
+# ─────────────────────────────────────────────────────────────────────────────
 
-    row = pd.Series(
+print("\n" + "=" * 80)
+print("STAGE 2 — MATCHING TRIPLETS TO ANSWER SESSIONS\n")
+
+# Attach each triplet's reference time (CRT startAt) so the matcher can use it
+triplets["startAt"] = df_crt_rem.loc[triplets["crt"].values, "startAt"].values
+
+# Represent answer sessions by their last-answer createdAt under the name startAt
+df_ans_timed = df_ans_rem[["createdAt"]].rename(columns={"createdAt": "startAt"})
+
+# Index triplets by their CRT id (unique per triplet after stage-1 Hungarian)
+triplets_indexed = triplets.set_index("crt")[["startAt"]]
+
+print("Matching triplets → answer sessions …")
+triplet_answer = match_bipartite_hungarian(
+    triplets_indexed,
+    df_ans_timed,
+    anchor_fps=None,
+    target_fps=None,
+    desc="Triplets→Answers",
+)
+print(f"  Matches: {len(triplet_answer):,}")
+
+triplet_answer.rename(
+    columns={
+        "anchor_id": "crt",
+        "target_id": "answers",
+        "time_diff_s": "diff_answers_s",
+    },
+    inplace=True,
+)
+
+full_matches = triplets.drop(columns=["startAt"]).merge(
+    triplet_answer[["crt", "answers", "diff_answers_s"]],
+    on="crt",
+    how="inner",
+)
+full_matches["method"] = "hungarian"
+print(f"Complete quintet matches: {len(full_matches):,}")
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 7.  Add already-complete sessions and save
+# ─────────────────────────────────────────────────────────────────────────────
+
+print("\n" + "=" * 80)
+print("ADDING SESSIONS WITH MATCHING IDs\n")
+
+common_rows = []
+for sid in tqdm(common_ids, desc="Processing", leave=True):
+    if sid not in df_answers_last.index:
+        continue
+    common_rows.append(
         {
-            "answers": session_id,
-            "crt": crt.name,
-            "rme": rme.name,
-            "demo": demo.name,
-            "crt_diff": (crt["startAt"] - answer["createdAt"]).total_seconds(),
-            "rme_diff": (rme["startAt"] - answer["createdAt"]).total_seconds(),
-            "demo_diff": (demo["startAt"] - answer["createdAt"]).total_seconds(),
-            "method": "all_4",
+            "demo": sid,
+            "crt": sid,
+            "rme": sid,
+            "answers": sid,
+            "diff_demo_crt_s": 0.0,
+            "diff_demo_rme_s": 0.0,
+            "diff_answers_s": 0.0,
+            "fp_demo_crt": True,
+            "fp_demo_rme": True,
+            "fp_crt_rme": True,
+            "method": "common_id",
         }
     )
-    triplets_plus_answers = pd.concat(
-        [triplets_plus_answers, row.to_frame().T], ignore_index=True
-    )
 
-triplets_plus_answers_path = "../demo_matches/triplet_results_plus_answer.csv"
-print(f"Saving triplet results with answers to: {triplets_plus_answers_path}")
-triplets_plus_answers.to_csv(triplets_plus_answers_path, index=False)
+df_common = pd.DataFrame(common_rows)
+all_matches = pd.concat([full_matches, df_common], ignore_index=True)
+
+n_hungarian = (all_matches["method"] == "hungarian").sum()
+n_common = (all_matches["method"] == "common_id").sum()
+h = all_matches[all_matches["method"] == "hungarian"]
+
+print(f"\nTotal matched sessions : {len(all_matches):,}")
+print(f"  via Hungarian        : {n_hungarian:,}")
+print(f"  via common ID        : {n_common:,}")
+if len(h):
+    print(f"\nHungarian match quality (median time differences):")
+    print(f"  diff_demo_crt_s : {h['diff_demo_crt_s'].median():.3f} s")
+    print(f"  diff_demo_rme_s : {h['diff_demo_rme_s'].median():.3f} s")
+    print(f"  diff_answers_s  : {h['diff_answers_s'].median():.3f} s")
+    print(f"  fp_crt_rme agreement: {h['fp_crt_rme'].mean():.1%}")
+
+out_path = "../demo_matches/all_matches_hungarian.csv"
+all_matches.to_csv(out_path, index=False)
+print(f"\nSaved → {out_path}")
