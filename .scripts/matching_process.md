@@ -122,7 +122,7 @@ Therefore, fingerprints can **narrow the candidate pool** and **break ties**, bu
 
 ## 6. The Two-Stage Solution
 
-The matching is implemented in `recover_demo.py`.
+The matching is implemented in `recover_demo_hungarian.py`.
 
 ### Stage 1 — Form (CRT, RME, Demographics) triplets
 
@@ -147,14 +147,19 @@ A third quality column, `fp_crt_rme`, cross-validates the triplet by checking wh
 
 **Goal:** For each triplet, find the answers session that belongs to the same participant.
 
-**Rationale:** Because `startAt` is the session origin, the last answer's `createdAt` is also close to the CRT `startAt`. The participant finishes rating statements, the browser records the last answer, and almost immediately the CRT page loads.
+**Rationale:** Because `startAt` is the session origin, the reference answer's `createdAt` is close to the CRT `startAt`. The participant finishes a batch of statement ratings, the browser records that answer, and almost immediately the CRT page loads.
 
-**Reference time:** The CRT `startAt` is used as the triplet's reference because CRT is the first individual component, making it temporally closest to the last answer.
+**Reference time:** The CRT `startAt` is used as the triplet's reference because CRT is the first individual component, making it temporally closest to the end of the answers session.
+
+**Reference answer selection:** The survey is structured in batches of statements (sizes 15, 10, and 5). For a given answers session, the reference answer is the answer at the end of the *first complete batch* the participant finished — specifically the 15th answer if the session contains ≥ 15 answers, the 10th if it contains ≥ 10, or the 5th if it contains ≥ 5. Using the first complete batch rather than the last answer handles **comeback sessions**: a participant who returns days later and answers additional statements would have a final answer `createdAt` far from the CRT `startAt`, but the batch-boundary answer is still a reliable timestamp for session matching.
+
+**Incomplete batch penalty:** Sessions whose total answer count is not exactly 5, 10, 15, or ≥ 15 receive an additional penalty of 100 s added to their matching cost. This discourages the algorithm from pairing a triplet with a session that has an unusual answer count when a complete-batch session is also plausible nearby.
 
 **Cost function:**
 
 ```
-cost(triplet_k, answers_l)  =  |CRT_startAt_k − last_answer_createdAt_l|  (seconds)
+cost(triplet_k, answers_l)  =  |CRT_startAt_k − ref_answer_createdAt_l|  (seconds)
+                              + incomplete_batch_penalty_l               (0 or 100 s)
 ```
 
 No fingerprint signal is available here (answer records do not embed prior responses).
@@ -252,13 +257,12 @@ One row per matched (Demo, CRT, RME) triplet.
 
 ### `all_matches_hungarian.csv`
 
-One row per fully matched quintet (answers + CRT + RME + demographics). Includes all columns from the triplet file plus:
+One row per bug-affected quintet recovered by the Hungarian algorithm (answers + CRT + RME + demographics). This file contains **only** sessions where the IDs were mismatched — participants whose `userSessionId` was already consistent across all sources are excluded. Consistent-ID sessions are combined with these results at analysis time in `update-data.py` by intersecting CRT ∩ RME ∩ demographics indices and subtracting every ID already consumed by the Hungarian matches in any role (answers, CRT, RME, or demographics). The file includes all columns from the triplet file plus:
 
 | Column | Description |
 |---|---|
 | `answers` | `userSessionId` of the matched answers session |
-| `diff_answers_s` | `\|CRT_startAt − last_answer_createdAt\|` in seconds |
-| `method` | `"hungarian"` (matched by this script) or `"common_id"` (matched by shared ID) |
+| `diff_answers_s` | `\|CRT_startAt − ref_answer_createdAt\|` in seconds |
 
 ### Interpreting quality flags
 
@@ -277,3 +281,7 @@ The `fp_crt_rme` column is the most useful filter for auditing suspicious matche
 3. **Partial completers.** Participants who dropped out mid-survey leave orphan records (e.g., a CRT record with no corresponding demographics). These are not matched and are excluded from `all_matches_hungarian.csv`. The number of unmatched records is visible from the difference between total record counts and matched counts.
 
 4. **`startAt` jitter.** The client-side timer is not perfectly synchronised with the server clock. Empirically, `startAt` values for the same participant agree within ~1 second. The matching threshold of 5 seconds is generous enough to absorb this jitter while still being tight enough to reject most false positives.
+
+5. **Comeback sessions.** The reference answer selection (batch-boundary answer at position 15, 10, or 5) mitigates but does not fully eliminate issues from participants who complete part of a session, leave, and return to answer more statements. If the gap between the original session and the comeback is large enough, the `startAt` signal may still be reliable, but the incomplete-batch penalty should be treated as a warning that the match quality may be lower.
+
+6. **Consistent-ID deduplication in `update-data.py`.** When deriving the consistent-ID cohort at analysis time, it is essential to subtract **all** IDs used by the Hungarian algorithm — answers, CRT, RME, and demographics — not just the answers IDs. A CRT or RME ID used in a Hungarian match can coincidentally appear in the CRT ∩ RME ∩ demographics intersection, which would assign the same underlying record to two different participants and produce duplicate rows in downstream analyses.
