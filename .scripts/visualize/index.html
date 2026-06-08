@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Commonsense Survey Explorer</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="static/style.css" />
+</head>
+<body>
+
+  <nav class="topbar">
+    <span class="topbar-title">Commonsense Survey Explorer</span>
+    <div class="tab-bar">
+      <button class="tab-btn active" data-tab="stmtScores">Statement Scores</button>
+      <button class="tab-btn" data-tab="scores">Individual Scores</button>
+      <button class="tab-btn" data-tab="dp">Design Points</button>
+      <button class="tab-btn" data-tab="compare">Group Comparison</button>
+    </div>
+  </nav>
+
+  <!-- ── Individual Scores panel ──────────────────────────── -->
+  <div id="panelScores" class="panel hidden">
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <label class="toolbar-label" for="targetSelect">Target</label>
+        <select id="targetSelect" class="select">
+          <option value="all">All countries</option>
+        </select>
+        <label class="toolbar-label" for="referenceSelect">Reference</label>
+        <select id="referenceSelect" class="select">
+          <option value="all">All countries</option>
+        </select>
+      </div>
+      <div id="scoresSpinner" class="spinner hidden"></div>
+    </div>
+
+    <div class="scores-wrap">
+      <div class="chart-card">
+        <div class="chart-title">Distribution of Commonsensicality Scores</div>
+        <div class="chart-sub">The commonsensicality score for each human individual ranges from 0 to 100%. It is a combination of two components: consensus and awareness. Click on each user in the table below to explore more.</div>
+        <div class="hist-container">
+          <canvas id="histChart"></canvas>
+        </div>
+      </div>
+      <div id="scoresMinRatingsNote" class="min-ratings-note hidden"></div>
+      <div class="table-nav-row">
+        <span id="scoresFilterLabel" class="scores-filter-label"></span>
+        <p class="click-hint">Click on a row to explore more.</p>
+        <div class="pagination">
+          <button id="btnScoresPrev" class="page-btn" disabled>&#8249;</button>
+          <span id="scoresPageInfo" class="page-info"></span>
+          <button id="btnScoresNext" class="page-btn" disabled>&#8250;</button>
+        </div>
+      </div>
+      <table id="scoresTable">
+        <thead>
+          <tr>
+            <th class="col-rank">#</th>
+            <th class="col-user">User</th>
+            <th class="col-stmts sortable sort-active" data-sort="n_statements">Statements <span class="sort-icon">▼</span></th>
+            <th class="col-score sortable" data-sort="consensus">Consensus <span class="sort-icon"></span></th>
+            <th class="col-score sortable" data-sort="awareness">Awareness <span class="sort-icon"></span></th>
+            <th class="col-score sortable" data-sort="commonsensicality">Commonsensicality <span class="sort-icon"></span></th>
+          </tr>
+        </thead>
+        <tbody id="scoresBody">
+          <tr><td colspan="6" class="empty-row">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── Statement Scores panel ──────────────────────────── -->
+  <div id="panelStmtScores" class="panel">
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <label class="toolbar-label" for="stmtScoresCountrySelect">Group</label>
+        <select id="stmtScoresCountrySelect" class="select">
+          <option value="all">All countries</option>
+        </select>
+      </div>
+      <div id="stmtScoresSummary" class="summary"></div>
+      <div id="stmtScoresSpinner" class="spinner hidden"></div>
+    </div>
+
+    <div class="scores-wrap">
+      <div class="chart-card">
+        <div class="chart-title">Distribution of Statement Commonsensicality Scores</div>
+        <div class="chart-sub">The commonsensicality score for each statement ranges from 0 to 100%. It is a combination of two components: consensus and awareness. Click on each statement in the table below to explore more.</div>
+        <div class="hist-container">
+          <canvas id="stmtScoresHistChart"></canvas>
+        </div>
+      </div>
+      <div class="search-filter-row">
+        <input type="text" id="stmtScoresSearch" class="stmt-search-input" placeholder="Search statements…">
+        <div class="prop-filter-panel">
+          <button class="prop-filter-toggle" type="button"><span class="prop-filter-arrow">▶</span> Filter by properties</button>
+          <div class="prop-filter-grid hidden">
+            <div class="prop-filter-row">
+              <div class="prop-filter-label-cell"><span class="prop-filter-row-label">Fact or Opinion?</span><button class="prop-help-btn" type="button" data-prop-key="fact">?</button></div>
+              <label class="prop-opt"><input type="checkbox" id="ssFilter_fact_1"> Fact</label>
+              <label class="prop-opt"><input type="checkbox" id="ssFilter_fact_0"> Opinion</label>
+            </div>
+            <div class="prop-filter-row">
+              <div class="prop-filter-label-cell"><span class="prop-filter-row-label">Physical or Social?</span><button class="prop-help-btn" type="button" data-prop-key="physical">?</button></div>
+              <label class="prop-opt"><input type="checkbox" id="ssFilter_physical_1"> Physical</label>
+              <label class="prop-opt"><input type="checkbox" id="ssFilter_physical_0"> Social</label>
+            </div>
+            <div class="prop-filter-row">
+              <div class="prop-filter-label-cell"><span class="prop-filter-row-label">Literal or Figurative?</span><button class="prop-help-btn" type="button" data-prop-key="literal_language">?</button></div>
+              <label class="prop-opt"><input type="checkbox" id="ssFilter_literal_language_1"> Literal</label>
+              <label class="prop-opt"><input type="checkbox" id="ssFilter_literal_language_0"> Figurative</label>
+            </div>
+            <div class="prop-filter-row">
+              <div class="prop-filter-label-cell"><span class="prop-filter-row-label">Positive or Normative?</span><button class="prop-help-btn" type="button" data-prop-key="positive">?</button></div>
+              <label class="prop-opt"><input type="checkbox" id="ssFilter_positive_1"> Positive</label>
+              <label class="prop-opt"><input type="checkbox" id="ssFilter_positive_0"> Normative</label>
+            </div>
+            <div class="prop-filter-row">
+              <div class="prop-filter-label-cell"><span class="prop-filter-row-label">Knowledge or Reasoning?</span><button class="prop-help-btn" type="button" data-prop-key="knowledge">?</button></div>
+              <label class="prop-opt"><input type="checkbox" id="ssFilter_knowledge_1"> Knowledge</label>
+              <label class="prop-opt"><input type="checkbox" id="ssFilter_knowledge_0"> Reasoning</label>
+            </div>
+            <div class="prop-filter-row">
+              <div class="prop-filter-label-cell"><span class="prop-filter-row-label">Everyday or Abstract?</span><button class="prop-help-btn" type="button" data-prop-key="everyday">?</button></div>
+              <label class="prop-opt"><input type="checkbox" id="ssFilter_everyday_1"> Everyday</label>
+              <label class="prop-opt"><input type="checkbox" id="ssFilter_everyday_0"> Abstract</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="table-nav-row">
+        <span id="stmtScoresFilterLabel" class="scores-filter-label"></span>
+        <p class="click-hint">Click on a row to explore more.</p>
+        <div class="pagination">
+          <button id="btnStmtScoresPrev" class="page-btn" disabled>&#8249;</button>
+          <span id="stmtScoresPageInfo" class="page-info"></span>
+          <button id="btnStmtScoresNext" class="page-btn" disabled>&#8250;</button>
+        </div>
+      </div>
+      <table id="stmtScoresTable">
+        <thead>
+          <tr>
+            <th class="col-rank">#</th>
+            <th class="col-statement">Statement</th>
+            <th class="col-num sortable sort-active" data-sort="n_ratings">Ratings <span class="sort-icon">▼</span></th>
+            <th class="col-stmtscore sortable" data-sort="I_agree_mean">I agree <button class="prop-help-btn" type="button" data-col-label="I agree" data-col-def="Percentage of users who subjectively agreed with the statement.">?</button> <span class="sort-icon"></span></th>
+            <th class="col-stmtscore sortable" data-sort="others_agree_mean">Others agree <button class="prop-help-btn" type="button" data-col-label="Others agree" data-col-def="Percentage of users who believed that most other people would agree with the statement.">?</button> <span class="sort-icon"></span></th>
+            <th class="col-stmtscore sortable" data-sort="consensus">Consensus <span class="sort-icon"></span></th>
+            <th class="col-stmtscore sortable" data-sort="awareness">Awareness <span class="sort-icon"></span></th>
+            <th class="col-stmtscore sortable" data-sort="commonsensicality">Commonsensicality <span class="sort-icon"></span></th>
+          </tr>
+        </thead>
+        <tbody id="stmtScoresBody">
+          <tr><td colspan="8" class="empty-row">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── Design Points panel ─────────────────────────────── -->
+  <div id="panelDP" class="panel hidden">
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <label class="toolbar-label" for="dpCountrySelect">Group</label>
+        <select id="dpCountrySelect" class="select">
+          <option value="all">All countries</option>
+        </select>
+      </div>
+    </div>
+    <div class="scores-wrap">
+      <div class="chart-card">
+        <div class="chart-title">Commonsensicality by Design Point</div>
+        <div class="chart-sub">Average commonsensicality across all 64 property combinations · Mean and 95% CI · click a row to see its statements</div>
+        <div id="dpTableContainer"><div class="empty-row" style="padding:30px 0">Loading…</div></div>
+      </div>
+      <div id="dpDetailCard" class="chart-card hidden">
+        <div class="chart-title" id="dpDetailTitle"></div>
+        <div class="chart-sub" id="dpDetailSub" style="margin-bottom:0"></div>
+        <div id="dpDetailBody"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Statement properties modal (Statement Ratings) ─── -->
+  <div id="stmtPropsModal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-stmt-title" id="stmtPropsText"></div>
+        <button class="modal-close" id="stmtPropsClose" title="Close">&#x2715;</button>
+      </div>
+      <div class="modal-body">
+        <div id="stmtPropsBody"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Statement score detail modal ────────────────────── -->
+  <div id="stmtModal" class="modal-overlay hidden">
+    <div class="modal-box" style="max-width:700px">
+      <div class="modal-header">
+        <div class="modal-stmt-title" id="stmtModalText"></div>
+        <button class="modal-close" id="stmtModalClose" title="Close">&#x2715;</button>
+      </div>
+      <div class="modal-body" style="padding:0">
+        <div id="stmtModalExplanation" class="modal-explanation"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── User detail modal ────────────────────────────────── -->
+  <div id="userModal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div>
+          <div class="modal-user-id" id="modalUserId"></div>
+          <div class="modal-user-scores" id="modalUserScores"></div>
+        </div>
+        <button class="modal-close" id="modalClose" title="Close">&#x2715;</button>
+      </div>
+      <div class="modal-body">
+        <div id="modalExplanation" class="modal-explanation hidden"></div>
+        <table id="modalTable">
+          <thead>
+            <tr>
+              <th class="col-modal-stmt">Statement</th>
+              <th class="col-modal-yesno">I agree</th>
+              <th class="col-modal-yesno">Others agree</th>
+              <th class="col-modal-refn">Ref.<br>ratings</th>
+              <th class="col-modal-ref">Ref. avg.<br>agree</th>
+            </tr>
+          </thead>
+          <tbody id="modalBody">
+            <tr><td colspan="5" class="empty-row">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Group Comparison panel ────────────────────────────── -->
+  <div id="panelCompare" class="panel hidden">
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <label class="toolbar-label" for="compareGroupA">Group A</label>
+        <select id="compareGroupA" class="select"><option value="all">All countries</option></select>
+        <label class="toolbar-label" for="compareGroupB">Group B</label>
+        <select id="compareGroupB" class="select"><option value="all">All countries</option></select>
+      </div>
+      <div id="compareSpinner" class="spinner hidden"></div>
+    </div>
+    <div class="scores-wrap" id="compareWrap">
+      <div class="compare-layout">
+        <div class="compare-left">
+          <div class="chart-card">
+            <div class="chart-title">Individual Commonsensicality</div>
+            <div class="chart-sub" id="compareIndivSub">Choose two groups above to compare their distributions.</div>
+            <div class="compare-effect" id="compareIndivEffect"></div>
+            <div class="hist-container" style="height:260px"><canvas id="compareIndivChart"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">Statement Commonsensicality</div>
+            <div class="chart-sub" id="compareStmtSub">Distribution of statement-level commonsensicality scores for each group.</div>
+            <div class="compare-effect" id="compareStmtEffect"></div>
+            <div class="hist-container" style="height:260px"><canvas id="compareStmtChart"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">Statement Score Calibration</div>
+            <div class="chart-sub" id="compareScatterSub">Each dot is a statement rated by both groups. The dashed line is y = x (perfect agreement).</div>
+            <div class="hist-container" style="height:380px"><canvas id="compareScatterChart"></canvas></div>
+          </div>
+        </div>
+        <div class="compare-right">
+          <div class="chart-card compare-detail-card">
+            <div id="compareDetailTitle" class="compare-detail-title">Click a bar or scatter point to explore</div>
+            <div id="compareDetailContent">
+              <p class="cmp-detail-placeholder">Select a histogram bar or scatter point on the left to see individuals or statements in that range.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="propHelpPopup" class="prop-help-popup" role="tooltip"></div>
+  <script src="static/app.js"></script>
+</body>
+</html>
