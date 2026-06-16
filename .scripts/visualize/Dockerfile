@@ -15,9 +15,9 @@ WORKDIR /app
 # System deps kept minimal; pandas/numpy/scipy ship manylinux wheels so no
 # compiler toolchain is required.
 RUN pip install --no-cache-dir \
-      "pandas==2.2.3" \
-      "numpy==2.1.2" \
-      "scipy==1.14.1"
+      "pandas==2.3.3" \
+      "numpy==2.3.5" \
+      "scipy==1.16.3"
 
 # App code + generated data (paths are relative to the repo-root build context)
 COPY .scripts/visualize/server.py .scripts/visualize/utils.py ./

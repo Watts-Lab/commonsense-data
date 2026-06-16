@@ -50,9 +50,6 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y libmariadb-dev
-
           pip install -r ./.scripts/requirements.txt
 
       - name: Pull data from database
@@ -75,7 +72,7 @@ jobs:
       # never edited here — we just push :latest and force a new deployment.
       - name: Build visualize data
         run: |
-          pip install "scipy==1.14.1"
+          pip install "scipy==1.16.3"
           cd .scripts/visualize
           python3 update-data.py
 
