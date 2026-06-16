@@ -6,7 +6,8 @@ on:
   workflow_dispatch:
 
   schedule:
-    - cron: "0 0 * * *"
+    # Every other day at 00:00 UTC (1st, 3rd, 5th … of the month)
+    - cron: "0 0 */2 * *"
 
 permissions:
   contents: write
