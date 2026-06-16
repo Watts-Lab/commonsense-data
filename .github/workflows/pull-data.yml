@@ -1,4 +1,4 @@
-name: Pull Data and Build Dashboard
+name: Pull Data and Deploy Report
 
 on:
   push:
@@ -53,7 +53,6 @@ jobs:
           sudo apt-get install -y libmariadb-dev
 
           pip install -r ./.scripts/requirements.txt
-          pip install polars plotly pandas
 
       - name: Pull data from database
         run: |
@@ -68,23 +67,47 @@ jobs:
           git commit -m "Updated data at $(date)" || echo "No data changes"
           git push || echo "No changes to push"
 
-      - name: Generate dashboard
+      # ── Build & deploy the Commonsense Survey Explorer ("report") image ──────
+      # Regenerates the visualize data from the freshly pulled raw data, bakes
+      # it into a container, pushes to ECR, and triggers an ECS redeploy. The
+      # task definition itself is owned by the commonsense-platform repo and is
+      # never edited here — we just push :latest and force a new deployment.
+      - name: Build visualize data
         run: |
-          cd .scripts
-          python3 modified_dashboard.py
+          pip install "scipy==1.14.1"
+          cd .scripts/visualize
+          python3 update-data.py
 
-      - name: Prepare deployment directory
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ env.AWS_DEFAULT_REGION }}
+
+      - name: Build, tag, and push report image to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: commonsense-report
+          IMAGE_TAG: ${{ github.sha }}
         run: |
-          mkdir -p public
-          mv .scripts/dashboard.html public/index.html
-          mv .scripts/plots/ public/
+          docker build -f .scripts/visualize/Dockerfile \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:latest \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public
-          force_orphan: true
+      - name: Trigger ECS redeploy
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ env.AWS_DEFAULT_REGION }}
+        run: |
+          aws ecs update-service \
+            --cluster common-sense-cluster \
+            --service common-sense-service \
+            --force-new-deployment > /dev/null
 
       - name: Remove GitHub Actions IP from security group
         if: always()
