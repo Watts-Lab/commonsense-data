@@ -963,7 +963,7 @@ function dpAxisSvgTop() {
     lines + texts + '</svg>';
 }
 
-function renderDesignPoints(rows, nExcluded) {
+function renderDesignPoints(rows, rowsExcluded) {
   const propCols = DP_PROPS.map(() => `<col class="dp-col-prop"/>`).join('');
   const propThs  = DP_PROPS.map((p, i) =>
     `<th class="dp-th-prop${i % 2 === 0 ? ' dp-th-alt' : ''}">` +
@@ -972,28 +972,46 @@ function renderDesignPoints(rows, nExcluded) {
     `</th>`
   ).join('');
 
+  const makePropCells = (row, extraClass) => DP_PROPS.map((p, i) => {
+    const v = row[p.key];
+    const alt = i % 2 === 0 ? ' dp-prop-alt' : '';
+    return `<td class="dp-prop-val ${v === 1 ? 'dp-val-1' : 'dp-val-0'}${alt} dp-prop-cell${extraClass}" data-prop-key="${p.key}" data-prop-val="${v}">${v === 1 ? '●' : '○'}</td>`;
+  }).join('');
+
   const bodyRows = rows.map(row => {
     const dataAttrs = DP_PROPS.map(p => `data-${p.key}="${row[p.key]}"`).join(' ');
-    const propCells = DP_PROPS.map((p, i) => {
-      const v = row[p.key];
-      const alt = i % 2 === 0 ? ' dp-prop-alt' : '';
-      return `<td class="dp-prop-val ${v === 1 ? 'dp-val-1' : 'dp-val-0'}${alt} dp-prop-cell" data-prop-key="${p.key}" data-prop-val="${v}">${v === 1 ? '●' : '○'}</td>`;
-    }).join('');
     return `<tr class="dp-clickable" ${dataAttrs}>` +
       `<td class="dp-n-cell">N = ${fmtNum(row.n)}</td>` +
-      propCells +
+      makePropCells(row, '') +
       `<td class="dp-ci-cell">${dpCiSvg(row.mean, row.ci_lo, row.ci_hi)}</td>` +
       `<td class="dp-score-cell">${(row.mean * 100).toFixed(1)}%</td>` +
       `<td class="dp-ci-text-cell">${row.ci_lo !== null && row.ci_hi !== null ? `${(row.ci_lo * 100).toFixed(2)} – ${(row.ci_hi * 100).toFixed(2)}%` : '—'}</td>` +
       `</tr>`;
   }).join('');
 
-  // Fix: DP_PROPS.length empty tds (not +1) so axis aligns with CI column
+  const exN = rowsExcluded.length;
+  const excludedRows = rowsExcluded.map(row => {
+    const dataAttrs = DP_PROPS.map(p => `data-${p.key}="${row[p.key]}"`).join(' ');
+    return `<tr class="dp-excluded-row" ${dataAttrs}>` +
+      `<td class="dp-n-cell">N = ${fmtNum(row.n)}</td>` +
+      makePropCells(row, ' dp-excl-prop') +
+      `<td class="dp-ci-cell dp-excl-ci"></td>` +
+      `<td class="dp-score-cell dp-excl-score">—</td>` +
+      `<td class="dp-ci-text-cell">—</td>` +
+      `</tr>`;
+  }).join('');
+
+  const totalCols = 1 + DP_PROPS.length + 3;
   const emptyTds = '<td></td>'.repeat(DP_PROPS.length);
   const axisRow  = `<tr><td></td>${emptyTds}<td class="dp-axis-cell">${dpAxisSvg()}</td><td></td><td></td></tr>`;
 
-  const note = nExcluded > 0
-    ? `<p class="dp-note">${nExcluded} design point${nExcluded !== 1 ? 's' : ''} not shown (N < 5).</p>`
+  const excludedSection = exN > 0
+    ? `<tbody class="dp-excluded-toggle-tbody">` +
+      `<tr><td colspan="${totalCols}" class="dp-excluded-toggle-cell">` +
+      `<button class="dp-excluded-btn" type="button">` +
+      `▶ ${exN} design point${exN !== 1 ? 's' : ''} with N < 5` +
+      `</button></td></tr></tbody>` +
+      `<tbody class="dp-excluded-body" hidden>${excludedRows}</tbody>`
     : '';
 
   document.getElementById('dpTableContainer').innerHTML =
@@ -1004,11 +1022,20 @@ function renderDesignPoints(rows, nExcluded) {
     `<tr><th class="dp-th-n">N</th>${propThs}<th class="dp-th-ci dp-axis-cell">${dpAxisSvgTop()}</th><th class="dp-th-score">Avg. Score</th><th class="dp-th-citext">95% CI</th></tr>` +
     `</thead>` +
     `<tbody>${bodyRows}</tbody>` +
+    excludedSection +
     `<tfoot>${axisRow}</tfoot>` +
-    `</table>${note}`;
+    `</table>`;
 
-  // Row click → load statements; click again to collapse
-  document.getElementById('dpTableContainer').querySelector('tbody').addEventListener('click', e => {
+  // Single delegated handler — toggle excluded section OR select a qualified row
+  document.getElementById('dpTableContainer').onclick = e => {
+    const btn = e.target.closest('.dp-excluded-btn');
+    if (btn) {
+      const tbody = btn.closest('table').querySelector('.dp-excluded-body');
+      const opening = tbody.hidden;
+      tbody.hidden = !opening;
+      btn.textContent = (opening ? '▼' : '▶') + ` ${exN} design point${exN !== 1 ? 's' : ''} with N < 5`;
+      return;
+    }
     const tr = e.target.closest('tr.dp-clickable');
     if (!tr) return;
     const alreadySelected = tr.classList.contains('dp-selected');
@@ -1020,7 +1047,7 @@ function renderDesignPoints(rows, nExcluded) {
     tr.classList.add('dp-selected');
     const props = Object.fromEntries(DP_PROPS.map(p => [p.key, parseInt(tr.dataset[p.key])]));
     loadDpStatements(dpCountrySelect.value, props);
-  });
+  };
 }
 
 async function loadDpStatements(country, props) {
@@ -1201,7 +1228,7 @@ async function loadDesignPoints(country) {
       '<div class="empty-row">No data.</div>';
     return;
   }
-  renderDesignPoints(data.rows, data.n_excluded || 0);
+  renderDesignPoints(data.rows, data.rows_excluded || []);
 }
 
 document.querySelectorAll('.prop-filter-toggle').forEach(btn => {

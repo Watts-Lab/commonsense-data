@@ -1002,11 +1002,44 @@ td { padding: 10px 14px; vertical-align: middle; }
   box-shadow: 0 0 0 3px rgba(37,99,235,.12);
 }
 
-.dp-note {
+.dp-excluded-toggle-cell {
+  padding: 4px 8px;
+  border-top: 2px dashed #E2E8F0;
+}
+
+.dp-excluded-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  background: #F8FAFC;
+  color: #64748B;
   font-size: 0.78rem;
+  font-family: inherit;
+  cursor: pointer;
+  line-height: 1.4;
+}
+
+.dp-excluded-btn:hover {
+  background: #F1F5F9;
+  border-color: #CBD5E1;
+  color: #475569;
+}
+
+.dp-excluded-row {
+  opacity: 0.5;
+}
+
+.dp-excl-score {
   color: #94A3B8;
-  margin-top: 8px;
-  font-style: italic;
+}
+
+.dp-excl-ci {
+  text-align: center;
+  font-size: 0.75rem;
+  color: #94A3B8;
 }
 
 .dp-n-cell {

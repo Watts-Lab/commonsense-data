@@ -271,8 +271,9 @@ def get_design_points(country: str) -> bytes:
         (rows_with_data if n >= 5 else rows_no_data).append(row)
 
     rows_with_data.sort(key=lambda r: r["mean"], reverse=True)
+    rows_no_data.sort(key=lambda r: r["n"], reverse=True)
 
-    payload = {"rows": rows_with_data, "n_excluded": len(rows_no_data)}
+    payload = {"rows": rows_with_data, "rows_excluded": rows_no_data}
     encoded = json.dumps(payload, ensure_ascii=False).encode("utf-8")
     _dp_cache[country] = encoded
     return encoded
