@@ -1741,7 +1741,7 @@ async function loadCountryMatrix() {
 
   let data;
   try {
-    data = await fetch('/api/country-matrix').then(r => r.json());
+    data = await fetch(`${API}/country-matrix`).then(r => r.json());
   } catch {
     document.getElementById('cmBody').innerHTML =
       '<tr><td class="empty-row">Failed to load.</td></tr>';
@@ -1792,7 +1792,7 @@ async function loadCountryMatrix() {
     const country = td.dataset.country;
     try {
       const cell = await fetch(
-        `/api/country-cell?statementId=${encodeURIComponent(stmtId)}&country=${encodeURIComponent(country)}`
+        `${API}/country-cell?statementId=${encodeURIComponent(stmtId)}&country=${encodeURIComponent(country)}`
       ).then(r => r.json());
       if (!cell.error) openStmtDetail(cell, country);
     } catch {}
