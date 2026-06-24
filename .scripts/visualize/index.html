@@ -16,6 +16,7 @@
       <button class="tab-btn" data-tab="scores">Individual Scores</button>
       <button class="tab-btn" data-tab="dp">Design Points</button>
       <button class="tab-btn" data-tab="compare">Group Comparison</button>
+      <button class="tab-btn" data-tab="countries">Countries</button>
     </div>
   </nav>
 
@@ -279,6 +280,71 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Countries panel ──────────────────────────────────────── -->
+  <div id="panelCountries" class="panel hidden">
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <span class="toolbar-label" style="font-size:0.82rem;color:#64748B">Commonsensicality (%) per statement × country · only cells with ≥ 5 ratings shown</span>
+      </div>
+      <div id="cmSummary" class="summary"></div>
+      <div id="cmSpinner" class="spinner hidden"></div>
+    </div>
+    <div class="scores-wrap">
+      <div class="search-filter-row">
+        <input type="text" id="cmSearch" class="stmt-search-input" placeholder="Search statements…">
+        <div class="prop-filter-panel">
+          <button class="prop-filter-toggle" type="button"><span class="prop-filter-arrow">▶</span> Filter by properties</button>
+          <div class="prop-filter-grid hidden">
+            <div class="prop-filter-row">
+              <div class="prop-filter-label-cell"><span class="prop-filter-row-label">Fact or Opinion?</span><button class="prop-help-btn" type="button" data-prop-key="fact">?</button></div>
+              <label class="prop-opt"><input type="checkbox" id="cmFilter_fact_1"> Fact</label>
+              <label class="prop-opt"><input type="checkbox" id="cmFilter_fact_0"> Opinion</label>
+            </div>
+            <div class="prop-filter-row">
+              <div class="prop-filter-label-cell"><span class="prop-filter-row-label">Physical or Social?</span><button class="prop-help-btn" type="button" data-prop-key="physical">?</button></div>
+              <label class="prop-opt"><input type="checkbox" id="cmFilter_physical_1"> Physical</label>
+              <label class="prop-opt"><input type="checkbox" id="cmFilter_physical_0"> Social</label>
+            </div>
+            <div class="prop-filter-row">
+              <div class="prop-filter-label-cell"><span class="prop-filter-row-label">Literal or Figurative?</span><button class="prop-help-btn" type="button" data-prop-key="literal_language">?</button></div>
+              <label class="prop-opt"><input type="checkbox" id="cmFilter_literal_language_1"> Literal</label>
+              <label class="prop-opt"><input type="checkbox" id="cmFilter_literal_language_0"> Figurative</label>
+            </div>
+            <div class="prop-filter-row">
+              <div class="prop-filter-label-cell"><span class="prop-filter-row-label">Positive or Normative?</span><button class="prop-help-btn" type="button" data-prop-key="positive">?</button></div>
+              <label class="prop-opt"><input type="checkbox" id="cmFilter_positive_1"> Positive</label>
+              <label class="prop-opt"><input type="checkbox" id="cmFilter_positive_0"> Normative</label>
+            </div>
+            <div class="prop-filter-row">
+              <div class="prop-filter-label-cell"><span class="prop-filter-row-label">Knowledge or Reasoning?</span><button class="prop-help-btn" type="button" data-prop-key="knowledge">?</button></div>
+              <label class="prop-opt"><input type="checkbox" id="cmFilter_knowledge_1"> Knowledge</label>
+              <label class="prop-opt"><input type="checkbox" id="cmFilter_knowledge_0"> Reasoning</label>
+            </div>
+            <div class="prop-filter-row">
+              <div class="prop-filter-label-cell"><span class="prop-filter-row-label">Everyday or Abstract?</span><button class="prop-help-btn" type="button" data-prop-key="everyday">?</button></div>
+              <label class="prop-opt"><input type="checkbox" id="cmFilter_everyday_1"> Everyday</label>
+              <label class="prop-opt"><input type="checkbox" id="cmFilter_everyday_0"> Abstract</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="table-nav-row">
+        <p class="click-hint">Rows sorted by number of qualifying countries · columns by number of qualifying statements.</p>
+        <div class="pagination">
+          <button id="btnCmPrev" class="page-btn" disabled>&#8249;</button>
+          <span id="cmPageInfo" class="page-info"></span>
+          <button id="btnCmNext" class="page-btn" disabled>&#8250;</button>
+        </div>
+      </div>
+      <div class="cm-table-wrap">
+        <table class="cm-table">
+          <thead><tr id="cmHeadRow"><th class="cm-stmt-th">Statement</th></tr></thead>
+          <tbody id="cmBody"><tr><td class="empty-row">Loading…</td></tr></tbody>
+        </table>
       </div>
     </div>
   </div>

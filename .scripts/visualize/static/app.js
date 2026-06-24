@@ -76,6 +76,14 @@ let stmtScoresAllRows = [],
   stmtScoresPage = 1;
 let stmtScoresLoaded = false;
 let dpPanelLoaded = false;
+
+// Country matrix
+let countryMatrixLoaded = false;
+let countryMatrixData   = null;
+let cmPage              = 1;
+const CM_PAGE_SIZE      = 25;
+let cmSortKey           = 'n';    // 'n' | 'stmt' | country-name
+let cmSortDir           = 'desc'; // 'asc' | 'desc'
 let stmtScoresSortKey = "commonsensicality",
   stmtScoresSortDir = "desc";
 let stmtScoresActiveBinIdx = null;
@@ -145,14 +153,108 @@ const PROP_DEFS = [
     def0: "It refers to regularities or conclusions that cannot be observed or arrived at solely through individual experience.",
   },
 ];
+// ── Country flag / abbreviation lookup ────────────────────────────────────
+const COUNTRY_FLAGS = {
+  'Afghanistan':'🇦🇫','Albania':'🇦🇱','Algeria':'🇩🇿','Andorra':'🇦🇩',
+  'Angola':'🇦🇴','Antigua and Barbuda':'🇦🇬','Argentina':'🇦🇷','Armenia':'🇦🇲',
+  'Australia':'🇦🇺','Austria':'🇦🇹','Azerbaijan':'🇦🇿','Bahamas':'🇧🇸',
+  'Bahrain':'🇧🇭','Bangladesh':'🇧🇩','Barbados':'🇧🇧','Belarus':'🇧🇾',
+  'Belgium':'🇧🇪','Belize':'🇧🇿','Benin':'🇧🇯','Bolivia':'🇧🇴',
+  'Bosnia and Herzegovina':'🇧🇦','Botswana':'🇧🇼','Brazil':'🇧🇷','Brunei':'🇧🇳',
+  'Bulgaria':'🇧🇬','Burundi':'🇧🇮','Cambodia':'🇰🇭','Cameroon':'🇨🇲',
+  'Canada':'🇨🇦','Central African Republic':'🇨🇫','Chad':'🇹🇩','Chile':'🇨🇱',
+  'China':'🇨🇳','Colombia':'🇨🇴','Congo':'🇨🇬','Costa Rica':'🇨🇷',
+  'Croatia':'🇭🇷','Cuba':'🇨🇺','Cyprus':'🇨🇾','Czechia':'🇨🇿',
+  'Denmark':'🇩🇰','Dominica':'🇩🇲','Dominican Republic':'🇩🇴','Ecuador':'🇪🇨',
+  'Egypt':'🇪🇬','El Salvador':'🇸🇻','Eritrea':'🇪🇷','Estonia':'🇪🇪',
+  'Eswatini':'🇸🇿','Ethiopia':'🇪🇹','Fiji':'🇫🇯','Finland':'🇫🇮',
+  'France':'🇫🇷','Gabon':'🇬🇦','Gambia':'🇬🇲','Georgia':'🇬🇪',
+  'Germany':'🇩🇪','Ghana':'🇬🇭','Greece':'🇬🇷','Grenada':'🇬🇩',
+  'Guatemala':'🇬🇹','Guyana':'🇬🇾','Haiti':'🇭🇹','Honduras':'🇭🇳',
+  'Hungary':'🇭🇺','Iceland':'🇮🇸','India':'🇮🇳','Indonesia':'🇮🇩',
+  'Iran':'🇮🇷','Iraq':'🇮🇶','Ireland':'🇮🇪','Israel':'🇮🇱',
+  'Italy':'🇮🇹','Jamaica':'🇯🇲','Japan':'🇯🇵','Jordan':'🇯🇴',
+  'Kazakhstan':'🇰🇿','Kenya':'🇰🇪','Korea, North':'🇰🇵','Korea, South':'🇰🇷',
+  'Kosovo':'🇽🇰','Kuwait':'🇰🇼','Kyrgyzstan':'🇰🇬','Laos':'🇱🇦',
+  'Latvia':'🇱🇻','Lebanon':'🇱🇧','Liberia':'🇱🇷','Libya':'🇱🇾',
+  'Lithuania':'🇱🇹','Luxembourg':'🇱🇺','Malawi':'🇲🇼','Malaysia':'🇲🇾',
+  'Malta':'🇲🇹','Mauritius':'🇲🇺','Mexico':'🇲🇽','Micronesia':'🇫🇲',
+  'Moldova':'🇲🇩','Monaco':'🇲🇨','Morocco':'🇲🇦','Mozambique':'🇲🇿',
+  'Myanmar (Burma)':'🇲🇲','Namibia':'🇳🇦','Nepal':'🇳🇵','Netherlands':'🇳🇱',
+  'New Zealand':'🇳🇿','Nicaragua':'🇳🇮','Nigeria':'🇳🇬',
+  'North Macedonia (formerly Macedonia)':'🇲🇰','Norway':'🇳🇴','Oman':'🇴🇲',
+  'Pakistan':'🇵🇰','Panama':'🇵🇦','Paraguay':'🇵🇾','Peru':'🇵🇪',
+  'Philippines':'🇵🇭','Poland':'🇵🇱','Portugal':'🇵🇹','Qatar':'🇶🇦',
+  'Romania':'🇷🇴','Russia':'🇷🇺','Saint Lucia':'🇱🇨',
+  'Saint Vincent and the Grenadines':'🇻🇨','Saudi Arabia':'🇸🇦',
+  'Senegal':'🇸🇳','Serbia':'🇷🇸','Singapore':'🇸🇬','Slovakia':'🇸🇰',
+  'Slovenia':'🇸🇮','Somalia':'🇸🇴','South Africa':'🇿🇦','Spain':'🇪🇸',
+  'Sri Lanka':'🇱🇰','Sudan':'🇸🇩','Suriname':'🇸🇷','Sweden':'🇸🇪',
+  'Switzerland':'🇨🇭','Syria':'🇸🇾','Taiwan':'🇹🇼','Tanzania':'🇹🇿',
+  'Thailand':'🇹🇭','Togo':'🇹🇬','Trinidad and Tobago':'🇹🇹','Tunisia':'🇹🇳',
+  'Turkey':'🇹🇷','Uganda':'🇺🇬','Ukraine':'🇺🇦','United Arab Emirates':'🇦🇪',
+  'United Kingdom':'🇬🇧','United States':'🇺🇸','Uruguay':'🇺🇾',
+  'Uzbekistan':'🇺🇿','Vatican City':'🇻🇦','Venezuela':'🇻🇪','Vietnam':'🇻🇳',
+  'Yemen':'🇾🇪','Zambia':'🇿🇲','Zimbabwe':'🇿🇼',
+};
+const COUNTRY_CODE = {
+  'Afghanistan':'AF','Albania':'AL','Algeria':'DZ','Andorra':'AD',
+  'Angola':'AO','Antigua and Barbuda':'AG','Argentina':'AR','Armenia':'AM',
+  'Australia':'AU','Austria':'AT','Azerbaijan':'AZ','Bahamas':'BS',
+  'Bahrain':'BH','Bangladesh':'BD','Barbados':'BB','Belarus':'BY',
+  'Belgium':'BE','Belize':'BZ','Benin':'BJ','Bolivia':'BO',
+  'Bosnia and Herzegovina':'BA','Botswana':'BW','Brazil':'BR','Brunei':'BN',
+  'Bulgaria':'BG','Burundi':'BI','Cambodia':'KH','Cameroon':'CM',
+  'Canada':'CA','Central African Republic':'CF','Chad':'TD','Chile':'CL',
+  'China':'CN','Colombia':'CO','Congo':'CG','Costa Rica':'CR',
+  'Croatia':'HR','Cuba':'CU','Cyprus':'CY','Czechia':'CZ',
+  'Denmark':'DK','Dominica':'DM','Dominican Republic':'DO','Ecuador':'EC',
+  'Egypt':'EG','El Salvador':'SV','Eritrea':'ER','Estonia':'EE',
+  'Eswatini':'SZ','Ethiopia':'ET','Fiji':'FJ','Finland':'FI',
+  'France':'FR','Gabon':'GA','Gambia':'GM','Georgia':'GE',
+  'Germany':'DE','Ghana':'GH','Greece':'GR','Grenada':'GD',
+  'Guatemala':'GT','Guyana':'GY','Haiti':'HT','Honduras':'HN',
+  'Hungary':'HU','Iceland':'IS','India':'IN','Indonesia':'ID',
+  'Iran':'IR','Iraq':'IQ','Ireland':'IE','Israel':'IL',
+  'Italy':'IT','Jamaica':'JM','Japan':'JP','Jordan':'JO',
+  'Kazakhstan':'KZ','Kenya':'KE','Korea, North':'KP','Korea, South':'KR',
+  'Kosovo':'XK','Kuwait':'KW','Kyrgyzstan':'KG','Laos':'LA',
+  'Latvia':'LV','Lebanon':'LB','Liberia':'LR','Libya':'LY',
+  'Lithuania':'LT','Luxembourg':'LU','Malawi':'MW','Malaysia':'MY',
+  'Malta':'MT','Mauritius':'MU','Mexico':'MX','Micronesia':'FM',
+  'Moldova':'MD','Monaco':'MC','Morocco':'MA','Mozambique':'MZ',
+  'Myanmar (Burma)':'MM','Namibia':'NA','Nepal':'NP','Netherlands':'NL',
+  'New Zealand':'NZ','Nicaragua':'NI','Nigeria':'NG',
+  'North Macedonia (formerly Macedonia)':'MK','Norway':'NO','Oman':'OM',
+  'Pakistan':'PK','Panama':'PA','Paraguay':'PY','Peru':'PE',
+  'Philippines':'PH','Poland':'PL','Portugal':'PT','Qatar':'QA',
+  'Romania':'RO','Russia':'RU','Saint Lucia':'LC',
+  'Saint Vincent and the Grenadines':'VC','Saudi Arabia':'SA',
+  'Senegal':'SN','Serbia':'RS','Singapore':'SG','Slovakia':'SK',
+  'Slovenia':'SI','Somalia':'SO','South Africa':'ZA','Spain':'ES',
+  'Sri Lanka':'LK','Sudan':'SD','Suriname':'SR','Sweden':'SE',
+  'Switzerland':'CH','Syria':'SY','Taiwan':'TW','Tanzania':'TZ',
+  'Thailand':'TH','Togo':'TG','Trinidad and Tobago':'TT','Tunisia':'TN',
+  'Turkey':'TR','Uganda':'UG','Ukraine':'UA','United Arab Emirates':'AE',
+  'United Kingdom':'GB','United States':'US','Uruguay':'UY',
+  'Uzbekistan':'UZ','Vatican City':'VA','Venezuela':'VE','Vietnam':'VN',
+  'Yemen':'YE','Zambia':'ZM','Zimbabwe':'ZW',
+};
+function countryFlag(name) { return COUNTRY_FLAGS[name] || ''; }
+function countryCode(name) { return COUNTRY_CODE[name] || name; }
+
 // State: { v1: bool, v0: bool }. Both false OR both true = no filter.
 const ssPropFilters = Object.fromEntries(
+  PROP_DEFS.map((d) => [d.key, { v1: false, v0: false }]),
+);
+const cmPropFilters = Object.fromEntries(
   PROP_DEFS.map((d) => [d.key, { v1: false, v0: false }]),
 );
 
 // Statement search queries
 let stmtScoresSearchQuery = "";
-let dpDetailSearchQuery = "";
+let dpDetailSearchQuery   = "";
+let cmSearchQuery         = "";
 
 // ── Utilities ──────────────────────────────────────────────────────────────
 
@@ -301,6 +403,9 @@ document.querySelectorAll(".tab-btn").forEach((btn) => {
       document
         .getElementById("panelCompare")
         .classList.toggle("hidden", tab !== "compare");
+      document
+        .getElementById("panelCountries")
+        .classList.toggle("hidden", tab !== "countries");
       if (tab === "scores" && !scoresLoaded) {
         scoresLoaded = true;
         loadScores("all", "all");
@@ -308,6 +413,10 @@ document.querySelectorAll(".tab-btn").forEach((btn) => {
       if (tab === "dp" && !dpPanelLoaded) {
         dpPanelLoaded = true;
         loadDesignPoints("all");
+      }
+      if (tab === "countries" && !countryMatrixLoaded) {
+        countryMatrixLoaded = true;
+        loadCountryMatrix();
       }
     } catch (err) {
       console.error("Tab switch error:", err);
@@ -1489,6 +1598,213 @@ function renderDpStatements(rows) {
     });
 }
 
+// ── Country matrix ─────────────────────────────────────────────────────────
+
+function getFilteredCmRows() {
+  if (!countryMatrixData) return [];
+  let rows = countryMatrixData.rows;
+  for (const { key } of PROP_DEFS) {
+    const { v1, v0 } = cmPropFilters[key];
+    if ((!v1 && !v0) || (v1 && v0)) continue;
+    rows = rows.filter(r => {
+      const v = r[key];
+      if (v === null || v === undefined) return false;
+      if (v1 && v !== 1) return false;
+      if (v0 && v !== 0) return false;
+      return true;
+    });
+  }
+  const q = cmSearchQuery.trim().toLowerCase();
+  if (q) rows = rows.filter(r => r.statement.toLowerCase().includes(q));
+  return rows;
+}
+
+function getSortedCmRows() {
+  if (!countryMatrixData) return [];
+  const rows = getFilteredCmRows();
+  if (cmSortKey === null) return rows;
+  return [...rows].sort((a, b) => {
+    if (cmSortKey === 'stmt') {
+      const cmp = a.statement.localeCompare(b.statement);
+      return cmSortDir === 'asc' ? cmp : -cmp;
+    }
+    let va, vb;
+    if (cmSortKey === 'n') {
+      va = a._n; vb = b._n;
+      if (va !== vb) return cmSortDir === 'asc' ? va - vb : vb - va;
+      return (b.sd || 0) - (a.sd || 0); // tiebreaker: SD desc
+    } else if (cmSortKey === 'sd') {
+      va = a.sd || 0; vb = b.sd || 0;
+    } else {
+      va = a.scores[cmSortKey]?.s; vb = b.scores[cmSortKey]?.s;
+      if (va == null && vb == null) return 0;
+      if (va == null) return 1;
+      if (vb == null) return -1;
+    }
+    return cmSortDir === 'asc' ? va - vb : vb - va;
+  });
+}
+
+function updateCmSortIndicators() {
+  document.querySelectorAll('#cmHeadRow th[data-sort]').forEach(th => {
+    const icon = th.querySelector('.cm-sort-icon');
+    if (!icon) return;
+    const active = th.dataset.sort === cmSortKey;
+    icon.textContent = active ? (cmSortDir === 'desc' ? ' ▼' : ' ▲') : '';
+    th.classList.toggle('cm-th-sort-active', active);
+  });
+}
+
+function cmTotalPages() {
+  return countryMatrixData
+    ? Math.max(1, Math.ceil(getFilteredCmRows().length / CM_PAGE_SIZE))
+    : 1;
+}
+
+function updateCmSummary() {
+  if (!countryMatrixData) return;
+  const total    = countryMatrixData.rows.length;
+  const filtered = getFilteredCmRows().length;
+  document.getElementById('cmSummary').textContent =
+    filtered < total
+      ? `${fmtNum(filtered)} of ${fmtNum(total)} statements · ${fmtNum(countryMatrixData.countries.length)} countries`
+      : `${fmtNum(total)} statements · ${fmtNum(countryMatrixData.countries.length)} countries`;
+}
+
+function renderCmPage() {
+  if (!countryMatrixData) return;
+  const { countries } = countryMatrixData;
+  const sorted   = getSortedCmRows();
+  const start    = (cmPage - 1) * CM_PAGE_SIZE;
+  const pageRows = sorted.slice(start, start + CM_PAGE_SIZE);
+
+  const tbody    = document.getElementById('cmBody');
+  const fragment = document.createDocumentFragment();
+
+  pageRows.forEach((row, i) => {
+    const tr = document.createElement('tr');
+    tr.dataset.stmtId = row.statementId;
+
+    const tdRank = document.createElement('td');
+    tdRank.className = 'cm-rank-cell';
+    tdRank.textContent = start + i + 1;
+    tr.appendChild(tdRank);
+
+    const tdStmt = document.createElement('td');
+    tdStmt.className = 'cm-stmt-cell';
+    tdStmt.textContent = fixStatement(row.statement);
+    tr.appendChild(tdStmt);
+
+    const tdN = document.createElement('td');
+    tdN.className = 'cm-n-cell';
+    tdN.textContent = row._n;
+    tr.appendChild(tdN);
+
+    const tdSd = document.createElement('td');
+    tdSd.className = 'cm-sd-cell';
+    tdSd.textContent = row._n > 1 ? row.sd.toFixed(1) : '—';
+    tr.appendChild(tdSd);
+
+    countries.forEach(c => {
+      const td = document.createElement('td');
+      const entry = row.scores[c];
+      if (entry != null) {
+        td.className = 'cm-score-cell cm-score-cell-clickable';
+        td.dataset.country = c;
+        td.innerHTML =
+          entry.s.toFixed(2) +
+          `<div class="cm-score-n"><em>N</em> = ${fmtNum(entry.n)}</div>`;
+      } else {
+        td.className = 'cm-score-cell';
+      }
+      tr.appendChild(td);
+    });
+
+    fragment.appendChild(tr);
+  });
+
+  tbody.innerHTML = '';
+  tbody.appendChild(fragment);
+
+  const tp = cmTotalPages();
+  document.getElementById('cmPageInfo').textContent =
+    `Page ${fmtNum(cmPage)} of ${fmtNum(tp)}`;
+  document.getElementById('btnCmPrev').disabled = cmPage <= 1;
+  document.getElementById('btnCmNext').disabled = cmPage >= tp;
+  updateCmSummary();
+}
+
+async function loadCountryMatrix() {
+  document.getElementById('cmBody').innerHTML =
+    '<tr><td class="empty-row">Computing…</td></tr>';
+  document.getElementById('cmSpinner').classList.remove('hidden');
+
+  let data;
+  try {
+    data = await fetch('/api/country-matrix').then(r => r.json());
+  } catch {
+    document.getElementById('cmBody').innerHTML =
+      '<tr><td class="empty-row">Failed to load.</td></tr>';
+    document.getElementById('cmSpinner').classList.add('hidden');
+    return;
+  }
+  document.getElementById('cmSpinner').classList.add('hidden');
+  countryMatrixData = data;
+  data.rows.forEach(row => { row._n = Object.keys(row.scores).length; });
+
+  const headRow = document.getElementById('cmHeadRow');
+  headRow.innerHTML =
+    `<th class="cm-rank-th">#</th>` +
+    `<th class="cm-stmt-th cm-th-sortable" data-sort="stmt">Statement<span class="cm-sort-icon"></span></th>` +
+    `<th class="cm-n-th cm-th-sortable" data-sort="n"><em>N</em><span class="cm-sort-icon"></span></th>` +
+    `<th class="cm-sd-th cm-th-sortable" data-sort="sd"><em>SD</em><span class="cm-sort-icon"></span></th>` +
+    data.countries.map(c =>
+      `<th class="cm-country-th cm-th-sortable" data-sort="${esc(c)}" title="${esc(c)}">` +
+        `<div class="cm-country-th-inner">` +
+          `<span class="cm-flag">${countryFlag(c)}</span>` +
+          `<span class="cm-country-name">${esc(countryCode(c))}</span>` +
+          `<span class="cm-country-n">${fmtNum(data.country_n_statements[c])}</span>` +
+        `</div>` +
+      `</th>`
+    ).join('');
+
+  headRow.onclick = (e) => {
+    const th = e.target.closest('th[data-sort]');
+    if (!th) return;
+    const key = th.dataset.sort;
+    if (key === cmSortKey) {
+      cmSortDir = cmSortDir === 'desc' ? 'asc' : 'desc';
+    } else {
+      cmSortKey = key;
+      cmSortDir = 'desc';
+    }
+    cmPage = 1;
+    updateCmSortIndicators();
+    renderCmPage();
+  };
+
+  updateCmSummary();
+
+  document.getElementById('cmBody').onclick = async (e) => {
+    const td = e.target.closest('.cm-score-cell-clickable');
+    if (!td) return;
+    const stmtId = parseInt(td.closest('tr').dataset.stmtId);
+    const country = td.dataset.country;
+    try {
+      const cell = await fetch(
+        `/api/country-cell?statementId=${encodeURIComponent(stmtId)}&country=${encodeURIComponent(country)}`
+      ).then(r => r.json());
+      if (!cell.error) openStmtDetail(cell, country);
+    } catch {}
+  };
+
+  cmPage = 1;
+  cmSortKey = 'n';
+  cmSortDir = 'desc';
+  updateCmSortIndicators();
+  renderCmPage();
+}
+
 async function loadDesignPoints(country) {
   document.getElementById("dpTableContainer").innerHTML =
     '<div class="empty-row" style="padding:30px 0">Loading…</div>';
@@ -1540,6 +1856,27 @@ document.getElementById("stmtScoresSearch").addEventListener("input", (e) => {
   stmtScoresSearchQuery = e.target.value;
   buildStmtScoresRows();
   renderStmtScoresPage(true);
+});
+
+document.getElementById("cmSearch").addEventListener("input", (e) => {
+  cmSearchQuery = e.target.value;
+  cmPage = 1;
+  renderCmPage();
+});
+
+PROP_DEFS.forEach(({ key }) => {
+  const cm1 = document.getElementById(`cmFilter_${key}_1`);
+  const cm0 = document.getElementById(`cmFilter_${key}_0`);
+  cm1.addEventListener("change", () => {
+    cmPropFilters[key].v1 = cm1.checked;
+    cmPage = 1;
+    renderCmPage();
+  });
+  cm0.addEventListener("change", () => {
+    cmPropFilters[key].v0 = cm0.checked;
+    cmPage = 1;
+    renderCmPage();
+  });
 });
 
 // ── Property help popup ────────────────────────────────────────────────────
@@ -2295,6 +2632,13 @@ async function loadGroupCompare() {
 
 compareGroupAEl.addEventListener("change", loadGroupCompare);
 compareGroupBEl.addEventListener("change", loadGroupCompare);
+
+document.getElementById('btnCmPrev').addEventListener('click', () => {
+  if (cmPage > 1) { cmPage--; renderCmPage(); }
+});
+document.getElementById('btnCmNext').addEventListener('click', () => {
+  if (cmPage < cmTotalPages()) { cmPage++; renderCmPage(); }
+});
 
 async function init() {
   await populateSelects();

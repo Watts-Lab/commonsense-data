@@ -378,6 +378,117 @@ def get_dp_statements(country: str, props: dict) -> bytes:
     return encoded
 
 
+# ── Country × statement commonsensicality matrix (cached) ────────────────
+_country_matrix_cache: dict = {}
+
+
+def get_country_matrix() -> bytes:
+    if "v2" in _country_matrix_cache:
+        return _country_matrix_cache["v2"]
+
+    MIN_RATINGS = 5
+
+    agg = (
+        merged.groupby(["country_reside", "statementId"])
+        .agg(
+            n_ratings=("I_agree", "count"),
+            I_agree_mean=("I_agree", "mean"),
+            others_agree_mean=("others_agree", "mean"),
+        )
+        .reset_index()
+    )
+    agg = agg[agg["n_ratings"] >= MIN_RATINGS].copy()
+
+    agg["consensus"] = 2 * np.abs(agg["I_agree_mean"] - 0.5)
+    agg["maj_vote"] = (agg["I_agree_mean"] >= 0.5).astype(int)
+    agg["awareness"] = np.where(
+        agg["maj_vote"] == 1,
+        agg["others_agree_mean"],
+        1 - agg["others_agree_mean"],
+    )
+    # Store as percentage 0–100, 2 dp
+    agg["score"] = (np.sqrt(agg["consensus"] * agg["awareness"]) * 100).round(2)
+
+    # Columns: countries sorted by number of qualifying statements (desc)
+    country_counts = agg.groupby("country_reside").size().sort_values(ascending=False)
+    countries = country_counts.index.tolist()
+
+    # Rows: statements sorted by number of qualifying countries (desc)
+    stmt_counts = agg.groupby("statementId").size()
+    stmt_texts = (
+        agg.merge(statements[["statementId", "statement"]], on="statementId", how="left")
+        .groupby("statementId")["statement"]
+        .first()
+        .fillna("")
+    )
+    stmt_order = stmt_counts.sort_values(ascending=False).index
+
+    score_lookup = agg.set_index(["statementId", "country_reside"])["score"].to_dict()
+    n_lookup     = agg.set_index(["statementId", "country_reside"])["n_ratings"].to_dict()
+    stmt_sd      = agg.groupby("statementId")["score"].std().fillna(0.0).round(2)
+
+    _prop_cols = ["fact", "physical", "literal_language", "positive", "knowledge", "everyday"]
+    stmt_props_df = (
+        statements[["statementId"] + _prop_cols]
+        .drop_duplicates("statementId")
+        .set_index("statementId")
+    )
+
+    rows = []
+    for stmt_id in stmt_order:
+        scores = {}
+        for c in countries:
+            v = score_lookup.get((stmt_id, c))
+            if v is not None:
+                scores[c] = {"s": float(v), "n": int(n_lookup[(stmt_id, c)])}
+        if stmt_id in stmt_props_df.index:
+            prow = stmt_props_df.loc[stmt_id]
+            props = {col: (None if pd.isna(prow[col]) else int(prow[col])) for col in _prop_cols}
+        else:
+            props = {col: None for col in _prop_cols}
+        rows.append({
+            "statementId": int(stmt_id),
+            "statement": str(stmt_texts.get(stmt_id, "")),
+            "scores": scores,
+            "sd": float(stmt_sd.get(stmt_id, 0.0)),
+            **props,
+        })
+
+    payload = {
+        "countries": countries,
+        "country_n_statements": {c: int(country_counts[c]) for c in countries},
+        "rows": rows,
+    }
+    encoded = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+    _country_matrix_cache["v2"] = encoded
+    return encoded
+
+
+# ── Country cell detail (no cache — lightweight per-cell query) ──────────
+
+
+def get_country_cell(stmt_id: int, country: str) -> bytes:
+    mask = (merged["statementId"] == stmt_id) & (merged["country_reside"] == country)
+    sub = merged[mask]
+    if len(sub) < 5:
+        return json.dumps({"error": "not enough ratings"}).encode("utf-8")
+    n = int(len(sub))
+    I_agree_mean = float(sub["I_agree"].mean())
+    others_agree_mean = float(sub["others_agree"].mean())
+    stmt_rows = statements[statements["statementId"] == stmt_id]
+    stmt_text = str(stmt_rows["statement"].iloc[0]) if len(stmt_rows) > 0 else ""
+    return json.dumps(
+        {
+            "statementId": stmt_id,
+            "statement": stmt_text,
+            "n_ratings": n,
+            "I_agree_mean": I_agree_mean,
+            "others_agree_mean": others_agree_mean,
+        },
+        ensure_ascii=False,
+    ).encode("utf-8")
+
+
 # ── User detail (no cache — lightweight per-user query) ───────────────────
 
 
@@ -678,6 +789,13 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             params = urllib.parse.parse_qs(parsed.query)
             stmt_id = params.get("statementId", [""])[0]
             self._send_json(get_statement_countries(stmt_id))
+        elif parsed.path == "/api/country-matrix":
+            self._send_json(get_country_matrix())
+        elif parsed.path == "/api/country-cell":
+            params = urllib.parse.parse_qs(parsed.query)
+            stmt_id = int(params.get("statementId", ["0"])[0])
+            country = params.get("country", [""])[0]
+            self._send_json(get_country_cell(stmt_id, country))
         else:
             http.server.SimpleHTTPRequestHandler.do_GET(self)
 
