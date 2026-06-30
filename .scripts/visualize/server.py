@@ -383,12 +383,12 @@ _country_matrix_cache: dict = {}
 
 
 def get_country_matrix() -> bytes:
-    if "v2" in _country_matrix_cache:
-        return _country_matrix_cache["v2"]
+    if "v4" in _country_matrix_cache:
+        return _country_matrix_cache["v4"]
 
-    MIN_RATINGS = 5
+    MIN_RATINGS = 10
 
-    agg = (
+    agg_all = (
         merged.groupby(["country_reside", "statementId"])
         .agg(
             n_ratings=("I_agree", "count"),
@@ -397,7 +397,7 @@ def get_country_matrix() -> bytes:
         )
         .reset_index()
     )
-    agg = agg[agg["n_ratings"] >= MIN_RATINGS].copy()
+    agg = agg_all[agg_all["n_ratings"] >= MIN_RATINGS].copy()
 
     agg["consensus"] = 2 * np.abs(agg["I_agree_mean"] - 0.5)
     agg["maj_vote"] = (agg["I_agree_mean"] >= 0.5).astype(int)
@@ -427,6 +427,10 @@ def get_country_matrix() -> bytes:
     n_lookup     = agg.set_index(["statementId", "country_reside"])["n_ratings"].to_dict()
     stmt_sd      = agg.groupby("statementId")["score"].std().fillna(0.0).round(2)
 
+    # Sub-threshold lookup: cells with 0 < n < MIN_RATINGS (score hidden, n shown)
+    sub = agg_all[agg_all["n_ratings"] < MIN_RATINGS]
+    sub_n_lookup = sub.set_index(["statementId", "country_reside"])["n_ratings"].to_dict()
+
     _prop_cols = ["fact", "physical", "literal_language", "positive", "knowledge", "everyday"]
     stmt_props_df = (
         statements[["statementId"] + _prop_cols]
@@ -441,6 +445,10 @@ def get_country_matrix() -> bytes:
             v = score_lookup.get((stmt_id, c))
             if v is not None:
                 scores[c] = {"s": float(v), "n": int(n_lookup[(stmt_id, c)])}
+            else:
+                sub_n = sub_n_lookup.get((stmt_id, c))
+                if sub_n is not None:
+                    scores[c] = {"n": int(sub_n)}
         if stmt_id in stmt_props_df.index:
             prow = stmt_props_df.loc[stmt_id]
             props = {col: (None if pd.isna(prow[col]) else int(prow[col])) for col in _prop_cols}
@@ -460,7 +468,7 @@ def get_country_matrix() -> bytes:
         "rows": rows,
     }
     encoded = json.dumps(payload, ensure_ascii=False).encode("utf-8")
-    _country_matrix_cache["v2"] = encoded
+    _country_matrix_cache["v4"] = encoded
     return encoded
 
 
@@ -470,7 +478,7 @@ def get_country_matrix() -> bytes:
 def get_country_cell(stmt_id: int, country: str) -> bytes:
     mask = (merged["statementId"] == stmt_id) & (merged["country_reside"] == country)
     sub = merged[mask]
-    if len(sub) < 5:
+    if len(sub) < 10:
         return json.dumps({"error": "not enough ratings"}).encode("utf-8")
     n = int(len(sub))
     I_agree_mean = float(sub["I_agree"].mean())
@@ -493,7 +501,7 @@ def get_country_cell(stmt_id: int, country: str) -> bytes:
 
 
 def get_user_detail(user_id: str, reference: str, target: str) -> bytes:
-    MIN_RATINGS = 5
+    MIN_RATINGS = 10
 
     user_ratings = merged[merged["userSessionId"] == user_id][
         ["statementId", "I_agree", "others_agree"]

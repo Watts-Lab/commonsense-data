@@ -499,7 +499,7 @@ async function openUserDetail(userRow, opts = {}) {
 
   const qualifyingNote =
     N_total > N || data.disqualified
-      ? `In calculating the commonsensicality score, we require that every eligible statement was rated at least 5 times in the reference group (<strong>${esc(refLabel)}</strong>). Only <strong>${N}</strong> out of <strong>${N_total}</strong> statements qualify.` +
+      ? `In calculating the commonsensicality score, we require that every eligible statement was rated at least 10 times in the reference group (<strong>${esc(refLabel)}</strong>). Only <strong>${N}</strong> out of <strong>${N_total}</strong> statements qualify.` +
         (data.disqualified
           ? ` Since fewer than 5 statements qualify (minimum required), <strong>this user is excluded from the commonsensicality calculation</strong>.`
           : ` The calculation below is based on these <strong>${N}</strong> statements.`)
@@ -808,7 +808,7 @@ async function loadScores(target, reference) {
     noteEl.textContent =
       `Note: Only ${fmtNum(data.n_users)} of ${fmtNum(data.raw_n_users)} users in the target group (${tLabel}) are shown. ` +
       `To qualify, a user in the target group (${tLabel}) must have rated at least 5 statements. ` +
-      `In addition, each statement must have received at least 5 ratings from the reference group (${rLabel}).`;
+      `In addition, each statement must have received at least 10 ratings from the reference group (${rLabel}).`;
     noteEl.classList.remove("hidden");
   } else {
     noteEl.classList.add("hidden");
@@ -1542,7 +1542,7 @@ function renderDpStatements(rows) {
     `<span id="dpDetailPageInfo" class="page-info"></span>` +
     `<button id="dpDetailBtnNext" class="page-btn" disabled>&#8250;</button>` +
     `</div></div>` +
-    `<table id="dpDetailTable" style="margin-top:4px;table-layout:fixed;width:100%;border-collapse:collapse;background:#fff">` +
+    `<div class="dp-detail-table-wrap"><table id="dpDetailTable" style="margin-top:4px;table-layout:fixed;width:100%;border-collapse:collapse;background:#fff">` +
     `<colgroup><col class="col-rank"/><col class="col-dp-stmt"/><col class="col-num"/>` +
     `<col class="col-stmtscore"/><col class="col-stmtscore"/><col class="col-stmtscore"/>` +
     `<col class="col-stmtscore"/><col class="col-stmtscore"/></colgroup>` +
@@ -1555,7 +1555,7 @@ function renderDpStatements(rows) {
     `<th class="col-stmtscore sortable" data-sort="consensus">Consensus <span class="sort-icon"></span></th>` +
     `<th class="col-stmtscore sortable" data-sort="awareness">Awareness <span class="sort-icon"></span></th>` +
     `<th class="col-stmtscore sortable" data-sort="commonsensicality">Commonsensicality <span class="sort-icon"></span></th>` +
-    `</tr></thead><tbody></tbody></table>`;
+    `</tr></thead><tbody></tbody></table></div>`;
 
   renderDpDetailBody();
 
@@ -1708,14 +1708,18 @@ function renderCmPage() {
     countries.forEach(c => {
       const td = document.createElement('td');
       const entry = row.scores[c];
-      if (entry != null) {
+      if (entry != null && entry.s != null) {
         td.className = 'cm-score-cell cm-score-cell-clickable';
         td.dataset.country = c;
         td.innerHTML =
           entry.s.toFixed(2) +
           `<div class="cm-score-n"><em>N</em> = ${fmtNum(entry.n)}</div>`;
+      } else if (entry != null) {
+        td.className = 'cm-score-cell cm-score-cell-sub';
+        td.innerHTML = `<div class="cm-score-n"><em>N</em> = ${fmtNum(entry.n)}</div>`;
       } else {
-        td.className = 'cm-score-cell';
+        td.className = 'cm-score-cell cm-score-cell-sub';
+        td.innerHTML = '<div class="cm-score-n"><em>N</em> = 0</div>';
       }
       tr.appendChild(td);
     });
@@ -1750,16 +1754,16 @@ async function loadCountryMatrix() {
   }
   document.getElementById('cmSpinner').classList.add('hidden');
   countryMatrixData = data;
-  data.rows.forEach(row => { row._n = Object.keys(row.scores).length; });
+  data.rows.forEach(row => { row._n = Object.values(row.scores).filter(e => e.s != null).length; });
 
   const headRow = document.getElementById('cmHeadRow');
   headRow.innerHTML =
     `<th class="cm-rank-th">#</th>` +
     `<th class="cm-stmt-th cm-th-sortable" data-sort="stmt">Statement<span class="cm-sort-icon"></span></th>` +
-    `<th class="cm-n-th cm-th-sortable" data-sort="n"><em>N</em><span class="cm-sort-icon"></span></th>` +
-    `<th class="cm-sd-th cm-th-sortable" data-sort="sd"><em>SD</em><span class="cm-sort-icon"></span></th>` +
+    `<th class="cm-n-th cm-th-sortable" data-sort="n" title="Number of countries that have at least 10 ratings for a statement"><em>N</em><span class="cm-sort-icon"></span></th>` +
+    `<th class="cm-sd-th cm-th-sortable" data-sort="sd" title="Standard deviation of a statement&#39;s commonsensicality score among all applicable countries"><em>SD</em><span class="cm-sort-icon"></span></th>` +
     data.countries.map(c =>
-      `<th class="cm-country-th cm-th-sortable" data-sort="${esc(c)}" title="${esc(c)}">` +
+      `<th class="cm-country-th cm-th-sortable" data-sort="${esc(c)}" title="${esc(c)}, ${fmtNum(data.country_n_statements[c])} statements">` +
         `<div class="cm-country-th-inner">` +
           `<span class="cm-flag">${countryFlag(c)}</span>` +
           `<span class="cm-country-name">${esc(countryCode(c))}</span>` +
@@ -2562,7 +2566,7 @@ async function loadGroupCompare() {
       : "";
   const cmpIndivFootnote =
     cmpIndivNoteA || cmpIndivNoteB
-      ? `<br><span class="cmp-filter-note">Not all users are shown — each must have rated ≥5 statements with ≥5 ratings in their own group.</span>`
+      ? `<br><span class="cmp-filter-note">Not all users are shown — each must have rated ≥5 statements with ≥10 ratings in their own group.</span>`
       : "";
   document.getElementById("compareIndivSub").innerHTML =
     `<span style="color:${CMP_COLOR_A.replace("0.65", "1")}">■</span> <strong>${esc(labelA)}</strong>: ${fmtNum(ia.length)}${cmpIndivNoteA} individuals, mean ${cmpMean(iaS)} &nbsp;·&nbsp; ` +

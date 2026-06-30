@@ -5,7 +5,7 @@ import numpy as np
 def individual_commonsensicality(
     target_ratings: pd.DataFrame,
     reference_ratings: pd.DataFrame,
-    min_ratings_per_statement: int = 5,
+    min_ratings_per_statement: int = 10,
     min_statements_per_user: int = 5,
 ) -> pd.DataFrame:
     """Compute individual commonsensicality score for each user in target_ratings, statement ratings in reference_ratings.
@@ -13,7 +13,7 @@ def individual_commonsensicality(
     Args:
         target_ratings (pd.DataFrame): A DataFrame with columns ["userSessionId", "statementId", "I_agree", "others_agree"] containing the ratings for which to compute commonsensicality.
         reference_ratings (pd.DataFrame): A DataFrame with columns ["userSessionId", "statementId", "I_agree"] containing the reference ratings. These ratings are used to determine the majority vote for each statement, which is then compared against the target_ratings to compute consensus and awareness scores. It can be the same as target_ratings.
-        min_ratings_per_statement (int, optional): Minimum number of ratings required for a statement to be included in the analysis. Defaults to 5.
+        min_ratings_per_statement (int, optional): Minimum number of ratings required for a statement to be included in the analysis. Defaults to 10.
         min_statements_per_user (int, optional): Minimum number of statements a user must have rated for their commonsensicality score to be computed. Defaults to 5.
 
     Returns:
@@ -115,13 +115,13 @@ def individual_commonsensicality(
 
 def statement_commonsensicality(
     ratings: pd.DataFrame,
-    min_ratings_per_statement: int = 5,
+    min_ratings_per_statement: int = 10,
 ) -> pd.DataFrame:
     """Compute commonsensicality score for each statement based on the ratings in the given DataFrame.
 
     Args:
         ratings (pd.DataFrame): A DataFrame with columns ["statementId", "I_agree", "others_agree"] containing the ratings based on which to compute statement commonsensicality.
-        min_ratings_per_statement (int, optional): The minimum number of ratings a statement must have to be included in the computation. Defaults to 5.
+        min_ratings_per_statement (int, optional): The minimum number of ratings a statement must have to be included in the computation. Defaults to 10.
 
     Returns:
         pd.DataFrame: A DataFrame indexed by statementId with columns ["n_ratings", "I_agree_mean", "others_agree_mean", "consensus", "awareness", "commonsensicality"]. Note that only statements that have been rated by at least min_ratings_per_statement users are included in the analysis.

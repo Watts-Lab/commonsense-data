@@ -54,21 +54,23 @@
           <button id="btnScoresNext" class="page-btn" disabled>&#8250;</button>
         </div>
       </div>
-      <table id="scoresTable">
-        <thead>
-          <tr>
-            <th class="col-rank">#</th>
-            <th class="col-user">User</th>
-            <th class="col-stmts sortable sort-active" data-sort="n_statements">Statements <span class="sort-icon">▼</span></th>
-            <th class="col-score sortable" data-sort="consensus">Consensus <span class="sort-icon"></span></th>
-            <th class="col-score sortable" data-sort="awareness">Awareness <span class="sort-icon"></span></th>
-            <th class="col-score sortable" data-sort="commonsensicality">Commonsensicality <span class="sort-icon"></span></th>
-          </tr>
-        </thead>
-        <tbody id="scoresBody">
-          <tr><td colspan="6" class="empty-row">Loading…</td></tr>
-        </tbody>
-      </table>
+      <div class="table-scroll-wrap">
+        <table id="scoresTable">
+          <thead>
+            <tr>
+              <th class="col-rank">#</th>
+              <th class="col-user">User</th>
+              <th class="col-stmts sortable sort-active" data-sort="n_statements">Statements <span class="sort-icon">▼</span></th>
+              <th class="col-score sortable" data-sort="consensus">Consensus <span class="sort-icon"></span></th>
+              <th class="col-score sortable" data-sort="awareness">Awareness <span class="sort-icon"></span></th>
+              <th class="col-score sortable" data-sort="commonsensicality">Commonsensicality <span class="sort-icon"></span></th>
+            </tr>
+          </thead>
+          <tbody id="scoresBody">
+            <tr><td colspan="6" class="empty-row">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
@@ -140,23 +142,25 @@
           <button id="btnStmtScoresNext" class="page-btn" disabled>&#8250;</button>
         </div>
       </div>
-      <table id="stmtScoresTable">
-        <thead>
-          <tr>
-            <th class="col-rank">#</th>
-            <th class="col-statement">Statement</th>
-            <th class="col-num sortable sort-active" data-sort="n_ratings">Ratings <span class="sort-icon">▼</span></th>
-            <th class="col-stmtscore sortable" data-sort="I_agree_mean">I agree <button class="prop-help-btn" type="button" data-col-label="I agree" data-col-def="Percentage of users who subjectively agreed with the statement.">?</button> <span class="sort-icon"></span></th>
-            <th class="col-stmtscore sortable" data-sort="others_agree_mean">Others agree <button class="prop-help-btn" type="button" data-col-label="Others agree" data-col-def="Percentage of users who believed that most other people would agree with the statement.">?</button> <span class="sort-icon"></span></th>
-            <th class="col-stmtscore sortable" data-sort="consensus">Consensus <span class="sort-icon"></span></th>
-            <th class="col-stmtscore sortable" data-sort="awareness">Awareness <span class="sort-icon"></span></th>
-            <th class="col-stmtscore sortable" data-sort="commonsensicality">Commonsensicality <span class="sort-icon"></span></th>
-          </tr>
-        </thead>
-        <tbody id="stmtScoresBody">
-          <tr><td colspan="8" class="empty-row">Loading…</td></tr>
-        </tbody>
-      </table>
+      <div class="table-scroll-wrap">
+        <table id="stmtScoresTable">
+          <thead>
+            <tr>
+              <th class="col-rank">#</th>
+              <th class="col-statement">Statement</th>
+              <th class="col-num sortable sort-active" data-sort="n_ratings">Ratings <span class="sort-icon">▼</span></th>
+              <th class="col-stmtscore sortable" data-sort="I_agree_mean">I agree <button class="prop-help-btn" type="button" data-col-label="I agree" data-col-def="Percentage of users who subjectively agreed with the statement.">?</button> <span class="sort-icon"></span></th>
+              <th class="col-stmtscore sortable" data-sort="others_agree_mean">Others agree <button class="prop-help-btn" type="button" data-col-label="Others agree" data-col-def="Percentage of users who believed that most other people would agree with the statement.">?</button> <span class="sort-icon"></span></th>
+              <th class="col-stmtscore sortable" data-sort="consensus">Consensus <span class="sort-icon"></span></th>
+              <th class="col-stmtscore sortable" data-sort="awareness">Awareness <span class="sort-icon"></span></th>
+              <th class="col-stmtscore sortable" data-sort="commonsensicality">Commonsensicality <span class="sort-icon"></span></th>
+            </tr>
+          </thead>
+          <tbody id="stmtScoresBody">
+            <tr><td colspan="8" class="empty-row">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
@@ -288,7 +292,7 @@
   <div id="panelCountries" class="panel hidden">
     <div class="toolbar">
       <div class="toolbar-left">
-        <span class="toolbar-label" style="font-size:0.82rem;color:#64748B">Commonsensicality (%) per statement × country · only cells with ≥ 5 ratings shown</span>
+        <span class="toolbar-label" style="font-size:0.82rem;color:#64748B">Commonsensicality (%) per statement × country · only cells with ≥ 10 ratings shown</span>
       </div>
       <div id="cmSummary" class="summary"></div>
       <div id="cmSpinner" class="spinner hidden"></div>

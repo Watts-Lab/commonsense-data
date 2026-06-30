@@ -455,7 +455,7 @@ td { padding: 10px 14px; vertical-align: middle; }
 .scores-wrap {
   flex: 1;
   overflow-y: auto;
-  padding: 16px max(20px, 15vw) 50vh;
+  padding: 16px max(20px, 12.5vw) 50vh;
   background: #F1F5F9;
   display: flex;
   flex-direction: column;
@@ -677,6 +677,22 @@ td { padding: 10px 14px; vertical-align: middle; }
    the gap is already provided by the flex container */
 #scoresTable { margin-top: 0; border-radius: 10px; }
 
+/* ── Scrollable table containers ─────────────────────────── */
+/* Caps height at ~10 rows; thead sticky is relative to this container.
+   flex-shrink:0 is required: overflow:auto gives the item min-size 0, so
+   without it the flex algorithm in .scores-wrap shrinks the wrapper to 0. */
+.table-scroll-wrap {
+  max-height: 650px;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+.dp-detail-table-wrap {
+  max-height: 650px;
+  overflow-y: auto;
+}
+/* Reset margin-top: the flex gap in .scores-wrap already provides spacing */
+.table-scroll-wrap > table { margin-top: 0; }
+
 .td-user {
   font-family: ui-monospace, "SF Mono", monospace;
   font-size: 0.78rem;
@@ -716,7 +732,7 @@ td { padding: 10px 14px; vertical-align: middle; }
 }
 
 /* Individual Scores: cap bar width */
-#scoresTable .pct-track { max-width: 55px; }
+#scoresTable .pct-track { max-width: 44px; }
 
 /* Statement Ratings: cap bar width */
 #stmtTable .pct-track { max-width: 65px; }
@@ -730,7 +746,7 @@ td { padding: 10px 14px; vertical-align: middle; }
 #stmtScoresTable th.col-num       { width:  8%; }
 #stmtScoresTable th.col-stmtscore { width: 12%; }
 /* Cap bar width so columns don't feel cramped at wider viewports */
-#stmtScoresTable .pct-track { max-width: 50px; }
+#stmtScoresTable .pct-track { max-width: 40px; }
 #stmtScoresTable .pct-label { width: 48px; }
 
 /* Individual Scores table: balanced column widths */
@@ -1231,6 +1247,8 @@ td { padding: 10px 14px; vertical-align: middle; }
   border-bottom: 2px solid #CBD5E1;
 }
 
+.cm-table tbody td { vertical-align: bottom; }
+
 .cm-rank-cell {
   position: sticky;
   left: 0;
@@ -1294,7 +1312,7 @@ td { padding: 10px 14px; vertical-align: middle; }
 .cm-country-th-inner {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-end;
   gap: 2px;
 }
 
