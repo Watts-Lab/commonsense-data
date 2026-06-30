@@ -804,8 +804,18 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             stmt_id = int(params.get("statementId", ["0"])[0])
             country = params.get("country", [""])[0]
             self._send_json(get_country_cell(stmt_id, country))
-        else:
+        elif parsed.path == "/" or parsed.path.startswith("/static/"):
             http.server.SimpleHTTPRequestHandler.do_GET(self)
+        else:
+            # SPA fallback: serve index.html for all panel routes
+            index_path = os.path.join(BASE_DIR, "index.html")
+            with open(index_path, "rb") as f:
+                body = f.read()
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
 
     def log_message(self, fmt, *args):
         if "/api/" in str(args[0]):

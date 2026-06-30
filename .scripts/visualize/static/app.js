@@ -2,17 +2,33 @@
 
 const PAGE_SIZE = 25;
 
-// ── API base ───────────────────────────────────────────────────────────────
-// Derive the API root from this script's own URL so the app works both at the
-// site root (local dev: http://localhost:8080/api) and when mounted under a
-// sub-path in production (e.g. /report/api). app.js is served from
-// "<mount>/static/app.js", so the mount root is two levels up.
-const API = (() => {
+// ── API base + mount path ──────────────────────────────────────────────────
+// Derive the API root and mount path from this script's own URL so the app
+// works both at the site root (local dev: http://localhost:8080/) and when
+// mounted under a sub-path in production (e.g. /report/).
+// app.js is served from "<mount>/static/app.js", so the mount root is two
+// levels up.
+const { API, MOUNT_PATH } = (() => {
   const sc =
     document.currentScript || document.querySelector('script[src*="app.js"]');
   const mountRoot = new URL("../", new URL(sc.src)); // parent of static/
-  return new URL("api", mountRoot).href.replace(/\/$/, "");
+  return {
+    API: new URL("api", mountRoot).href.replace(/\/$/, ""),
+    MOUNT_PATH: mountRoot.pathname, // "/" locally, "/report/" in production
+  };
 })();
+
+// ── Panel URL routing ──────────────────────────────────────────────────────
+const TAB_SLUGS = {
+  stmtScores: "statement_scores",
+  scores:     "individual_scores",
+  dp:         "design_points",
+  compare:    "group_comparison",
+  countries:  "countries",
+};
+const SLUG_TABS = Object.fromEntries(
+  Object.entries(TAB_SLUGS).map(([k, v]) => [v, k])
+);
 
 // ── DOM refs ───────────────────────────────────────────────────────────────
 
@@ -383,41 +399,34 @@ function fixStatement(s) {
 
 // ── Tab switching ──────────────────────────────────────────────────────────
 
+function tabFromPathname() {
+  const slug = window.location.pathname
+    .slice(MOUNT_PATH.length)   // strip mount prefix ("" locally, "report/" in prod)
+    .replace(/^\/|\/$/g, "");   // strip leading/trailing slashes
+  return SLUG_TABS[slug] || "stmtScores";
+}
+
+function switchToTab(tab, pushUrl) {
+  document.querySelectorAll(".tab-btn").forEach((b) => {
+    b.classList.toggle("active", b.dataset.tab === tab);
+  });
+  document.getElementById("panelScores").classList.toggle("hidden", tab !== "scores");
+  document.getElementById("panelStmtScores").classList.toggle("hidden", tab !== "stmtScores");
+  document.getElementById("panelDP").classList.toggle("hidden", tab !== "dp");
+  document.getElementById("panelCompare").classList.toggle("hidden", tab !== "compare");
+  document.getElementById("panelCountries").classList.toggle("hidden", tab !== "countries");
+  if (tab === "scores" && !scoresLoaded) { scoresLoaded = true; loadScores("all", "all"); }
+  if (tab === "dp" && !dpPanelLoaded) { dpPanelLoaded = true; loadDesignPoints("all"); }
+  if (tab === "countries" && !countryMatrixLoaded) { countryMatrixLoaded = true; loadCountryMatrix(); }
+  if (pushUrl) {
+    history.pushState({ tab }, "", MOUNT_PATH + TAB_SLUGS[tab]);
+  }
+}
+
 document.querySelectorAll(".tab-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
     try {
-      document
-        .querySelectorAll(".tab-btn")
-        .forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
-      const tab = btn.dataset.tab;
-      document
-        .getElementById("panelScores")
-        .classList.toggle("hidden", tab !== "scores");
-      document
-        .getElementById("panelStmtScores")
-        .classList.toggle("hidden", tab !== "stmtScores");
-      document
-        .getElementById("panelDP")
-        .classList.toggle("hidden", tab !== "dp");
-      document
-        .getElementById("panelCompare")
-        .classList.toggle("hidden", tab !== "compare");
-      document
-        .getElementById("panelCountries")
-        .classList.toggle("hidden", tab !== "countries");
-      if (tab === "scores" && !scoresLoaded) {
-        scoresLoaded = true;
-        loadScores("all", "all");
-      }
-      if (tab === "dp" && !dpPanelLoaded) {
-        dpPanelLoaded = true;
-        loadDesignPoints("all");
-      }
-      if (tab === "countries" && !countryMatrixLoaded) {
-        countryMatrixLoaded = true;
-        loadCountryMatrix();
-      }
+      switchToTab(btn.dataset.tab, true);
     } catch (err) {
       console.error("Tab switch error:", err);
       alert(
@@ -426,6 +435,16 @@ document.querySelectorAll(".tab-btn").forEach((btn) => {
       );
     }
   });
+});
+
+// Set initial state so back/forward work, then route to the correct panel
+const _initialTab = tabFromPathname();
+history.replaceState({ tab: _initialTab }, "", window.location.pathname);
+switchToTab(_initialTab, false);
+
+window.addEventListener("popstate", (e) => {
+  const tab = (e.state && e.state.tab) || tabFromPathname();
+  switchToTab(tab, false);
 });
 
 // ── Country dropdowns ──────────────────────────────────────────────────────
