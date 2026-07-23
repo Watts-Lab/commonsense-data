@@ -71,6 +71,7 @@ const scoresFilterLabel = document.getElementById("scoresFilterLabel");
 
 // Scores
 let allScoresRows = []; // raw from API, never mutated
+let allScoresExcluded = []; // users below threshold, shown grayed out
 let scoresRows = []; // current view: filtered + sorted slice of allScoresRows
 let scoresPage = 1;
 let scoresLoaded = false;
@@ -88,6 +89,7 @@ let histBinEdges = [];
 
 // Statement Scores
 let stmtScoresAllRows = [],
+  stmtScoresAllExcluded = [], // statements below threshold, shown grayed out
   stmtScoresRows = [],
   stmtScoresPage = 1;
 let stmtScoresLoaded = false;
@@ -266,6 +268,20 @@ const ssPropFilters = Object.fromEntries(
 const cmPropFilters = Object.fromEntries(
   PROP_DEFS.map((d) => [d.key, { v1: false, v0: false }]),
 );
+
+// Individual Scores search
+let scoresSearchQuery = "";
+
+// Global date filter (applies to all panels)
+let globalDateFrom = "";
+let globalDateTo = "";
+
+function dateParams() {
+  const parts = [];
+  if (globalDateFrom) parts.push(`date_from=${encodeURIComponent(globalDateFrom)}`);
+  if (globalDateTo) parts.push(`date_to=${encodeURIComponent(globalDateTo)}`);
+  return parts.length ? "&" + parts.join("&") : "";
+}
 
 // Statement search queries
 let stmtScoresSearchQuery = "";
@@ -474,7 +490,8 @@ async function populateSelects() {
 // ── User detail modal ──────────────────────────────────────────────────────
 
 async function openUserDetail(userRow, opts = {}) {
-  modalUserId.textContent = userRow.userSessionId;
+  const countryLabel = userRow.country ? ` · ${userRow.country}` : "";
+  modalUserId.textContent = userRow.userSessionId + countryLabel;
   modalUserScores.textContent =
     `Consensus: ${fmtPct(userRow.consensus)} · ` +
     `Awareness: ${fmtPct(userRow.awareness)} · ` +
@@ -487,7 +504,7 @@ async function openUserDetail(userRow, opts = {}) {
   const reference =
     opts.reference !== undefined ? opts.reference : referenceSelect.value;
   const target = opts.target !== undefined ? opts.target : targetSelect.value;
-  const url = `${API}/user-detail?userId=${encodeURIComponent(userRow.userSessionId)}&reference=${encodeURIComponent(reference)}&target=${encodeURIComponent(target)}`;
+  const url = `${API}/user-detail?userId=${encodeURIComponent(userRow.userSessionId)}&reference=${encodeURIComponent(reference)}&target=${encodeURIComponent(target)}${dateParams()}`;
   let data;
   try {
     data = await fetch(url).then((r) => r.json());
@@ -589,6 +606,7 @@ document.addEventListener("keydown", (e) => {
 
 function buildScoresRows() {
   const nBins = histBinEdges.length - 1;
+  const q = scoresSearchQuery.trim().toLowerCase();
 
   let rows =
     activeBinIdx === null
@@ -603,14 +621,36 @@ function buildScoresRows() {
           );
         });
 
+  if (q) {
+    rows = rows.filter((r) => r.userSessionId.toLowerCase().includes(q));
+  }
+
+  if (globalDateFrom) {
+    rows = rows.filter((r) => r.last_answer && r.last_answer >= globalDateFrom);
+  }
+  if (globalDateTo) {
+    rows = rows.filter((r) => r.first_answer && r.first_answer <= globalDateTo);
+  }
+
   if (sortKey !== null) {
     rows.sort((a, b) => {
-      const d = a[sortKey] - b[sortKey];
+      const av = a[sortKey], bv = b[sortKey];
+      const d = typeof av === "string"
+        ? (av ?? "").localeCompare(bv ?? "")
+        : av - bv;
       return sortDir === "asc" ? d : -d;
     });
   }
 
-  scoresRows = rows;
+  // Append excluded users (only when no histogram bin is selected)
+  let excluded = [];
+  if (activeBinIdx === null) {
+    excluded = allScoresExcluded.map(r => ({ ...r, _excluded: true }));
+    if (q) excluded = excluded.filter(r => r.userSessionId.toLowerCase().includes(q));
+    excluded.sort((a, b) => b.n_statements - a.n_statements);
+  }
+
+  scoresRows = [...rows, ...excluded];
   scoresPage = 1;
 }
 
@@ -648,18 +688,31 @@ function scoresTotalPages() {
 function renderScoresPage() {
   const start = (scoresPage - 1) * PAGE_SIZE;
   const fragment = document.createDocumentFragment();
+  const qualifyingBefore = scoresRows.slice(0, start).filter(r => !r._excluded).length;
+  let qualRank = qualifyingBefore + 1;
 
-  scoresRows.slice(start, start + PAGE_SIZE).forEach((row, i) => {
+  scoresRows.slice(start, start + PAGE_SIZE).forEach((row) => {
     const tr = document.createElement("tr");
     tr.style.cursor = "pointer";
     const userId = row.userSessionId;
-    tr.innerHTML =
-      `<td class="td-rank">${fmtNum(start + i + 1)}</td>` +
-      `<td class="td-user" title="${esc(userId)}">${esc(userId.slice(0, 14))}…</td>` +
-      `<td class="td-num">${fmtNum(row.n_statements)}</td>` +
-      `<td>${pctBarScore(row.consensus)}</td>` +
-      `<td>${pctBarScore(row.awareness)}</td>` +
-      `<td>${pctBarScore(row.commonsensicality)}</td>`;
+    if (row._excluded) {
+      tr.classList.add("row-excluded");
+      tr.innerHTML =
+        `<td class="td-rank td-dim">—</td>` +
+        `<td class="td-user" title="${esc(userId)}">${esc(userId.slice(0, 14))}…</td>` +
+        `<td class="td-num">${fmtNum(row.n_statements)}</td>` +
+        `<td class="td-dim">—</td>` +
+        `<td class="td-dim">—</td>` +
+        `<td class="td-dim">—</td>`;
+    } else {
+      tr.innerHTML =
+        `<td class="td-rank">${fmtNum(qualRank++)}</td>` +
+        `<td class="td-user" title="${esc(userId)}">${esc(userId.slice(0, 14))}…</td>` +
+        `<td class="td-num">${fmtNum(row.n_statements)}</td>` +
+        `<td>${pctBarScore(row.consensus)}</td>` +
+        `<td>${pctBarScore(row.awareness)}</td>` +
+        `<td>${pctBarScore(row.commonsensicality)}</td>`;
+    }
     tr.addEventListener("click", () => openUserDetail(row));
     fragment.appendChild(tr);
   });
@@ -795,13 +848,15 @@ async function loadScores(target, reference) {
 
   // Reset view state
   activeBinIdx = null;
+  scoresSearchQuery = "";
+  document.getElementById("scoresSearch").value = "";
   sortKey = "n_statements";
   sortDir = "desc";
   updateSortHeaders();
 
   let data;
   try {
-    const url = `${API}/scores?target=${encodeURIComponent(target)}&reference=${encodeURIComponent(reference)}`;
+    const url = `${API}/scores?target=${encodeURIComponent(target)}&reference=${encodeURIComponent(reference)}${dateParams()}`;
     data = await fetch(url).then((r) => r.json());
   } catch {
     scoresBody.innerHTML =
@@ -818,6 +873,7 @@ async function loadScores(target, reference) {
   }
 
   allScoresRows = data.users;
+  allScoresExcluded = data.users_excluded || [];
 
   const tLabel = target === "all" ? "all countries" : target;
   const rLabel = reference === "all" ? "all countries" : reference;
@@ -877,7 +933,17 @@ function buildStmtScoresRows() {
     ssFiltered = ssFiltered.filter((r) =>
       r.statement.toLowerCase().includes(ssq),
     );
-  stmtScoresRows = ssFiltered;
+
+  // Append excluded statements (only when no histogram bin is selected)
+  let ssExcluded = [];
+  if (stmtScoresActiveBinIdx === null) {
+    ssExcluded = stmtScoresAllExcluded.map(r => ({ ...r, _excluded: true }));
+    ssExcluded = applyPropFilters(ssExcluded, ssPropFilters);
+    if (ssq) ssExcluded = ssExcluded.filter(r => r.statement.toLowerCase().includes(ssq));
+    ssExcluded.sort((a, b) => b.n_ratings - a.n_ratings);
+  }
+
+  stmtScoresRows = [...ssFiltered, ...ssExcluded];
   stmtScoresPage = 1;
 }
 
@@ -916,18 +982,34 @@ function renderStmtScoresPage(preserveScroll = false) {
   const start = (stmtScoresPage - 1) * PAGE_SIZE;
   const fragment = document.createDocumentFragment();
 
-  stmtScoresRows.slice(start, start + PAGE_SIZE).forEach((row, i) => {
+  const qualifyingBeforeStmt = stmtScoresRows.slice(0, start).filter(r => !r._excluded).length;
+  let qualRankStmt = qualifyingBeforeStmt + 1;
+
+  stmtScoresRows.slice(start, start + PAGE_SIZE).forEach((row) => {
     const tr = document.createElement("tr");
     const stmt = fixStatement(row.statement);
-    tr.innerHTML =
-      `<td class="td-rank">${fmtNum(start + i + 1)}</td>` +
-      `<td class="td-statement" title="${esc(stmt)}">${esc(stmt)}</td>` +
-      `<td class="td-num">${fmtNum(row.n_ratings)}</td>` +
-      `<td>${pctBar(row.I_agree_mean)}</td>` +
-      `<td>${pctBar(row.others_agree_mean)}</td>` +
-      `<td>${pctBarScore(row.consensus)}</td>` +
-      `<td>${pctBarScore(row.awareness)}</td>` +
-      `<td>${pctBarScore(row.commonsensicality)}</td>`;
+    if (row._excluded) {
+      tr.classList.add("row-excluded");
+      tr.innerHTML =
+        `<td class="td-rank td-dim">—</td>` +
+        `<td class="td-statement" title="${esc(stmt)}">${esc(stmt)}</td>` +
+        `<td class="td-num">${fmtNum(row.n_ratings)}</td>` +
+        `<td class="td-dim">—</td>` +
+        `<td class="td-dim">—</td>` +
+        `<td class="td-dim">—</td>` +
+        `<td class="td-dim">—</td>` +
+        `<td class="td-dim">—</td>`;
+    } else {
+      tr.innerHTML =
+        `<td class="td-rank">${fmtNum(qualRankStmt++)}</td>` +
+        `<td class="td-statement" title="${esc(stmt)}">${esc(stmt)}</td>` +
+        `<td class="td-num">${fmtNum(row.n_ratings)}</td>` +
+        `<td>${pctBar(row.I_agree_mean)}</td>` +
+        `<td>${pctBar(row.others_agree_mean)}</td>` +
+        `<td>${pctBarScore(row.consensus)}</td>` +
+        `<td>${pctBarScore(row.awareness)}</td>` +
+        `<td>${pctBarScore(row.commonsensicality)}</td>`;
+    }
     tr.style.cursor = "pointer";
     tr.addEventListener("click", () => openStmtCombined(row));
     fragment.appendChild(tr);
@@ -1060,7 +1142,7 @@ async function openStmtCombined(row) {
   let countriesHtml = "";
   try {
     const countries = await fetch(
-      `${API}/statement-countries?statementId=${encodeURIComponent(row.statementId)}`,
+      `${API}/statement-countries?statementId=${encodeURIComponent(row.statementId)}${dateParams()}`,
     ).then((r) => r.json());
     if (countries.length) {
       const countryRows = countries
@@ -1132,7 +1214,7 @@ async function loadStmtScores(country) {
   btnStmtScoresPrev.disabled = true;
   btnStmtScoresNext.disabled = true;
   stmtScoresBody.innerHTML =
-    '<tr><td colspan="8" class="empty-row">Computing scores…</td></tr>';
+    '<tr><td colspan="6" class="empty-row">Computing scores…</td></tr>';
 
   stmtScoresActiveBinIdx = null;
   stmtScoresSortKey = "n_ratings";
@@ -1142,11 +1224,11 @@ async function loadStmtScores(country) {
   let data;
   try {
     data = await fetch(
-      `${API}/statement-scores?country=${encodeURIComponent(country)}`,
+      `${API}/statement-scores?country=${encodeURIComponent(country)}${dateParams()}`,
     ).then((r) => r.json());
   } catch {
     stmtScoresBody.innerHTML =
-      '<tr><td colspan="8" class="empty-row">Failed to compute scores.</td></tr>';
+      '<tr><td colspan="6" class="empty-row">Failed to compute scores.</td></tr>';
     stmtScoresSummaryEl.textContent = "";
     stmtScoresSpinnerEl.classList.add("hidden");
     return;
@@ -1155,19 +1237,20 @@ async function loadStmtScores(country) {
   stmtScoresSpinnerEl.classList.add("hidden");
 
   if (!data.rows) {
-    stmtScoresBody.innerHTML = `<tr><td colspan="8" class="empty-row">Server error: ${esc(data.error || "unexpected response")}. Restart the server and try again.</td></tr>`;
+    stmtScoresBody.innerHTML = `<tr><td colspan="6" class="empty-row">Server error: ${esc(data.error || "unexpected response")}. Restart the server and try again.</td></tr>`;
     stmtScoresSummaryEl.textContent = "";
     return;
   }
 
   stmtScoresAllRows = data.rows;
+  stmtScoresAllExcluded = data.rows_excluded || [];
 
   const label = country === "all" ? "all countries" : country;
   stmtScoresSummaryEl.textContent = `${fmtNum(data.n_statements)} statements · ${fmtNum(data.n_users)} participants (${label})`;
 
   if (!stmtScoresAllRows.length) {
     stmtScoresBody.innerHTML =
-      '<tr><td colspan="8" class="empty-row">No statements met the minimum criteria.</td></tr>';
+      '<tr><td colspan="6" class="empty-row">No statements met the minimum criteria.</td></tr>';
     return;
   }
 
@@ -1463,7 +1546,7 @@ async function loadDpStatements(country, props) {
 
   let data;
   try {
-    data = await fetch(`${API}/dp-statements?${params}`).then((r) => r.json());
+    data = await fetch(`${API}/dp-statements?${params}${dateParams()}`).then((r) => r.json());
   } catch {
     detailBody.innerHTML = '<div class="empty-row">Failed to load.</div>';
     return;
@@ -1764,7 +1847,7 @@ async function loadCountryMatrix() {
 
   let data;
   try {
-    data = await fetch(`${API}/country-matrix`).then(r => r.json());
+    data = await fetch(`${API}/country-matrix?${dateParams().slice(1) || ""}`).then(r => r.json());
   } catch {
     document.getElementById('cmBody').innerHTML =
       '<tr><td class="empty-row">Failed to load.</td></tr>';
@@ -1815,7 +1898,7 @@ async function loadCountryMatrix() {
     const country = td.dataset.country;
     try {
       const cell = await fetch(
-        `${API}/country-cell?statementId=${encodeURIComponent(stmtId)}&country=${encodeURIComponent(country)}`
+        `${API}/country-cell?statementId=${encodeURIComponent(stmtId)}&country=${encodeURIComponent(country)}${dateParams()}`
       ).then(r => r.json());
       if (!cell.error) openStmtDetail(cell, country);
     } catch {}
@@ -1834,7 +1917,7 @@ async function loadDesignPoints(country) {
   let data;
   try {
     data = await fetch(
-      `${API}/design-points?country=${encodeURIComponent(country)}`,
+      `${API}/design-points?country=${encodeURIComponent(country)}${dateParams()}`,
     ).then((r) => r.json());
   } catch {
     document.getElementById("dpTableContainer").innerHTML =
@@ -1873,6 +1956,41 @@ PROP_DEFS.forEach(({ key }) => {
     buildStmtScoresRows();
     renderStmtScoresPage(true);
   });
+});
+
+document.getElementById("scoresSearch").addEventListener("input", (e) => {
+  scoresSearchQuery = e.target.value;
+  buildScoresRows();
+  renderScoresPage();
+});
+
+function handleGlobalDateChange() {
+  // Reset all panel loaded flags so each reloads with the new date filter
+  scoresLoaded = false;
+  stmtScoresLoaded = false;
+  dpPanelLoaded = false;
+  countryMatrixLoaded = false;
+
+  // Reload eagerly-loaded panels immediately
+  stmtScoresLoaded = true;
+  loadStmtScores(stmtScoresCountrySelect.value);
+  loadGroupCompare();
+
+  // Reload the current active tab if it's a lazily-loaded one
+  const activeTab = document.querySelector(".tab-btn.active")?.dataset.tab || "stmtScores";
+  if (activeTab === "scores") { scoresLoaded = true; loadScores(targetSelect.value, referenceSelect.value); }
+  else if (activeTab === "dp") { dpPanelLoaded = true; loadDesignPoints(dpCountrySelect.value); }
+  else if (activeTab === "countries") { countryMatrixLoaded = true; loadCountryMatrix(); }
+}
+
+document.getElementById("globalDateFrom").addEventListener("change", (e) => {
+  globalDateFrom = e.target.value;
+  handleGlobalDateChange();
+});
+
+document.getElementById("globalDateTo").addEventListener("change", (e) => {
+  globalDateTo = e.target.value;
+  handleGlobalDateChange();
 });
 
 document.getElementById("stmtScoresSearch").addEventListener("input", (e) => {
@@ -2550,7 +2668,7 @@ async function loadGroupCompare() {
   let data;
   try {
     data = await fetch(
-      `${API}/group-compare?groupA=${encodeURIComponent(groupA)}&groupB=${encodeURIComponent(groupB)}`,
+      `${API}/group-compare?groupA=${encodeURIComponent(groupA)}&groupB=${encodeURIComponent(groupB)}${dateParams()}`,
     ).then((r) => r.json());
   } catch {
     compareSpinnerEl.classList.add("hidden");

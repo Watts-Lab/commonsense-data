@@ -18,6 +18,16 @@
       <button class="tab-btn" data-tab="compare">Group Comparison</button>
       <button class="tab-btn" data-tab="countries">Countries</button>
     </div>
+    <div class="topbar-date-filter" style="display:flex;align-items:center;gap:8px;margin-left:16px">
+      <span style="display:flex;align-items:center;gap:4px">
+        <label for="globalDateFrom" style="font-size:0.78rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:rgba(255,255,255,0.7);white-space:nowrap">From</label>
+        <input type="date" id="globalDateFrom" class="select" style="width:auto">
+      </span>
+      <span style="display:flex;align-items:center;gap:4px">
+        <label for="globalDateTo" style="font-size:0.78rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:rgba(255,255,255,0.7);white-space:nowrap">To</label>
+        <input type="date" id="globalDateTo" class="select" style="width:auto">
+      </span>
+    </div>
   </nav>
 
   <!-- ── Individual Scores panel ──────────────────────────── -->
@@ -45,6 +55,9 @@
         </div>
       </div>
       <div id="scoresMinRatingsNote" class="min-ratings-note hidden"></div>
+      <div class="search-filter-row" style="display:flex;align-items:center;gap:12px">
+        <input type="search" id="scoresSearch" class="stmt-search-input" placeholder="Search by User ID…" autocomplete="off">
+      </div>
       <div class="table-nav-row">
         <span id="scoresFilterLabel" class="scores-filter-label"></span>
         <p class="click-hint">Click on a row to explore more.</p>
@@ -60,7 +73,7 @@
             <tr>
               <th class="col-rank">#</th>
               <th class="col-user">User</th>
-              <th class="col-stmts sortable sort-active" data-sort="n_statements">Statements <span class="sort-icon">▼</span></th>
+<th class="col-stmts sortable sort-active" data-sort="n_statements">Statements <span class="sort-icon">▼</span></th>
               <th class="col-score sortable" data-sort="consensus">Consensus <span class="sort-icon"></span></th>
               <th class="col-score sortable" data-sort="awareness">Awareness <span class="sort-icon"></span></th>
               <th class="col-score sortable" data-sort="commonsensicality">Commonsensicality <span class="sort-icon"></span></th>

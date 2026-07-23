@@ -59,7 +59,7 @@ df_answers.sort_values("createdAt", inplace=True)
 df_answers.drop_duplicates(
     subset=["userSessionId", "statementId"], keep="last", inplace=True
 )
-df_answers.drop(columns=["createdAt"], inplace=True)
+# df_answers.drop(columns=["createdAt"], inplace=True)
 
 # Sessions with consistent IDs across all sources (pre-bug / post-bug cohort):
 # must have the same userSessionId appearing as the answers, CRT, RME, and demo ID.
@@ -123,6 +123,7 @@ print(f"  via consistent ID      : {len(df_common):,}")
 df_answers = df_answers[df_answers["userSessionId"].isin(df_matched_all.index)].copy()
 print(f"Number of answers for {len(df_matched_all):,} users: {len(df_answers):,}")
 
+print(df_answers.columns)
 df_answers.to_csv("data/answers.csv", index=False)
 print("\nSaved answers to data/answers.csv")
 

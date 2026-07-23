@@ -32,6 +32,8 @@ STATEMENTS_PATH = os.environ.get(
 # ── Load data once at startup ──────────────────────────────────────────────
 print("Loading data…")
 answers = pd.read_csv(os.path.join(DATA_DIR, "answers.csv"))
+if "createdAt" in answers.columns:
+    answers["createdAt"] = pd.to_datetime(answers["createdAt"], utc=False)
 demo = pd.read_csv(os.path.join(DATA_DIR, "crt_rme_demo.csv"))
 statements = pd.read_csv(
     STATEMENTS_PATH,
@@ -77,21 +79,35 @@ print(
     f"{demo['country_reside'].nunique()} countries."
 )
 
+# ── Date filter helper ─────────────────────────────────────────────────────
+
+
+def _filter_date(df: pd.DataFrame, date_from: str, date_to: str) -> pd.DataFrame:
+    if not date_from and not date_to:
+        return df
+    if "createdAt" not in df.columns:
+        return df
+    result = df
+    if date_from:
+        result = result[result["createdAt"] >= pd.Timestamp(date_from)]
+    if date_to:
+        result = result[result["createdAt"] < pd.Timestamp(date_to) + pd.Timedelta(days=1)]
+    return result
+
+
 # ── Per-country statement aggregation (cached) ─────────────────────────────
 _cache: dict = {}
 
 
-def get_statements(country: str) -> bytes:
-    if country in _cache:
-        return _cache[country]
+def get_statements(country: str, date_from: str = "", date_to: str = "") -> bytes:
+    key = (country, date_from, date_to)
+    if key in _cache:
+        return _cache[key]
 
-    subset = merged if country == "all" else merged[merged["country_reside"] == country]
+    m = _filter_date(merged, date_from, date_to)
+    subset = m if country == "all" else m[m["country_reside"] == country]
 
-    n_users = int(
-        len(demo)
-        if country == "all"
-        else demo[demo["country_reside"] == country]["userSessionId"].nunique()
-    )
+    n_users = int(subset["userSessionId"].nunique())
 
     agg = (
         subset.groupby("statementId")
@@ -131,7 +147,7 @@ def get_statements(country: str) -> bytes:
     }
 
     encoded = json.dumps(payload, ensure_ascii=False).encode("utf-8")
-    _cache[country] = encoded
+    _cache[key] = encoded
     return encoded
 
 
@@ -139,24 +155,26 @@ def get_statements(country: str) -> bytes:
 _scores_cache: dict = {}
 
 
-def get_scores(target: str, reference: str) -> bytes:
-    key = (target, reference)
+def get_scores(target: str, reference: str, date_from: str = "", date_to: str = "") -> bytes:
+    key = (target, reference, date_from, date_to)
     if key in _scores_cache:
         return _scores_cache[key]
 
-    ans_cols = ["userSessionId", "statementId", "I_agree", "others_agree"]
+    m = _filter_date(merged, date_from, date_to)
+    has_ts = "createdAt" in m.columns
+    ans_cols = ["userSessionId", "statementId", "I_agree", "others_agree"] + (["createdAt"] if has_ts else [])
     ref_cols = ["userSessionId", "statementId", "I_agree"]
 
     target_ratings = (
-        merged[ans_cols]
+        m[ans_cols]
         if target == "all"
-        else merged[merged["country_reside"] == target][ans_cols]
+        else m[m["country_reside"] == target][ans_cols]
     ).copy()
 
     reference_ratings = (
-        merged[ref_cols]
+        m[ref_cols]
         if reference == "all"
-        else merged[merged["country_reside"] == reference][ref_cols]
+        else m[m["country_reside"] == reference][ref_cols]
     ).copy()
 
     raw_n_users = int(target_ratings["userSessionId"].nunique())
@@ -172,6 +190,20 @@ def get_scores(target: str, reference: str) -> bytes:
     scores = scores.join(stmt_counts, how="left")
     scores["n_statements"] = scores["n_statements"].fillna(0).astype(int)
 
+    # Attach per-user country
+    user_country = (
+        m.groupby("userSessionId")["country_reside"].first().rename("country")
+    )
+    scores = scores.join(user_country, how="left")
+
+    # Attach per-user first / last answer timestamps
+    if has_ts:
+        ts = target_ratings.groupby("userSessionId")["createdAt"].agg(
+            first_answer="min", last_answer="max"
+        )
+        ts = ts.apply(lambda col: col.dt.strftime("%Y-%m-%d"))
+        scores = scores.join(ts, how="left")
+
     counts, bin_edges = np.histogram(
         scores["commonsensicality"].to_numpy(dtype=float), bins=20, range=(0.0, 1.0)
     )
@@ -181,6 +213,32 @@ def get_scores(target: str, reference: str) -> bytes:
     rows_df[float_cols] = rows_df[float_cols].round(4)
     rows = rows_df.to_dict(orient="records")
 
+    # Excluded users: present in target but didn't qualify for scoring
+    qualifying_ids = set(scores.index)
+    excluded_ids = set(target_ratings["userSessionId"].unique()) - qualifying_ids
+    if excluded_ids:
+        excl_counts = (
+            target_ratings[target_ratings["userSessionId"].isin(excluded_ids)]
+            .groupby("userSessionId")["statementId"]
+            .count()
+            .rename("n_statements")
+        )
+        excl_country = (
+            m[m["userSessionId"].isin(excluded_ids)]
+            .groupby("userSessionId")["country_reside"]
+            .first()
+            .rename("country")
+        )
+        excl_df = (
+            excl_counts.to_frame()
+            .join(excl_country, how="left")
+            .sort_values("n_statements", ascending=False)
+            .reset_index()
+        )
+        users_excluded = excl_df.to_dict(orient="records")
+    else:
+        users_excluded = []
+
     payload = {
         "n_users": len(rows),
         "raw_n_users": raw_n_users,
@@ -189,6 +247,7 @@ def get_scores(target: str, reference: str) -> bytes:
             "bin_edges": [round(float(e), 4) for e in bin_edges],
         },
         "users": rows,
+        "users_excluded": users_excluded,
     }
 
     encoded = json.dumps(payload, ensure_ascii=False).encode("utf-8")
@@ -200,11 +259,13 @@ def get_scores(target: str, reference: str) -> bytes:
 _stmt_scores_cache: dict = {}
 
 
-def get_statement_scores(country: str) -> bytes:
-    if country in _stmt_scores_cache:
-        return _stmt_scores_cache[country]
+def get_statement_scores(country: str, date_from: str = "", date_to: str = "") -> bytes:
+    key = (country, date_from, date_to)
+    if key in _stmt_scores_cache:
+        return _stmt_scores_cache[key]
 
-    subset = merged if country == "all" else merged[merged["country_reside"] == country]
+    m = _filter_date(merged, date_from, date_to)
+    subset = m if country == "all" else m[m["country_reside"] == country]
     ratings = subset[["statementId", "I_agree", "others_agree"]].copy()
 
     scores = statement_commonsensicality(ratings)
@@ -215,11 +276,7 @@ def get_statement_scores(country: str) -> bytes:
     for col in PROP_COLS:
         scores[col] = scores[col].apply(lambda x: int(x) if pd.notna(x) else None)
 
-    n_users = int(
-        len(demo)
-        if country == "all"
-        else demo[demo["country_reside"] == country]["userSessionId"].nunique()
-    )
+    n_users = int(subset["userSessionId"].nunique())
 
     counts, bin_edges = np.histogram(
         scores["commonsensicality"].to_numpy(dtype=float), bins=20, range=(0.0, 1.0)
@@ -236,6 +293,32 @@ def get_statement_scores(country: str) -> bytes:
     rows_df[float_cols] = rows_df[float_cols].round(4)
     rows = rows_df.to_dict(orient="records")
 
+    # Excluded statements: have ratings but fewer than the minimum
+    qualifying_stmt_ids = set(scores.index)
+    excl_agg = (
+        subset.groupby("statementId")
+        .agg(
+            n_ratings=("I_agree", "count"),
+            I_agree_mean=("I_agree", "mean"),
+            others_agree_mean=("others_agree", "mean"),
+        )
+        .reset_index()
+    )
+    excl_agg = excl_agg[~excl_agg["statementId"].isin(qualifying_stmt_ids)].copy()
+    excl_agg = excl_agg.merge(
+        statements.set_index("statementId")[["statement"] + PROP_COLS],
+        on="statementId", how="left",
+    )
+    excl_agg["statement"] = excl_agg["statement"].fillna("")
+    for col in PROP_COLS:
+        excl_agg[col] = excl_agg[col].apply(lambda x: int(x) if pd.notna(x) else None)
+    excl_agg["I_agree_mean"] = excl_agg["I_agree_mean"].round(4)
+    excl_agg["others_agree_mean"] = excl_agg["others_agree_mean"].round(4)
+    excl_agg["n_ratings"] = excl_agg["n_ratings"].astype(int)
+    excl_agg["statementId"] = excl_agg["statementId"].astype(int)
+    excl_agg = excl_agg.sort_values("n_ratings", ascending=False)
+    rows_excluded = excl_agg.to_dict(orient="records")
+
     payload = {
         "n_statements": len(rows),
         "n_users": n_users,
@@ -244,10 +327,11 @@ def get_statement_scores(country: str) -> bytes:
             "bin_edges": [round(float(e), 4) for e in bin_edges],
         },
         "rows": rows,
+        "rows_excluded": rows_excluded,
     }
 
     encoded = json.dumps(payload, ensure_ascii=False).encode("utf-8")
-    _stmt_scores_cache[country] = encoded
+    _stmt_scores_cache[key] = encoded
     return encoded
 
 
@@ -284,11 +368,13 @@ except ImportError:
         return 12.706
 
 
-def get_design_points(country: str) -> bytes:
-    if country in _dp_cache:
-        return _dp_cache[country]
+def get_design_points(country: str, date_from: str = "", date_to: str = "") -> bytes:
+    key = (country, date_from, date_to)
+    if key in _dp_cache:
+        return _dp_cache[key]
 
-    subset = merged if country == "all" else merged[merged["country_reside"] == country]
+    m = _filter_date(merged, date_from, date_to)
+    subset = m if country == "all" else m[m["country_reside"] == country]
     ratings = subset[["statementId", "I_agree", "others_agree"]].copy()
 
     scores = statement_commonsensicality(ratings)
@@ -325,7 +411,7 @@ def get_design_points(country: str) -> bytes:
 
     payload = {"rows": rows_with_data, "rows_excluded": rows_no_data}
     encoded = json.dumps(payload, ensure_ascii=False).encode("utf-8")
-    _dp_cache[country] = encoded
+    _dp_cache[key] = encoded
     return encoded
 
 
@@ -333,12 +419,13 @@ def get_design_points(country: str) -> bytes:
 _dp_stmts_cache: dict = {}
 
 
-def get_dp_statements(country: str, props: dict) -> bytes:
-    cache_key = (country,) + tuple(props[col] for col in PROP_COLS)
+def get_dp_statements(country: str, props: dict, date_from: str = "", date_to: str = "") -> bytes:
+    cache_key = (country, date_from, date_to) + tuple(props[col] for col in PROP_COLS)
     if cache_key in _dp_stmts_cache:
         return _dp_stmts_cache[cache_key]
 
-    subset = merged if country == "all" else merged[merged["country_reside"] == country]
+    m = _filter_date(merged, date_from, date_to)
+    subset = m if country == "all" else m[m["country_reside"] == country]
     ratings = subset[["statementId", "I_agree", "others_agree"]].copy()
 
     scores = statement_commonsensicality(ratings)
@@ -382,14 +469,16 @@ def get_dp_statements(country: str, props: dict) -> bytes:
 _country_matrix_cache: dict = {}
 
 
-def get_country_matrix() -> bytes:
-    if "v4" in _country_matrix_cache:
-        return _country_matrix_cache["v4"]
+def get_country_matrix(date_from: str = "", date_to: str = "") -> bytes:
+    key = (date_from, date_to)
+    if key in _country_matrix_cache:
+        return _country_matrix_cache[key]
 
     MIN_RATINGS = 10
+    m = _filter_date(merged, date_from, date_to)
 
     agg_all = (
-        merged.groupby(["country_reside", "statementId"])
+        m.groupby(["country_reside", "statementId"])
         .agg(
             n_ratings=("I_agree", "count"),
             I_agree_mean=("I_agree", "mean"),
@@ -468,16 +557,17 @@ def get_country_matrix() -> bytes:
         "rows": rows,
     }
     encoded = json.dumps(payload, ensure_ascii=False).encode("utf-8")
-    _country_matrix_cache["v4"] = encoded
+    _country_matrix_cache[key] = encoded
     return encoded
 
 
 # ── Country cell detail (no cache — lightweight per-cell query) ──────────
 
 
-def get_country_cell(stmt_id: int, country: str) -> bytes:
-    mask = (merged["statementId"] == stmt_id) & (merged["country_reside"] == country)
-    sub = merged[mask]
+def get_country_cell(stmt_id: int, country: str, date_from: str = "", date_to: str = "") -> bytes:
+    m = _filter_date(merged, date_from, date_to)
+    mask = (m["statementId"] == stmt_id) & (m["country_reside"] == country)
+    sub = m[mask]
     if len(sub) < 10:
         return json.dumps({"error": "not enough ratings"}).encode("utf-8")
     n = int(len(sub))
@@ -500,10 +590,11 @@ def get_country_cell(stmt_id: int, country: str) -> bytes:
 # ── User detail (no cache — lightweight per-user query) ───────────────────
 
 
-def get_user_detail(user_id: str, reference: str, target: str) -> bytes:
+def get_user_detail(user_id: str, reference: str, target: str, date_from: str = "", date_to: str = "") -> bytes:
     MIN_RATINGS = 10
 
-    user_ratings = merged[merged["userSessionId"] == user_id][
+    m = _filter_date(merged, date_from, date_to)
+    user_ratings = m[m["userSessionId"] == user_id][
         ["statementId", "I_agree", "others_agree"]
     ].copy()
 
@@ -516,10 +607,10 @@ def get_user_detail(user_id: str, reference: str, target: str) -> bytes:
 
     # ── Compute A, B, N using the exact same filtering as individual_commonsensicality
     target_group = (
-        merged if target == "all" else merged[merged["country_reside"] == target]
+        m if target == "all" else m[m["country_reside"] == target]
     )
     ref_group = (
-        merged if reference == "all" else merged[merged["country_reside"] == reference]
+        m if reference == "all" else m[m["country_reside"] == reference]
     )
 
     target_counts = target_group["statementId"].value_counts()
@@ -592,13 +683,15 @@ def get_user_detail(user_id: str, reference: str, target: str) -> bytes:
 _compare_cache: dict = {}
 
 
-def get_group_compare(group_a: str, group_b: str) -> bytes:
-    key = (group_a, group_b)
+def get_group_compare(group_a: str, group_b: str, date_from: str = "", date_to: str = "") -> bytes:
+    key = (group_a, group_b, date_from, date_to)
     if key in _compare_cache:
         return _compare_cache[key]
 
+    m = _filter_date(merged, date_from, date_to)
+
     def filter_group(g):
-        return merged if g == "all" else merged[merged["country_reside"] == g]
+        return m if g == "all" else m[m["country_reside"] == g]
 
     def indiv_detail(g):
         data = filter_group(g)
@@ -708,15 +801,16 @@ def get_group_compare(group_a: str, group_b: str) -> bytes:
     return result
 
 
-def get_statement_countries(stmt_id: str) -> bytes:
+def get_statement_countries(stmt_id: str, date_from: str = "", date_to: str = "") -> bytes:
     if not stmt_id:
         return json.dumps([], ensure_ascii=False).encode("utf-8")
     try:
         sid = int(stmt_id)
     except ValueError:
         return json.dumps([], ensure_ascii=False).encode("utf-8")
+    m = _filter_date(merged, date_from, date_to)
     rows = (
-        merged[merged["statementId"] == sid]["country_reside"]
+        m[m["statementId"] == sid]["country_reside"]
         .value_counts()
         .head(5)
         .reset_index()
@@ -757,53 +851,47 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
     def _handle_GET(self):
         parsed = urllib.parse.urlparse(self.path)
+        params = urllib.parse.parse_qs(parsed.query)
+        date_from = params.get("date_from", [""])[0]
+        date_to = params.get("date_to", [""])[0]
 
         if parsed.path == "/api/countries":
             self._send_json(COUNTRIES_JSON)
         elif parsed.path == "/api/statements":
-            params = urllib.parse.parse_qs(parsed.query)
             country = params.get("country", ["all"])[0]
-            self._send_json(get_statements(country))
+            self._send_json(get_statements(country, date_from, date_to))
         elif parsed.path == "/api/scores":
-            params = urllib.parse.parse_qs(parsed.query)
             target = params.get("target", ["all"])[0]
             reference = params.get("reference", ["all"])[0]
-            self._send_json(get_scores(target, reference))
+            self._send_json(get_scores(target, reference, date_from, date_to))
         elif parsed.path == "/api/statement-scores":
-            params = urllib.parse.parse_qs(parsed.query)
             country = params.get("country", ["all"])[0]
-            self._send_json(get_statement_scores(country))
+            self._send_json(get_statement_scores(country, date_from, date_to))
         elif parsed.path == "/api/design-points":
-            params = urllib.parse.parse_qs(parsed.query)
             country = params.get("country", ["all"])[0]
-            self._send_json(get_design_points(country))
+            self._send_json(get_design_points(country, date_from, date_to))
         elif parsed.path == "/api/dp-statements":
-            params = urllib.parse.parse_qs(parsed.query)
             country = params.get("country", ["all"])[0]
             props = {col: int(params.get(col, ["0"])[0]) for col in PROP_COLS}
-            self._send_json(get_dp_statements(country, props))
+            self._send_json(get_dp_statements(country, props, date_from, date_to))
         elif parsed.path == "/api/user-detail":
-            params = urllib.parse.parse_qs(parsed.query)
             user_id = params.get("userId", [""])[0]
             reference = params.get("reference", ["all"])[0]
             target = params.get("target", ["all"])[0]
-            self._send_json(get_user_detail(user_id, reference, target))
+            self._send_json(get_user_detail(user_id, reference, target, date_from, date_to))
         elif parsed.path == "/api/group-compare":
-            params = urllib.parse.parse_qs(parsed.query)
             group_a = params.get("groupA", ["all"])[0]
             group_b = params.get("groupB", ["all"])[0]
-            self._send_json(get_group_compare(group_a, group_b))
+            self._send_json(get_group_compare(group_a, group_b, date_from, date_to))
         elif parsed.path == "/api/statement-countries":
-            params = urllib.parse.parse_qs(parsed.query)
             stmt_id = params.get("statementId", [""])[0]
-            self._send_json(get_statement_countries(stmt_id))
+            self._send_json(get_statement_countries(stmt_id, date_from, date_to))
         elif parsed.path == "/api/country-matrix":
-            self._send_json(get_country_matrix())
+            self._send_json(get_country_matrix(date_from, date_to))
         elif parsed.path == "/api/country-cell":
-            params = urllib.parse.parse_qs(parsed.query)
             stmt_id = int(params.get("statementId", ["0"])[0])
             country = params.get("country", [""])[0]
-            self._send_json(get_country_cell(stmt_id, country))
+            self._send_json(get_country_cell(stmt_id, country, date_from, date_to))
         elif parsed.path == "/" or parsed.path.startswith("/static/"):
             http.server.SimpleHTTPRequestHandler.do_GET(self)
         else:

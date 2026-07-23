@@ -1174,6 +1174,16 @@ td { padding: 10px 14px; vertical-align: middle; }
 }
 
 /* ── Empty / error states ─────────────────────────────────── */
+.row-excluded {
+  opacity: 0.4;
+}
+
+.td-dim {
+  text-align: center;
+  color: #94A3B8;
+  font-size: 0.85rem;
+}
+
 .empty-row {
   text-align: center;
   color: #94A3B8;
