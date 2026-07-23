@@ -1,0 +1,17 @@
+country,continent,min_payout_usd,fee_per_respondent_usd,total_cost_per_respondent_usd
+Argentina,Americas,1.27,0.69,1.96
+Brazil,Americas,0.94,0.69,1.63
+Egypt,Africa,0.50,0.49,0.99
+Ghana,Africa,0.50,0.49,0.99
+India,Asia,0.50,0.49,0.99
+Indonesia,Asia,0.50,0.69,1.19
+Japan,Asia,2.27,0.99,3.26
+Kazakhstan,Asia,1.15,0.69,1.84
+Kenya,Africa,0.50,0.49,0.99
+Mexico,Americas,1.21,0.69,1.90
+Nigeria,Africa,0.50,0.49,0.99
+Pakistan,Asia,0.50,0.49,0.99
+Philippines,Asia,0.50,0.49,0.99
+South Africa,Africa,0.58,0.69,1.27
+Turkey,Asia,1.25,0.69,1.94
+Ukraine,Europe,0.50,0.49,0.99

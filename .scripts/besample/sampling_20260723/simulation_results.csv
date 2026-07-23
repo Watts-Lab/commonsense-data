@@ -1,0 +1,17 @@
+priority,country,continent,cost_per_respondent,n_participants,total_cost,new_cells_from_partial,new_cells_from_zero,new_cells,still_incomplete_cells,queue_exhausted
+1,Egypt,Africa,0.99,45,44.55,32,29,61,1159,False
+2,Ghana,Africa,0.99,44,43.56,0,60,60,1190,False
+3,India,Asia,0.99,44,43.56,48,23,71,1134,False
+4,Kenya,Africa,0.99,44,43.56,0,60,60,1175,False
+5,Nigeria,Africa,0.99,44,43.56,28,36,64,1141,False
+6,Pakistan,Asia,0.99,44,43.56,45,29,74,1176,False
+7,Philippines,Asia,0.99,44,43.56,23,37,60,1190,False
+8,Ukraine,Europe,0.99,44,43.56,0,60,60,1190,False
+9,Indonesia,Asia,1.19,44,52.36,33,38,71,1179,False
+10,South Africa,Africa,1.27,44,55.88,34,40,74,1175,False
+11,Brazil,Americas,1.63,44,71.72,40,45,85,1175,False
+12,Kazakhstan,Asia,1.84,44,80.96,34,30,64,1186,False
+13,Mexico,Americas,1.9,43,81.7,23,40,63,1131,False
+14,Turkey,Asia,1.94,43,83.42,3,57,60,1190,False
+15,Argentina,Americas,1.96,43,84.28,15,45,60,1175,False
+16,Japan,Asia,3.26,43,140.18,7,53,60,1205,False
