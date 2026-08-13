@@ -2,7 +2,7 @@
 recover_demo.py
 
 Two-stage matching of survey records for participants where the platform bug
-created a distinct userSessionId for each component (answers, CRT, RME, demo)
+created a distinct sessionId for each component (answers, CRT, RME, demo)
 instead of reusing the same ID throughout the session.
 
 Key insight
@@ -37,7 +37,7 @@ Stage 2  Match each (Demo, CRT, RME) triplet to one answer session.
          first individual component, occurring right after the last answer).
          Same Hungarian / windowed approach.
 
-Records whose userSessionId already appears identically in all four sources
+Records whose sessionId already appears identically in all four sources
 (pre-bug / post-bug cohort) are carried over directly without matching.
 
 Output
@@ -83,22 +83,21 @@ def _read_csvs(base_path):
 # — Answers ——————————————————————————————————————————————————————————————————
 print("Loading answers …")
 df_answers = _read_csvs("../answers")
-df_answers.rename(columns={"sessionId": "userSessionId"}, inplace=True)
 df_answers["createdAt"] = pd.to_datetime(df_answers["createdAt"])
 
 # Keep only sessions with enough answers; retain the *last* answer per session.
 # The createdAt of the last answer is the best proxy for when the participant
 # finished the rating task and moved on to the CRT.
-session_counts = df_answers.groupby("userSessionId")["createdAt"].count()
+session_counts = df_answers.groupby("sessionId")["createdAt"].count()
 df_answers = df_answers[
-    df_answers["userSessionId"].isin(
+    df_answers["sessionId"].isin(
         session_counts[session_counts >= MIN_ANSWERS].index
     )
 ]
 df_answers_last = (
     df_answers.sort_values("createdAt")
-    .drop_duplicates(subset=["userSessionId"], keep="last")
-    .set_index("userSessionId")
+    .drop_duplicates(subset=["sessionId"], keep="last")
+    .set_index("sessionId")
 )
 print(f"  Answer sessions (≥{MIN_ANSWERS} answers): {len(df_answers_last):,}")
 
@@ -120,13 +119,13 @@ df_ind["startAt"] = df_ind["createdAt"] - pd.to_timedelta(
 
 def _prep_individuals(df, info_types):
     """Filter to the given informationType(s), deduplicate (keep last per
-    session), drop nulls, and index by userSessionId."""
+    session), drop nulls, and index by sessionId."""
     out = df[df["informationType"].isin(info_types)].copy()
     out.sort_values("createdAt", inplace=True)
-    out.drop_duplicates(subset=["userSessionId"], keep="last", inplace=True)
-    out.dropna(subset=["userSessionId"], inplace=True)
-    out["userSessionId"] = out["userSessionId"].astype(str)
-    return out.set_index("userSessionId")
+    out.drop_duplicates(subset=["sessionId"], keep="last", inplace=True)
+    out.dropna(subset=["sessionId"], inplace=True)
+    out["sessionId"] = out["sessionId"].astype(str)
+    return out.set_index("sessionId")
 
 
 df_crt = _prep_individuals(df_ind, ["CRT"])
@@ -139,7 +138,7 @@ print(f"  RME records : {len(df_rme):9,}")
 print(f"  Demo records: {len(df_demo):9,}")
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 2.  Sessions already complete (same userSessionId in all four sources)
+# 2.  Sessions already complete (same sessionId in all four sources)
 # ─────────────────────────────────────────────────────────────────────────────
 
 common_ids = (
@@ -227,7 +226,7 @@ def match_bipartite_hungarian(
     Parameters
     ----------
     df_anchor / df_target
-        DataFrames indexed by userSessionId with a 'startAt' column.
+        DataFrames indexed by sessionId with a 'startAt' column.
     threshold_s
         Maximum allowed |startAt| difference (seconds) for a valid match.
     anchor_fps / target_fps

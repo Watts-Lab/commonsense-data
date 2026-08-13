@@ -2,7 +2,7 @@
 recover_demo_hungarian.py
 
 Two-stage matching of survey records for participants where the platform bug
-created a distinct userSessionId for each component (answers, CRT, RME, demo)
+created a distinct sessionId each component (answers, CRT, RME, demo)
 instead of reusing the same ID throughout the session.
 
 Key insight
@@ -37,7 +37,7 @@ Stage 2  Match each (Demo, CRT, RME) triplet to one answer session.
          first individual component, occurring right after the last answer).
          Same Hungarian / windowed approach.
 
-Records whose userSessionId already appears identically in all four sources
+Records whose sessionIdeady appears identically in all four sources
 (pre-bug / post-bug cohort) are excluded from matching; they are static and
 stored separately.  This script only recovers bug-affected sessions.
 
@@ -87,8 +87,7 @@ def _read_csvs(base_path):
 # — Answers ——————————————————————————————————————————————————————————————————
 print("Loading answers …")
 df_answers = _read_csvs("../answers")
-df_answers.rename(columns={"sessionId": "userSessionId"}, inplace=True)
-df_answers["createdAt"] = pd.to_datetime(df_answers["createdAt"])
+df_answers["createdAt"] = pd.to_datetime(sessionIdreatedAt"])
 
 # For each session, identify the reference answer: the last answer in the first
 # complete statement batch (15, 10, or 5 statements, tried in that order).
@@ -101,14 +100,14 @@ df_answers["createdAt"] = pd.to_datetime(df_answers["createdAt"])
 #
 # Example: a session with 16 answers uses the 15th (createdAt order) as its
 # reference; the 16th answer is treated as a stray comeback and ignored.
-df_answers = df_answers.sort_values(["userSessionId", "createdAt"])
-
+df_answers = df_answers.sort_values(["sessionId", "createdAt"])
+sessionId
 # 1-based rank of each answer within its session (earliest = 1)
-df_answers["_rank"] = df_answers.groupby("userSessionId").cumcount() + 1
-
+df_answers["_rank"] = df_answers.groupby("sessionId").cumcount() + 1
+sessionId
 # Total answer count per session
-df_answers["_count"] = df_answers.groupby("userSessionId")["_rank"].transform("max")
-
+df_answers["_count"] = df_answers.groupby("sessionId")["_rank"].transform("max")
+sessionId
 # Target rank: the position of the last answer in the first complete batch.
 # np.where cascade applies BATCH_SIZES in descending priority.
 _c = df_answers["_count"].to_numpy(dtype=int)
@@ -131,12 +130,12 @@ _ref_rows = df_answers[
 _complete = (_ref_rows["_count"] >= 15) | _ref_rows["_count"].isin(BATCH_SIZES)
 answer_penalties = pd.Series(
     np.where(_complete.to_numpy(), 0.0, INCOMPLETE_BATCH_COST_S),
-    index=_ref_rows["userSessionId"].values,
-)
+    index=_ref_rows["sessionId"].values,
+)sessionId
 
 df_answers_last = _ref_rows.drop(columns=["_rank", "_count", "_target"]).set_index(
-    "userSessionId"
-)
+    "sessionId"
+)sessionId
 n_complete = int(_complete.sum())
 print(f"  Answer sessions with a complete batch: {len(df_answers_last):,}")
 print(f"    complete (no penalty) : {n_complete:,}")
@@ -160,14 +159,14 @@ df_ind["startAt"] = df_ind["createdAt"] - pd.to_timedelta(
 
 def _prep_individuals(df, info_types):
     """Filter to the given informationType(s), deduplicate (keep last per
-    session), drop nulls, and index by userSessionId."""
-    out = df[df["informationType"].isin(info_types)].copy()
+    session), drop nulls, and index by sessionId."""
+    out = df[df["informationType"].isinsessionId.copy()
     out.sort_values("createdAt", inplace=True)
-    out.drop_duplicates(subset=["userSessionId"], keep="last", inplace=True)
-    out.dropna(subset=["userSessionId"], inplace=True)
-    out["userSessionId"] = out["userSessionId"].astype(str)
-    return out.set_index("userSessionId")
-
+    out.drop_duplicates(subset=["sessionId"], keep="last", inplace=True)
+    out.dropna(subset=["sessionIdsessionIdrue)
+    out["sessionId"] = osessionId"].astype(str)
+    retursessionIdex("sessiosessionId
+sessionId
 
 df_crt = _prep_individuals(df_ind, ["CRT"])
 df_rme = _prep_individuals(df_ind, ["rmeTen"])
@@ -179,8 +178,8 @@ print(f"  RME records : {len(df_rme):9,}")
 print(f"  Demo records: {len(df_demo):9,}")
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 2.  Sessions already complete (same userSessionId in all four sources)
-# ─────────────────────────────────────────────────────────────────────────────
+# 2.  Sessions already complete (same sessionId in all four sources)
+# ────────────────────────────────────sessionId────────────────────────────
 
 common_ids = (
     set(df_answers_last.index)
@@ -268,8 +267,8 @@ def match_bipartite_hungarian(
     Parameters
     ----------
     df_anchor / df_target
-        DataFrames indexed by userSessionId with a 'startAt' column.
-    threshold_s
+        DataFrames indexed by sessionId with a 'startAt' column.
+    threshold_ssessionId
         Maximum allowed |startAt| difference (seconds) for a valid match.
     anchor_fps / target_fps
         Optional pd.Series[frozenset] of CRT fingerprints, indexed like the
@@ -279,8 +278,8 @@ def match_bipartite_hungarian(
     fp_mismatch_cost
         Penalty in seconds for a fingerprint mismatch.
     target_penalties
-        Optional pd.Series[float] of extra costs indexed by target userSessionId.
-        Added to the cost of every valid pair involving that target.  Threshold
+        Optional pd.Series[float] of extra costs indexed by target sessionId.
+        Added to the cost of every valid pair involving that targetsessionId
         masking is applied afterwards (based on raw time diff) so a penalised
         target can still be matched when no better option exists within the window.
     window_s

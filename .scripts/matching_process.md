@@ -12,7 +12,7 @@ The survey platform collects five kinds of data for each participant:
 | **RME** | Reading the Mind in the Eyes test responses and score |
 | **Demographics** | Background information (age, gender, country, education, …) |
 
-All five are identified by a `userSessionId` string that is supposed to be the same across all records belonging to one participant. The intended data model is:
+All five are identified by a `sessionId` string that is supposed to be the same across all records belonging to one participant. The intended data model is:
 
 ```
 AwnUtky9zGp_LIa_pI1CFA3zP_4cC-Uz  ← answers row
@@ -33,7 +33,7 @@ The participant cannot proceed to the next step without completing the current o
 
 ## 2. The Problem
 
-A bug introduced during data collection caused the platform to generate a **fresh `userSessionId` for each step** instead of reusing the one assigned at the start of the session. As a result, a single participant's records look like this:
+A bug introduced during data collection caused the platform to generate a **fresh `sessionId` for each step** instead of reusing the one assigned at the start of the session. As a result, a single participant's records look like this:
 
 ```
 pPMBt4yIsEBcKAIV5G4hgn43Vce80uua  ← CRT row
@@ -43,7 +43,7 @@ y0YJPVyrRVIUB-JWKU_q5xdmhSH0Zfkl  ← demographics row
 
 There is no shared key anymore. Joining the tables in the usual way produces no matches for these participants, making it impossible to pair, say, a CRT score with the demographics of the same person.
 
-The dataset contains **45,343 CRT records**, **43,354 RME records**, and **42,437 demographics records** in total. Of these, only **7,532 participants** have a consistent `userSessionId` across all sources (they were collected before or after the bug window). The remaining tens of thousands of records need to be matched by other means.
+The dataset contains **45,343 CRT records**, **43,354 RME records**, and **42,437 demographics records** in total. Of these, only **7,532 participants** have a consistent `sessionId` across all sources (they were collected before or after the bug window). The remaining tens of thousands of records need to be matched by other means.
 
 ---
 
@@ -72,13 +72,13 @@ All three `startAt` values agree within **~1 second**. The spread is due to floa
 
 ### Example — bug-affected participant (mismatched IDs)
 
-| Component    | `userSessionId`                     | `createdAt` | `secondsElapsed` | `startAt`          |
+| Component    | `sessionId`                     | `createdAt` | `secondsElapsed` | `startAt`          |
 |--------------|-------------------------------------|-------------|------------------|--------------------|
 | CRT          | `pPMBt4yIsEBcKAIV5G4hgn43Vce80uua`  | 20:43:15    | 42.8 s           | **20:42:32.2**     |
 | RME          | `ajsJsfQnhIchzgx_JcHpSLJTs1RCJIst`  | 20:44:25    | 113.4 s          | **20:42:31.6**     |
 | Demographics | `y0YJPVyrRVIUB-JWKU_q5xdmhSH0Zfkl`  | 20:45:34    | 182.3 s          | **20:42:31.7**     |
 
-Even though the three `userSessionId`s are completely different, all three `startAt` values are within **0.7 seconds** of each other. This is the primary matching signal.
+Even though the three `sessionId`s are completely different, all three `startAt` values are within **0.7 seconds** of each other. This is the primary matching signal.
 
 > **Intuition.** Imagine a stopwatch that starts the moment the participant's browser loads the survey. Every subsequent submission records both the wall-clock time and the stopwatch reading. Even if each submission is assigned a random ID, subtracting the stopwatch reading from the wall clock always recovers the moment the stopwatch was started — i.e. the shared session origin.
 
@@ -139,7 +139,7 @@ cost(Demo_i, CRT_j)  =  |startAt_i − startAt_j|   (seconds)
 
 where `fp_mismatch_penalty = 5 s` is added when both fingerprints are non-empty but disagree. The same cost function is applied to (Demo, RME) pairs.
 
-After running the assignment separately for Demo→CRT and Demo→RME, the two result sets are inner-joined on the demographics `userSessionId`. Only demographics records matched to *both* a CRT record and an RME record form a valid triplet.
+After running the assignment separately for Demo→CRT and Demo→RME, the two result sets are inner-joined on the demographics `sessionId`. Only demographics records matched to *both* a CRT record and an RME record form a valid triplet.
 
 A third quality column, `fp_crt_rme`, cross-validates the triplet by checking whether the CRT record's fingerprint matches the fingerprint embedded in the RME record. This check is independent of the matching process and catches cases where two different participants coincidentally shared the same `startAt`.
 
@@ -246,9 +246,9 @@ One row per matched (Demo, CRT, RME) triplet.
 
 | Column | Description |
 |---|---|
-| `demo` | `userSessionId` of the demographics record |
-| `crt` | `userSessionId` of the matched CRT record |
-| `rme` | `userSessionId` of the matched RME record |
+| `demo` | `sessionId` of the demographics record |
+| `crt` | `sessionId` of the matched CRT record |
+| `rme` | `sessionId` of the matched RME record |
 | `diff_demo_crt_s` | `\|startAt_demo − startAt_crt\|` in seconds |
 | `diff_demo_rme_s` | `\|startAt_demo − startAt_rme\|` in seconds |
 | `fp_demo_crt` | `True` if demo's embedded CRT fingerprint matches the CRT record |
@@ -257,11 +257,11 @@ One row per matched (Demo, CRT, RME) triplet.
 
 ### `all_matches_hungarian.csv`
 
-One row per bug-affected quintet recovered by the Hungarian algorithm (answers + CRT + RME + demographics). This file contains **only** sessions where the IDs were mismatched — participants whose `userSessionId` was already consistent across all sources are excluded. Consistent-ID sessions are combined with these results at analysis time in `update-data.py` by intersecting CRT ∩ RME ∩ demographics indices and subtracting every ID already consumed by the Hungarian matches in any role (answers, CRT, RME, or demographics). The file includes all columns from the triplet file plus:
+One row per bug-affected quintet recovered by the Hungarian algorithm (answers + CRT + RME + demographics). This file contains **only** sessions where the IDs were mismatched — participants whose `sessionId` was already consistent across all sources are excluded. Consistent-ID sessions are combined with these results at analysis time in `update-data.py` by intersecting CRT ∩ RME ∩ demographics indices and subtracting every ID already consumed by the Hungarian matches in any role (answers, CRT, RME, or demographics). The file includes all columns from the triplet file plus:
 
 | Column | Description |
 |---|---|
-| `answers` | `userSessionId` of the matched answers session |
+| `answers` | `sessionId` of the matched answers session |
 | `diff_answers_s` | `\|CRT_startAt − ref_answer_createdAt\|` in seconds |
 
 ### Interpreting quality flags

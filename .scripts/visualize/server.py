@@ -57,8 +57,8 @@ PROP_COLS = [
 
 # Join answers with country / CRT / RME info (one row per answer)
 merged = answers.merge(
-    demo[["userSessionId", "country_reside"]],
-    on="userSessionId",
+    demo[["sessionId", "country_reside"]],
+    on="sessionId",
     how="inner",
 )
 
@@ -107,7 +107,7 @@ def get_statements(country: str, date_from: str = "", date_to: str = "") -> byte
     m = _filter_date(merged, date_from, date_to)
     subset = m if country == "all" else m[m["country_reside"] == country]
 
-    n_users = int(subset["userSessionId"].nunique())
+    n_users = int(subset["sessionId"].nunique())
 
     agg = (
         subset.groupby("statementId")
@@ -162,8 +162,8 @@ def get_scores(target: str, reference: str, date_from: str = "", date_to: str = 
 
     m = _filter_date(merged, date_from, date_to)
     has_ts = "createdAt" in m.columns
-    ans_cols = ["userSessionId", "statementId", "I_agree", "others_agree"] + (["createdAt"] if has_ts else [])
-    ref_cols = ["userSessionId", "statementId", "I_agree"]
+    ans_cols = ["sessionId", "statementId", "I_agree", "others_agree"] + (["createdAt"] if has_ts else [])
+    ref_cols = ["sessionId", "statementId", "I_agree"]
 
     target_ratings = (
         m[ans_cols]
@@ -177,13 +177,13 @@ def get_scores(target: str, reference: str, date_from: str = "", date_to: str = 
         else m[m["country_reside"] == reference][ref_cols]
     ).copy()
 
-    raw_n_users = int(target_ratings["userSessionId"].nunique())
+    raw_n_users = int(target_ratings["sessionId"].nunique())
 
     scores = individual_commonsensicality(target_ratings, reference_ratings)
 
     # Attach per-user statement count (from the full target data, before scoring filters)
     stmt_counts = (
-        target_ratings.groupby("userSessionId")["statementId"]
+        target_ratings.groupby("sessionId")["statementId"]
         .count()
         .rename("n_statements")
     )
@@ -192,13 +192,13 @@ def get_scores(target: str, reference: str, date_from: str = "", date_to: str = 
 
     # Attach per-user country
     user_country = (
-        m.groupby("userSessionId")["country_reside"].first().rename("country")
+        m.groupby("sessionId")["country_reside"].first().rename("country")
     )
     scores = scores.join(user_country, how="left")
 
     # Attach per-user first / last answer timestamps
     if has_ts:
-        ts = target_ratings.groupby("userSessionId")["createdAt"].agg(
+        ts = target_ratings.groupby("sessionId")["createdAt"].agg(
             first_answer="min", last_answer="max"
         )
         ts = ts.apply(lambda col: col.dt.strftime("%Y-%m-%d"))
@@ -215,17 +215,17 @@ def get_scores(target: str, reference: str, date_from: str = "", date_to: str = 
 
     # Excluded users: present in target but didn't qualify for scoring
     qualifying_ids = set(scores.index)
-    excluded_ids = set(target_ratings["userSessionId"].unique()) - qualifying_ids
+    excluded_ids = set(target_ratings["sessionId"].unique()) - qualifying_ids
     if excluded_ids:
         excl_counts = (
-            target_ratings[target_ratings["userSessionId"].isin(excluded_ids)]
-            .groupby("userSessionId")["statementId"]
+            target_ratings[target_ratings["sessionId"].isin(excluded_ids)]
+            .groupby("sessionId")["statementId"]
             .count()
             .rename("n_statements")
         )
         excl_country = (
-            m[m["userSessionId"].isin(excluded_ids)]
-            .groupby("userSessionId")["country_reside"]
+            m[m["sessionId"].isin(excluded_ids)]
+            .groupby("sessionId")["country_reside"]
             .first()
             .rename("country")
         )
@@ -276,7 +276,7 @@ def get_statement_scores(country: str, date_from: str = "", date_to: str = "") -
     for col in PROP_COLS:
         scores[col] = scores[col].apply(lambda x: int(x) if pd.notna(x) else None)
 
-    n_users = int(subset["userSessionId"].nunique())
+    n_users = int(subset["sessionId"].nunique())
 
     counts, bin_edges = np.histogram(
         scores["commonsensicality"].to_numpy(dtype=float), bins=20, range=(0.0, 1.0)
@@ -594,7 +594,7 @@ def get_user_detail(user_id: str, reference: str, target: str, date_from: str = 
     MIN_RATINGS = 10
 
     m = _filter_date(merged, date_from, date_to)
-    user_ratings = m[m["userSessionId"] == user_id][
+    user_ratings = m[m["sessionId"] == user_id][
         ["statementId", "I_agree", "others_agree"]
     ].copy()
 
@@ -695,7 +695,7 @@ def get_group_compare(group_a: str, group_b: str, date_from: str = "", date_to: 
 
     def indiv_detail(g):
         data = filter_group(g)
-        raw_n = int(data["userSessionId"].nunique()) if not data.empty else 0
+        raw_n = int(data["sessionId"].nunique()) if not data.empty else 0
         if data.empty:
             return [], 0
         try:

@@ -17,13 +17,13 @@ def _read_csvs(base_path):
 
 def _prep_individuals(df, info_types):
     """Filter to the given informationType(s), deduplicate (keep last per
-    session), drop nulls, and index by userSessionId."""
+    session), drop nulls, and index by sessionId."""
     out = df[df["informationType"].isin(info_types)].copy()
     out.sort_values("createdAt", inplace=True)
-    out.drop_duplicates(subset=["userSessionId"], keep="last", inplace=True)
-    out.dropna(subset=["userSessionId"], inplace=True)
-    out["userSessionId"] = out["userSessionId"].astype(str)
-    return out.set_index("userSessionId")
+    out.drop_duplicates(subset=["sessionId"], keep="last", inplace=True)
+    out.dropna(subset=["sessionId"], inplace=True)
+    out["sessionId"] = out["sessionId"].astype(str)
+    return out.set_index("sessionId")
 
 
 print("=" * 80)
@@ -49,31 +49,31 @@ print("\n" + "=" * 80)
 print("\nReading answers...")
 
 df_answers = _read_csvs("../../answers")
-df_answers.rename(columns={"sessionId": "userSessionId"}, inplace=True)
+df_answers.rename(columns={"sessionId": "sessionId"}, inplace=True)
 df_answers["createdAt"] = pd.to_datetime(df_answers["createdAt"])
 
 df_answers = df_answers[
-    ["userSessionId", "statementId", "I_agree", "others_agree", "createdAt"]
+    ["sessionId", "statementId", "I_agree", "others_agree", "createdAt"]
 ]
 df_answers.sort_values("createdAt", inplace=True)
 df_answers.drop_duplicates(
-    subset=["userSessionId", "statementId"], keep="last", inplace=True
+    subset=["sessionId", "statementId"], keep="last", inplace=True
 )
 # df_answers.drop(columns=["createdAt"], inplace=True)
 
 # Sessions with consistent IDs across all sources (pre-bug / post-bug cohort):
-# must have the same userSessionId appearing as the answers, CRT, RME, and demo ID.
+# must have the same sessionId appearing as the answers, CRT, RME, and demo ID.
 common_ids = (
     set(df_crt.index)
     & set(df_rme.index)
     & set(df_demo.index)
-    & set(df_answers["userSessionId"])
+    & set(df_answers["sessionId"])
 )
 
 # Sanity check: make sure that common_ids do not overlap with any IDs used in the Hungarian matches (in any role)
 assert common_ids.isdisjoint(
     set(df_matched_hungarian.index)
-), "Common IDs overlap with userSessionIds used in Hungarian matches"
+), "Common IDs overlap with sessionIds used in Hungarian matches"
 assert common_ids.isdisjoint(
     set(df_matched_hungarian["crt"])
 ), "Common IDs overlap with CRT IDs used in Hungarian matches"
@@ -86,7 +86,7 @@ assert common_ids.isdisjoint(
 
 
 # # Sessions with consistent IDs across all sources (pre-bug / post-bug cohort):
-# # the same userSessionId appears as the answers, CRT, RME, and demo ID.
+# # the same sessionId appears as the answers, CRT, RME, and demo ID.
 # # Derived as the intersection of CRT/RME/demo indices, minus every ID already
 # # consumed by the Hungarian algorithm in any role (answers, CRT, RME, or demo).
 # # Subtracting only the answers IDs is not sufficient: a CRT/RME/demo ID used
@@ -110,7 +110,7 @@ assert common_ids.isdisjoint(
 common_ids = sorted(common_ids)  # sort for reproducibility
 df_common = pd.DataFrame(
     {"crt": common_ids, "rme": common_ids, "demo": common_ids},
-    index=pd.Index(common_ids, name="userSessionId"),
+    index=pd.Index(common_ids, name="sessionId"),
 )
 
 df_matched_all = pd.concat([df_matched_hungarian, df_common])
@@ -120,7 +120,7 @@ print(f"  via Hungarian matching : {len(df_matched_hungarian):,}")
 print(f"  via consistent ID      : {len(df_common):,}")
 
 
-df_answers = df_answers[df_answers["userSessionId"].isin(df_matched_all.index)].copy()
+df_answers = df_answers[df_answers["sessionId"].isin(df_matched_all.index)].copy()
 print(f"Number of answers for {len(df_matched_all):,} users: {len(df_answers):,}")
 
 print(df_answers.columns)
@@ -167,7 +167,7 @@ matched_demo = df_demo.loc[
 df_collated["matched_demo_id"] = matched_demo.index
 df_collated["country_reside"] = matched_demo.values
 
-df_collated.index.name = "userSessionId"
+df_collated.index.name = "sessionId"
 
 df_collated.to_csv("data/crt_rme_demo.csv")
 print("\nSaved collated CRT/RME/Demo data to data/crt_rme_demo.csv")

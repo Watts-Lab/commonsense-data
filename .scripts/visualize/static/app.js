@@ -491,7 +491,7 @@ async function populateSelects() {
 
 async function openUserDetail(userRow, opts = {}) {
   const countryLabel = userRow.country ? ` · ${userRow.country}` : "";
-  modalUserId.textContent = userRow.userSessionId + countryLabel;
+  modalUserId.textContent = userRow.sessionId + countryLabel;
   modalUserScores.textContent =
     `Consensus: ${fmtPct(userRow.consensus)} · ` +
     `Awareness: ${fmtPct(userRow.awareness)} · ` +
@@ -504,7 +504,7 @@ async function openUserDetail(userRow, opts = {}) {
   const reference =
     opts.reference !== undefined ? opts.reference : referenceSelect.value;
   const target = opts.target !== undefined ? opts.target : targetSelect.value;
-  const url = `${API}/user-detail?userId=${encodeURIComponent(userRow.userSessionId)}&reference=${encodeURIComponent(reference)}&target=${encodeURIComponent(target)}${dateParams()}`;
+  const url = `${API}/user-detail?userId=${encodeURIComponent(userRow.sessionId)}&reference=${encodeURIComponent(reference)}&target=${encodeURIComponent(target)}${dateParams()}`;
   let data;
   try {
     data = await fetch(url).then((r) => r.json());
@@ -622,7 +622,7 @@ function buildScoresRows() {
         });
 
   if (q) {
-    rows = rows.filter((r) => r.userSessionId.toLowerCase().includes(q));
+    rows = rows.filter((r) => r.sessionId.toLowerCase().includes(q));
   }
 
   if (globalDateFrom) {
@@ -646,7 +646,7 @@ function buildScoresRows() {
   let excluded = [];
   if (activeBinIdx === null) {
     excluded = allScoresExcluded.map(r => ({ ...r, _excluded: true }));
-    if (q) excluded = excluded.filter(r => r.userSessionId.toLowerCase().includes(q));
+    if (q) excluded = excluded.filter(r => r.sessionId.toLowerCase().includes(q));
     excluded.sort((a, b) => b.n_statements - a.n_statements);
   }
 
@@ -694,7 +694,7 @@ function renderScoresPage() {
   scoresRows.slice(start, start + PAGE_SIZE).forEach((row) => {
     const tr = document.createElement("tr");
     tr.style.cursor = "pointer";
-    const userId = row.userSessionId;
+    const userId = row.sessionId;
     if (row._excluded) {
       tr.classList.add("row-excluded");
       tr.innerHTML =
@@ -2524,7 +2524,7 @@ function renderCmpIndivDetail(binIdx) {
     tr.addEventListener("click", () => {
       openUserDetail(
         {
-          userSessionId: tr.dataset.uid,
+          sessionId: tr.dataset.uid,
           consensus: +tr.dataset.consensus,
           awareness: +tr.dataset.awareness,
           commonsensicality: +tr.dataset.score,

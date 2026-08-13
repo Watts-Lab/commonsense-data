@@ -59,7 +59,7 @@ STATEMENTS_CSV = SCRIPT_DIR.parents[2] / 'statements' / 'statements_1.csv'
 
 # ─── Load data ────────────────────────────────────────────────────────────────
 answers   = pd.read_csv(DATA_DIR / 'answers.csv')
-demo      = pd.read_csv(DATA_DIR / 'crt_rme_demo.csv')[['userSessionId', 'country_reside']]
+demo      = pd.read_csv(DATA_DIR / 'crt_rme_demo.csv')[['sessionId', 'country_reside']]
 published = pd.read_csv(DATA_DIR / 'statement_published.csv', usecols=['statementId', 'published'])
 costs     = pd.read_csv(SCRIPT_DIR / 'besample_costs.csv')
 stmt_text = pd.read_csv(STATEMENTS_CSV, usecols=['id', 'statement']
@@ -71,7 +71,7 @@ stmt_lookup: dict    = dict(zip(stmt_text['statementId'], stmt_text['statement']
 
 # ─── Step 1: restrict to published statements x Besample countries ───────────
 
-merged = answers.merge(demo, on='userSessionId', how='left')
+merged = answers.merge(demo, on='sessionId', how='left')
 merged = merged[
     merged['country_reside'].isin(BESAMPLE_COUNTRIES) &
     merged['statementId'].isin(published_ids)
