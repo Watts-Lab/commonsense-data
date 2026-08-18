@@ -293,6 +293,39 @@ body {
   line-height: 1.45;
 }
 
+/* ── Country flag (Individual Scores table) ──────────────────────────── */
+.flag-icon {
+  display: inline-block;
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+}
+.flag-icon.flag-unknown {
+  font-size: 1rem;
+  color: #94A3B8;
+}
+
+.flag-popup {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  background: #fff;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.12);
+  padding: 5px 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #1E293B;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.flag-popup.visible {
+  display: block;
+  pointer-events: auto;
+}
+
 .prop-opt {
   display: flex;
   align-items: center;
@@ -669,6 +702,7 @@ td { padding: 10px 14px; vertical-align: middle; }
 
 /* Scores table columns */
 .col-user     { width: 150px; }
+.col-flag     { width: 68px;  text-align: left; }
 .col-stmts    { width: 100px; text-align: right; }
 .col-score    { width: 170px; }
 .col-stmtscore{ width: 115px; }
@@ -751,11 +785,16 @@ td { padding: 10px 14px; vertical-align: middle; }
 
 /* Individual Scores table: balanced column widths */
 #scoresTable th.col-rank  { width:  4%; }
-#scoresTable th.col-user  { width: 16%; }
-#scoresTable th.col-stmts { width: 11%; }
-#scoresTable th.col-score { width: 23%; }
-#scoresTable th:nth-child(4),
-#scoresTable td:nth-child(4) { padding-left: 60px; }
+#scoresTable th.col-user  { width: 13%; }
+#scoresTable th.col-flag  { width:  6%; }
+#scoresTable th.col-stmts { width: 10%; }
+#scoresTable th.col-score { width: 22.33%; }
+/* Pull the flag column visually snug against User: no left gutter, and drop
+   the right-side cell padding so the flag isn't floating mid-column */
+#scoresTable th.col-flag,
+#scoresTable td.td-flag { padding-left: 4px; padding-right: 4px; }
+#scoresTable th:nth-child(5),
+#scoresTable td:nth-child(5) { padding-left: 60px; }
 
 /* Statement Ratings table: statement ≈ half, rest distributed */
 #stmtTable th.col-rank      { width:  3%; }

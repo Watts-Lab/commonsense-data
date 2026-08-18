@@ -126,6 +126,118 @@ const DP_W = 280,
   DP_PAD = 12;
 const DP_PW = DP_W - DP_PAD * 2; // inner plot width
 
+// ── Country -> ISO 3166-1 alpha-2, for rendering flag emoji ─────────────────
+// Keys match the country_reside naming convention used throughout data/*.csv
+// (see .scripts/visualize/data/crt_rme_demo.csv).
+const COUNTRY_TO_ISO2 = {
+  "Afghanistan": "AF", "Albania": "AL", "Algeria": "DZ", "Andorra": "AD",
+  "Angola": "AO", "Antigua and Barbuda": "AG", "Argentina": "AR",
+  "Armenia": "AM", "Australia": "AU", "Austria": "AT", "Azerbaijan": "AZ",
+  "Bahamas": "BS", "Bahrain": "BH", "Bangladesh": "BD", "Barbados": "BB",
+  "Belarus": "BY", "Belgium": "BE", "Belize": "BZ", "Benin": "BJ",
+  "Bolivia": "BO", "Bosnia and Herzegovina": "BA", "Botswana": "BW",
+  "Brazil": "BR", "Brunei": "BN", "Bulgaria": "BG", "Burundi": "BI",
+  "Cambodia": "KH", "Cameroon": "CM", "Canada": "CA",
+  "Central African Republic": "CF", "Chad": "TD", "Chile": "CL",
+  "China": "CN", "Colombia": "CO", "Congo": "CG", "Costa Rica": "CR",
+  "Croatia": "HR", "Cyprus": "CY", "Czechia": "CZ", "Denmark": "DK",
+  "Dominica": "DM", "Dominican Republic": "DO", "Ecuador": "EC",
+  "Egypt": "EG", "El Salvador": "SV", "Eritrea": "ER", "Estonia": "EE",
+  "Eswatini": "SZ", "Ethiopia": "ET", "Fiji": "FJ", "Finland": "FI",
+  "France": "FR", "Gabon": "GA", "Gambia": "GM", "Georgia": "GE",
+  "Germany": "DE", "Ghana": "GH", "Greece": "GR", "Grenada": "GD",
+  "Guatemala": "GT", "Guyana": "GY", "Haiti": "HT", "Honduras": "HN",
+  "Hungary": "HU", "Iceland": "IS", "India": "IN", "Indonesia": "ID",
+  "Iran": "IR", "Iraq": "IQ", "Ireland": "IE", "Israel": "IL",
+  "Italy": "IT", "Jamaica": "JM", "Japan": "JP", "Jordan": "JO",
+  "Kazakhstan": "KZ", "Kenya": "KE", "Korea, North": "KP",
+  "Korea, South": "KR", "Kosovo": "XK", "Kyrgyzstan": "KG", "Laos": "LA",
+  "Latvia": "LV", "Lebanon": "LB", "Liberia": "LR", "Lithuania": "LT",
+  "Luxembourg": "LU", "Malawi": "MW", "Malaysia": "MY", "Malta": "MT",
+  "Mauritius": "MU", "Mexico": "MX", "Micronesia": "FM", "Moldova": "MD",
+  "Monaco": "MC", "Morocco": "MA", "Mozambique": "MZ",
+  "Myanmar (Burma)": "MM", "Namibia": "NA", "Nepal": "NP",
+  "Netherlands": "NL", "New Zealand": "NZ", "Nicaragua": "NI",
+  "Nigeria": "NG", "North Macedonia (formerly Macedonia)": "MK",
+  "Norway": "NO", "Oman": "OM", "Pakistan": "PK", "Panama": "PA",
+  "Peru": "PE", "Philippines": "PH", "Poland": "PL", "Portugal": "PT",
+  "Qatar": "QA", "Romania": "RO", "Russia": "RU", "Saint Lucia": "LC",
+  "Saint Vincent and the Grenadines": "VC", "Saudi Arabia": "SA",
+  "Serbia": "RS", "Singapore": "SG", "Slovakia": "SK", "Slovenia": "SI",
+  "Somalia": "SO", "South Africa": "ZA", "Spain": "ES", "Sri Lanka": "LK",
+  "Sudan": "SD", "Suriname": "SR", "Sweden": "SE", "Switzerland": "CH",
+  "Taiwan": "TW", "Tanzania": "TZ", "Thailand": "TH", "Togo": "TG",
+  "Trinidad and Tobago": "TT", "Turkey": "TR", "Uganda": "UG",
+  "Ukraine": "UA", "United Arab Emirates": "AE", "United Kingdom": "GB",
+  "United States": "US", "Uruguay": "UY", "Vatican City": "VA",
+  "Venezuela": "VE", "Vietnam": "VN", "Zambia": "ZM", "Zimbabwe": "ZW",
+};
+
+function countryFlagEmoji(iso2) {
+  return String.fromCodePoint(
+    ...[...iso2.toUpperCase()].map((c) => 127397 + c.charCodeAt(0)),
+  );
+}
+
+// Builds the "Country" cell markup for a scores-table row. Hovering or
+// clicking the flag shows the full country name (see the flag-popup handling
+// further down this file).
+function flagCellHtml(country) {
+  const iso2 = country ? COUNTRY_TO_ISO2[country] : null;
+  if (!iso2) {
+    return `<span class="flag-icon flag-unknown" data-country="${esc(country || "Unknown")}">?</span>`;
+  }
+  return `<span class="flag-icon" data-country="${esc(country)}">${countryFlagEmoji(iso2)}</span>`;
+}
+
+// Attaches hover/click handlers to every .flag-icon inside `root` so the
+// country name is revealed without also triggering the row's own click
+// handler (e.g. openUserDetail). Must stop propagation directly on the flag
+// element itself -- by the time a document-level delegated listener runs,
+// the row's click handler has already fired.
+let flagPopupPinned = false;
+let flagPopupActiveEl = null;
+const flagPopupEl = document.getElementById("flagPopup");
+
+function showFlagPopup(el) {
+  flagPopupEl.textContent = el.dataset.country;
+  const rect = el.getBoundingClientRect();
+  flagPopupEl.style.left = `${Math.round(rect.left)}px`;
+  flagPopupEl.style.top = `${Math.round(rect.bottom + 6)}px`;
+  flagPopupEl.classList.add("visible");
+}
+
+function hideFlagPopup() {
+  flagPopupEl.classList.remove("visible");
+  flagPopupPinned = false;
+  flagPopupActiveEl = null;
+}
+
+function attachFlagHandlers(root) {
+  root.querySelectorAll(".flag-icon").forEach((el) => {
+    el.addEventListener("mouseenter", () => {
+      if (!flagPopupPinned) showFlagPopup(el);
+    });
+    el.addEventListener("mouseleave", () => {
+      if (!flagPopupPinned) hideFlagPopup();
+    });
+    el.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (flagPopupPinned && flagPopupActiveEl === el) {
+        hideFlagPopup();
+      } else {
+        flagPopupPinned = true;
+        flagPopupActiveEl = el;
+        showFlagPopup(el);
+      }
+    });
+  });
+}
+
+document.addEventListener("click", (e) => {
+  if (flagPopupPinned && !e.target.closest(".flag-icon")) hideFlagPopup();
+});
+
 // Property filter definitions (value 1 = first label, 0 = second label)
 const PROP_DEFS = [
   {
@@ -700,6 +812,7 @@ function renderScoresPage() {
       tr.innerHTML =
         `<td class="td-rank td-dim">—</td>` +
         `<td class="td-user" title="${esc(userId)}">${esc(userId.slice(0, 14))}…</td>` +
+        `<td class="td-flag">${flagCellHtml(row.country)}</td>` +
         `<td class="td-num">${fmtNum(row.n_statements)}</td>` +
         `<td class="td-dim">—</td>` +
         `<td class="td-dim">—</td>` +
@@ -708,12 +821,14 @@ function renderScoresPage() {
       tr.innerHTML =
         `<td class="td-rank">${fmtNum(qualRank++)}</td>` +
         `<td class="td-user" title="${esc(userId)}">${esc(userId.slice(0, 14))}…</td>` +
+        `<td class="td-flag">${flagCellHtml(row.country)}</td>` +
         `<td class="td-num">${fmtNum(row.n_statements)}</td>` +
         `<td>${pctBarScore(row.consensus)}</td>` +
         `<td>${pctBarScore(row.awareness)}</td>` +
         `<td>${pctBarScore(row.commonsensicality)}</td>`;
     }
     tr.addEventListener("click", () => openUserDetail(row));
+    attachFlagHandlers(tr);
     fragment.appendChild(tr);
   });
 
@@ -844,7 +959,7 @@ async function loadScores(target, reference) {
   btnScoresPrev.disabled = true;
   btnScoresNext.disabled = true;
   scoresBody.innerHTML =
-    '<tr><td colspan="6" class="empty-row">Computing scores…</td></tr>';
+    '<tr><td colspan="7" class="empty-row">Computing scores…</td></tr>';
 
   // Reset view state
   activeBinIdx = null;
@@ -860,7 +975,7 @@ async function loadScores(target, reference) {
     data = await fetch(url).then((r) => r.json());
   } catch {
     scoresBody.innerHTML =
-      '<tr><td colspan="6" class="empty-row">Failed to compute scores.</td></tr>';
+      '<tr><td colspan="7" class="empty-row">Failed to compute scores.</td></tr>';
     scoresSpinnerEl.classList.add("hidden");
     return;
   }
@@ -868,7 +983,7 @@ async function loadScores(target, reference) {
   scoresSpinnerEl.classList.add("hidden");
 
   if (!data.users) {
-    scoresBody.innerHTML = `<tr><td colspan="6" class="empty-row">Server error: ${esc(data.error || "unexpected response")}. Restart the server and try again.</td></tr>`;
+    scoresBody.innerHTML = `<tr><td colspan="7" class="empty-row">Server error: ${esc(data.error || "unexpected response")}. Restart the server and try again.</td></tr>`;
     return;
   }
 
@@ -891,7 +1006,7 @@ async function loadScores(target, reference) {
 
   if (allScoresRows.length === 0) {
     scoresBody.innerHTML =
-      '<tr><td colspan="6" class="empty-row">No users met the minimum criteria.</td></tr>';
+      '<tr><td colspan="7" class="empty-row">No users met the minimum criteria.</td></tr>';
     return;
   }
 
