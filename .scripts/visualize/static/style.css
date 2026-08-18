@@ -1413,10 +1413,42 @@ td { padding: 10px 14px; vertical-align: middle; }
 }
 .cm-table tbody tr:nth-child(even) .cm-n-cell { background: #F0F4F8; }
 
-.cm-sd-th {
+.cm-mean-th {
   position: sticky;
   top: 0;
   left: 408px;
+  z-index: 3;
+  width: 56px;
+  background: #F8FAFC;
+  padding: 11px 10px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #64748B;
+  border-bottom: 2px solid #CBD5E1;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.cm-mean-cell {
+  position: sticky;
+  left: 408px;
+  z-index: 1;
+  background: #fff;
+  width: 56px;
+  padding: 8px 8px;
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  color: #64748B;
+  text-align: right;
+  vertical-align: top;
+  white-space: nowrap;
+}
+.cm-table tbody tr:nth-child(even) .cm-mean-cell { background: #F0F4F8; }
+
+.cm-sd-th {
+  position: sticky;
+  top: 0;
+  left: 464px;
   z-index: 3;
   width: 64px;
   background: #F8FAFC;
@@ -1431,7 +1463,7 @@ td { padding: 10px 14px; vertical-align: middle; }
 
 .cm-sd-cell {
   position: sticky;
-  left: 408px;
+  left: 464px;
   z-index: 1;
   background: #fff;
   width: 64px;

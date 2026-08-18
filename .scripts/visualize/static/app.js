@@ -1852,6 +1852,8 @@ function getSortedCmRows() {
       return (b.sd || 0) - (a.sd || 0); // tiebreaker: SD desc
     } else if (cmSortKey === 'sd') {
       va = a.sd || 0; vb = b.sd || 0;
+    } else if (cmSortKey === 'mean') {
+      va = a.mean || 0; vb = b.mean || 0;
     } else {
       va = a.scores[cmSortKey]?.s; vb = b.scores[cmSortKey]?.s;
       if (va == null && vb == null) return 0;
@@ -1917,6 +1919,11 @@ function renderCmPage() {
     tdN.textContent = row._n;
     tr.appendChild(tdN);
 
+    const tdMean = document.createElement('td');
+    tdMean.className = 'cm-mean-cell';
+    tdMean.textContent = row._n > 0 ? row.mean.toFixed(1) : '—';
+    tr.appendChild(tdMean);
+
     const tdSd = document.createElement('td');
     tdSd.className = 'cm-sd-cell';
     tdSd.textContent = row._n > 1 ? row.sd.toFixed(1) : '—';
@@ -1978,6 +1985,7 @@ async function loadCountryMatrix() {
     `<th class="cm-rank-th">#</th>` +
     `<th class="cm-stmt-th cm-th-sortable" data-sort="stmt">Statement<span class="cm-sort-icon"></span></th>` +
     `<th class="cm-n-th cm-th-sortable" data-sort="n" title="Number of countries that have at least 10 ratings for a statement"><em>N</em><span class="cm-sort-icon"></span></th>` +
+    `<th class="cm-mean-th cm-th-sortable" data-sort="mean" title="Mean of a statement&#39;s commonsensicality score among all applicable countries"><em>M</em><span class="cm-sort-icon"></span></th>` +
     `<th class="cm-sd-th cm-th-sortable" data-sort="sd" title="Standard deviation of a statement&#39;s commonsensicality score among all applicable countries"><em>SD</em><span class="cm-sort-icon"></span></th>` +
     data.countries.map(c =>
       `<th class="cm-country-th cm-th-sortable" data-sort="${esc(c)}" title="${esc(c)}, ${fmtNum(data.country_n_statements[c])} statements">` +

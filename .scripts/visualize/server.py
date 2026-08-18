@@ -514,6 +514,7 @@ def get_country_matrix(date_from: str = "", date_to: str = "") -> bytes:
 
     score_lookup = agg.set_index(["statementId", "country_reside"])["score"].to_dict()
     n_lookup     = agg.set_index(["statementId", "country_reside"])["n_ratings"].to_dict()
+    stmt_mean    = agg.groupby("statementId")["score"].mean().round(2)
     stmt_sd      = agg.groupby("statementId")["score"].std().fillna(0.0).round(2)
 
     # Sub-threshold lookup: cells with 0 < n < MIN_RATINGS (score hidden, n shown)
@@ -547,6 +548,7 @@ def get_country_matrix(date_from: str = "", date_to: str = "") -> bytes:
             "statementId": int(stmt_id),
             "statement": str(stmt_texts.get(stmt_id, "")),
             "scores": scores,
+            "mean": float(stmt_mean.get(stmt_id, 0.0)),
             "sd": float(stmt_sd.get(stmt_id, 0.0)),
             **props,
         })
