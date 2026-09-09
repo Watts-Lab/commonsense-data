@@ -414,6 +414,14 @@ td { padding: 10px 14px; vertical-align: middle; }
   font-weight: 500;
 }
 
+.td-last {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.82rem;
+  color: #1a1a1a;
+}
+#scoresTable th.col-last { text-align: right; }
+
 /* ── Percentage bar ───────────────────────────────────────── */
 .pct-wrap { display: flex; align-items: center; gap: 7px; }
 
@@ -709,7 +717,7 @@ td { padding: 10px 14px; vertical-align: middle; }
 
 /* Scores table lives inside .scores-wrap — override margin-top to 0 since
    the gap is already provided by the flex container */
-#scoresTable { margin-top: 0; border-radius: 10px; }
+#scoresTable { margin-top: 0; border-radius: 10px; width: 100%; table-layout: fixed; }
 
 /* ── Scrollable table containers ─────────────────────────── */
 /* Caps height at ~10 rows; thead sticky is relative to this container.
@@ -766,7 +774,7 @@ td { padding: 10px 14px; vertical-align: middle; }
 }
 
 /* Individual Scores: cap bar width */
-#scoresTable .pct-track { max-width: 44px; }
+#scoresTable .pct-track { max-width: 28px; }
 
 /* Statement Ratings: cap bar width */
 #stmtTable .pct-track { max-width: 65px; }
@@ -774,27 +782,30 @@ td { padding: 10px 14px; vertical-align: middle; }
 /* Design Points detail table: cap bar width */
 #dpDetailTable .pct-track { max-width: 50px; }
 
-/* Statement Scores table: narrower statement column, wider score columns */
+/* Statement Scores table: fixed layout so percentages are enforced */
+#stmtScoresTable { width: 100%; table-layout: fixed; }
 #stmtScoresTable th.col-rank      { width:  3%; }
-#stmtScoresTable th.col-statement { width: 29%; }
-#stmtScoresTable th.col-num       { width:  8%; }
+#stmtScoresTable th.col-statement { width: 30%; }
+#stmtScoresTable th.col-num       { width:  7%; }
 #stmtScoresTable th.col-stmtscore { width: 12%; }
 /* Cap bar width so columns don't feel cramped at wider viewports */
-#stmtScoresTable .pct-track { max-width: 40px; }
+#stmtScoresTable .pct-track { max-width: 28px; }
 #stmtScoresTable .pct-label { width: 48px; }
 
-/* Individual Scores table: balanced column widths */
+/* Individual Scores table: rank/user/flag fixed, all 5 data cols equal */
 #scoresTable th.col-rank  { width:  4%; }
-#scoresTable th.col-user  { width: 13%; }
-#scoresTable th.col-flag  { width:  6%; }
-#scoresTable th.col-stmts { width: 10%; }
-#scoresTable th.col-score { width: 22.33%; }
+#scoresTable th.col-user  { width: 18%; }
+#scoresTable th.col-flag  { width:  8%; }
+#scoresTable th.col-stmts { width: 14%; }
+#scoresTable th.col-score { width: 14%; }
+#scoresTable th.col-last  { width: 14%; }
 /* Pull the flag column visually snug against User: no left gutter, and drop
    the right-side cell padding so the flag isn't floating mid-column */
 #scoresTable th.col-flag,
-#scoresTable td.td-flag { padding-left: 4px; padding-right: 4px; }
-#scoresTable th:nth-child(5),
-#scoresTable td:nth-child(5) { padding-left: 60px; }
+#scoresTable td.td-flag { padding-left: 4px; padding-right: 4px; text-align: center; }
+/* Allow specific long column headers to wrap onto two lines */
+#scoresTable th.th-wrap,
+#stmtScoresTable th.th-wrap { white-space: normal; word-break: break-word; }
 
 /* Statement Ratings table: statement ≈ half, rest distributed */
 #stmtTable th.col-rank      { width:  3%; }

@@ -793,6 +793,10 @@ function updateBarColors() {
 
 // ── Scores: table page ─────────────────────────────────────────────────────
 
+function fmtLastDate(iso) {
+  return iso || "—";
+}
+
 function scoresTotalPages() {
   return Math.max(1, Math.ceil(scoresRows.length / PAGE_SIZE));
 }
@@ -816,7 +820,8 @@ function renderScoresPage() {
         `<td class="td-num">${fmtNum(row.n_statements)}</td>` +
         `<td class="td-dim">—</td>` +
         `<td class="td-dim">—</td>` +
-        `<td class="td-dim">—</td>`;
+        `<td class="td-dim">—</td>` +
+        `<td class="td-last">${fmtLastDate(row.last_answer)}</td>`;
     } else {
       tr.innerHTML =
         `<td class="td-rank">${fmtNum(qualRank++)}</td>` +
@@ -825,7 +830,8 @@ function renderScoresPage() {
         `<td class="td-num">${fmtNum(row.n_statements)}</td>` +
         `<td>${pctBarScore(row.consensus)}</td>` +
         `<td>${pctBarScore(row.awareness)}</td>` +
-        `<td>${pctBarScore(row.commonsensicality)}</td>`;
+        `<td>${pctBarScore(row.commonsensicality)}</td>` +
+        `<td class="td-last">${fmtLastDate(row.last_answer)}</td>`;
     }
     tr.addEventListener("click", () => openUserDetail(row));
     attachFlagHandlers(tr);
@@ -959,7 +965,7 @@ async function loadScores(target, reference) {
   btnScoresPrev.disabled = true;
   btnScoresNext.disabled = true;
   scoresBody.innerHTML =
-    '<tr><td colspan="7" class="empty-row">Computing scores…</td></tr>';
+    '<tr><td colspan="8" class="empty-row">Computing scores…</td></tr>';
 
   // Reset view state
   activeBinIdx = null;
@@ -975,7 +981,7 @@ async function loadScores(target, reference) {
     data = await fetch(url).then((r) => r.json());
   } catch {
     scoresBody.innerHTML =
-      '<tr><td colspan="7" class="empty-row">Failed to compute scores.</td></tr>';
+      '<tr><td colspan="8" class="empty-row">Failed to compute scores.</td></tr>';
     scoresSpinnerEl.classList.add("hidden");
     return;
   }
@@ -983,7 +989,7 @@ async function loadScores(target, reference) {
   scoresSpinnerEl.classList.add("hidden");
 
   if (!data.users) {
-    scoresBody.innerHTML = `<tr><td colspan="7" class="empty-row">Server error: ${esc(data.error || "unexpected response")}. Restart the server and try again.</td></tr>`;
+    scoresBody.innerHTML = `<tr><td colspan="8" class="empty-row">Server error: ${esc(data.error || "unexpected response")}. Restart the server and try again.</td></tr>`;
     return;
   }
 
@@ -1006,7 +1012,7 @@ async function loadScores(target, reference) {
 
   if (allScoresRows.length === 0) {
     scoresBody.innerHTML =
-      '<tr><td colspan="7" class="empty-row">No users met the minimum criteria.</td></tr>';
+      '<tr><td colspan="8" class="empty-row">No users met the minimum criteria.</td></tr>';
     return;
   }
 

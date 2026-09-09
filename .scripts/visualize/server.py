@@ -172,9 +172,9 @@ def get_scores(target: str, reference: str, date_from: str = "", date_to: str = 
     ).copy()
 
     reference_ratings = (
-        m[ref_cols]
+        merged[ref_cols]
         if reference == "all"
-        else m[m["country_reside"] == reference][ref_cols]
+        else merged[merged["country_reside"] == reference][ref_cols]
     ).copy()
 
     raw_n_users = int(target_ratings["sessionId"].nunique())
@@ -235,6 +235,15 @@ def get_scores(target: str, reference: str, date_from: str = "", date_to: str = 
             .sort_values("n_statements", ascending=False)
             .reset_index()
         )
+        if has_ts:
+            excl_ts = (
+                target_ratings[target_ratings["sessionId"].isin(excluded_ids)]
+                .groupby("sessionId")["createdAt"]
+                .max()
+                .dt.strftime("%Y-%m-%d")
+                .rename("last_answer")
+            )
+            excl_df = excl_df.join(excl_ts, on="sessionId", how="left")
         users_excluded = excl_df.to_dict(orient="records")
     else:
         users_excluded = []
