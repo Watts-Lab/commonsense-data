@@ -31,6 +31,15 @@ body {
   font-weight: 600;
   font-size: 0.95rem;
   letter-spacing: 0.01em;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.topbar-title:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 /* ── Tab bar ──────────────────────────────────────────────── */
@@ -91,6 +100,21 @@ body {
   letter-spacing: 0.06em;
   white-space: nowrap;
 }
+
+.toolbar-btn {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  background: #fff;
+  color: #475569;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+.toolbar-btn:hover { background: #F1F5F9; border-color: #94A3B8; }
+.toolbar-btn-active { background: #EFF6FF; border-color: #3B82F6; color: #1D4ED8; }
 
 .select {
   font-size: 0.875rem;
@@ -707,6 +731,76 @@ td { padding: 10px 14px; vertical-align: middle; }
 }
 
 .hist-container canvas { cursor: pointer; }
+
+/* World map choropleth */
+.world-map-container {
+  position: relative;
+  width: 100%;
+  line-height: 0;
+}
+#worldMapSvg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+#worldMapSvg path {
+  stroke: #334155;
+  stroke-width: 0.5;
+  transition: opacity 0.1s;
+  cursor: default;
+}
+#worldMapSvg path:hover { opacity: 0.8; }
+.world-map-tooltip {
+  position: fixed;
+  background: rgba(15,23,42,0.92);
+  color: #fff;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  padding: 8px 14px;
+  border-radius: 7px;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 9999;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+.world-map-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+.world-map-legend {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.72rem;
+  color: #374151;
+  flex: 1;
+  flex-wrap: wrap;
+}
+.world-map-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+.world-map-legend-swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.world-map-count {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #0F172A;
+  white-space: nowrap;
+  background: #E2E8F0;
+  padding: 2px 8px;
+  border-radius: 20px;
+}
 
 /* Scores table columns */
 .col-user     { width: 150px; }

@@ -248,6 +248,27 @@ def get_scores(target: str, reference: str, date_from: str = "", date_to: str = 
     else:
         users_excluded = []
 
+    # Per-country average commonsensicality (qualifying users only)
+    if len(scores) > 0 and "country" in scores.columns:
+        ca = (
+            scores.groupby("country")["commonsensicality"]
+            .agg(mean="mean", n="count")
+            .reset_index()
+        )
+        country_avg = {
+            row["country"]: {"mean": round(float(row["mean"]), 4), "n": int(row["n"])}
+            for _, row in ca.iterrows()
+            if row["n"] >= 10
+        }
+        country_insufficient = {
+            row["country"]: int(row["n"])
+            for _, row in ca.iterrows()
+            if row["n"] < 10
+        }
+    else:
+        country_avg = {}
+        country_insufficient = {}
+
     payload = {
         "n_users": len(rows),
         "raw_n_users": raw_n_users,
@@ -257,6 +278,8 @@ def get_scores(target: str, reference: str, date_from: str = "", date_to: str = 
         },
         "users": rows,
         "users_excluded": users_excluded,
+        "country_avg": country_avg,
+        "country_insufficient": country_insufficient,
     }
 
     encoded = json.dumps(payload, ensure_ascii=False).encode("utf-8")

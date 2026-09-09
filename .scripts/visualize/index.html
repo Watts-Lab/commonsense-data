@@ -10,10 +10,10 @@
 <body>
 
   <nav class="topbar">
-    <span class="topbar-title">Commonsense Survey Explorer</span>
+    <button class="topbar-title" id="topbarTitle">Commonsense Survey Explorer</button>
     <div class="tab-bar">
-      <button class="tab-btn active" data-tab="stmtScores">Statement Scores</button>
       <button class="tab-btn" data-tab="scores">Individual Scores</button>
+      <button class="tab-btn" data-tab="stmtScores">Statement Scores</button>
       <button class="tab-btn" data-tab="dp">Design Points</button>
       <button class="tab-btn" data-tab="compare">Group Comparison</button>
       <button class="tab-btn" data-tab="countries">Countries</button>
@@ -29,6 +29,24 @@
       </span>
     </div>
   </nav>
+
+  <!-- ── Home / Landing page ──────────────────────────────── -->
+  <div id="panelHome" class="panel">
+    <div class="scores-wrap">
+      <div class="chart-card" id="worldMapCard">
+        <div class="chart-title">Countries Represented</div>
+        <div class="chart-sub">Countries with at least 10 participants are highlighted in blue. Hover over a country for details.</div>
+        <div id="worldMapContainer" class="world-map-container">
+          <svg id="worldMapSvg" viewBox="0 0 960 484" preserveAspectRatio="xMidYMid meet"></svg>
+          <div id="worldMapTooltip" class="world-map-tooltip" hidden></div>
+        </div>
+        <div class="world-map-footer">
+          <div id="worldMapLegend" class="world-map-legend"></div>
+          <span id="worldMapCount" class="world-map-count"></span>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- ── Individual Scores panel ──────────────────────────── -->
   <div id="panelScores" class="panel hidden">
@@ -90,7 +108,7 @@
   </div>
 
   <!-- ── Statement Scores panel ──────────────────────────── -->
-  <div id="panelStmtScores" class="panel">
+  <div id="panelStmtScores" class="panel hidden">
     <div class="toolbar">
       <div class="toolbar-left">
         <label class="toolbar-label" for="stmtScoresCountrySelect">Group</label>

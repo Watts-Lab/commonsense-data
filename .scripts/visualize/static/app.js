@@ -20,8 +20,9 @@ const { API, MOUNT_PATH } = (() => {
 
 // ── Panel URL routing ──────────────────────────────────────────────────────
 const TAB_SLUGS = {
-  stmtScores: "statement_scores",
+  home:       "",
   scores:     "individual_scores",
+  stmtScores: "statement_scores",
   dp:         "design_points",
   compare:    "group_comparison",
   countries:  "countries",
@@ -86,6 +87,11 @@ let activeBinIdx = null; // null = no filter
 // Histogram
 let histChart = null;
 let histBinEdges = [];
+
+// World map
+let _worldMapGeo = null; // cached GeoJSON paths
+let _homeMapLoaded = false;
+let _homeCountryData = null; // {data: {country: n}, insuff: {country: n}}
 
 // Statement Scores
 let stmtScoresAllRows = [],
@@ -531,23 +537,26 @@ function tabFromPathname() {
   const slug = window.location.pathname
     .slice(MOUNT_PATH.length)   // strip mount prefix ("" locally, "report/" in prod)
     .replace(/^\/|\/$/g, "");   // strip leading/trailing slashes
-  return SLUG_TABS[slug] || "stmtScores";
+  return SLUG_TABS[slug] !== undefined ? SLUG_TABS[slug] : "home";
 }
 
 function switchToTab(tab, pushUrl) {
   document.querySelectorAll(".tab-btn").forEach((b) => {
     b.classList.toggle("active", b.dataset.tab === tab);
   });
+  document.getElementById("panelHome").classList.toggle("hidden", tab !== "home");
   document.getElementById("panelScores").classList.toggle("hidden", tab !== "scores");
   document.getElementById("panelStmtScores").classList.toggle("hidden", tab !== "stmtScores");
   document.getElementById("panelDP").classList.toggle("hidden", tab !== "dp");
   document.getElementById("panelCompare").classList.toggle("hidden", tab !== "compare");
   document.getElementById("panelCountries").classList.toggle("hidden", tab !== "countries");
+  if (tab === "home" && !_homeMapLoaded) { _homeMapLoaded = true; loadHomeMap(); }
   if (tab === "scores" && !scoresLoaded) { scoresLoaded = true; loadScores("all", "all"); }
   if (tab === "dp" && !dpPanelLoaded) { dpPanelLoaded = true; loadDesignPoints("all"); }
   if (tab === "countries" && !countryMatrixLoaded) { countryMatrixLoaded = true; loadCountryMatrix(); }
   if (pushUrl) {
-    history.pushState({ tab }, "", MOUNT_PATH + TAB_SLUGS[tab]);
+    const slug = TAB_SLUGS[tab];
+    history.pushState({ tab }, "", MOUNT_PATH + (slug || ""));
   }
 }
 
@@ -563,6 +572,10 @@ document.querySelectorAll(".tab-btn").forEach((btn) => {
       );
     }
   });
+});
+
+document.getElementById("topbarTitle").addEventListener("click", () => {
+  switchToTab("home", true);
 });
 
 // Set initial state so back/forward work, then route to the correct panel
@@ -863,6 +876,135 @@ function renderScoresPage() {
 }
 
 // ── Histogram ──────────────────────────────────────────────────────────────
+
+// ── World map choropleth ───────────────────────────────────────────────────
+
+// Server country name → naturalearth name
+const _countryNameMap = {
+  "United States": "United States of America",
+  "Korea, South": "South Korea",
+  "Korea, North": "North Korea",
+  "Myanmar (Burma)": "Myanmar",
+  "Republic of the Congo": "Congo",
+  "Ivory Coast": "Côte d'Ivoire",
+  "Czech Republic": "Czechia",
+  "Macedonia": "North Macedonia",
+};
+// naturalearth name → server country name (reverse)
+const _countryNameMapRev = Object.fromEntries(
+  Object.entries(_countryNameMap).map(([k, v]) => [v, k])
+);
+function _normCountry(name) { return _countryNameMap[name] || name; }
+function _serverCountry(neName) { return _countryNameMapRev[neName] || neName; }
+
+
+
+function _positionTooltip(tooltip, clientX, clientY) {
+  const W = window.innerWidth, H = window.innerHeight;
+  const tw = tooltip.offsetWidth || 200;
+  const th = tooltip.offsetHeight || 32;
+  const x = clientX + 14 + tw > W ? clientX - tw - 10 : clientX + 14;
+  const y = clientY - 28 < 0 ? clientY + 14 : clientY - 28 + th > H ? H - th - 4 : clientY - 28;
+  tooltip.style.left = x + "px";
+  tooltip.style.top  = y + "px";
+}
+
+async function loadHomeMap() {
+  if (_homeCountryData) { await renderWorldMap(_homeCountryData); return; }
+  try {
+    const countries = await fetch(`${API}/countries`).then(r => r.json());
+    const data = {}, insuff = {};
+    for (const { country, n_users } of countries) {
+      if (n_users >= 10) data[country] = n_users;
+      else insuff[country] = n_users;
+    }
+    _homeCountryData = { data, insuff };
+    await renderWorldMap(_homeCountryData);
+  } catch (err) {
+    console.error("loadHomeMap failed:", err);
+  }
+}
+
+// Olympic-ring-inspired continent colors (pastel via rgba)
+const CONTINENT_COLORS = {
+  "Africa":        "rgba(244,195,0,0.75)",    // gold/yellow
+  "Asia":          "rgba(223,0,36,0.75)",     // red
+  "Europe":        "rgba(0,133,199,0.75)",    // blue
+  "North America": "rgba(0,159,107,0.75)",    // green
+  "South America": "rgba(239,106,0,0.75)",    // orange
+  "Oceania":       "rgba(123,79,158,0.75)",   // purple
+};
+
+async function renderWorldMap({ data, insuff } = {}) {
+  data   = data   || {};
+  insuff = insuff || {};
+
+  const svg     = document.getElementById("worldMapSvg");
+  const tooltip = document.getElementById("worldMapTooltip");
+  const countEl = document.getElementById("worldMapCount");
+
+  if (!_worldMapGeo) {
+    try {
+      _worldMapGeo = await fetch(`${MOUNT_PATH}static/world-countries.json`).then(r => r.json());
+      svg.setAttribute("viewBox", `0 0 ${_worldMapGeo.width} ${_worldMapGeo.height}`);
+    } catch (err) {
+      console.error("renderWorldMap: geo JSON fetch failed:", err);
+      throw err;
+    }
+  }
+
+  // Build lookups: naturalearth name -> {n, serverName}
+  const lookup = {}, insuffLookup = {};
+  for (const [serverName, n] of Object.entries(data)) {
+    lookup[_normCountry(serverName)] = { n, serverName };
+  }
+  for (const [serverName, n] of Object.entries(insuff)) {
+    insuffLookup[_normCountry(serverName)] = { n, serverName };
+  }
+
+  svg.innerHTML = "";
+  for (const c of _worldMapGeo.countries) {
+    const path  = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("d", c.d);
+    const entry = lookup[c.name]       || lookup[c.name_en];
+    const ins   = insuffLookup[c.name] || insuffLookup[c.name_en];
+
+    const continentColor = CONTINENT_COLORS[c.continent] || "#CBD5E1";
+    const fill = entry ? continentColor : "#CBD5E1";
+    path.setAttribute("fill", fill);
+    path.style.cursor = "default";
+
+    path.addEventListener("mousemove", (e) => {
+      tooltip.hidden = false;
+      const name = entry ? entry.serverName : ins ? ins.serverName : c.name;
+      if (entry) {
+        tooltip.innerHTML = `<strong>${name}</strong><br>${fmtNum(entry.n)} participants`;
+      } else if (ins) {
+        tooltip.innerHTML = `<strong>${name}</strong><br>${fmtNum(ins.n)} participant${ins.n !== 1 ? "s" : ""} (need ≥ 10)`;
+      } else {
+        tooltip.innerHTML = `<strong>${name}</strong><br>No participants`;
+      }
+      requestAnimationFrame(() => _positionTooltip(tooltip, e.clientX, e.clientY));
+    });
+    path.addEventListener("mouseleave", () => { tooltip.hidden = true; });
+    svg.appendChild(path);
+  }
+
+  if (countEl) countEl.textContent = `${fmtNum(Object.keys(lookup).length)} countries`;
+
+  // Render continent legend
+  const legend = document.getElementById("worldMapLegend");
+  if (legend) {
+    legend.innerHTML = "";
+    for (const [cont, color] of Object.entries(CONTINENT_COLORS)) {
+      const item = document.createElement("span");
+      item.className = "world-map-legend-item";
+      item.innerHTML = `<span class="world-map-legend-swatch" style="background:${color}"></span>${cont}`;
+      legend.appendChild(item);
+    }
+  }
+}
+
 
 function renderHistogram({ counts, bin_edges }) {
   histBinEdges = bin_edges;
@@ -1382,6 +1524,7 @@ async function loadStmtScores(country) {
 
 // ── Init ───────────────────────────────────────────────────────────────────
 
+
 btnScoresPrev.addEventListener("click", () => {
   if (scoresPage > 1) {
     scoresPage--;
@@ -1414,9 +1557,9 @@ targetSelect.addEventListener("change", () => {
   referenceSelect.value = targetSelect.value;
   loadScores(targetSelect.value, referenceSelect.value);
 });
-referenceSelect.addEventListener("change", () =>
-  loadScores(targetSelect.value, referenceSelect.value),
-);
+referenceSelect.addEventListener("change", () => {
+  loadScores(targetSelect.value, referenceSelect.value);
+});
 stmtScoresCountrySelect.addEventListener("change", (e) =>
   loadStmtScores(e.target.value),
 );
@@ -2095,6 +2238,7 @@ document.getElementById("scoresSearch").addEventListener("input", (e) => {
 
 function handleGlobalDateChange() {
   // Reset all panel loaded flags so each reloads with the new date filter
+  _homeMapLoaded = false;
   scoresLoaded = false;
   stmtScoresLoaded = false;
   dpPanelLoaded = false;
@@ -2105,9 +2249,10 @@ function handleGlobalDateChange() {
   loadStmtScores(stmtScoresCountrySelect.value);
   loadGroupCompare();
 
-  // Reload the current active tab if it's a lazily-loaded one
-  const activeTab = document.querySelector(".tab-btn.active")?.dataset.tab || "stmtScores";
-  if (activeTab === "scores") { scoresLoaded = true; loadScores(targetSelect.value, referenceSelect.value); }
+  // Reload the current active panel
+  const activeTab = document.querySelector(".tab-btn.active")?.dataset.tab;
+  if (!activeTab) { _homeMapLoaded = true; loadHomeMap(); } // home panel
+  else if (activeTab === "scores") { scoresLoaded = true; loadScores(targetSelect.value, referenceSelect.value); }
   else if (activeTab === "dp") { dpPanelLoaded = true; loadDesignPoints(dpCountrySelect.value); }
   else if (activeTab === "countries") { countryMatrixLoaded = true; loadCountryMatrix(); }
 }
@@ -2914,6 +3059,8 @@ async function init() {
   await populateSelects();
   loadStmtScores("all");
   loadGroupCompare();
+  // Load home map if not already triggered by switchToTab at startup
+  if (!_homeMapLoaded && _initialTab === "home") { _homeMapLoaded = true; loadHomeMap(); }
 }
 
 init();
