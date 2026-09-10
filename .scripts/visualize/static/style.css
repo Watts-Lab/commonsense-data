@@ -36,6 +36,7 @@ body {
   padding: 0;
   cursor: pointer;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 .topbar-title:hover {
   text-decoration: underline;
@@ -46,7 +47,14 @@ body {
 .tab-bar {
   display: flex;
   gap: 4px;
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;       /* Firefox */
+  -ms-overflow-style: none;    /* IE/Edge */
+  padding: 0 8px;
 }
+.tab-bar::-webkit-scrollbar { display: none; } /* Chrome/Safari */
 
 .tab-btn {
   height: 30px;
@@ -58,6 +66,8 @@ body {
   font-size: 0.82rem;
   font-weight: 500;
   cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
   transition: background 0.15s, color 0.15s;
 }
 
@@ -800,6 +810,92 @@ td { padding: 10px 14px; vertical-align: middle; }
   background: #E2E8F0;
   padding: 2px 8px;
   border-radius: 20px;
+}
+
+/* ── Home country card ──────────────────────────────────────── */
+.hcc {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.hcc-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.hcc-flag {
+  font-size: 2.2rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.hcc-name {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #1E293B;
+}
+.hcc-stats {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.hcc-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.hcc-stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1E293B;
+  line-height: 1;
+}
+.hcc-stat-label {
+  font-size: 0.78rem;
+  color: #94A3B8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.hcc-cats-label {
+  font-size: 0.78rem;
+  color: #94A3B8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+.hcc-cats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.hcc-cat-pill {
+  font-size: 0.8rem;
+  padding: 2px 10px;
+  border-radius: 20px;
+  background: #F1F5F9;
+  color: #334155;
+  white-space: nowrap;
+}
+.hcc-links {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding-top: 4px;
+  border-top: 1px solid #F1F5F9;
+}
+.hcc-link-btn {
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 1px solid #CBD5E1;
+  background: #fff;
+  color: #334155;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+}
+.hcc-link-btn:hover {
+  background: #F8FAFC;
+  border-color: #94A3B8;
 }
 
 /* Scores table columns */

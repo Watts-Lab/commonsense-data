@@ -287,6 +287,61 @@ def get_scores(target: str, reference: str, date_from: str = "", date_to: str = 
     return encoded
 
 
+# ── Country summary (lightweight, cached) ──────────────────────────────────
+_summary_cache: dict = {}
+
+
+def get_country_summary(country: str, date_from: str = "", date_to: str = "") -> bytes:
+    key = (country, date_from, date_to)
+    if key in _summary_cache:
+        return _summary_cache[key]
+
+    m = _filter_date(merged, date_from, date_to)
+    subset = m[m["country_reside"] == country]
+
+    n_users = int(subset["sessionId"].nunique())
+
+    agg = (
+        subset.groupby("statementId")
+        .agg(n_ratings=("I_agree", "count"), i_agree_mean=("I_agree", "mean"))
+        .reset_index()
+    )
+
+    n_statements_total = int(len(agg))
+    qualified = agg[agg["n_ratings"] >= 10]
+    n_statements_qualified = int(len(qualified))
+    avg_i_agree = float(subset["I_agree"].mean()) if len(subset) > 0 else 0.0
+
+    qualified_cats = (
+        qualified.merge(
+            statements[["statementId", "statementCategory"]],
+            on="statementId",
+            how="left",
+        )
+        .groupby("statementCategory")
+        .size()
+        .sort_values(ascending=False)
+        .reset_index()
+        .rename(columns={0: "n"})
+    )
+    top_categories = [
+        {"category": str(row["statementCategory"]), "n": int(row["n"])}
+        for _, row in qualified_cats.iterrows()
+        if row["statementCategory"]
+    ]
+
+    payload = {
+        "n_users": n_users,
+        "n_statements_total": n_statements_total,
+        "n_statements_qualified": n_statements_qualified,
+        "avg_i_agree": round(avg_i_agree, 4),
+        "top_categories": top_categories,
+    }
+    encoded = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+    _summary_cache[key] = encoded
+    return encoded
+
+
 # ── Statement-level commonsensicality scores (cached) ─────────────────────
 _stmt_scores_cache: dict = {}
 
@@ -891,6 +946,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
         if parsed.path == "/api/countries":
             self._send_json(COUNTRIES_JSON)
+        elif parsed.path == "/api/country-summary":
+            country = params.get("country", [""])[0]
+            self._send_json(get_country_summary(country, date_from, date_to))
         elif parsed.path == "/api/statements":
             country = params.get("country", ["all"])[0]
             self._send_json(get_statements(country, date_from, date_to))

@@ -92,6 +92,7 @@ let histBinEdges = [];
 let _worldMapGeo = null; // cached GeoJSON paths
 let _homeMapLoaded = false;
 let _homeCountryData = null; // {data: {country: n}, insuff: {country: n}}
+let _selectedHomeCountry = null; // currently selected server country name
 
 // Statement Scores
 let stmtScoresAllRows = [],
@@ -899,6 +900,89 @@ function _serverCountry(neName) { return _countryNameMapRev[neName] || neName; }
 
 
 
+const _FLAG_EMOJI = {
+  AD:"🇦🇩",AE:"🇦🇪",AF:"🇦🇫",AG:"🇦🇬",AL:"🇦🇱",AM:"🇦🇲",AO:"🇦🇴",AR:"🇦🇷",AT:"🇦🇹",AU:"🇦🇺",
+  AZ:"🇦🇿",BA:"🇧🇦",BB:"🇧🇧",BD:"🇧🇩",BE:"🇧🇪",BF:"🇧🇫",BG:"🇧🇬",BH:"🇧🇭",BI:"🇧🇮",BJ:"🇧🇯",
+  BN:"🇧🇳",BO:"🇧🇴",BR:"🇧🇷",BS:"🇧🇸",BT:"🇧🇹",BW:"🇧🇼",BY:"🇧🇾",BZ:"🇧🇿",CA:"🇨🇦",CD:"🇨🇩",
+  CF:"🇨🇫",CG:"🇨🇬",CH:"🇨🇭",CI:"🇨🇮",CL:"🇨🇱",CM:"🇨🇲",CN:"🇨🇳",CO:"🇨🇴",CR:"🇨🇷",CU:"🇨🇺",
+  CV:"🇨🇻",CY:"🇨🇾",CZ:"🇨🇿",DE:"🇩🇪",DJ:"🇩🇯",DK:"🇩🇰",DM:"🇩🇲",DO:"🇩🇴",DZ:"🇩🇿",EC:"🇪🇨",
+  EE:"🇪🇪",EG:"🇪🇬",EH:"🇪🇭",ER:"🇪🇷",ES:"🇪🇸",ET:"🇪🇹",FI:"🇫🇮",FJ:"🇫🇯",FR:"🇫🇷",GA:"🇬🇦",
+  GB:"🇬🇧",GD:"🇬🇩",GE:"🇬🇪",GH:"🇬🇭",GM:"🇬🇲",GN:"🇬🇳",GQ:"🇬🇶",GR:"🇬🇷",GT:"🇬🇹",GW:"🇬🇼",
+  GY:"🇬🇾",HN:"🇭🇳",HR:"🇭🇷",HT:"🇭🇹",HU:"🇭🇺",ID:"🇮🇩",IE:"🇮🇪",IL:"🇮🇱",IN:"🇮🇳",IQ:"🇮🇶",
+  IR:"🇮🇷",IS:"🇮🇸",IT:"🇮🇹",JM:"🇯🇲",JO:"🇯🇴",JP:"🇯🇵",KE:"🇰🇪",KG:"🇰🇬",KH:"🇰🇭",KI:"🇰🇮",
+  KM:"🇰🇲",KN:"🇰🇳",KP:"🇰🇵",KR:"🇰🇷",KW:"🇰🇼",KZ:"🇰🇿",LA:"🇱🇦",LB:"🇱🇧",LC:"🇱🇨",LI:"🇱🇮",
+  LK:"🇱🇰",LR:"🇱🇷",LS:"🇱🇸",LT:"🇱🇹",LU:"🇱🇺",LV:"🇱🇻",LY:"🇱🇾",MA:"🇲🇦",MC:"🇲🇨",MD:"🇲🇩",
+  ME:"🇲🇪",MG:"🇲🇬",MH:"🇲🇭",MK:"🇲🇰",ML:"🇲🇱",MM:"🇲🇲",MN:"🇲🇳",MR:"🇲🇷",MT:"🇲🇹",MU:"🇲🇺",
+  MV:"🇲🇻",MW:"🇲🇼",MX:"🇲🇽",MY:"🇲🇾",MZ:"🇲🇿",NA:"🇳🇦",NE:"🇳🇪",NG:"🇳🇬",NI:"🇳🇮",NL:"🇳🇱",
+  NO:"🇳🇴",NP:"🇳🇵",NR:"🇳🇷",NZ:"🇳🇿",OM:"🇴🇲",PA:"🇵🇦",PE:"🇵🇪",PG:"🇵🇬",PH:"🇵🇭",PK:"🇵🇰",
+  PL:"🇵🇱",PT:"🇵🇹",PW:"🇵🇼",PY:"🇵🇾",QA:"🇶🇦",RO:"🇷🇴",RS:"🇷🇸",RU:"🇷🇺",RW:"🇷🇼",SA:"🇸🇦",
+  SB:"🇸🇧",SC:"🇸🇨",SD:"🇸🇩",SE:"🇸🇪",SG:"🇸🇬",SI:"🇸🇮",SK:"🇸🇰",SL:"🇸🇱",SM:"🇸🇲",SN:"🇸🇳",
+  SO:"🇸🇴",SR:"🇸🇷",SS:"🇸🇸",ST:"🇸🇹",SV:"🇸🇻",SY:"🇸🇾",SZ:"🇸🇿",TD:"🇹🇩",TG:"🇹🇬",TH:"🇹🇭",
+  TJ:"🇹🇯",TL:"🇹🇱",TM:"🇹🇲",TN:"🇹🇳",TO:"🇹🇴",TR:"🇹🇷",TT:"🇹🇹",TV:"🇹🇻",TW:"🇹🇼",TZ:"🇹🇿",
+  UA:"🇺🇦",UG:"🇺🇬",US:"🇺🇸",UY:"🇺🇾",UZ:"🇺🇿",VC:"🇻🇨",VE:"🇻🇪",VN:"🇻🇳",VU:"🇻🇺",WS:"🇼🇸",
+  YE:"🇾🇪",ZA:"🇿🇦",ZM:"🇿🇲",ZW:"🇿🇼",
+};
+function _flagEmoji(iso) {
+  return _FLAG_EMOJI[(iso || "").toUpperCase()] || "";
+}
+
+async function showCountryCard(serverName, iso_a2) {
+  const card = document.getElementById("homeCountryCard");
+  card.classList.remove("hidden");
+  card.innerHTML = `<div class="hcc-header"><span class="hcc-flag">${_flagEmoji(iso_a2)}</span><span class="hcc-name">${serverName}</span></div><div style="color:#94A3B8;font-size:0.9rem">Loading…</div>`;
+  card.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+  let data;
+  try {
+    data = await fetch(`${API}/country-summary?country=${encodeURIComponent(serverName)}${dateParams()}`).then(r => r.json());
+  } catch {
+    card.innerHTML += `<div style="color:#EF4444;font-size:0.85rem">Failed to load country data.</div>`;
+    return;
+  }
+  renderCountryCard(card, serverName, iso_a2, data);
+}
+
+function renderCountryCard(card, serverName, iso_a2, data) {
+  const flag = _flagEmoji(iso_a2);
+
+  card.innerHTML = `
+    <div class="hcc-header">
+      <span class="hcc-flag">${flag}</span>
+      <span class="hcc-name">${serverName}</span>
+    </div>
+    <div class="hcc-stats">
+      <div class="hcc-stat">
+        <span class="hcc-stat-value">${fmtNum(data.n_users)}</span>
+        <span class="hcc-stat-label">Participants</span>
+      </div>
+      <div class="hcc-stat">
+        <span class="hcc-stat-value">${fmtNum(data.n_statements_total)}</span>
+        <span class="hcc-stat-label">Statements rated</span>
+      </div>
+      <div class="hcc-stat">
+        <span class="hcc-stat-value">${fmtNum(data.n_statements_qualified)}</span>
+        <span class="hcc-stat-label">Statements rated ≥10×</span>
+      </div>
+    </div>
+    <div class="hcc-links">
+      <button class="hcc-link-btn" id="hccGoScores">Individual Scores &rarr;</button>
+      <button class="hcc-link-btn" id="hccGoStmts">Statement Scores &rarr;</button>
+    </div>`;
+
+  document.getElementById("hccGoScores").addEventListener("click", () => {
+    targetSelect.value = serverName;
+    referenceSelect.value = serverName;
+    scoresLoaded = true;
+    switchToTab("scores", true);
+    loadScores(serverName, serverName);
+  });
+  document.getElementById("hccGoStmts").addEventListener("click", () => {
+    stmtScoresCountrySelect.value = serverName;
+    switchToTab("stmtScores", true);
+    loadStmtScores(serverName);
+  });
+}
+
 function _positionTooltip(tooltip, clientX, clientY) {
   const W = window.innerWidth, H = window.innerHeight;
   const tw = tooltip.offsetWidth || 200;
@@ -963,27 +1047,66 @@ async function renderWorldMap({ data, insuff } = {}) {
   }
 
   svg.innerHTML = "";
+  const pathByServerName = {};
+  const fillByServerName = {};
+
+  // Separate qualifying from non-qualifying so qualifying paths are appended last
+  // (SVG z-order = document order: last = on top). Without this, grey paths drawn
+  // after a colored country would intercept clicks intended for it.
+  const nonQualifying = [];
+  const qualifying    = [];
   for (const c of _worldMapGeo.countries) {
-    const path  = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    path.setAttribute("d", c.d);
     const entry = lookup[c.name]       || lookup[c.name_en];
     const ins   = insuffLookup[c.name] || insuffLookup[c.name_en];
+    if (entry) qualifying.push({ c, entry });
+    else       nonQualifying.push({ c, ins });
+  }
 
-    const continentColor = CONTINENT_COLORS[c.continent] || "#CBD5E1";
-    const fill = entry ? continentColor : "#CBD5E1";
-    path.setAttribute("fill", fill);
-    path.style.cursor = "default";
+  function _mkPath(d, fill, cursor) {
+    const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    p.setAttribute("d", d);
+    p.setAttribute("fill", fill);
+    p.style.cursor = cursor;
+    return p;
+  }
 
+  // Grey (non-qualifying) layer — drawn first, behind qualifying paths
+  for (const { c, ins } of nonQualifying) {
+    const path = _mkPath(c.d, "#CBD5E1", "default");
     path.addEventListener("mousemove", (e) => {
       tooltip.hidden = false;
-      const name = entry ? entry.serverName : ins ? ins.serverName : c.name;
-      if (entry) {
-        tooltip.innerHTML = `<strong>${name}</strong><br>${fmtNum(entry.n)} participants`;
-      } else if (ins) {
-        tooltip.innerHTML = `<strong>${name}</strong><br>${fmtNum(ins.n)} participant${ins.n !== 1 ? "s" : ""} (need ≥ 10)`;
-      } else {
-        tooltip.innerHTML = `<strong>${name}</strong><br>No participants`;
+      const name = ins ? ins.serverName : c.name;
+      tooltip.innerHTML = ins
+        ? `<strong>${name}</strong><br>${fmtNum(ins.n)} participant${ins.n !== 1 ? "s" : ""} (need ≥ 10)`
+        : `<strong>${name}</strong><br>No participants`;
+      requestAnimationFrame(() => _positionTooltip(tooltip, e.clientX, e.clientY));
+    });
+    path.addEventListener("mouseleave", () => { tooltip.hidden = true; });
+    svg.appendChild(path);
+  }
+
+  // Colored (qualifying) layer — drawn on top so clicks always land here
+  for (const { c, entry } of qualifying) {
+    const color = CONTINENT_COLORS[c.continent] || "#CBD5E1";
+    const path = _mkPath(c.d, color, "pointer");
+    pathByServerName[entry.serverName] = path;
+    fillByServerName[entry.serverName] = color;
+
+    path.addEventListener("click", () => {
+      if (_selectedHomeCountry && pathByServerName[_selectedHomeCountry]) {
+        pathByServerName[_selectedHomeCountry].setAttribute("fill", fillByServerName[_selectedHomeCountry]);
+        pathByServerName[_selectedHomeCountry].removeAttribute("stroke");
+        pathByServerName[_selectedHomeCountry].removeAttribute("stroke-width");
       }
+      _selectedHomeCountry = entry.serverName;
+      path.setAttribute("stroke", "#1E293B");
+      path.setAttribute("stroke-width", "1.5");
+      tooltip.hidden = true;
+      showCountryCard(entry.serverName, c.iso_a2 || "");
+    });
+    path.addEventListener("mousemove", (e) => {
+      tooltip.hidden = false;
+      tooltip.innerHTML = `<strong>${entry.serverName}</strong><br>${fmtNum(entry.n)} participants · click for details`;
       requestAnimationFrame(() => _positionTooltip(tooltip, e.clientX, e.clientY));
     });
     path.addEventListener("mouseleave", () => { tooltip.hidden = true; });
@@ -2239,6 +2362,9 @@ document.getElementById("scoresSearch").addEventListener("input", (e) => {
 function handleGlobalDateChange() {
   // Reset all panel loaded flags so each reloads with the new date filter
   _homeMapLoaded = false;
+  _homeCountryData = null;
+  _selectedHomeCountry = null;
+  document.getElementById("homeCountryCard").classList.add("hidden");
   scoresLoaded = false;
   stmtScoresLoaded = false;
   dpPanelLoaded = false;
