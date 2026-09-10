@@ -263,21 +263,27 @@ ISO_NUMERIC_TO_COUNTRY = {
     "894": "Zambia",
 }
 
-# Matches the c_code or tc key inside a urlParams string such as
+# Matches the tc or c_code key inside a urlParams string such as
 # '{assignment_id:"...",c_code:"818",g_code:"null",language:"en",response_id:"..."}'.
-# The (?:^|[{,]) guard ensures we match the *key* c_code/tc exactly, not any
+# The (?:^|[{,]) guard ensures we match the *key* tc/c_code exactly, not any
 # substring match inside an unrelated value (e.g. an fbclid token happens to
-# contain the two characters "tc").
-_URL_PARAM_COUNTRY_CODE_RE = re.compile(r'(?:^|[{,])(?:c_code|tc):"([^"]*)"')
+# contain the two characters "tc"). Kept as two separate patterns (rather than
+# one alternation) so `tc` can be preferred over `c_code` when a urlParams
+# string contains both.
+_URL_PARAM_TC_RE = re.compile(r'(?:^|[{,])tc:"([^"]*)"')
+_URL_PARAM_C_CODE_RE = re.compile(r'(?:^|[{,])c_code:"([^"]*)"')
 
 
 def _extract_country_code(url_params):
     """Pull the Besample ISO 3166-1 numeric country code out of a urlParams
-    string, if present. Returns None if urlParams is empty/missing or does not
-    contain a c_code / tc key."""
+    string, if present. Prefers `tc` when both `tc` and `c_code` are present;
+    falls back to whichever one is present otherwise. Returns None if
+    urlParams is empty/missing or contains neither key."""
     if not isinstance(url_params, str) or url_params.strip() in ("", "{}"):
         return None
-    match = _URL_PARAM_COUNTRY_CODE_RE.search(url_params)
+    match = _URL_PARAM_TC_RE.search(url_params) or _URL_PARAM_C_CODE_RE.search(
+        url_params
+    )
     return match.group(1) if match else None
 
 
@@ -486,10 +492,11 @@ if override_mask.any():
     comparison["matched_self_report"] = (
         comparison["self_reported"] == comparison["besample_country"]
     )
-    print(comparison.to_string())
+    mismatched = comparison[~comparison["matched_self_report"]]
+    print(mismatched.to_string())
     print(
         f"\n  {comparison['matched_self_report'].sum():,} matched their self-report, "
-        f"{(~comparison['matched_self_report']).sum():,} did not (overwritten)."
+        f"{len(mismatched):,} did not (overwritten)."
     )
 
 df_collated.loc[override_mask, "country_reside"] = besample_country[override_mask]
