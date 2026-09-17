@@ -26,6 +26,7 @@ const TAB_SLUGS = {
   dp:         "design_points",
   compare:    "group_comparison",
   countries:  "countries",
+  stmtGen:    "statement_generation",
 };
 const SLUG_TABS = Object.fromEntries(
   Object.entries(TAB_SLUGS).map(([k, v]) => [v, k])
@@ -101,6 +102,12 @@ let stmtScoresAllRows = [],
   stmtScoresPage = 1;
 let stmtScoresLoaded = false;
 let dpPanelLoaded = false;
+
+// Design Point Coverage (statement-generation) — declared here (not with the
+// rest of that section, appended near the end of this file) because
+// switchToTab() below reads it on the very first page load, before a `let`
+// declared later in the file would be initialized.
+let sgLoaded = false;
 
 // Country matrix
 let countryMatrixLoaded = false;
@@ -551,10 +558,12 @@ function switchToTab(tab, pushUrl) {
   document.getElementById("panelDP").classList.toggle("hidden", tab !== "dp");
   document.getElementById("panelCompare").classList.toggle("hidden", tab !== "compare");
   document.getElementById("panelCountries").classList.toggle("hidden", tab !== "countries");
+  document.getElementById("panelStmtGen").classList.toggle("hidden", tab !== "stmtGen");
   if (tab === "home" && !_homeMapLoaded) { _homeMapLoaded = true; loadHomeMap(); }
   if (tab === "scores" && !scoresLoaded) { scoresLoaded = true; loadScores("all", "all"); }
   if (tab === "dp" && !dpPanelLoaded) { dpPanelLoaded = true; loadDesignPoints("all"); }
   if (tab === "countries" && !countryMatrixLoaded) { countryMatrixLoaded = true; loadCountryMatrix(); }
+  if (tab === "stmtGen" && !sgLoaded) { sgLoaded = true; sgBuildHeader(); sgLoadCoverage(); }
   if (pushUrl) {
     const slug = TAB_SLUGS[tab];
     history.pushState({ tab }, "", MOUNT_PATH + (slug || ""));
@@ -577,6 +586,405 @@ document.querySelectorAll(".tab-btn").forEach((btn) => {
 
 document.getElementById("topbarTitle").addEventListener("click", () => {
   switchToTab("home", true);
+});
+
+// ══ Design Point Coverage (statement-generation) ═══════════════════════════
+// Ported from .scripts/statement-generation/'s standalone Statement Explorer,
+// which generates and judges candidate statements for under-filled design
+// points. Everything here is "sg" / "sg-" prefixed to avoid colliding with
+// this app's own similarly-named Design Points table (dp-th-prop, dp-val-1,
+// col-num, sortable, …). (sgLoaded itself is declared near the top of the
+// file, alongside the other panel-loaded flags — see the comment there.)
+let sgRows = [];
+const sgStatementsCache = {};
+let sgSelectedCombo = null;
+let sgSelectedMetric = null;
+
+const SG_FEAT_DEFS = [
+  { key: 'fact', v1: 'Fact', v0: 'Opinion',
+    def1: "Something that can be demonstrated to be correct or incorrect, independently of anyone's opinion.",
+    def0: 'Something that someone might think is true, but that cannot be demonstrated to be objectively correct or incorrect.' },
+  { key: 'physical', v1: 'Physical', v0: 'Social',
+    def1: 'Refers to objective features of the world described by natural rules and measurable empirically or derived logically.',
+    def0: 'Refers to beliefs, preferences, institutions, and socially constructed rules of human origin.' },
+  { key: 'literal language', v1: 'Literal Language', v0: 'Figure of Speech',
+    def1: 'Plain and ordinary language that means exactly what it says.',
+    def0: 'Contains an aphorism, metaphor, hyperbole, or another nonliteral expression.' },
+  { key: 'positive', v1: 'Positive', v0: 'Normative',
+    def1: 'Describes something in the world, such as an empirical regularity or scientific law.',
+    def0: 'Expresses a judgment, belief, value, social norm, or convention.' },
+  { key: 'knowledge', v1: 'Knowledge', v0: 'Reasoning',
+    def1: 'States an observation about the world; it may be true or false, subjective or objective.',
+    def0: 'Presents a conclusion reached by combining knowledge and logic.' },
+  { key: 'everyday', v1: 'Everyday', v0: 'Abstract',
+    def1: 'Concerns something people encounter, or could encounter, in ordinary experience.',
+    def0: 'Concerns regularities or conclusions that cannot be observed or reached solely through individual experience.' },
+];
+
+const sgFeatFilter = Object.fromEntries(SG_FEAT_DEFS.map(({ key }) => [key, '']));
+const SG_PROP_LABEL_HTML = { 'literal language': 'Literal<br>language' };
+const SG_SORT_LABELS = { existing: 'Existing', published: 'Published', calculated: 'Calculated', supplementable: 'New' };
+const SG_METRIC_HELP = {
+  existing: 'Total number of statements already in a design point.',
+  published: 'Number of statements that are currently being sampled.',
+  calculated: 'Number of statements that have at least 10 ratings each, regardless of being published or not.',
+  supplementable: 'Number of newly generated statements by LLMs.',
+};
+let sgSortKey = 'existing';
+let sgSortDir = 'asc';
+const SG_METRIC_LABELS = { existing: 'existing', published: 'published', calculated: 'calculated', supplementable: 'new' };
+const SG_METRIC_COLS = { existing: 3, published: 2, calculated: 5, supplementable: 4 };
+
+function sgComboKey(row) {
+  return SG_FEAT_DEFS.map(def => row[def.key]).join(',');
+}
+
+function sgStatusClass(n) {
+  if (n === 0) return 'sg-status-none';
+  if (n < 5) return 'sg-status-low';
+  return 'sg-status-good';
+}
+
+function sgMetricCacheKey(key, metric) {
+  return `${key}::${metric}`;
+}
+
+function sgSortHeaderHtml(key) {
+  const arrow = key === sgSortKey ? (sgSortDir === 'asc' ? ' ▲' : ' ▼') : '';
+  const active = key === sgSortKey ? ' sg-sort-active' : '';
+  const help = `<button type="button" class="sg-help-btn sg-metric-help-btn" data-metric="${key}" aria-label="Definition of ${esc(SG_SORT_LABELS[key])}">?</button>`;
+  return `<th class="sg-col-meta sg-sortable${active}" data-sort-key="${key}">` +
+    `<span class="sg-metric-th-label">${SG_SORT_LABELS[key]}${arrow}</span>${help}</th>`;
+}
+
+function sgBuildHeader() {
+  const head = document.getElementById('sgHead');
+  head.innerHTML = '<th class="sg-col-num">#</th>' +
+    SG_FEAT_DEFS.map((def, i) => {
+      const options = [['', 'All'], ['1', def.v1], ['0', def.v0]];
+      return `<th class="sg-th-prop${i % 2 === 0 ? ' sg-th-alt' : ''}" data-key="${esc(def.key)}">` +
+        `<span class="sg-prop-label">${SG_PROP_LABEL_HTML[def.key] || esc(def.v1)}</span>` +
+        `<div class="sg-feature-options" role="group" aria-label="${esc(`${def.v1} / ${def.v0}`)} filter">` +
+        options.map(([value, label]) => {
+          const shortLabel = def.key === 'literal language' && value
+            ? (value === '1' ? 'Literal' : 'Figurative')
+            : label;
+          return `<div class="sg-feature-option-row"><button type="button" class="sg-feature-option" data-value="${value}" ` +
+            `aria-pressed="${value === sgFeatFilter[def.key]}">${esc(shortLabel)}</button>` +
+            (value ? `<button type="button" class="sg-help-btn" data-key="${esc(def.key)}" data-value="${value}" aria-label="Definition of ${esc(label)}">?</button>` : '') +
+            '</div>';
+        }).join('') + '</div></th>';
+    }).join('') +
+    sgSortHeaderHtml('existing') + sgSortHeaderHtml('published') +
+    sgSortHeaderHtml('calculated') + sgSortHeaderHtml('supplementable');
+  sgUpdateFilterHeaders();
+}
+
+function sgUpdateFilterHeaders() {
+  document.querySelectorAll('#sgHead th.sg-th-prop[data-key]').forEach(th => {
+    const value = sgFeatFilter[th.dataset.key];
+    th.querySelectorAll('.sg-feature-option').forEach(button => {
+      button.setAttribute('aria-pressed', String(button.dataset.value === value));
+    });
+    th.classList.toggle('sg-filter-v1', value === '1');
+    th.classList.toggle('sg-filter-v0', value === '0');
+  });
+}
+
+function sgRenderTable() {
+  const tbody = document.getElementById('sgBody');
+  if (!sgRows.length) {
+    tbody.innerHTML = '<tr class="sg-empty-row"><td colspan="11">No data.</td></tr>';
+    return;
+  }
+  const filtered = sgRows.filter(row =>
+    SG_FEAT_DEFS.every(def => !sgFeatFilter[def.key] || String(row[def.key]) === sgFeatFilter[def.key])
+  );
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr class="sg-empty-row"><td colspan="11">No design points match the current filters.</td></tr>';
+    return;
+  }
+  const dir = sgSortDir === 'asc' ? 1 : -1;
+  const sorted = [...filtered].sort((a, b) => (a[sgSortKey] - b[sgSortKey]) * dir);
+  const countButton = (key, metric, value, statusClass) => {
+    const active = sgSelectedCombo === key && sgSelectedMetric === metric ? ' sg-active-metric' : '';
+    return `<td class="sg-col-meta"><button type="button" class="sg-count ${statusClass}${active}" ` +
+      `data-combo="${esc(key)}" data-metric="${metric}">${value}</button></td>`;
+  };
+  tbody.innerHTML = sorted.map((row, index) => {
+    const key = sgComboKey(row);
+    const supplementClass = row.supplementable > 0 ? 'sg-status-help' : 'sg-status-none-help';
+    return `<tr data-combo="${esc(key)}"${key === sgSelectedCombo ? ' class="sg-selected"' : ''}>` +
+      `<td class="sg-col-num">${index + 1}</td>` +
+      SG_FEAT_DEFS.map((def, i) => {
+        const isOne = row[def.key] === 1;
+        const alt = i % 2 === 0 ? ' sg-prop-alt' : '';
+        return `<td class="sg-prop-val ${isOne ? 'sg-val-1' : 'sg-val-0'}${alt}" title="${esc(isOne ? def.v1 : def.v0)}">${isOne ? '●' : '○'}</td>`;
+      }).join('') +
+      countButton(key, 'existing', row.existing, sgStatusClass(row.existing)) +
+      countButton(key, 'published', row.published, sgStatusClass(row.published)) +
+      countButton(key, 'calculated', row.calculated, sgStatusClass(row.calculated)) +
+      countButton(key, 'supplementable', row.supplementable, supplementClass) +
+      '</tr>';
+  }).join('');
+}
+
+async function sgLoadCoverage() {
+  const status = document.getElementById('sgStatus');
+  status.textContent = 'Loading…';
+  try {
+    const response = await fetch(`${API}/statement-coverage`, { cache: 'no-store' });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    sgRows = data.rows;
+    const under5 = sgRows.filter(r => r.existing < 5).length;
+    const zero = sgRows.filter(r => r.existing === 0).length;
+    const totalSupplement = sgRows.reduce((sum, r) => sum + r.supplementable, 0);
+    status.textContent = `${sgRows.length} design points · ${under5} under 5 statements (${zero} with none) · ` +
+      `${totalSupplement} new candidates available across all design points`;
+    sgRenderTable();
+  } catch (error) {
+    status.textContent = `Could not load coverage: ${error.message}`;
+  }
+}
+
+function sgDetailHeader(metric) {
+  if (metric === 'existing') {
+    return '<th class="sg-col-num">#</th><th class="sg-col-published">Published</th><th class="sg-col-statement">Statement</th>';
+  }
+  if (metric === 'published') {
+    return '<th class="sg-col-num">#</th><th class="sg-col-statement">Statement</th>';
+  }
+  if (metric === 'calculated') {
+    return '<th class="sg-col-num">#</th><th class="sg-col-published">Published</th><th class="sg-col-statement">Statement</th>' +
+      '<th class="sg-col-generator">N Ratings</th><th class="sg-col-num-judges">Commonsensicality</th>';
+  }
+  return '<th class="sg-col-num">#</th><th class="sg-col-statement">Statement</th><th class="sg-col-generator">Generator</th><th class="sg-col-num-judges">Judges agreed</th>';
+}
+
+function sgPublishedChip(published) {
+  return published ? '<span class="sg-status-chip sg-yes">Yes</span>' : '<span class="sg-status-chip sg-no">No</span>';
+}
+
+async function sgSelectMetric(key, metric) {
+  sgSelectedCombo = key;
+  sgSelectedMetric = metric;
+  sgRenderTable();
+  const row = sgRows.find(r => sgComboKey(r) === key);
+  if (!row) return;
+  const detail = document.getElementById('sgDetailCard');
+  const title = document.getElementById('sgDetailTitle');
+  const head = document.getElementById('sgDetailHead');
+  const body = document.getElementById('sgDetailBody');
+  const label = SG_FEAT_DEFS.map(def => row[def.key] ? def.v1 : def.v0).join(' · ');
+  const count = row[metric];
+  const colCount = SG_METRIC_COLS[metric];
+  title.textContent = `${label} — ${count} ${SG_METRIC_LABELS[metric]} statement${count === 1 ? '' : 's'}`;
+  detail.classList.remove("hidden");
+  head.innerHTML = sgDetailHeader(metric);
+  const cacheKey = sgMetricCacheKey(key, metric);
+  body.innerHTML = `<tr class="sg-empty-row"><td colspan="${colCount}">Loading…</td></tr>`;
+  try {
+    if (!(cacheKey in sgStatementsCache)) {
+      const params = new URLSearchParams({ metric });
+      SG_FEAT_DEFS.forEach(def => params.set(def.key, row[def.key]));
+      const response = await fetch(`${API}/statement-coverage-statements?${params.toString()}`, { cache: 'no-store' });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      sgStatementsCache[cacheKey] = data.statements;
+    }
+    sgRenderDetailList(cacheKey, metric);
+  } catch (error) {
+    body.innerHTML = `<tr class="sg-empty-row"><td colspan="${colCount}">Could not load statements: ${esc(error.message)}</td></tr>`;
+  }
+}
+
+function sgRenderDetailList(cacheKey, metric) {
+  const body = document.getElementById('sgDetailBody');
+  let statements = sgStatementsCache[cacheKey] || [];
+  const colCount = SG_METRIC_COLS[metric];
+  if (!statements.length) {
+    body.innerHTML = `<tr class="sg-empty-row"><td colspan="${colCount}">No ${SG_METRIC_LABELS[metric]} statements for this design point.</td></tr>`;
+    return;
+  }
+  if (metric === 'existing' || metric === 'calculated') {
+    const publishedCount = statements.filter(s => s.published).length;
+    const title = document.getElementById('sgDetailTitle');
+    title.textContent += ` · ${publishedCount} of ${statements.length} still published`;
+    statements = [...statements].sort((a, b) => b.published - a.published);
+  }
+  if (metric === 'existing') {
+    body.innerHTML = statements.map((entry, index) =>
+      `<tr><td class="sg-col-num">${index + 1}</td>` +
+      `<td class="sg-col-published">${sgPublishedChip(entry.published)}</td>` +
+      `<td class="sg-col-statement"><span class="sg-statement-text">${esc(entry.statement)}</span></td></tr>`
+    ).join('');
+    return;
+  }
+  if (metric === 'published') {
+    body.innerHTML = statements.map((entry, index) =>
+      `<tr><td class="sg-col-num">${index + 1}</td><td class="sg-col-statement"><span class="sg-statement-text">${esc(entry.statement)}</span></td></tr>`
+    ).join('');
+    return;
+  }
+  if (metric === 'calculated') {
+    body.innerHTML = statements.map((entry, index) =>
+      `<tr><td class="sg-col-num">${index + 1}</td>` +
+      `<td class="sg-col-published">${sgPublishedChip(entry.published)}</td>` +
+      `<td class="sg-col-statement"><span class="sg-statement-text">${esc(entry.statement)}</span></td>` +
+      `<td class="sg-col-generator">${entry.n_ratings}</td>` +
+      `<td class="sg-col-num-judges">${(entry.commonsensicality * 100).toFixed(1)}%</td></tr>`
+    ).join('');
+    return;
+  }
+  body.innerHTML = statements.map((entry, index) =>
+    `<tr data-index="${index}">` +
+    `<td class="sg-col-num">${index + 1}</td>` +
+    `<td class="sg-col-statement"><span class="sg-statement-text">${esc(entry.statement)}</span></td>` +
+    `<td class="sg-col-generator">${esc(entry.gen_model)}</td>` +
+    `<td class="sg-col-num-judges"><span class="sg-judge-count">${entry.judges.length} / ${entry.n_judges_tried}</span></td>` +
+    '</tr>'
+  ).join('');
+}
+
+function sgAssessmentPanel(title, assessment, role) {
+  const roleClass = role ? ` sg-assessment-panel--${role}` : '';
+  if (!assessment) {
+    return `<article class="sg-assessment-panel${roleClass}"><h4>${esc(title)}</h4><p class="sg-pending-label">Evaluation pending</p></article>`;
+  }
+  const confidence = assessment.confidence ?
+    `<p class="sg-feature-confidence">Confidence: ${esc(assessment.confidence)} / 4</p>` : '';
+  return `<article class="sg-assessment-panel${roleClass}"><h4>${esc(title)}</h4>` +
+    `<strong>${esc(assessment.classification || 'Not provided')}</strong>` +
+    confidence +
+    `<p>${esc(assessment.explanation || 'No explanation provided.')}</p></article>`;
+}
+
+const sgStatementDialog = document.getElementById('sgStatementDialog');
+function sgShowStatement(entry) {
+  const row = sgRows.find(r => sgComboKey(r) === sgSelectedCombo);
+  if (!row) return;
+  document.getElementById('sgStatementText').textContent = entry.statement;
+  document.getElementById('sgStatementModel').textContent =
+    `Generated by ${entry.gen_model} · ${entry.judges.length} / ${entry.n_judges_tried} judges confirmed common sense with full feature agreement`;
+
+  const commonsensePanels = sgAssessmentPanel('Generator rationale', {
+    classification: 'Provided', confidence: '', explanation: entry.gen_commonsense_explanation,
+  }, 'generator') + entry.judges.map(judge => sgAssessmentPanel(`Judge: ${judge.judge_model}`, {
+    classification: 'Yes', confidence: '', explanation: judge.commonsense_explanation,
+  }, 'judge')).join('');
+  document.getElementById('sgStatementCommonsense').innerHTML = `<div class="sg-comparison-grid">${commonsensePanels}</div>`;
+
+  document.getElementById('sgStatementFeatures').innerHTML = SG_FEAT_DEFS.map(def => {
+    const label = row[def.key] ? def.v1 : def.v0;
+    const genFeature = entry.gen_features[def.key];
+    const genPanel = sgAssessmentPanel('Generator', {
+      classification: label, confidence: genFeature.confidence, explanation: genFeature.explanation,
+    }, 'generator');
+    const judgePanels = entry.judges.map(judge => sgAssessmentPanel(`Judge: ${judge.judge_model}`, {
+      classification: label, confidence: judge.features[def.key].confidence, explanation: judge.features[def.key].explanation,
+    }, 'judge')).join('');
+    return `<section class="sg-statement-feature"><h3>${esc(label)} <span class="sg-agreement-badge">Agree</span></h3>` +
+      `<div class="sg-comparison-grid">${genPanel}${judgePanels}</div></section>`;
+  }).join('');
+
+  sgHideFeatureHelp();
+  sgStatementDialog.showModal();
+  sgStatementDialog.scrollTop = 0;
+}
+
+const sgFeatPopup = document.getElementById('sgFeatPopup');
+let sgActiveHelpButton = null;
+function sgShowFeatureHelp(button) {
+  sgActiveHelpButton = button;
+  if (button.dataset.metric) {
+    const metric = button.dataset.metric;
+    sgFeatPopup.innerHTML = `<div class="sg-popup-entry"><div class="sg-popup-label">${esc(SG_SORT_LABELS[metric])}</div>` +
+      `<div class="sg-popup-def">${esc(SG_METRIC_HELP[metric])}</div></div>`;
+    sgFeatPopup.classList.add('visible');
+  } else {
+    const def = SG_FEAT_DEFS.find(item => item.key === button.dataset.key);
+    if (!def) { sgActiveHelpButton = null; return; }
+    const positive = button.dataset.value === '1';
+    sgFeatPopup.innerHTML = `<div class="sg-popup-entry"><div class="sg-popup-label">${esc(positive ? def.v1 : def.v0)}</div>` +
+      `<div class="sg-popup-def">${esc(positive ? def.def1 : def.def0)}</div></div>`;
+    sgFeatPopup.classList.add('visible');
+  }
+  const rect = button.getBoundingClientRect();
+  let left = rect.left + rect.width / 2 - 160;
+  let top = rect.bottom + 8;
+  if (left + 320 > window.innerWidth - 8) left = window.innerWidth - 328;
+  if (left < 8) left = 8;
+  if (top + sgFeatPopup.offsetHeight > window.innerHeight - 8) top = rect.top - sgFeatPopup.offsetHeight - 8;
+  sgFeatPopup.style.left = `${left}px`;
+  sgFeatPopup.style.top = `${Math.max(8, top)}px`;
+}
+
+function sgHideFeatureHelp() {
+  sgFeatPopup.classList.remove('visible');
+  sgActiveHelpButton = null;
+}
+
+document.getElementById('sgBody').addEventListener('click', event => {
+  const button = event.target.closest('.sg-count');
+  if (!button) return;
+  sgSelectMetric(button.dataset.combo, button.dataset.metric);
+});
+
+document.getElementById('sgHead').addEventListener('click', event => {
+  const help = event.target.closest('.sg-help-btn');
+  if (help) {
+    event.stopPropagation();
+    sgShowFeatureHelp(help);
+    return;
+  }
+  const sortTh = event.target.closest('th.sg-sortable');
+  if (sortTh) {
+    const key = sortTh.dataset.sortKey;
+    if (sgSortKey === key) {
+      sgSortDir = sgSortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+      sgSortKey = key;
+      sgSortDir = 'asc';
+    }
+    sgBuildHeader();
+    sgRenderTable();
+    return;
+  }
+  const option = event.target.closest('.sg-feature-option');
+  if (!option) return;
+  const th = option.closest('th.sg-th-prop');
+  sgFeatFilter[th.dataset.key] = option.dataset.value;
+  sgUpdateFilterHeaders();
+  sgRenderTable();
+});
+document.getElementById('sgHead').addEventListener('mouseover', event => {
+  const help = event.target.closest('.sg-help-btn');
+  if (help && help !== sgActiveHelpButton) sgShowFeatureHelp(help);
+});
+document.getElementById('sgHead').addEventListener('mouseout', event => {
+  if (event.target.closest('.sg-help-btn') && !sgFeatPopup.contains(event.relatedTarget)) sgHideFeatureHelp();
+});
+
+document.getElementById('sgDetailBody').addEventListener('click', event => {
+  const tr = event.target.closest('tr[data-index]');
+  if (!tr || sgSelectedMetric !== 'supplementable') return;
+  const statements = sgStatementsCache[sgMetricCacheKey(sgSelectedCombo, 'supplementable')] || [];
+  const entry = statements[Number(tr.dataset.index)];
+  if (entry) sgShowStatement(entry);
+});
+
+document.getElementById('sgCloseStatement').addEventListener('click', () => sgStatementDialog.close());
+sgStatementDialog.addEventListener('click', event => {
+  const rect = sgStatementDialog.getBoundingClientRect();
+  if (event.target === sgStatementDialog &&
+      (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom)) {
+    sgStatementDialog.close();
+  }
+});
+document.querySelector('#sgTable').closest('.sg-table-wrap').addEventListener('scroll', sgHideFeatureHelp);
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape') sgHideFeatureHelp();
 });
 
 // Set initial state so back/forward work, then route to the correct panel
@@ -3190,3 +3598,4 @@ async function init() {
 }
 
 init();
+

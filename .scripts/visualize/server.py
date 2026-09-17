@@ -20,6 +20,7 @@ PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8080
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE_DIR)
 from utils import individual_commonsensicality, statement_commonsensicality
+import statement_coverage
 
 DATA_DIR = os.environ.get("DATA_DIR", os.path.join(BASE_DIR, "data"))
 # Default to the in-repo location for local dev; override with STATEMENTS_PATH
@@ -984,6 +985,22 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             stmt_id = int(params.get("statementId", ["0"])[0])
             country = params.get("country", [""])[0]
             self._send_json(get_country_cell(stmt_id, country, date_from, date_to))
+        elif parsed.path == "/api/statement-coverage":
+            data = statement_coverage.get_coverage()
+            self._send_json(json.dumps({"feature_keys": data["feature_keys"], "rows": data["rows"]}).encode("utf-8"))
+        elif parsed.path == "/api/statement-coverage-statements":
+            metric = params.get("metric", ["supplementable"])[0]
+            try:
+                combo = tuple(int(params[key][0]) for key in statement_coverage.FEAT_KEYS)
+            except (KeyError, ValueError):
+                self._send_error_json(400, "Missing or invalid feature parameters")
+                return
+            try:
+                statements = statement_coverage.get_statements_for_combo(combo, metric)
+            except ValueError as exc:
+                self._send_error_json(400, str(exc))
+                return
+            self._send_json(json.dumps({"statements": statements, "metric": metric}, ensure_ascii=False).encode("utf-8"))
         elif parsed.path == "/" or parsed.path.startswith("/static/"):
             http.server.SimpleHTTPRequestHandler.do_GET(self)
         else:

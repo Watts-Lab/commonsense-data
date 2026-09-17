@@ -1693,6 +1693,205 @@ td { padding: 10px 14px; vertical-align: middle; }
 .cm-score-cell-clickable { cursor: pointer; }
 .cm-score-cell-clickable:hover { background: #EFF6FF !important; color: #1D4ED8; }
 
+/* ══ Design Point Coverage (statement-generation) ══════════════════════════
+   Ported from .scripts/statement-generation/'s standalone Statement Explorer.
+   All classes/ids specific to this feature are "sg-" prefixed (or "sg" for
+   camelCase ids) to avoid colliding with this app's own similarly-named
+   Design Points table classes (dp-th-prop, dp-val-1, col-num, sortable, …). */
+/* Cap and center this panel's cards (not the generic .chart-card everywhere
+   else) so the tables inside — which fill 100% of their card — don't sprawl
+   edge to edge on very wide screens. */
+#panelStmtGen .chart-card { max-width: 1500px; margin-left: auto; margin-right: auto; }
+.sg-caption { margin: 4px 0 16px; color: #64748B; font-size: .85rem; line-height: 1.55; }
+.sg-table-wrap { max-height: 635px; overflow-x: auto; overflow-y: auto; position: relative; }
+#sgTable { width: 100%; margin-top: 16px; border-collapse: separate; border-spacing: 0; font-size: .8rem; }
+#sgTable th.sg-col-num, #sgTable td.sg-col-num { width: 42px; text-align: right; }
+#sgTable th.sg-col-meta, #sgTable td.sg-col-meta { width: 100px; text-align: center; font-variant-numeric: tabular-nums; }
+/* Override the app-wide thead th { white-space: nowrap } so long metric
+   labels ("Calculated") can wrap to two lines instead of clipping. */
+#sgTable th.sg-col-meta { white-space: normal; }
+#sgTable th.sg-col-num, #sgTable th.sg-col-meta { vertical-align: bottom; text-align: center; font-size: .62rem; padding-left: 4px; padding-right: 4px; }
+#sgTable th.sg-col-num { text-align: right; white-space: nowrap; }
+#sgTable th.sg-col-meta.sg-sortable { cursor: pointer; user-select: none; }
+#sgTable th.sg-col-meta.sg-sortable:hover { color: #1E293B; }
+#sgTable th.sg-col-meta.sg-sortable.sg-sort-active { color: #1D4ED8; }
+/* Metric labels wrap to two lines instead of clipping when the column is too
+   narrow for the full word (e.g. "Calculated"); the help button sits on its
+   own centered line below rather than inline, using the layout .sg-help-btn
+   uses for feature-pole buttons — at these narrow column widths, absolute
+   positioning let the button overlap and obscure the centered label text.
+   Compound selector (not just .sg-metric-help-btn) so this reliably beats
+   .sg-help-btn's own rule below regardless of declaration order — same
+   specificity otherwise. */
+.sg-metric-th-label { display: block; line-height: 1.25; overflow-wrap: break-word; }
+.sg-help-btn.sg-metric-help-btn {
+  position: static;
+  transform: none;
+  display: inline-block;
+  margin-top: 4px;
+  width: 12px;
+  height: 12px;
+  padding: 0;
+  font-size: .56rem;
+  line-height: 1;
+}
+.sg-th-prop { padding: 10px 4px 5px; text-align: center; vertical-align: bottom; }
+.sg-prop-label { display: block; margin-bottom: 8px; color: #64748B; font-size: .74rem; font-weight: 600; line-height: 1.2; text-align: center; white-space: normal; }
+.sg-prop-val { text-align: center; padding: 5px 2px; font-size: .88rem; }
+.sg-val-1 { color: #1D4ED8; }
+.sg-val-0 { color: #CBD5E1; }
+.sg-th-alt, td.sg-prop-alt { background: rgba(100, 116, 139, .07); }
+#sgBody tr:nth-child(even) td.sg-prop-alt { background: rgba(100, 116, 139, .13); }
+.sg-th-prop.sg-filter-v1 { background: #EFF6FF; }
+.sg-th-prop.sg-filter-v0 { background: #F1F5F9; }
+/* Sticky header cells must stay fully opaque or scrolled-past rows show
+   through the low-alpha alt-column tint above; these solid equivalents are
+   layered so an active filter tint still wins when both apply. */
+#sgTable thead th.sg-th-alt { background: rgb(241, 244, 247); }
+#sgTable thead th.sg-th-alt.sg-filter-v1 { background: #EFF6FF; }
+#sgTable thead th.sg-th-alt.sg-filter-v0 { background: #F1F5F9; }
+.sg-feature-options { display: flex; flex-direction: column; gap: 4px; }
+.sg-feature-option-row { position: relative; display: flex; min-height: 25px; align-items: stretch; }
+.sg-feature-option {
+  flex: 1;
+  min-width: 0;
+  min-height: 25px;
+  padding: 4px 6px;
+  border: 1px solid #CBD5E1;
+  border-radius: 5px;
+  background: #fff;
+  color: #475569;
+  cursor: pointer;
+  font-size: .68rem;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+}
+.sg-feature-option-row:has(.sg-help-btn) .sg-feature-option { padding-right: 25px; }
+.sg-feature-option[aria-pressed="true"] { border-color: #1D4ED8; background: #1D4ED8; color: #fff; }
+.sg-feature-option:focus-visible { outline: 2px solid #2563EB; outline-offset: 2px; }
+.sg-help-btn {
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  width: 15px;
+  height: 15px;
+  padding: 0;
+  transform: translateY(-50%);
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  background: transparent;
+  color: #64748B;
+  cursor: help;
+  font-size: .62rem;
+  line-height: 1;
+}
+.sg-feature-option[aria-pressed="true"] + .sg-help-btn { color: #fff; }
+.sg-count {
+  display: inline-block;
+  min-width: 34px;
+  padding: 3px 8px;
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.sg-count:hover { filter: brightness(0.94); }
+.sg-count.sg-active-metric { outline: 2px solid #2563EB; outline-offset: 1px; }
+.sg-count.sg-status-good { color: #166534; background: #DCFCE7; }
+.sg-count.sg-status-low { color: #854D0E; background: #FEF9C3; }
+.sg-count.sg-status-none { color: #9F1239; background: #FFE4E6; }
+.sg-count.sg-status-help { color: #173F78; background: #EFF6FF; }
+.sg-count.sg-status-none-help { color: #94A3B8; background: #F1F5F9; }
+#sgBody tr[data-combo] { cursor: pointer; }
+#sgBody tr[data-combo]:hover td { background: #EFF6FF !important; }
+#sgBody tr[data-combo].sg-selected td { background: #DBEAFE !important; }
+.sg-empty-row td { padding: 40px; color: #94A3B8; font-size: .9rem; text-align: center; }
+.sg-detail-table-wrap { margin-top: 12px; height: 50vh; overflow: auto; }
+/* width: 100% so the table spans the full card (the card itself is capped —
+   see #panelStmtGen .chart-card below). The Statement column itself stays
+   unset (the one auto column, so it absorbs 100% of the leftover space and
+   Generator/Judges-agreed/# keep their literal px — giving Statement its own
+   explicit width here previously made the browser proportionally inflate
+   those px columns to fill the leftover, stretching Generator instead of
+   leaving it alone). The "shorter statement" look instead comes from capping
+   the text itself, via .sg-statement-text below, so it wraps at a fixed
+   reading width while the cell/row still extends the full flexible column
+   width. */
+.sg-statement-table { width: 100%; border-collapse: collapse; background: #fff; font-size: .8rem; }
+.sg-statement-table th.sg-col-num, .sg-statement-table td.sg-col-num { width: 36px; text-align: right; padding-left: 6px; padding-right: 6px; }
+.sg-statement-table th.sg-col-published, .sg-statement-table td.sg-col-published { width: 100px; text-align: center; }
+.sg-statement-table th.sg-col-num-judges, .sg-statement-table td.sg-col-num-judges { width: 110px; text-align: center; }
+.sg-statement-table th.sg-col-generator, .sg-statement-table td.sg-col-generator { width: 220px; }
+.sg-statement-text { display: inline-block; max-width: 850px; }
+/* Narrow header labels ("Commonsensicality", "N Judges") don't fit the generic
+   thead th font-size/padding at these column widths; shrink and let them wrap
+   instead of overflowing past the column (which visually obscures the last
+   letters rather than clipping cleanly). */
+.sg-statement-table th.sg-col-published, .sg-statement-table th.sg-col-num-judges, .sg-statement-table th.sg-col-generator {
+  font-size: .62rem;
+  padding-left: 6px;
+  padding-right: 6px;
+  white-space: normal;
+  overflow-wrap: break-word;
+  line-height: 1.25;
+}
+.sg-statement-table tbody tr { cursor: pointer; }
+.sg-statement-table td.sg-col-generator { color: #64748B; font-size: .8rem; }
+.sg-statement-table td.sg-col-num-judges { font-variant-numeric: tabular-nums; }
+.sg-judge-count { display: inline-block; min-width: 20px; padding: 2px 9px; border-radius: 999px; background: #F0FDFA; color: #0F766E; font-weight: 700; }
+.sg-status-chip { display: inline-block; padding: 3px 7px; border-radius: 999px; font-size: .68rem; font-weight: 700; }
+.sg-status-chip.sg-yes { color: #166534; background: #DCFCE7; }
+.sg-status-chip.sg-no { color: #9F1239; background: #FFE4E6; }
+.sg-pending-label { color: #94A3B8; }
+
+#sgStatementDialog {
+  width: min(900px, calc(100vw - 32px));
+  max-height: 86vh;
+  margin: auto;
+  overflow-y: auto;
+  padding: 24px;
+  border: 0;
+  border-radius: 12px;
+  color: #1E293B;
+  box-shadow: 0 20px 60px #0004;
+}
+#sgStatementDialog::backdrop { background: #0F172A99; }
+.sg-dialog-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+.sg-dialog-header h2 { font-size: 1.1rem; }
+.sg-btn { padding: 4px 14px; border: 1px solid #CBD5E1; border-radius: 6px; background: #fff; color: #1E293B; cursor: pointer; font-size: .82rem; }
+#sgStatementText { margin-bottom: 8px; font-size: 1.15rem; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
+#sgStatementModel { margin-bottom: 20px; color: #64748B; font-size: .85rem; }
+.sg-statement-feature { padding: 14px 0; border-top: 1px solid #E2E8F0; }
+.sg-statement-feature h3 { margin-bottom: 7px; font-size: .9rem; }
+.sg-statement-feature p { line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
+.sg-comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.sg-assessment-panel { padding: 11px; border-radius: 8px; background: #F8FAFC; border-left: 4px solid transparent; }
+.sg-assessment-panel h4 { margin-bottom: 6px; color: #64748B; font-size: .72rem; letter-spacing: .04em; text-transform: uppercase; }
+.sg-assessment-panel strong { display: block; margin-bottom: 4px; }
+.sg-assessment-panel--generator { background: #EFF6FF; border-left-color: #173F78; }
+.sg-assessment-panel--generator h4 { color: #173F78; }
+.sg-assessment-panel--judge { background: #F0FDFA; border-left-color: #0F766E; }
+.sg-assessment-panel--judge h4 { color: #0F766E; }
+.sg-feature-confidence { margin-bottom: 5px; color: #64748B; font-size: .8rem; }
+.sg-agreement-badge { margin-left: 8px; font-size: .68rem; color: #166534; }
+
+#sgFeatPopup {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  width: 320px;
+  padding: 14px 16px;
+  border: 1px solid #E2E8F0;
+  border-radius: 9px;
+  background: #fff;
+  box-shadow: 0 4px 20px #0003;
+}
+#sgFeatPopup.visible { display: block; }
+.sg-popup-label { margin-bottom: 4px; font-size: .82rem; font-weight: 700; }
+.sg-popup-def { color: #475569; font-size: .8rem; line-height: 1.5; }
+
 .cm-score-n {
   font-size: 0.62rem;
   color: #94A3B8;
