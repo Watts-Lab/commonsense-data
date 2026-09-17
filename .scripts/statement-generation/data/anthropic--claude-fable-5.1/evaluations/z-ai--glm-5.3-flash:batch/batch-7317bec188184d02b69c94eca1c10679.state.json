@@ -1,0 +1,299 @@
+{
+  "phase": "submitted",
+  "gen_model": "anthropic/claude-fable-5.1",
+  "judge_model": "z-ai/glm-5.3-flash:batch",
+  "api_model": "z-ai/glm-5.3-flash",
+  "records": [
+    {
+      "source_id": "d4f32c645e9281515d57f587ed560a9b660f2b81768173c78738614a93abe55b:1",
+      "source_row": 18,
+      "statement": "Because inbreeding raises genetic disorders, close relatives should not have children together.",
+      "design_point": "['fact', 'physical', 'literal language', 'normative', 'reasoning', 'abstract']",
+      "gen_model": "anthropic/claude-fable-5.1"
+    },
+    {
+      "source_id": "3bf8081dbb6a207cee89d5f052a18be1a2dc12b97eb8eeb0e6c360bb8c95553b:1",
+      "source_row": 20,
+      "statement": "Because sleep deprivation impairs judgment, pilots should have mandatory rest periods.",
+      "design_point": "['fact', 'physical', 'literal language', 'normative', 'reasoning', 'abstract']",
+      "gen_model": "anthropic/claude-fable-5.1"
+    },
+    {
+      "source_id": "54e5033f091c9510a8a6620984353ea03eff9ed86fdab631d06b3eeb40eb871f:1",
+      "source_row": 29,
+      "statement": "Since honesty builds trust, businesses should not deceive their customers.",
+      "design_point": "['opinion', 'social', 'literal language', 'normative', 'reasoning', 'abstract']",
+      "gen_model": "anthropic/claude-fable-5.1"
+    },
+    {
+      "source_id": "e5585e310f6164ccf5dd69eec05e39bac843d97d415918ad3ac7bd5ffee0ea20:1",
+      "source_row": 81,
+      "statement": "Time and tide wait for no one, so finish tasks before deadlines strike.",
+      "design_point": "['fact', 'physical', 'figure of speech', 'normative', 'reasoning', 'abstract']",
+      "gen_model": "anthropic/claude-fable-5.1"
+    },
+    {
+      "source_id": "ace0df303f4532506ab15bfb18ba13654c6d3ac4f412e3fe8fb0cc2e57dcfc14:1",
+      "source_row": 255,
+      "statement": "Silence is golden.",
+      "design_point": "['opinion', 'social', 'figure of speech', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-fable-5.1"
+    },
+    {
+      "source_id": "b569e5155d98e7b2773560a309e316474e4349811e23c9f142f0f3af88b34299:1",
+      "source_row": 259,
+      "statement": "Too many cooks spoil the broth.",
+      "design_point": "['opinion', 'social', 'figure of speech', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-fable-5.1"
+    },
+    {
+      "source_id": "c4c50d0a1da5a8717326f9391b114d3c24766e009f81022ee162e183da2d2fc0:1",
+      "source_row": 661,
+      "statement": "The sky looks angry, so you had better grab an umbrella.",
+      "design_point": "['opinion', 'physical', 'figure of speech', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-fable-5.1"
+    },
+    {
+      "source_id": "b745b8de95b2b489bef8dc1ddc729c230738f4469c3af17803c82678bd9e9be4:1",
+      "source_row": 671,
+      "statement": "The bread is hard as a rock, so toss it to the birds.",
+      "design_point": "['opinion', 'physical', 'figure of speech', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-fable-5.1"
+    },
+    {
+      "source_id": "8315e6a48fcd534f44d0a192244353a6f125f71bbc88d171fddd5067815482aa:1",
+      "source_row": 978,
+      "statement": "You catch more flies with honey than with vinegar.",
+      "design_point": "['fact', 'social', 'figure of speech', 'normative', 'knowledge', 'everyday']",
+      "gen_model": "anthropic/claude-fable-5.1"
+    },
+    {
+      "source_id": "b0a37ebea1c40676599450408641cb216e19e5d938764112813c688a1b1072d5:1",
+      "source_row": 1116,
+      "statement": "Too many cooks spoil the broth.",
+      "design_point": "['opinion', 'social', 'figure of speech', 'positive', 'knowledge', 'everyday']",
+      "gen_model": "anthropic/claude-fable-5.1"
+    },
+    {
+      "source_id": "50f935130f4d9f13502eda310ae936b848c8d541d41191d1fff0b4ac48d6d54c:1",
+      "source_row": 1276,
+      "statement": "This coffee is too bitter to drink without sugar.",
+      "design_point": "['opinion', 'physical', 'literal language', 'positive', 'knowledge', 'everyday']",
+      "gen_model": "anthropic/claude-fable-5.1"
+    }
+  ],
+  "schema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "features": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "fact": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "classification": {
+                "type": "string",
+                "enum": [
+                  "fact",
+                  "opinion"
+                ]
+              },
+              "confidence": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4
+              },
+              "explanation": {
+                "type": "string",
+                "description": "Explain in 1 to 2 sentences why you chose this label and your confidence in that classification."
+              }
+            },
+            "required": [
+              "classification",
+              "confidence",
+              "explanation"
+            ]
+          },
+          "physical": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "classification": {
+                "type": "string",
+                "enum": [
+                  "physical",
+                  "social"
+                ]
+              },
+              "confidence": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4
+              },
+              "explanation": {
+                "type": "string",
+                "description": "Explain in 1 to 2 sentences why you chose this label and your confidence in that classification."
+              }
+            },
+            "required": [
+              "classification",
+              "confidence",
+              "explanation"
+            ]
+          },
+          "literal language": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "classification": {
+                "type": "string",
+                "enum": [
+                  "literal language",
+                  "figure of speech"
+                ]
+              },
+              "confidence": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4
+              },
+              "explanation": {
+                "type": "string",
+                "description": "Explain in 1 to 2 sentences why you chose this label and your confidence in that classification."
+              }
+            },
+            "required": [
+              "classification",
+              "confidence",
+              "explanation"
+            ]
+          },
+          "positive": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "classification": {
+                "type": "string",
+                "enum": [
+                  "positive",
+                  "normative"
+                ]
+              },
+              "confidence": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4
+              },
+              "explanation": {
+                "type": "string",
+                "description": "Explain in 1 to 2 sentences why you chose this label and your confidence in that classification."
+              }
+            },
+            "required": [
+              "classification",
+              "confidence",
+              "explanation"
+            ]
+          },
+          "knowledge": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "classification": {
+                "type": "string",
+                "enum": [
+                  "knowledge",
+                  "reasoning"
+                ]
+              },
+              "confidence": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4
+              },
+              "explanation": {
+                "type": "string",
+                "description": "Explain in 1 to 2 sentences why you chose this label and your confidence in that classification."
+              }
+            },
+            "required": [
+              "classification",
+              "confidence",
+              "explanation"
+            ]
+          },
+          "everyday": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "classification": {
+                "type": "string",
+                "enum": [
+                  "everyday",
+                  "abstract"
+                ]
+              },
+              "confidence": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4
+              },
+              "explanation": {
+                "type": "string",
+                "description": "Explain in 1 to 2 sentences why you chose this label and your confidence in that classification."
+              }
+            },
+            "required": [
+              "classification",
+              "confidence",
+              "explanation"
+            ]
+          }
+        },
+        "required": [
+          "fact",
+          "physical",
+          "literal language",
+          "positive",
+          "knowledge",
+          "everyday"
+        ]
+      },
+      "commonsense": {
+        "type": "integer",
+        "enum": [
+          0,
+          1
+        ],
+        "description": "1 if the statement is an example of human common sense; 0 if it is not."
+      },
+      "commonsense_explanation": {
+        "type": "string",
+        "description": "A short explanation of the common-sense assessment."
+      }
+    },
+    "required": [
+      "features",
+      "commonsense",
+      "commonsense_explanation"
+    ]
+  },
+  "jsonl_file": "batch-7317bec188184d02b69c94eca1c10679.jsonl",
+  "request_ids": {
+    "43dfed809ac3aeacd188a44ce28201a85b022d5bb82c772722e9c5464246350f": "d4f32c645e9281515d57f587ed560a9b660f2b81768173c78738614a93abe55b:1",
+    "fb519dfb2230f33b557e9535240a9a3bb7c82aa33ba513f3c0810e309b0463c2": "3bf8081dbb6a207cee89d5f052a18be1a2dc12b97eb8eeb0e6c360bb8c95553b:1",
+    "b350debedc142fe06999710b2e134f165867c5e1f8fb1903d12e959798c8ff44": "54e5033f091c9510a8a6620984353ea03eff9ed86fdab631d06b3eeb40eb871f:1",
+    "e4715e10f9ca4a5b5f472650976a7116d46c0420e879b1b9e13baa437c435e37": "e5585e310f6164ccf5dd69eec05e39bac843d97d415918ad3ac7bd5ffee0ea20:1",
+    "9d2d95c0036f44bbd5fda2e155fad4afd33e0ca98672bd84fb67ea1b1f544d0a": "ace0df303f4532506ab15bfb18ba13654c6d3ac4f412e3fe8fb0cc2e57dcfc14:1",
+    "7272d87b15bb6588a11d080b9fc6a996df222c1af6490617a3f028fc60d14a49": "b569e5155d98e7b2773560a309e316474e4349811e23c9f142f0f3af88b34299:1",
+    "31a725d80bcb31c25e44d06272a34c310b933e31227ba99e2fddada0ee2d693e": "c4c50d0a1da5a8717326f9391b114d3c24766e009f81022ee162e183da2d2fc0:1",
+    "4715d806126b5e4ccffbaed202d3d4d407a5436715ed119695f412d91a5f8820": "b745b8de95b2b489bef8dc1ddc729c230738f4469c3af17803c82678bd9e9be4:1",
+    "67a473b7c32a937d249f227a8acd96f667e5892327e2de1b722d4bb32d87a4ba": "8315e6a48fcd534f44d0a192244353a6f125f71bbc88d171fddd5067815482aa:1",
+    "c85f6a83f9647193bedafffe48dbe66fdbc35c10bc77a5f94388ea529df2d65b": "b0a37ebea1c40676599450408641cb216e19e5d938764112813c688a1b1072d5:1",
+    "483ece9fc158da3741976856303ffd3937b2c098cae5df2247b598a82cd71c86": "50f935130f4d9f13502eda310ae936b848c8d541d41191d1fff0b4ac48d6d54c:1"
+  },
+  "batch_id": "batch-1789484187-eBR2TW5R56NT0OIjLkHJ"
+}

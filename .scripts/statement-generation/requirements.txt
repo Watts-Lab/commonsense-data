@@ -1,0 +1,9 @@
+# Local statement-generation tools; separate from CI ingestion dependencies.
+json-repair
+jsonschema
+openai
+pandas
+python-dotenv
+PyYAML>=6.0,<7
+requests
+tqdm

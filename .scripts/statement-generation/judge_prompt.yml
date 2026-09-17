@@ -1,0 +1,63 @@
+template: |
+  Consider this statement: $statement_json
+
+  Classify the statement according to six feature pairs. For each pair, choose exactly one label in it. Here are the definitions of each pair.
+  
+  $feature_definitions
+
+  For each of your label, describe your confidence in your classification with an integer from 1 to 4, where
+  - 1 = very unconfident
+  - 2 = somewhat unconfident
+  - 3 = somewhat confident
+  - 4 = very confident.
+  
+  Additionally, provide a short explanation, between 1 and 2 sentences, for why you choose each label and your confidence in that classification.
+
+  Finally, decide whether this statement is an example of human common sense. Output a 1 if it is, and 0 if it is not. Provide a short explanation for it as well.
+
+  Return only a JSON object matching this exact schema. Include all six entries under "features", plus "commonsense" and "commonsense_explanation". An empty object is not a valid evaluation.
+  $response_schema
+response_format:
+  type: json_schema
+  json_schema:
+    name: statement_evaluation
+    strict: true
+    schema:
+      type: object
+      additionalProperties: false
+      properties:
+        features:
+          type: object
+          additionalProperties: false
+          properties: {}
+          required: []
+        commonsense:
+          type: integer
+          enum: [0, 1]
+          description: "1 if the statement is an example of human common sense; 0 if it is not."
+        commonsense_explanation:
+          type: string
+          description: "A short explanation of the common-sense assessment."
+      required: [features, commonsense, commonsense_explanation]
+
+# Each pair's classification enum is populated from prompt.yml by judge.py.
+feature_schema:
+  type: object
+  additionalProperties: false
+  properties:
+    classification:
+      type: string
+      enum: []
+    confidence:
+      type: integer
+      minimum: 1
+      maximum: 4
+    explanation:
+      type: string
+      description: "Explain in 1 to 2 sentences why you chose this label and your confidence in that classification."
+  required: [classification, confidence, explanation]
+
+retry_template: |
+  Your previous response failed validation: $error
+  Return a complete evaluation, not an empty object. Include all six feature entries,
+  commonsense (0 or 1), and commonsense_explanation. Follow the schema in the original request.

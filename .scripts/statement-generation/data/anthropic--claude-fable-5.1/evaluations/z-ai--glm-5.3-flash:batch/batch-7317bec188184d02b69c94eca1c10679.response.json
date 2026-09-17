@@ -1,0 +1,18 @@
+{
+  "id": "batch-1789484187-eBR2TW5R56NT0OIjLkHJ",
+  "object": "batch",
+  "endpoint": "/v1/chat/completions",
+  "model": "z-ai/glm-5.3-flash-20260826",
+  "completion_window": "24h",
+  "status": "in_progress",
+  "created_at": 1789484187,
+  "finalized_at": null,
+  "request_counts": {
+    "total": 11,
+    "completed": 0,
+    "failed": 0
+  },
+  "usage": null,
+  "results": null,
+  "error": null
+}
