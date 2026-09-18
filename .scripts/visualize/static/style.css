@@ -1867,6 +1867,11 @@ td { padding: 10px 14px; vertical-align: middle; }
 .sg-statement-feature h3 { margin-bottom: 7px; font-size: .9rem; }
 .sg-statement-feature p { line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
 .sg-comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+/* Only rendered when a statement's text was independently produced by more
+   than one generator, so each keeps its own separately-attributed judges. */
+.sg-generation-block + .sg-generation-block { margin-top: 8px; border-top: 4px solid #E2E8F0; }
+.sg-generation-heading { padding-top: 16px; font-size: .95rem; color: #1E293B; }
+.sg-generation-heading .sg-judge-count { margin-left: 6px; font-size: .78rem; }
 .sg-assessment-panel { padding: 11px; border-radius: 8px; background: #F8FAFC; border-left: 4px solid transparent; }
 .sg-assessment-panel h4 { margin-bottom: 6px; color: #64748B; font-size: .72rem; letter-spacing: .04em; text-transform: uppercase; }
 .sg-assessment-panel strong { display: block; margin-bottom: 4px; }
