@@ -1706,7 +1706,7 @@ td { padding: 10px 14px; vertical-align: middle; }
 .sg-table-wrap { max-height: 635px; overflow-x: auto; overflow-y: auto; position: relative; }
 #sgTable { width: 100%; margin-top: 16px; border-collapse: separate; border-spacing: 0; font-size: .8rem; }
 #sgTable th.sg-col-num, #sgTable td.sg-col-num { width: 42px; text-align: right; }
-#sgTable th.sg-col-meta, #sgTable td.sg-col-meta { width: 100px; text-align: center; font-variant-numeric: tabular-nums; }
+#sgTable th.sg-col-meta, #sgTable td.sg-col-meta { width: 115px; text-align: center; font-variant-numeric: tabular-nums; white-space: nowrap; }
 /* Override the app-wide thead th { white-space: nowrap } so long metric
    labels ("Calculated") can wrap to two lines instead of clipping. */
 #sgTable th.sg-col-meta { white-space: normal; }
@@ -1740,6 +1740,7 @@ td { padding: 10px 14px; vertical-align: middle; }
 .sg-prop-val { text-align: center; padding: 5px 2px; font-size: .88rem; }
 .sg-val-1 { color: #1D4ED8; }
 .sg-val-0 { color: #CBD5E1; }
+.sg-option-dot { margin-right: 1px; font-size: 1.5em; line-height: 1; vertical-align: middle; }
 .sg-th-alt, td.sg-prop-alt { background: rgba(100, 116, 139, .07); }
 #sgBody tr:nth-child(even) td.sg-prop-alt { background: rgba(100, 116, 139, .13); }
 .sg-th-prop.sg-filter-v1 { background: #EFF6FF; }
@@ -1790,14 +1791,21 @@ td { padding: 10px 14px; vertical-align: middle; }
 .sg-count {
   display: inline-block;
   min-width: 34px;
-  padding: 3px 8px;
-  border: 0;
+  padding: 2px 7px;
+  /* A visible border regardless of fill color, so the pill never blends into
+     the row's own background — some status colors (e.g. sg-status-help) are
+     the exact same hex as the row hover/selected background. */
+  border: 1px solid rgba(15, 23, 42, .14);
   border-radius: 999px;
   font: inherit;
   font-weight: 700;
   cursor: pointer;
 }
 .sg-count:hover { filter: brightness(0.94); }
+/* Fixed-width numerator/denominator so the "/" lines up across rows regardless
+   of how many digits each side has. */
+.sg-frac-num { display: inline-block; width: 2.4ch; text-align: right; }
+.sg-frac-den { display: inline-block; width: 2.4ch; text-align: left; }
 .sg-count.sg-active-metric { outline: 2px solid #2563EB; outline-offset: 1px; }
 .sg-count.sg-status-good { color: #166534; background: #DCFCE7; }
 .sg-count.sg-status-low { color: #854D0E; background: #FEF9C3; }
@@ -1819,18 +1827,19 @@ td { padding: 10px 14px; vertical-align: middle; }
    the text itself, via .sg-statement-text below, so it wraps at a fixed
    reading width while the cell/row still extends the full flexible column
    width. */
-.sg-statement-table { width: 100%; border-collapse: collapse; background: #fff; font-size: .8rem; }
+.sg-statement-table { width: 100%; border-collapse: collapse; background: #fff; font-size: .95rem; }
 .sg-statement-table th.sg-col-num, .sg-statement-table td.sg-col-num { width: 36px; text-align: right; padding-left: 6px; padding-right: 6px; }
 .sg-statement-table th.sg-col-published, .sg-statement-table td.sg-col-published { width: 100px; text-align: center; }
 .sg-statement-table th.sg-col-num-judges, .sg-statement-table td.sg-col-num-judges { width: 110px; text-align: center; }
 .sg-statement-table th.sg-col-generator, .sg-statement-table td.sg-col-generator { width: 220px; }
-.sg-statement-text { display: inline-block; max-width: 850px; }
+.sg-statement-table th.sg-col-statement, .sg-statement-table td.sg-col-statement { width: 50%; }
+.sg-statement-text { display: inline-block; }
 /* Narrow header labels ("Commonsensicality", "N Judges") don't fit the generic
    thead th font-size/padding at these column widths; shrink and let them wrap
    instead of overflowing past the column (which visually obscures the last
    letters rather than clipping cleanly). */
 .sg-statement-table th.sg-col-published, .sg-statement-table th.sg-col-num-judges, .sg-statement-table th.sg-col-generator {
-  font-size: .62rem;
+  font-size: .72rem;
   padding-left: 6px;
   padding-right: 6px;
   white-space: normal;
@@ -1838,7 +1847,9 @@ td { padding: 10px 14px; vertical-align: middle; }
   line-height: 1.25;
 }
 .sg-statement-table tbody tr { cursor: pointer; }
-.sg-statement-table td.sg-col-generator { color: #64748B; font-size: .8rem; }
+.sg-statement-table tbody tr.sg-row-dim { opacity: .45; }
+.sg-statement-table tbody tr.sg-row-dim:hover { opacity: .7; }
+.sg-statement-table td.sg-col-generator { color: #64748B; font-size: .9rem; }
 .sg-statement-table td.sg-col-num-judges { font-variant-numeric: tabular-nums; }
 .sg-judge-count { display: inline-block; min-width: 20px; padding: 2px 9px; border-radius: 999px; background: #F0FDFA; color: #0F766E; font-weight: 700; }
 .sg-status-chip { display: inline-block; padding: 3px 7px; border-radius: 999px; font-size: .68rem; font-weight: 700; }
@@ -1881,6 +1892,7 @@ td { padding: 10px 14px; vertical-align: middle; }
 .sg-assessment-panel--judge h4 { color: #0F766E; }
 .sg-feature-confidence { margin-bottom: 5px; color: #64748B; font-size: .8rem; }
 .sg-agreement-badge { margin-left: 8px; font-size: .68rem; color: #166534; }
+.sg-agreement-badge--partial { color: #9F1239; }
 
 #sgFeatPopup {
   display: none;
