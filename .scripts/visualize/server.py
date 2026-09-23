@@ -38,7 +38,7 @@ if "createdAt" in answers.columns:
 demo = pd.read_csv(os.path.join(DATA_DIR, "crt_rme_demo.csv"))
 statements = pd.read_csv(
     STATEMENTS_PATH,
-    usecols=["id", "statement", "statementCategory"],
+    usecols=["id", "statement", "statementSource", "statementCategory", "published"],
 ).rename(columns={"id": "statementId"})
 
 # Load statement properties and merge into statements
@@ -517,19 +517,20 @@ def get_dp_statements(country: str, props: dict, date_from: str = "", date_to: s
     ratings = subset[["statementId", "I_agree", "others_agree"]].copy()
 
     scores = statement_commonsensicality(ratings)
-    scores = scores.join(
-        statements.set_index("statementId")[["statement"] + PROP_COLS], how="left"
-    )
-    scores = scores.dropna(subset=PROP_COLS)
-    for col in PROP_COLS:
-        scores[col] = scores[col].astype(int)
 
-    mask = pd.Series(True, index=scores.index)
+    # Every statement in this design point, rated or not; only those with
+    # enough ratings to get a score (qualified) count toward the mean.
+    in_dp = statements.dropna(subset=PROP_COLS)
     for col, val in props.items():
-        mask &= scores[col] == val
-
-    filtered = scores[mask].copy()
-    filtered["statement"] = filtered["statement"].fillna("")
+        in_dp = in_dp[in_dp[col].astype(int) == val]
+    rows_df = in_dp[["statementId", "statement", "published"]].set_index("statementId")
+    rows_df = rows_df.join(scores, how="left")
+    rows_df["n_ratings"] = (
+        ratings["statementId"].value_counts().reindex(rows_df.index).fillna(0)
+    )
+    rows_df["qualified"] = rows_df.index.isin(scores.index)
+    rows_df["statement"] = rows_df["statement"].fillna("")
+    rows_df["published"] = rows_df["published"].fillna(0).astype(int)
 
     float_cols = [
         "I_agree_mean",
@@ -538,16 +539,26 @@ def get_dp_statements(country: str, props: dict, date_from: str = "", date_to: s
         "awareness",
         "commonsensicality",
     ]
-    rows_df = filtered.reset_index().sort_values("n_ratings", ascending=False)
+    rows_df = rows_df.reset_index().sort_values(
+        ["qualified", "n_ratings"], ascending=False
+    )
     rows_df[float_cols] = rows_df[float_cols].round(4)
     rows_df["n_ratings"] = rows_df["n_ratings"].astype(int)
     rows_df["statementId"] = rows_df["statementId"].astype(int)
+    # NaN is not valid JSON; unqualified statements have no scores
+    rows_df = rows_df.astype(object).where(rows_df.notna(), None)
 
-    rows = rows_df[["statementId", "statement", "n_ratings"] + float_cols].to_dict(
-        orient="records"
-    )
+    rows = rows_df[
+        ["statementId", "statement", "published", "qualified", "n_ratings"] + float_cols
+    ].to_dict(orient="records")
 
-    payload = {"n": len(rows), "rows": rows}
+    n_qualified = sum(r["qualified"] for r in rows)
+    payload = {
+        "n": len(rows),
+        "n_qualified": n_qualified,
+        "n_excluded": len(rows) - n_qualified,
+        "rows": rows,
+    }
     encoded = json.dumps(payload, ensure_ascii=False).encode("utf-8")
     _dp_stmts_cache[cache_key] = encoded
     return encoded
@@ -910,6 +921,25 @@ def get_statement_countries(stmt_id: str, date_from: str = "", date_to: str = ""
     return json.dumps(rows, ensure_ascii=False).encode("utf-8")
 
 
+# ── Statement source / category (shown when a statement is clicked) ───────
+
+
+def get_statement_meta(stmt_id: str) -> bytes | None:
+    try:
+        sid = int(stmt_id)
+    except ValueError:
+        return None
+    row = statements[statements["statementId"] == sid]
+    if row.empty:
+        return None
+    row = row.iloc[0]
+    meta = {
+        "source": row["statementSource"] if pd.notna(row["statementSource"]) else None,
+        "category": row["statementCategory"] if pd.notna(row["statementCategory"]) else None,
+    }
+    return json.dumps(meta, ensure_ascii=False).encode("utf-8")
+
+
 # ── HTTP handler ───────────────────────────────────────────────────────────
 class Handler(http.server.SimpleHTTPRequestHandler):
     def _send_json(self, body: bytes):
@@ -979,6 +1009,12 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         elif parsed.path == "/api/statement-countries":
             stmt_id = params.get("statementId", [""])[0]
             self._send_json(get_statement_countries(stmt_id, date_from, date_to))
+        elif parsed.path == "/api/statement-meta":
+            meta = get_statement_meta(params.get("statementId", [""])[0])
+            if meta is None:
+                self._send_error_json(404, "Unknown statementId")
+                return
+            self._send_json(meta)
         elif parsed.path == "/api/country-matrix":
             self._send_json(get_country_matrix(date_from, date_to))
         elif parsed.path == "/api/country-cell":

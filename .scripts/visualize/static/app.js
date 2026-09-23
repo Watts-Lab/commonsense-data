@@ -469,10 +469,62 @@ function refAvgOthers(mean) {
   return mean === null || mean === undefined ? "—" : fmtPct(mean);
 }
 
+// Source and category (from statements/statements_1.csv) appear only in the
+// statement modals, fetched when one opens rather than carried in every table
+const stmtMetaCache = {};
+let stmtMetaRequestId = 0;
+
+function capFirst(s) {
+  return s ? s[0].toUpperCase() + s.slice(1) : s;
+}
+
+async function showStmtMeta(el, statementId) {
+  el.innerHTML = "";
+  if (statementId === undefined || statementId === null) return;
+  const requestId = ++stmtMetaRequestId;
+  try {
+    if (!(statementId in stmtMetaCache)) {
+      const r = await fetch(`${API}/statement-meta?statementId=${encodeURIComponent(statementId)}`);
+      if (!r.ok) return;
+      stmtMetaCache[statementId] = await r.json();
+    }
+  } catch {
+    return;
+  }
+  // Another statement may have been opened while this one was loading
+  if (requestId !== stmtMetaRequestId) return;
+  const { source, category } = stmtMetaCache[statementId];
+  el.innerHTML = [["Source", source], ["Category", category]]
+    .filter(([, v]) => v)
+    .map(([label, v]) => `<span class="stmt-meta-item"><span class="stmt-meta-label">${label}</span> <span class="stmt-meta-value">${esc(capFirst(v))}</span></span>`)
+    .join("");
+}
+
+// Statement modal with only the text, source and category, plus an optional
+// note in place of the score breakdown — for lists with nothing to explain
+// (Design Point Coverage) or statements with too few ratings to score
+function openStmtInfo(statement, statementId, noteHtml = "") {
+  document.getElementById("stmtModalText").textContent = fixStatement(statement);
+  const explanation = document.getElementById("stmtModalExplanation");
+  explanation.innerHTML = noteHtml ? `<p class="expl-context">${noteHtml}</p>` : "";
+  explanation.classList.toggle("hidden", !noteHtml);
+  showStmtMeta(document.getElementById("stmtModalMeta"), statementId);
+  stmtModal.classList.remove("hidden");
+}
+
+// Shown instead of a score for statements under the 10-rating minimum
+function notEnoughRatingsHtml(n, groupLabel) {
+  return `There are not enough ratings to calculate a commonsensicality score for this statement. ` +
+    `Within <strong>${esc(groupLabel)}</strong>, it has received <strong>${fmtNum(n)}</strong> rating${n !== 1 ? "s" : ""}; ` +
+    `at least <strong>10</strong> are required.`;
+}
+
 function openStmtDetail(row, country) {
   document.getElementById("stmtModalText").textContent = fixStatement(
     row.statement,
   );
+  document.getElementById("stmtModalExplanation").classList.remove("hidden");
+  showStmtMeta(document.getElementById("stmtModalMeta"), row.statementId);
 
   const N = row.n_ratings;
   const A = row.I_agree_mean; // fraction 0-1
@@ -622,7 +674,8 @@ const SG_FEAT_DEFS = [
 ];
 
 const sgFeatFilter = Object.fromEntries(SG_FEAT_DEFS.map(({ key }) => [key, '']));
-const SG_PROP_LABEL_HTML = { 'literal language': 'Literal<br>language' };
+// Clicking a feature header cycles its filter: both poles → 1 only → 0 only
+const SG_FILTER_CYCLE = { '': '1', '1': '0', '0': '' };
 const SG_SORT_LABELS = { existing: 'Existing', published: 'Published', calculated: 'Calculated', supplementable: 'New' };
 const SG_METRIC_HELP = {
   existing: 'Total number of statements already in a design point.',
@@ -653,41 +706,44 @@ function sgSortHeaderHtml(key) {
   const arrow = key === sgSortKey ? (sgSortDir === 'asc' ? ' ▲' : ' ▼') : '';
   const active = key === sgSortKey ? ' sg-sort-active' : '';
   const help = `<button type="button" class="sg-help-btn sg-metric-help-btn" data-metric="${key}" aria-label="Definition of ${esc(SG_SORT_LABELS[key])}">?</button>`;
-  return `<th class="sg-col-meta sg-sortable${active}" data-sort-key="${key}">` +
+  const extra = key === 'supplementable' ? ' sg-col-new' : '';
+  return `<th class="sg-col-meta${extra} sg-sortable${active}" data-sort-key="${key}">` +
     `<span class="sg-metric-th-label">${SG_SORT_LABELS[key]}${arrow}</span>${help}</th>`;
 }
 
 function sgBuildHeader() {
   const head = document.getElementById('sgHead');
   head.innerHTML = '<th class="sg-col-num">#</th>' +
-    SG_FEAT_DEFS.map((def, i) => {
-      const options = [['', 'All'], ['1', def.v1], ['0', def.v0]];
-      return `<th class="sg-th-prop${i % 2 === 0 ? ' sg-th-alt' : ''}" data-key="${esc(def.key)}">` +
-        `<span class="sg-prop-label">${SG_PROP_LABEL_HTML[def.key] || esc(def.v1)}</span>` +
-        `<div class="sg-feature-options" role="group" aria-label="${esc(`${def.v1} / ${def.v0}`)} filter">` +
-        options.map(([value, label]) => {
-          const shortLabel = def.key === 'literal language' && value
-            ? (value === '1' ? 'Literal' : 'Figurative')
-            : label;
-          const dot = value === '1' ? '<span class="sg-option-dot sg-val-1">●</span> '
-            : value === '0' ? '<span class="sg-option-dot sg-val-0">○</span> '
-            : '';
-          return `<div class="sg-feature-option-row"><button type="button" class="sg-feature-option" data-value="${value}" ` +
-            `aria-pressed="${value === sgFeatFilter[def.key]}">${dot}${esc(shortLabel)}</button>` +
-            (value ? `<button type="button" class="sg-help-btn" data-key="${esc(def.key)}" data-value="${value}" aria-label="Definition of ${esc(label)}">?</button>` : '') +
-            '</div>';
-        }).join('') + '</div></th>';
-    }).join('') +
+    SG_FEAT_DEFS.map((def, i) =>
+      `<th class="sg-th-prop${i % 2 === 0 ? ' sg-th-alt' : ''}" data-key="${esc(def.key)}" ` +
+      `title="Click to filter by ${esc(def.v1)} / ${esc(def.v0)}">` +
+      // All three filter states' labels are rendered; only the active one is
+      // shown, but the hidden ones still set the column width (see style.css)
+      `<span class="sg-prop-label">` +
+      `<span class="sg-label-variant" data-value="">${sgPoleHtml(def.v1, '1')}<span class="sg-pole-amp">&amp;</span>${sgPoleHtml(def.v0, '0')}</span>` +
+      `<span class="sg-label-variant" data-value="1">${sgPoleHtml(def.v1, '1')}</span>` +
+      `<span class="sg-label-variant" data-value="0">${sgPoleHtml(def.v0, '0')}</span>` +
+      `</span>` +
+      `<button type="button" class="sg-help-btn sg-prop-help-btn" data-key="${esc(def.key)}" ` +
+      `aria-label="Definitions of ${esc(def.v1)} and ${esc(def.v0)}">?</button></th>`
+    ).join('') +
     sgSortHeaderHtml('existing') + sgSortHeaderHtml('published') +
     sgSortHeaderHtml('calculated') + sgSortHeaderHtml('supplementable');
   sgUpdateFilterHeaders();
 }
 
+function sgPoleHtml(label, value) {
+  const dot = value === '1'
+    ? '<span class="sg-option-dot sg-val-1">●</span>'
+    : '<span class="sg-option-dot sg-val-0">○</span>';
+  return `<span class="sg-pole">${esc(label)}&nbsp;${dot}</span>`;
+}
+
 function sgUpdateFilterHeaders() {
   document.querySelectorAll('#sgHead th.sg-th-prop[data-key]').forEach(th => {
     const value = sgFeatFilter[th.dataset.key];
-    th.querySelectorAll('.sg-feature-option').forEach(button => {
-      button.setAttribute('aria-pressed', String(button.dataset.value === value));
+    th.querySelectorAll('.sg-label-variant').forEach(variant => {
+      variant.classList.toggle('sg-label-active', variant.dataset.value === value);
     });
     th.classList.toggle('sg-filter-v1', value === '1');
     th.classList.toggle('sg-filter-v0', value === '0');
@@ -711,7 +767,8 @@ function sgRenderTable() {
   const sorted = [...filtered].sort((a, b) => (a[sgSortKey] - b[sgSortKey]) * dir);
   const countButton = (key, metric, value, statusClass) => {
     const active = sgSelectedCombo === key && sgSelectedMetric === metric ? ' sg-active-metric' : '';
-    return `<td class="sg-col-meta"><button type="button" class="sg-count ${statusClass}${active}" ` +
+    const extra = metric === 'supplementable' ? ' sg-col-new' : '';
+    return `<td class="sg-col-meta${extra}"><button type="button" class="sg-count ${statusClass}${active}" ` +
       `data-combo="${esc(key)}" data-metric="${metric}">${value}</button></td>`;
   };
   tbody.innerHTML = sorted.map((row, index) => {
@@ -766,6 +823,9 @@ function sgPublishedChip(published) {
 }
 
 let sgDetailRequestId = 0;
+// Rows currently in the detail table, in display order (existing/calculated
+// are re-sorted by published before rendering)
+let sgDetailStatements = [];
 async function sgSelectMetric(key, metric) {
   sgSelectedCombo = key;
   sgSelectedMetric = metric;
@@ -789,6 +849,7 @@ async function sgSelectMetric(key, metric) {
     : `${count} ${SG_METRIC_LABELS[metric]} statement${count === 1 ? '' : 's'}`;
   detail.classList.remove("hidden");
   head.innerHTML = sgDetailHeader(metric);
+  head.closest('table').dataset.metric = metric;
   const cacheKey = sgMetricCacheKey(key, metric);
   body.innerHTML = `<tr class="sg-empty-row"><td colspan="${colCount}">Loading…</td></tr>`;
   try {
@@ -824,9 +885,10 @@ function sgRenderDetailList(cacheKey, metric) {
     sub.textContent += ` · ${publishedCount} of ${statements.length} still published`;
     statements = [...statements].sort((a, b) => b.published - a.published);
   }
+  sgDetailStatements = statements;
   if (metric === 'existing') {
     body.innerHTML = statements.map((entry, index) =>
-      `<tr><td class="sg-col-num">${index + 1}</td>` +
+      `<tr data-index="${index}"><td class="sg-col-num">${index + 1}</td>` +
       `<td class="sg-col-published">${sgPublishedChip(entry.published)}</td>` +
       `<td class="sg-col-statement"><span class="sg-statement-text">${esc(entry.statement)}</span></td></tr>`
     ).join('');
@@ -834,13 +896,13 @@ function sgRenderDetailList(cacheKey, metric) {
   }
   if (metric === 'published') {
     body.innerHTML = statements.map((entry, index) =>
-      `<tr><td class="sg-col-num">${index + 1}</td><td class="sg-col-statement"><span class="sg-statement-text">${esc(entry.statement)}</span></td></tr>`
+      `<tr data-index="${index}"><td class="sg-col-num">${index + 1}</td><td class="sg-col-statement"><span class="sg-statement-text">${esc(entry.statement)}</span></td></tr>`
     ).join('');
     return;
   }
   if (metric === 'calculated') {
     body.innerHTML = statements.map((entry, index) =>
-      `<tr><td class="sg-col-num">${index + 1}</td>` +
+      `<tr data-index="${index}"><td class="sg-col-num">${index + 1}</td>` +
       `<td class="sg-col-published">${sgPublishedChip(entry.published)}</td>` +
       `<td class="sg-col-statement"><span class="sg-statement-text">${esc(entry.statement)}</span></td>` +
       `<td class="sg-col-generator">${entry.n_ratings}</td>` +
@@ -955,9 +1017,9 @@ function sgShowFeatureHelp(button) {
   } else {
     const def = SG_FEAT_DEFS.find(item => item.key === button.dataset.key);
     if (!def) { sgActiveHelpButton = null; return; }
-    const positive = button.dataset.value === '1';
-    sgFeatPopup.innerHTML = `<div class="sg-popup-entry"><div class="sg-popup-label">${esc(positive ? def.v1 : def.v0)}</div>` +
-      `<div class="sg-popup-def">${esc(positive ? def.def1 : def.def0)}</div></div>`;
+    sgFeatPopup.innerHTML = [[def.v1, def.def1], [def.v0, def.def0]].map(([label, text]) =>
+      `<div class="sg-popup-entry"><div class="sg-popup-label">${esc(label)}</div>` +
+      `<div class="sg-popup-def">${esc(text)}</div></div>`).join('');
     sgFeatPopup.classList.add('visible');
   }
   const rect = button.getBoundingClientRect();
@@ -1001,10 +1063,9 @@ document.getElementById('sgHead').addEventListener('click', event => {
     sgRenderTable();
     return;
   }
-  const option = event.target.closest('.sg-feature-option');
-  if (!option) return;
-  const th = option.closest('th.sg-th-prop');
-  sgFeatFilter[th.dataset.key] = option.dataset.value;
+  const th = event.target.closest('th.sg-th-prop');
+  if (!th) return;
+  sgFeatFilter[th.dataset.key] = SG_FILTER_CYCLE[sgFeatFilter[th.dataset.key]];
   sgUpdateFilterHeaders();
   sgRenderTable();
 });
@@ -1018,10 +1079,13 @@ document.getElementById('sgHead').addEventListener('mouseout', event => {
 
 document.getElementById('sgDetailBody').addEventListener('click', event => {
   const tr = event.target.closest('tr[data-index]');
-  if (!tr || sgSelectedMetric !== 'supplementable') return;
-  const statements = sgStatementsCache[sgMetricCacheKey(sgSelectedCombo, 'supplementable')] || [];
-  const entry = statements[Number(tr.dataset.index)];
-  if (entry) sgShowStatement(entry);
+  if (!tr) return;
+  const entry = sgDetailStatements[Number(tr.dataset.index)];
+  if (!entry) return;
+  // Generated (New) statements aren't in statements_1.csv, so they keep their
+  // own judge-detail dialog; existing ones show source and category
+  if (sgSelectedMetric === 'supplementable') sgShowStatement(entry);
+  else openStmtInfo(entry.statement, entry.id);
 });
 
 document.getElementById('sgCloseStatement').addEventListener('click', () => sgStatementDialog.close());
@@ -1980,6 +2044,7 @@ async function openStmtCombined(row) {
   );
   document.getElementById("stmtPropsBody").innerHTML =
     '<p style="color:#94A3B8;padding:12px 0">Loading…</p>';
+  showStmtMeta(document.getElementById("stmtPropsMeta"), row.statementId);
   stmtPropsModal.classList.remove("hidden");
 
   // Fetch top countries async
@@ -2004,6 +2069,14 @@ async function openStmtCombined(row) {
   } catch (_) {}
 
   // Score calculation section
+  if (row._excluded) {
+    document.getElementById("stmtPropsBody").innerHTML =
+      countriesHtml +
+      `<div class="stmt-combined-section"><div class="stmt-combined-section-title">Commonsensicality score</div>` +
+      `<p class="expl-context">${notEnoughRatingsHtml(row.n_ratings, groupLabel)}</p></div>` +
+      `<div class="stmt-combined-section"><div class="stmt-combined-section-title">Statement properties</div><ul class="prop-detail-list">${stmtPropItemsHtml(row)}</ul></div>`;
+    return;
+  }
   const N = row.n_ratings;
   const A = row.I_agree_mean;
   const B = row.others_agree_mean;
@@ -2026,8 +2099,15 @@ async function openStmtCombined(row) {
     `<li>The <strong>commonsensicality</strong> score is the geometric mean of consensus and awareness: √(${fp(consensus)} × ${fp(awareness)}) = <strong>${fp(commonsensicality)}</strong>.</li>` +
     `</ul>`;
 
-  // Property definitions section
-  const propItems = PROP_DEFS.map(({ key, v1, v0, def1, def0 }) => {
+  document.getElementById("stmtPropsBody").innerHTML =
+    countriesHtml +
+    `<div class="stmt-combined-section"><div class="stmt-combined-section-title">Commonsensicality score</div>${scoreHtml}</div>` +
+    `<div class="stmt-combined-section"><div class="stmt-combined-section-title">Statement properties</div><ul class="prop-detail-list">${stmtPropItemsHtml(row)}</ul></div>`;
+}
+
+// Property definitions section of the Statement Scores modal
+function stmtPropItemsHtml(row) {
+  return PROP_DEFS.map(({ key, v1, v0, def1, def0 }) => {
     const val = row[key];
     if (val === null || val === undefined)
       return `<li class="prop-detail-item prop-detail-unknown"><span class="prop-detail-category">${esc(v1)} / ${esc(v0)}</span><span class="prop-detail-desc">—</span></li>`;
@@ -2043,11 +2123,6 @@ async function openStmtCombined(row) {
       `</li>`
     );
   }).join("");
-
-  document.getElementById("stmtPropsBody").innerHTML =
-    countriesHtml +
-    `<div class="stmt-combined-section"><div class="stmt-combined-section-title">Commonsensicality score</div>${scoreHtml}</div>` +
-    `<div class="stmt-combined-section"><div class="stmt-combined-section-title">Statement properties</div><ul class="prop-detail-list">${propItems}</ul></div>`;
 }
 
 async function loadStmtScores(country) {
@@ -2299,7 +2374,7 @@ function renderDesignPoints(rows, rowsExcluded) {
         (p) => `data-${p.key}="${row[p.key]}"`,
       ).join(" ");
       return (
-        `<tr class="dp-excluded-row" ${dataAttrs}>` +
+        `<tr class="dp-excluded-row dp-clickable" ${dataAttrs}>` +
         `<td class="dp-n-cell">N = ${fmtNum(row.n)}</td>` +
         makePropCells(row, " dp-excl-prop") +
         `<td class="dp-ci-cell dp-excl-ci"></td>` +
@@ -2397,24 +2472,42 @@ async function loadDpStatements(country, props) {
     return;
   }
 
-  document.getElementById("dpDetailTitle").textContent =
-    `Statements for selected design point (N = ${fmtNum(data.n)})`;
+  document.getElementById("dpDetailSub").innerHTML =
+    labels +
+    `<div class="dp-detail-counts">${fmtNum(data.n)} statement${data.n !== 1 ? "s" : ""} in total · ` +
+    `${fmtNum(data.n_qualified)} used to calculate the mean · ` +
+    `${fmtNum(data.n_excluded)} not qualified (fewer than 10 ratings)</div>`;
   renderDpStatements(data.rows);
 }
 
 // ── DP detail table sort state ─────────────────────────────────────────────
-let dpDetailSortKey = "n_ratings";
+let dpDetailSortKey = "published";
 let dpDetailSortDir = "desc";
 let dpDetailAllRows = [];
 let dpDetailPage = 1;
 
+// Default order is published first, then by rating count. Ties on any column
+// fall back to rating count; unqualified statements have no scores, so they
+// sink to the bottom when sorting by a score column in either direction.
 function buildDpDetailRows() {
   const rows = [...dpDetailAllRows];
+  const sign = dpDetailSortDir === "asc" ? 1 : -1;
   rows.sort((a, b) => {
-    const d = a[dpDetailSortKey] - b[dpDetailSortKey];
-    return dpDetailSortDir === "asc" ? d : -d;
+    const av = a[dpDetailSortKey], bv = b[dpDetailSortKey];
+    if (av === null || bv === null) {
+      if (av !== bv) return av === null ? 1 : -1;
+    } else if (av !== bv) {
+      return sign * (av - bv);
+    }
+    return b.n_ratings - a.n_ratings;
   });
   return rows;
+}
+
+function getFilteredDpDetailRows() {
+  const rows = buildDpDetailRows();
+  const dpq = dpDetailSearchQuery.trim().toLowerCase();
+  return dpq ? rows.filter((r) => r.statement.toLowerCase().includes(dpq)) : rows;
 }
 
 function updateDpDetailSortHeaders() {
@@ -2429,29 +2522,44 @@ function updateDpDetailSortHeaders() {
 }
 
 function renderDpDetailBody() {
-  let rows = buildDpDetailRows();
-  const dpq = dpDetailSearchQuery.trim().toLowerCase();
-  if (dpq) rows = rows.filter((r) => r.statement.toLowerCase().includes(dpq));
+  const rows = getFilteredDpDetailRows();
   const tp = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
   const start = (dpDetailPage - 1) * PAGE_SIZE;
 
   const tbody = document.querySelector("#dpDetailTable tbody");
   tbody.innerHTML = "";
-  rows.slice(start, start + PAGE_SIZE).forEach((row, i) => {
+  let qualRank = rows.slice(0, start).filter((r) => r.qualified).length + 1;
+  rows.slice(start, start + PAGE_SIZE).forEach((row) => {
     const tr = document.createElement("tr");
-    tr.innerHTML =
-      `<td class="td-rank">${start + i + 1}</td>` +
+    const head =
       `<td class="td-statement">${esc(fixStatement(row.statement))}</td>` +
-      `<td class="td-num">${fmtNum(row.n_ratings)}</td>` +
-      `<td>${pctBar(row.I_agree_mean)}</td>` +
-      `<td>${pctBar(row.others_agree_mean)}</td>` +
-      `<td>${pctBarScore(row.consensus)}</td>` +
-      `<td>${pctBarScore(row.awareness)}</td>` +
-      `<td>${pctBarScore(row.commonsensicality)}</td>`;
-    tr.style.cursor = "pointer";
-    tr.addEventListener("click", () =>
-      openStmtDetail(row, dpCountrySelect.value),
-    );
+      `<td class="td-published">${badge(row.published)}</td>` +
+      `<td class="td-num">${fmtNum(row.n_ratings)}</td>`;
+    if (!row.qualified) {
+      // Too few ratings to score — shown for completeness, not in the mean
+      tr.classList.add("row-excluded");
+      tr.innerHTML =
+        `<td class="td-rank td-dim">—</td>` + head +
+        `<td class="td-dim">—</td>`.repeat(5);
+      tr.style.cursor = "pointer";
+      tr.addEventListener("click", () => {
+        const c = dpCountrySelect.value;
+        openStmtInfo(row.statement, row.statementId,
+          notEnoughRatingsHtml(row.n_ratings, c === "all" ? "all countries" : c));
+      });
+    } else {
+      tr.innerHTML =
+        `<td class="td-rank">${fmtNum(qualRank++)}</td>` + head +
+        `<td>${pctBar(row.I_agree_mean)}</td>` +
+        `<td>${pctBar(row.others_agree_mean)}</td>` +
+        `<td>${pctBarScore(row.consensus)}</td>` +
+        `<td>${pctBarScore(row.awareness)}</td>` +
+        `<td>${pctBarScore(row.commonsensicality)}</td>`;
+      tr.style.cursor = "pointer";
+      tr.addEventListener("click", () =>
+        openStmtDetail(row, dpCountrySelect.value),
+      );
+    }
     tbody.appendChild(tr);
   });
 
@@ -2465,7 +2573,7 @@ function renderDpDetailBody() {
 
 function renderDpStatements(rows) {
   dpDetailAllRows = rows;
-  dpDetailSortKey = "n_ratings";
+  dpDetailSortKey = "published";
   dpDetailSortDir = "desc";
   dpDetailPage = 1;
   dpDetailSearchQuery = "";
@@ -2473,7 +2581,7 @@ function renderDpStatements(rows) {
   const detailBody = document.getElementById("dpDetailBody");
   if (!rows.length) {
     detailBody.innerHTML =
-      '<div class="empty-row" style="padding:20px 0">No statements meet the minimum ratings threshold.</div>';
+      '<div class="empty-row" style="padding:20px 0">No statements in this design point.</div>';
     return;
   }
 
@@ -2490,18 +2598,19 @@ function renderDpStatements(rows) {
     `<button id="dpDetailBtnNext" class="page-btn" disabled>&#8250;</button>` +
     `</div></div>` +
     `<div class="dp-detail-table-wrap"><table id="dpDetailTable" style="margin-top:4px;table-layout:fixed;width:100%;border-collapse:collapse;background:#fff">` +
-    `<colgroup><col class="col-rank"/><col class="col-dp-stmt"/><col class="col-num"/>` +
+    `<colgroup><col class="col-rank"/><col class="col-dp-stmt"/><col class="col-dp-published"/><col class="col-num"/>` +
     `<col class="col-stmtscore"/><col class="col-stmtscore"/><col class="col-stmtscore"/>` +
     `<col class="col-stmtscore"/><col class="col-stmtscore"/></colgroup>` +
     `<thead><tr>` +
     `<th class="col-rank">#</th>` +
     `<th class="col-dp-stmt">Statement</th>` +
-    `<th class="col-num sortable sort-active" data-sort="n_ratings">Ratings <span class="sort-icon">▼</span></th>` +
+    `<th class="col-dp-published sortable sort-active" data-sort="published">Published <button class="prop-help-btn" type="button" data-col-label="Published" data-col-def="Whether the statement is currently being sampled to participants.">?</button> <span class="sort-icon">▼</span></th>` +
+    `<th class="col-num sortable" data-sort="n_ratings">Ratings <span class="sort-icon"></span></th>` +
     `<th class="col-stmtscore sortable" data-sort="I_agree_mean">I agree <button class="prop-help-btn" type="button" data-col-label="I agree" data-col-def="Percentage of users who subjectively agreed with the statement.">?</button> <span class="sort-icon"></span></th>` +
     `<th class="col-stmtscore sortable" data-sort="others_agree_mean">Others agree <button class="prop-help-btn" type="button" data-col-label="Others agree" data-col-def="Percentage of users who believed that most other people would agree with the statement.">?</button> <span class="sort-icon"></span></th>` +
     `<th class="col-stmtscore sortable" data-sort="consensus">Consensus <span class="sort-icon"></span></th>` +
     `<th class="col-stmtscore sortable" data-sort="awareness">Awareness <span class="sort-icon"></span></th>` +
-    `<th class="col-stmtscore sortable" data-sort="commonsensicality">Commonsensicality <span class="sort-icon"></span></th>` +
+    `<th class="col-stmtscore sortable" data-sort="commonsensicality">Common&shy;sensicality <span class="sort-icon"></span></th>` +
     `</tr></thead><tbody></tbody></table></div>`;
 
   renderDpDetailBody();
@@ -2530,7 +2639,7 @@ function renderDpStatements(rows) {
     }
   });
   document.getElementById("dpDetailBtnNext").addEventListener("click", () => {
-    const tp = Math.max(1, Math.ceil(dpDetailAllRows.length / PAGE_SIZE));
+    const tp = Math.max(1, Math.ceil(getFilteredDpDetailRows().length / PAGE_SIZE));
     if (dpDetailPage < tp) {
       dpDetailPage++;
       renderDpDetailBody();
@@ -2668,12 +2777,13 @@ function renderCmPage() {
         td.innerHTML =
           entry.s.toFixed(2) +
           `<div class="cm-score-n"><em>N</em> = ${fmtNum(entry.n)}</div>`;
-      } else if (entry != null) {
-        td.className = 'cm-score-cell cm-score-cell-sub';
-        td.innerHTML = `<div class="cm-score-n"><em>N</em> = ${fmtNum(entry.n)}</div>`;
       } else {
-        td.className = 'cm-score-cell cm-score-cell-sub';
-        td.innerHTML = '<div class="cm-score-n"><em>N</em> = 0</div>';
+        // Under 10 ratings: no score, but still opens the statement's info
+        const n = entry != null ? entry.n : 0;
+        td.className = 'cm-score-cell cm-score-cell-sub cm-score-cell-clickable';
+        td.dataset.country = c;
+        td.dataset.n = n;
+        td.innerHTML = `<div class="cm-score-n"><em>N</em> = ${fmtNum(n)}</div>`;
       }
       tr.appendChild(td);
     });
@@ -2749,6 +2859,11 @@ async function loadCountryMatrix() {
     if (!td) return;
     const stmtId = parseInt(td.closest('tr').dataset.stmtId);
     const country = td.dataset.country;
+    if (td.classList.contains('cm-score-cell-sub')) {
+      const row = countryMatrixData.rows.find(r => r.statementId === stmtId);
+      openStmtInfo(row ? row.statement : '', stmtId, notEnoughRatingsHtml(Number(td.dataset.n), country));
+      return;
+    }
     try {
       const cell = await fetch(
         `${API}/country-cell?statementId=${encodeURIComponent(stmtId)}&country=${encodeURIComponent(country)}${dateParams()}`

@@ -970,7 +970,7 @@ td { padding: 10px 14px; vertical-align: middle; }
 #stmtTable .pct-track { max-width: 65px; }
 
 /* Design Points detail table: cap bar width */
-#dpDetailTable .pct-track { max-width: 50px; }
+#dpDetailTable .pct-track { max-width: 36px; }
 
 /* Statement Scores table: fixed layout so percentages are enforced */
 #stmtScoresTable { width: 100%; table-layout: fixed; }
@@ -1099,6 +1099,24 @@ td { padding: 10px 14px; vertical-align: middle; }
   max-width: 580px;
 }
 
+.stmt-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin-top: 6px;
+  font-size: 0.84rem;
+  color: #475569;
+}
+.stmt-meta:empty { display: none; }
+.stmt-meta-label {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.72rem;
+  color: #94A3B8;
+}
+.stmt-meta-value { font-weight: 700; color: #334155; }
+
 .modal-user-id {
   font-family: ui-monospace, "SF Mono", monospace;
   font-size: 0.85rem;
@@ -1156,12 +1174,19 @@ td { padding: 10px 14px; vertical-align: middle; }
 .badge-yes { background: #DCFCE7; color: #16A34A; }
 .badge-no  { background: #FEE2E2; color: #DC2626; }
 
-/* Fixed-width statement column for the DP detail table */
-.col-dp-stmt { width: 180px; }
-
-/* Design-point detail table: narrower score cols, tighter pct bars */
-#dpDetailTable col.col-stmtscore { width: 90px; }
-#dpDetailTable col.col-num       { width: 70px; }
+/* Design-point detail table: rank + statement fixed, then the seven data
+   columns (Published, Ratings, five scores) share the rest equally */
+#dpDetailTable .col-rank         { width: 4%; }
+#dpDetailTable .col-dp-stmt      { width: 30%; }
+#dpDetailTable .col-dp-published,
+#dpDetailTable .col-num,
+#dpDetailTable .col-stmtscore    { width: 9.4%; }
+#dpDetailTable .td-published     { text-align: center; }
+#dpDetailTable .row-excluded     { opacity: 0.6; }
+/* Wrap headers only between words (the shared rule below breaks mid-word,
+   which reads badly in these narrower columns) */
+#dpDetailTable thead tr th       { word-break: normal; letter-spacing: 0.05em; padding-left: 8px; padding-right: 8px; }
+#dpDetailTable th.col-dp-published { text-align: center; }
 #dpDetailTable .pct-wrap         { gap: 4px; }
 #dpDetailTable .pct-label        { width: 42px; }
 
@@ -1286,6 +1311,18 @@ td { padding: 10px 14px; vertical-align: middle; }
 
 .dp-excluded-row {
   opacity: 0.5;
+}
+
+.dp-detail-counts {
+  margin-top: 2px;
+  color: #475569;
+}
+
+/* Design Points panel: narrower side gutters so the 9-column detail table
+   has room for its bars */
+#panelDP .scores-wrap {
+  padding-left: max(20px, 6vw);
+  padding-right: max(20px, 6vw);
 }
 
 .dp-excl-score {
@@ -1702,6 +1739,8 @@ td { padding: 10px 14px; vertical-align: middle; }
    else) so the tables inside — which fill 100% of their card — don't sprawl
    edge to edge on very wide screens. */
 #panelStmtGen .chart-card { max-width: 1500px; margin-left: auto; margin-right: auto; }
+/* Same narrower gutters as the Design Points panel, so the feature headers fit */
+#panelStmtGen .scores-wrap { padding-left: max(20px, 6vw); padding-right: max(20px, 6vw); }
 .sg-caption { margin: 4px 0 16px; color: #64748B; font-size: .85rem; line-height: 1.55; }
 .sg-table-wrap { max-height: 635px; overflow-x: auto; overflow-y: auto; position: relative; }
 #sgTable { width: 100%; margin-top: 16px; border-collapse: separate; border-spacing: 0; font-size: .8rem; }
@@ -1710,7 +1749,9 @@ td { padding: 10px 14px; vertical-align: middle; }
 /* Override the app-wide thead th { white-space: nowrap } so long metric
    labels ("Calculated") can wrap to two lines instead of clipping. */
 #sgTable th.sg-col-meta { white-space: normal; }
-#sgTable th.sg-col-num, #sgTable th.sg-col-meta { vertical-align: bottom; text-align: center; font-size: .62rem; padding-left: 4px; padding-right: 4px; }
+/* New holds a "123 / 140" fraction pill, wider than the other count pills */
+#sgTable th.sg-col-new, #sgTable td.sg-col-new { width: 150px; }
+#sgTable th.sg-col-num, #sgTable th.sg-col-meta { vertical-align: middle; text-align: center; font-size: .62rem; padding-left: 4px; padding-right: 4px; }
 #sgTable th.sg-col-num { text-align: right; white-space: nowrap; }
 #sgTable th.sg-col-meta.sg-sortable { cursor: pointer; user-select: none; }
 #sgTable th.sg-col-meta.sg-sortable:hover { color: #1E293B; }
@@ -1724,7 +1765,8 @@ td { padding: 10px 14px; vertical-align: middle; }
    .sg-help-btn's own rule below regardless of declaration order — same
    specificity otherwise. */
 .sg-metric-th-label { display: block; line-height: 1.25; overflow-wrap: break-word; }
-.sg-help-btn.sg-metric-help-btn {
+.sg-help-btn.sg-metric-help-btn,
+.sg-help-btn.sg-prop-help-btn {
   position: static;
   transform: none;
   display: inline-block;
@@ -1735,8 +1777,23 @@ td { padding: 10px 14px; vertical-align: middle; }
   font-size: .56rem;
   line-height: 1;
 }
-.sg-th-prop { padding: 10px 4px 5px; text-align: center; vertical-align: bottom; }
-.sg-prop-label { display: block; margin-bottom: 8px; color: #64748B; font-size: .74rem; font-weight: 600; line-height: 1.2; text-align: center; white-space: normal; }
+/* Size columns to content: under the app-wide table-layout: fixed the six
+   feature columns got an equal share of what the # and metric columns left,
+   too narrow for their labels */
+#sgTable { table-layout: auto; }
+.sg-th-prop { padding: 10px 6px 6px; text-align: center; vertical-align: middle; cursor: pointer; user-select: none; }
+.sg-th-prop:hover .sg-prop-label { color: #1E293B; }
+/* Inherits the uppercase bold grey thead style. Each pole ("Fact ●") and the
+   "&" between them sit on their own lines so every column reads the same way */
+.sg-prop-label { display: block; color: #64748B; font-size: .66rem; letter-spacing: .05em; line-height: 1.35; text-align: center; white-space: normal; }
+.sg-pole, .sg-pole-amp { display: block; }
+/* Inactive variants collapse to zero height but still count toward the
+   column's width, so the header stays put as the filter cycles while the
+   visible label (plus its ?) is what gets vertically centered */
+.sg-label-variant { display: block; height: 0; overflow: hidden; visibility: hidden; }
+.sg-label-variant.sg-label-active { height: auto; overflow: visible; visibility: visible; }
+.sg-pole-amp { color: #94A3B8; }
+.sg-prop-label .sg-option-dot { font-size: 1.2em; margin-right: 0; }
 .sg-prop-val { text-align: center; padding: 5px 2px; font-size: .88rem; }
 .sg-val-1 { color: #1D4ED8; }
 .sg-val-0 { color: #CBD5E1; }
@@ -1751,26 +1808,6 @@ td { padding: 10px 14px; vertical-align: middle; }
 #sgTable thead th.sg-th-alt { background: rgb(241, 244, 247); }
 #sgTable thead th.sg-th-alt.sg-filter-v1 { background: #EFF6FF; }
 #sgTable thead th.sg-th-alt.sg-filter-v0 { background: #F1F5F9; }
-.sg-feature-options { display: flex; flex-direction: column; gap: 4px; }
-.sg-feature-option-row { position: relative; display: flex; min-height: 25px; align-items: stretch; }
-.sg-feature-option {
-  flex: 1;
-  min-width: 0;
-  min-height: 25px;
-  padding: 4px 6px;
-  border: 1px solid #CBD5E1;
-  border-radius: 5px;
-  background: #fff;
-  color: #475569;
-  cursor: pointer;
-  font-size: .68rem;
-  font-weight: 400;
-  text-transform: none;
-  letter-spacing: normal;
-}
-.sg-feature-option-row:has(.sg-help-btn) .sg-feature-option { padding-right: 25px; }
-.sg-feature-option[aria-pressed="true"] { border-color: #1D4ED8; background: #1D4ED8; color: #fff; }
-.sg-feature-option:focus-visible { outline: 2px solid #2563EB; outline-offset: 2px; }
 .sg-help-btn {
   position: absolute;
   right: 5px;
@@ -1787,7 +1824,6 @@ td { padding: 10px 14px; vertical-align: middle; }
   font-size: .62rem;
   line-height: 1;
 }
-.sg-feature-option[aria-pressed="true"] + .sg-help-btn { color: #fff; }
 .sg-count {
   display: inline-block;
   min-width: 34px;
@@ -1804,8 +1840,8 @@ td { padding: 10px 14px; vertical-align: middle; }
 .sg-count:hover { filter: brightness(0.94); }
 /* Fixed-width numerator/denominator so the "/" lines up across rows regardless
    of how many digits each side has. */
-.sg-frac-num { display: inline-block; width: 2.4ch; text-align: right; }
-.sg-frac-den { display: inline-block; width: 2.4ch; text-align: left; }
+.sg-frac-num { display: inline-block; width: 3ch; text-align: right; }
+.sg-frac-den { display: inline-block; width: 3ch; text-align: left; }
 .sg-count.sg-active-metric { outline: 2px solid #2563EB; outline-offset: 1px; }
 .sg-count.sg-status-good { color: #166534; background: #DCFCE7; }
 .sg-count.sg-status-low { color: #854D0E; background: #FEF9C3; }
@@ -1832,7 +1868,12 @@ td { padding: 10px 14px; vertical-align: middle; }
 .sg-statement-table th.sg-col-published, .sg-statement-table td.sg-col-published { width: 100px; text-align: center; }
 .sg-statement-table th.sg-col-num-judges, .sg-statement-table td.sg-col-num-judges { width: 110px; text-align: center; }
 .sg-statement-table th.sg-col-generator, .sg-statement-table td.sg-col-generator { width: 220px; }
-.sg-statement-table th.sg-col-statement, .sg-statement-table td.sg-col-statement { width: 50%; }
+/* New (generated) statements: cap Statement at 40% and let Generator take the
+   rest, since model names are long and the statements are short */
+.sg-statement-table[data-metric="supplementable"] th.sg-col-statement,
+.sg-statement-table[data-metric="supplementable"] td.sg-col-statement { width: 40%; }
+.sg-statement-table[data-metric="supplementable"] th.sg-col-generator,
+.sg-statement-table[data-metric="supplementable"] td.sg-col-generator { width: auto; }
 .sg-statement-text { display: inline-block; }
 /* Narrow header labels ("Commonsensicality", "N Judges") don't fit the generic
    thead th font-size/padding at these column widths; shrink and let them wrap

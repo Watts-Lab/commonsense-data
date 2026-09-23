@@ -233,7 +233,7 @@
     <div class="scores-wrap">
       <div class="chart-card">
         <div class="chart-title">Design Point Coverage</div>
-        <p class="sg-caption">Each design point has four statement counts. Hover or click on the ? button to see their definitions.</p>
+        <p class="sg-caption">Each design point has four statement counts. Hover or click on the ? button to see their definitions. Click a property header to filter by it; click again to switch to its opposite, and once more to clear.</p>
         <div class="sg-table-wrap">
           <table id="sgTable">
             <thead><tr id="sgHead"></tr></thead>
@@ -270,7 +270,10 @@
   <div id="stmtPropsModal" class="modal-overlay hidden">
     <div class="modal-box">
       <div class="modal-header">
-        <div class="modal-stmt-title" id="stmtPropsText"></div>
+        <div>
+          <div class="modal-stmt-title" id="stmtPropsText"></div>
+          <div class="stmt-meta" id="stmtPropsMeta"></div>
+        </div>
         <button class="modal-close" id="stmtPropsClose" title="Close">&#x2715;</button>
       </div>
       <div class="modal-body">
@@ -283,7 +286,10 @@
   <div id="stmtModal" class="modal-overlay hidden">
     <div class="modal-box" style="max-width:700px">
       <div class="modal-header">
-        <div class="modal-stmt-title" id="stmtModalText"></div>
+        <div>
+          <div class="modal-stmt-title" id="stmtModalText"></div>
+          <div class="stmt-meta" id="stmtModalMeta"></div>
+        </div>
         <button class="modal-close" id="stmtModalClose" title="Close">&#x2715;</button>
       </div>
       <div class="modal-body" style="padding:0">

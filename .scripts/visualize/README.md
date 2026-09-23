@@ -302,6 +302,7 @@ All endpoints are served under `/api/` and respond with JSON.
 | `GET /api/group-compare` | `groupA`, `groupB` | Side-by-side individual + statement comparison |
 | `GET /api/user-detail` | `userId`, `target`, `reference` | Statement-level detail for one user |
 | `GET /api/statement-countries` | `statementId` | Top-5 countries by rating count for a statement |
+| `GET /api/statement-meta` | `statementId` | Source and category of a statement, from `statements_1.csv` |
 
 Use `country=all` (or `target=all` / `reference=all`) to include all countries.
 
