@@ -1,0 +1,1371 @@
+{
+  "phase": "submitted",
+  "gen_model": "meta/muse-spark-1.3",
+  "judge_model": "z-ai/glm-5.3-flash:batch",
+  "api_model": "z-ai/glm-5.3-flash",
+  "records": [
+    {
+      "source_id": "c3d1067e35d2dcb4f8932cf74a5c535e00442fe3c60ae9c0c21795631c7924fe:1",
+      "source_row": 34,
+      "statement": "Walls have ears, so secrets spread quickly.",
+      "design_point": "['opinion', 'social', 'figure of speech', 'positive', 'reasoning', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "648918b3642fe9ab198e785cc7be24fa218f5949962a97977756c274cd284128:1",
+      "source_row": 51,
+      "statement": "Hard stone shapes sharp blades, so value tough teachers.",
+      "design_point": "['opinion', 'physical', 'figure of speech', 'normative', 'reasoning', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "a294cce01363248046979317a6c88b68e8860a8a97bb9a33a3a19fb181a976e3:1",
+      "source_row": 77,
+      "statement": "Thunderheads tower angrily, therefore summer skies brew battles.",
+      "design_point": "['opinion', 'physical', 'figure of speech', 'positive', 'reasoning', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "d0de7de8761088365a56b7a3e3707542c57a4bab7099bc61a1e4aecd330f8223:1",
+      "source_row": 95,
+      "statement": "Farmers should rotate crops because soil loses nutrients over time.",
+      "design_point": "['opinion', 'physical', 'literal language', 'normative', 'reasoning', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "7bc66fe0f2b4ce4bc8ba6c88dd504d2cce32f150897c000fdd5493c73bef8e38:1",
+      "source_row": 98,
+      "statement": "Parents should limit screen time because sleep improves growing brains.",
+      "design_point": "['opinion', 'physical', 'literal language', 'normative', 'reasoning', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "1952c9d732fa11e7d5d5ce441034a5ddb2e042499be9dac05ba2adeabfe1bd1b:1",
+      "source_row": 100,
+      "statement": "You should avoid smoking because lungs heal slowly after damage.",
+      "design_point": "['opinion', 'physical', 'literal language', 'normative', 'reasoning', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "6166739c199ec10e2675ed8f10a40da03b0c10d0ead443ee7002d4670e6790e6:1",
+      "source_row": 107,
+      "statement": "Data show helmets prevent brain injury, therefore cyclists should wear helmets.",
+      "design_point": "['fact', 'physical', 'literal language', 'normative', 'reasoning', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "281048f149e82292a84fca4c77842471d801d32c37c7855fd691cc120e51ebab:1",
+      "source_row": 108,
+      "statement": "Because overfishing depletes oceans, nations should limit fishing to preserve ecosystems.",
+      "design_point": "['fact', 'physical', 'literal language', 'normative', 'reasoning', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "9594c9abf5b7c1d85a928ececc8c0d805f0383e33244911fac8b69f624c6bdc4:1",
+      "source_row": 112,
+      "statement": "Biology proves antibiotic overuse creates resistance, so doctors should prescribe them carefully.",
+      "design_point": "['fact', 'physical', 'literal language', 'normative', 'reasoning', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "f14d8a8067de1358be4db5ddd225fa0f40be66143582f2e5d4c3ff8fd75d3917:1",
+      "source_row": 113,
+      "statement": "Because ozone depletion causes skin cancer, nations should ban CFC chemicals.",
+      "design_point": "['fact', 'physical', 'literal language', 'normative', 'reasoning', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "2432a72d711c0045774f4c8e1f116165339f74b889cf472c9801e2973017acc5:1",
+      "source_row": 142,
+      "statement": "Time waits for no one, so ice melts unattended.",
+      "design_point": "['fact', 'physical', 'figure of speech', 'positive', 'reasoning', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "a1aa2fb2e635a8072d043f630ed62a1035abcb6a6d2555b811c9344e92e854a5:1",
+      "source_row": 155,
+      "statement": "Lightning never strikes twice, so strikes scatter elsewhere.",
+      "design_point": "['fact', 'physical', 'figure of speech', 'positive', 'reasoning', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "4345abb75f9c456b2fbaf01da8fbaac1f9b32eff7e09ebc2ff3440746e3b4285:1",
+      "source_row": 165,
+      "statement": "Knowledge is power, so educated groups gain influence.",
+      "design_point": "['fact', 'social', 'figure of speech', 'positive', 'reasoning', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "f44a5c4ada112a516b48fd00d0b4166aa2c0e810a084d7a4a7b8094282f6cb62:1",
+      "source_row": 177,
+      "statement": "What goes around comes around, so oppressive regimes fall.",
+      "design_point": "['fact', 'social', 'figure of speech', 'positive', 'reasoning', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "abbf75cc716246de6ded36ec6f136d5953af96af8bd3fd5fbb249119b798cbbd:1",
+      "source_row": 193,
+      "statement": "Liberty caged by fear sings a broken song.",
+      "design_point": "['opinion', 'social', 'figure of speech', 'normative', 'reasoning', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "2942714b38688c2df871e3e8e20f43fc5ef08097767b8fa72415eea145fb3291:1",
+      "source_row": 207,
+      "statement": "Actions speak louder than words, so treaties need enforcement to matter.",
+      "design_point": "['fact', 'social', 'figure of speech', 'normative', 'reasoning', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "1ec138e93fc6cd5cf82eb55693602eb54750aeeeb672779e61927ef787ff5271:1",
+      "source_row": 215,
+      "statement": "Wall Street greed sank Main Street, so markets need morals.",
+      "design_point": "['fact', 'social', 'figure of speech', 'normative', 'reasoning', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "f9c0b3d1862f7c7c36a051b7dd2c8b9b1a89e74e2e22c93d5bf9a1ce8c69888d:1",
+      "source_row": 240,
+      "statement": "Cold feet make for slow running.",
+      "design_point": "['fact', 'physical', 'figure of speech', 'normative', 'reasoning', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "7ca3a701e2b93d07a31074c376867bb3d6c801500fb02bd0d9c4f72cfcfb124b:1",
+      "source_row": 261,
+      "statement": "Because social media spreads quickly, rumors there will feel more believable.",
+      "design_point": "['opinion', 'social', 'literal language', 'positive', 'reasoning', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "2e16e293d94482f4c1f49006164e1ddcca47ead26715db5ddc6d9eeed8b45177:1",
+      "source_row": 267,
+      "statement": "Because voters remember stories, election debates will influence opinions more than facts.",
+      "design_point": "['opinion', 'social', 'literal language', 'positive', 'reasoning', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "abdf53fe9a13aead3a90132b6badc0fe42c96c673068e978c2d6df3253420673:1",
+      "source_row": 272,
+      "statement": "As technology advances quickly, older workers will feel less confident professionally.",
+      "design_point": "['opinion', 'social', 'literal language', 'positive', 'reasoning', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "a791e891f64d7cf6f6773349eb191995688efc9636052de5b89fe5b0a428effb:1",
+      "source_row": 277,
+      "statement": "Because neighbors observe each other, community reputations will form quickly over time.",
+      "design_point": "['opinion', 'social', 'literal language', 'positive', 'reasoning', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "ad46524ee9b104e9f439b6fa9ef2e99e3c497b2cabcf18e14c2362572980889f:1",
+      "source_row": 280,
+      "statement": "As populations age steadily, younger voters will favor change more strongly soon.",
+      "design_point": "['opinion', 'social', 'literal language', 'positive', 'reasoning', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "a376833d1b5e66ccc53b5d63476c818336a4ce64e9650bf21c1d9c98b8ea9e57:1",
+      "source_row": 313,
+      "statement": "Family comes before fleeting fame always.",
+      "design_point": "['opinion', 'social', 'figure of speech', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "30d8f3fd9b065346f50f3fac20c8bf055a272e5f5cb1b4f93f13c77ec910a48f:1",
+      "source_row": 317,
+      "statement": "Manners make the man in society.",
+      "design_point": "['opinion', 'social', 'figure of speech', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "f96710c9d2bdc1d8bcfa2e14ad9dbc5d58514aba37191490c9cf4661e28a26aa:1",
+      "source_row": 327,
+      "statement": "Universal education is essential for national prosperity.",
+      "design_point": "['opinion', 'social', 'literal language', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "b152207a945135cbfa2c95bb0d436e173018ba3283c74db3442fdec7537fd187:1",
+      "source_row": 330,
+      "statement": "Compassion for strangers is morally better than indifference.",
+      "design_point": "['opinion', 'social', 'literal language', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "e181b3067bf2db79e7aedf2fc620b45d14583b4a104b43cf347b9d41bb99fbcf:1",
+      "source_row": 332,
+      "statement": "Good government should prioritize welfare of its poorest citizens.",
+      "design_point": "['opinion', 'social', 'literal language', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "efd5548761f954c0d421a19fbafea32b77aabbe9bb84e69b51276bc41db9a943:1",
+      "source_row": 337,
+      "statement": "Economic fairness matters more than sheer economic growth.",
+      "design_point": "['opinion', 'social', 'literal language', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "84ea683f0cc82b327d26d1b6fc42c5e64f9f0d7318a4163d08c132407bbbba47:1",
+      "source_row": 341,
+      "statement": "A penny saved is a penny earned.",
+      "design_point": "['fact', 'social', 'figure of speech', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "6f431f6bd2f036201be1469cf463a2c935bdc4b64bc4a6d0f979ae624ca72833:1",
+      "source_row": 343,
+      "statement": "A friend to all is a friend to none.",
+      "design_point": "['fact', 'social', 'figure of speech', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "d7fb91f27a3a5a32fe4db3c86beebfb363afe228aec947b0d0656650f423604d:1",
+      "source_row": 368,
+      "statement": "The President of the United States serves four-year terms.",
+      "design_point": "['fact', 'social', 'literal language', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "2a16ad237ecf45fab0e9fd9e4cbdc3ab96fa99fbe05c65d11b40a2955b33b0ea:1",
+      "source_row": 370,
+      "statement": "Education is recognized as a universal human right.",
+      "design_point": "['fact', 'social', 'literal language', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "6429605ef2b12922b9c738832337f40f0e531cb61c8315fd6ae6edc28bc34a1c:1",
+      "source_row": 371,
+      "statement": "Freedom of religion is protected in many democratic constitutions.",
+      "design_point": "['fact', 'social', 'literal language', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "7d06f692cc3f2614c5f175a7ae332f4b19e091d6a03148648f7354053ff1a314:1",
+      "source_row": 375,
+      "statement": "Citizenship grants the right to vote in national elections.",
+      "design_point": "['fact', 'social', 'literal language', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "019d50a8eabb463637533f9d2293289f333aa007133a79fe02330f84aa5a9c24:1",
+      "source_row": 377,
+      "statement": "Copyright law protects authors for decades after their death.",
+      "design_point": "['fact', 'social', 'literal language', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "cd6fe809c457d091d7773845104bc59aaa4eced574794d8af9273e10f04b6017:1",
+      "source_row": 385,
+      "statement": "Because the moon's gravity pulls oceans, therefore tides rise twice daily.",
+      "design_point": "['fact', 'physical', 'literal language', 'positive', 'reasoning', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "a81e53a4f6de0c9e07f11278bd27bc3d397bdac2d6cd6f63131d28c89799811f:1",
+      "source_row": 386,
+      "statement": "Since fossils show change, therefore species evolved over millions of years.",
+      "design_point": "['fact', 'physical', 'literal language', 'positive', 'reasoning', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "f3f65e81e8552292df62c3bf820f34db340e015bdbb4780bd42ee69a83bc0ff4:1",
+      "source_row": 400,
+      "statement": "Since the Earth is round, therefore ships disappear hull first at horizon.",
+      "design_point": "['fact', 'physical', 'literal language', 'positive', 'reasoning', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "17470b6fb9e41a34414caf9d179ea69931af2a12f1c3ed4873317a580fcd8296:1",
+      "source_row": 415,
+      "statement": "We should protect coral reefs because colorful reefs are delightful.",
+      "design_point": "['opinion', 'physical', 'literal language', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "e982fad208505d60911f3b651930647bf9db6df3873600c24dde7cac265d43f3:1",
+      "source_row": 419,
+      "statement": "We should safeguard elephants because gentle large mammals are wonderful.",
+      "design_point": "['opinion', 'physical', 'literal language', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "b1672ed0ca6f8e6ac89f3101ba24d529cdfd15aef4fcd6097ee091e5f18b2292:1",
+      "source_row": 422,
+      "statement": "We should build our houses on solid rock, not sand.",
+      "design_point": "['fact', 'physical', 'figure of speech', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "f2b85a0036636f9418f81d9bfcd3e4e23ae05aadcfc845fd842cdac7a59fffc5:1",
+      "source_row": 434,
+      "statement": "A rising tide lifts all boats, so protect the sea.",
+      "design_point": "['fact', 'physical', 'figure of speech', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "2304b93b681e0e968560c2a79b69691cc6a6e01dd14577e51ca2234f37779782:1",
+      "source_row": 446,
+      "statement": "You should boil unsafe water to kill germs.",
+      "design_point": "['fact', 'physical', 'literal language', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "335fa90bf3006ce58c8073b6e7987912e183a80e75aa3139328f708b807750a5:1",
+      "source_row": 450,
+      "statement": "Pregnant women should avoid alcohol to protect fetal development.",
+      "design_point": "['fact', 'physical', 'literal language', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "c11e39620ec591db1d8e48fe6a877a9a46946126210252066b2ed93786c07b51:1",
+      "source_row": 451,
+      "statement": "People should use condoms to prevent sexually transmitted infections.",
+      "design_point": "['fact', 'physical', 'literal language', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "57cf067dd2d905c066a68e7d2c1bea5fc61f4f52fe25ecafef579deba56d45cf:1",
+      "source_row": 453,
+      "statement": "People should test homes for radon to prevent lung cancer.",
+      "design_point": "['fact', 'physical', 'literal language', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "ed0d087bd1b7be359d404675d886f1148c3a019cf948860766a0ded81b8246e5:1",
+      "source_row": 456,
+      "statement": "Farmers should rotate crops to preserve soil nutrients.",
+      "design_point": "['fact', 'physical', 'literal language', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "a8fcdcb115c0103cc8d28088b6ac7f203ac3d9c6503352d49533141ca157f737:1",
+      "source_row": 467,
+      "statement": "Fossils show transition, therefore birds likely evolved from small dinosaurs.",
+      "design_point": "['opinion', 'physical', 'literal language', 'positive', 'reasoning', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "b44e774b39d2efcb920954383318fffb2dd14a9b49daf799eafe378eb34100aa:1",
+      "source_row": 492,
+      "statement": "Two heads are better than one.",
+      "design_point": "['fact', 'social', 'figure of speech', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "62fa2e90d07ef9ca24967259fb7afe2c9e83045d62e00933e4ec806ec4e3d094:1",
+      "source_row": 509,
+      "statement": "The speed of light is approximately 300000 kilometers per second.",
+      "design_point": "['fact', 'physical', 'literal language', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "12ad8eac33809549c6fdbee2e6032dc8bca37b6a3a268a092c194c4757b89249:1",
+      "source_row": 512,
+      "statement": "The Pacific Ocean is the largest ocean on Earth.",
+      "design_point": "['fact', 'physical', 'literal language', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "cfcdd1ebb587d0cccb65b29df7fb7d71739f3fb618a90e08808b020f773cfc4a:1",
+      "source_row": 513,
+      "statement": "Uranium atoms can split and release enormous energy.",
+      "design_point": "['fact', 'physical', 'literal language', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "584bf36fec334949d79788ff73b3e17051aeee86be09d5056dd1d960eb27da46:1",
+      "source_row": 514,
+      "statement": "Ultraviolet sunlight can damage human skin cells.",
+      "design_point": "['fact', 'physical', 'literal language', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "b43ae5d87c8dcda586501d843a7b2fba0bf9053941b677c567a00866cb4586d2:1",
+      "source_row": 515,
+      "statement": "Carbon dioxide is exhaled by humans when breathing.",
+      "design_point": "['fact', 'physical', 'literal language', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "92bf1b5d18f5eb0cb7dc2c3cc5e28218ef607b41163905520e187fd963260a8e:1",
+      "source_row": 524,
+      "statement": "Politics is a swamp that swallows idealists.",
+      "design_point": "['opinion', 'social', 'figure of speech', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "a21c355d0b55f354cf3ac7648a35256194874b8ede8d8bd3314bedf441707616:1",
+      "source_row": 526,
+      "statement": "Capitalism devours its own hungry children.",
+      "design_point": "['opinion', 'social', 'figure of speech', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "48f5785cd084bb4ede6f1cac9a9aa62a114492fed7a45f21694d48e9355de0b0:1",
+      "source_row": 529,
+      "statement": "Culture eats strategy for breakfast daily.",
+      "design_point": "['opinion', 'social', 'figure of speech', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "67666e4ae4df4757ef9533ec42967e55dc4e605afc5bad3e1450bac2341d19e2:1",
+      "source_row": 557,
+      "statement": "Glaciers crawl slower but stronger than rushing rivers.",
+      "design_point": "['opinion', 'physical', 'figure of speech', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "9e1fb74a9987a48e7c32a0f03870c8f8fa29c12b889285797953074e7278dc19:1",
+      "source_row": 562,
+      "statement": "Free markets create more prosperity than planned economies.",
+      "design_point": "['opinion', 'social', 'literal language', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "2d733b662a6b28717256c4cfae8f1684b7b0ca95e477326f3659905a99d158ad:1",
+      "source_row": 575,
+      "statement": "Urban life feels more stressful than rural life for many.",
+      "design_point": "['opinion', 'social', 'literal language', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "ce28b08e847f0074c0e0f0c3c63921b1d88ac5960370bf71e7b15afd4bd436f1:1",
+      "source_row": 579,
+      "statement": "Married people report greater life satisfaction than single people.",
+      "design_point": "['opinion', 'social', 'literal language', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "da2fb78ef75cd992878bea0fe36401399781d734953e069b4c1b98a23234f0fd:1",
+      "source_row": 580,
+      "statement": "Technology has made modern work more sedentary than past work.",
+      "design_point": "['opinion', 'social', 'literal language', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "ab5bc60d6d0286bc2d4cfada2d32b776faf70ebf004a89ad0731c1b97bd426e6:1",
+      "source_row": 581,
+      "statement": "More education generally leads to higher lifetime earnings.",
+      "design_point": "['fact', 'social', 'literal language', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "34122920eb22073ad05a6c63ca82e0adb1988f8e40d9db39d249e75534a67c4d:1",
+      "source_row": 582,
+      "statement": "Democracies rarely go to war with each other.",
+      "design_point": "['fact', 'social', 'literal language', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "4eaf98be0c0a06c5f51e98e7e97225b2a4e434d5c11c5efdb0130aff1173a383:1",
+      "source_row": 583,
+      "statement": "Populations in cities have grown rapidly since 1950.",
+      "design_point": "['fact', 'social', 'literal language', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "ca944fd03e4adc5103cf113edc864c509897b0871d98de91efcd26ecd96f4e03:1",
+      "source_row": 584,
+      "statement": "Most countries use paper money issued by central banks.",
+      "design_point": "['fact', 'social', 'literal language', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "65e9039d32ac8d295a5f2da1bba4e0391e2326e29d48f154a6d365352fc1653d:1",
+      "source_row": 587,
+      "statement": "Voter turnout is usually higher in presidential election years.",
+      "design_point": "['fact', 'social', 'literal language', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "a4abc26e02161203c9ce59384457fc28fbd5a88734718d4722c7ccf13d5c5337:1",
+      "source_row": 589,
+      "statement": "Divorce became more common in Western countries after 1970.",
+      "design_point": "['fact', 'social', 'literal language', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "806fde47d606899e1ddc8d5252b7f3b87fb75e92d6a30dbac568f49622ee058c:1",
+      "source_row": 594,
+      "statement": "Internet access expanded dramatically after the year 2000.",
+      "design_point": "['fact', 'social', 'literal language', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "2517aebffaeb7a49f158f7edb1e38cb312012516020bab9d4b9e68d536b71442:1",
+      "source_row": 596,
+      "statement": "World population exceeded eight billion in 2022.",
+      "design_point": "['fact', 'social', 'literal language', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "92f14924dad3fa84f784fc9b8c08565852dfd8654ae718ef3aa39f16a9845238:1",
+      "source_row": 598,
+      "statement": "The US dollar is widely used for international trade.",
+      "design_point": "['fact', 'social', 'literal language', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "81e039845b3cc97ce1ee0a54e66676653ee9a91ae37741a882a14be82f490638:1",
+      "source_row": 612,
+      "statement": "Thin ice cracks fast, so stay off frozen pond.",
+      "design_point": "['fact', 'physical', 'figure of speech', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "7864fa4c151b3db53b4ee1848466be5f56741723ff6e8f0cfe4922ef1e4d4b7a:1",
+      "source_row": 613,
+      "statement": "Rushing river sweeps feet, so cross bridges not currents.",
+      "design_point": "['fact', 'physical', 'figure of speech', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "2edbc2ca58431647840a4d2d90d8c07a8e74984ed36a0d1661bdbd9b1ca842cf:1",
+      "source_row": 619,
+      "statement": "Stale bread hardens like stone, so store loaves sealed.",
+      "design_point": "['fact', 'physical', 'figure of speech', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "f22b0887c30a50e1145a3ad48a0bad4593b701f41064311fdfed7d5872e515d8:1",
+      "source_row": 634,
+      "statement": "The brain is the body's electrical command computer.",
+      "design_point": "['fact', 'physical', 'figure of speech', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "fd5c7a39ee9d6f0459dd6d839e2b592213fed01b57170dae18715a9728ba96f4:1",
+      "source_row": 643,
+      "statement": "Don't cry over spilled milk, what's done is done.",
+      "design_point": "['opinion', 'social', 'figure of speech', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "b187d5d63e901ae5c9062b9c235e9c613bbc4454827589007872a73f71d282d7:1",
+      "source_row": 645,
+      "statement": "Actions speak louder than words, so watch what they do.",
+      "design_point": "['opinion', 'social', 'figure of speech', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "feeab468c043a385e8bd4cf245d49530f574029f767105daca9c4dba42123ea6:1",
+      "source_row": 658,
+      "statement": "Blood is thicker than water, so family comes first.",
+      "design_point": "['opinion', 'social', 'figure of speech', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "29510644a2e86822afdb3abd12ee4a492d1f2ef3fcd3fe43496d297f25dffc68:1",
+      "source_row": 670,
+      "statement": "Don't burn bridges behind you, you may need to return.",
+      "design_point": "['fact', 'social', 'figure of speech', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "0189c16f925f65746d5812ae2e019c4272d6a8fa93678ab23fadbf6d08ecdad9:1",
+      "source_row": 671,
+      "statement": "The early bird gets the worm, so arrive on time.",
+      "design_point": "['fact', 'social', 'figure of speech', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "a00e010f00e9ef00b59383f0337b595a2f43fdc50c1df0f448416862773e9702:1",
+      "source_row": 678,
+      "statement": "A rolling stone gathers no moss, so stay rooted in community.",
+      "design_point": "['fact', 'social', 'figure of speech', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "26d4d9a5ee7ad9c16ecdf7eb5672736f6180e7871ce4a03e8888148d8598f90e:1",
+      "source_row": 685,
+      "statement": "Spoiled milk smells sour, so let your nose be the judge.",
+      "design_point": "['opinion', 'physical', 'figure of speech', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "e9e626f6f42f23473b0dc54b71656314eb816b019cff7de1a1021f97e1ed7b9d:1",
+      "source_row": 686,
+      "statement": "Sharp knives cut deep, so respect them like hungry sharks.",
+      "design_point": "['opinion', 'physical', 'figure of speech', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "11e3c1e1cb27c7edc20efdaf2709a0a875c19eb5b051637c49e69b97f1c3291d:1",
+      "source_row": 691,
+      "statement": "Heavy groceries weigh you down, so carry them like a stubborn mule.",
+      "design_point": "['opinion', 'physical', 'figure of speech', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "e3a6d6d2a38f59842187c15942a31fd0dc4178b1d7ebe4213e215c4f3ade6bc7:1",
+      "source_row": 725,
+      "statement": "You should dress neatly for weddings, so you show respect.",
+      "design_point": "['opinion', 'social', 'literal language', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "b3b532564fd4ffa2cb3c210fbc95b63e8b89cb1dfe283e56f527c8e623b780e3:1",
+      "source_row": 738,
+      "statement": "You should share snacks equally, so children think you are fair.",
+      "design_point": "['opinion', 'social', 'literal language', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "0b2bd8aa4f6fb01e6c456508c8aac6a464619e8d592d3837b11695ce4f78060a:1",
+      "source_row": 744,
+      "statement": "You should wear sunscreen on sunny days so your skin does not burn.",
+      "design_point": "['opinion', 'physical', 'literal language', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "7e856ecf3fb4542c94bc650eff0ddaa85afe3cdba9d5a36f19372f10177ae5d0:1",
+      "source_row": 755,
+      "statement": "You should sleep early before a long trip so you stay alert.",
+      "design_point": "['opinion', 'physical', 'literal language', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "bf19e163a27638c579600c8650bea987710c7a5fccd1c7e95fbfa1dfcfbd9a9c:1",
+      "source_row": 762,
+      "statement": "The store is closed, so you should come back tomorrow.",
+      "design_point": "['fact', 'social', 'literal language', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "e533f44cdbfeb45ee4b9a6f019eb845aa59c34e5b8a3e4e27766ecca882a1b81:1",
+      "source_row": 763,
+      "statement": "He paid for dinner, so you should thank him.",
+      "design_point": "['fact', 'social', 'literal language', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "f592c44a3f9e3132ae5c8679b313d53784eff065c18b30fd29538e29af556e37:1",
+      "source_row": 769,
+      "statement": "It is your turn, so you should vote now.",
+      "design_point": "['fact', 'social', 'literal language', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "81a612542790110f4efde804cc74b11973dd7b3daa9f0bd7d9c385104557a8af:1",
+      "source_row": 782,
+      "statement": "You should drink water when you are thirsty to avoid dehydration.",
+      "design_point": "['fact', 'physical', 'literal language', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "d0e9eb0150c2a4cd8851cd4eb65e99d8c1983d218ff9deca3e0932f85acb6660:1",
+      "source_row": 786,
+      "statement": "You should open windows to cool a stuffy hot room.",
+      "design_point": "['fact', 'physical', 'literal language', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "723cce5890ec9330b8f132c2a441339f8a930a53fa05dfa1a18ddf192a6a6f65:1",
+      "source_row": 793,
+      "statement": "You should cover your mouth when you cough to block germs.",
+      "design_point": "['fact', 'physical', 'literal language', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "c549113cfba3d583073cabccacbd7fd3101ac3d3c248fb40b260fe3a666414bf:1",
+      "source_row": 800,
+      "statement": "You should wait for boiling water to cool before drinking.",
+      "design_point": "['fact', 'physical', 'literal language', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "0495fecfb23d4df09b607d3bf4984ddccb117ed84e22fe324cc4880b508e4e9d:1",
+      "source_row": 814,
+      "statement": "Office politics is chess, so newcomers feel outplayed.",
+      "design_point": "['opinion', 'social', 'figure of speech', 'positive', 'reasoning', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "fa2d7edd83136aeb6acac5d15108c9bd39ef33252d3bc7fd6d1a9b50284b12eb:1",
+      "source_row": 845,
+      "statement": "Too many cooks spoil the broth.",
+      "design_point": "['fact', 'social', 'figure of speech', 'positive', 'reasoning', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "62d7eedf53f54cc0ad4ba42c5046a805d7847ca6bcb31f43daa34cabc3617e75:1",
+      "source_row": 861,
+      "statement": "The kettle whistles, therefore the water boils like a dragon breathes.",
+      "design_point": "['fact', 'physical', 'figure of speech', 'positive', 'reasoning', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "e9c326dbeaed955fdc27dfa745007812e1a1be656bc785a0d4633ba8fef66f59:1",
+      "source_row": 868,
+      "statement": "The balloon pops loudly, therefore silence shatters like dropped glass.",
+      "design_point": "['fact', 'physical', 'figure of speech', 'positive', 'reasoning', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "3e56c72935ed8b128588eee007d9540aa01951a31b82eca2e99107da558438a8:1",
+      "source_row": 875,
+      "statement": "Coffee cools fast, so morning steam vanishes like shy ghosts.",
+      "design_point": "['fact', 'physical', 'figure of speech', 'positive', 'reasoning', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "736e37c92230c7c0879cf5e0875dfbb53fa13a3cd8b443b4c3e099e6fcf8c463:1",
+      "source_row": 881,
+      "statement": "He is smiling at me, so he is probably happy today.",
+      "design_point": "['opinion', 'social', 'literal language', 'positive', 'reasoning', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "c27a52d7395d664789fecb31356d7bd29387cdb675cbaa32ede512d141019edc:1",
+      "source_row": 887,
+      "statement": "My friend replied slowly, so I think he is busy today.",
+      "design_point": "['opinion', 'social', 'literal language', 'positive', 'reasoning', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "61178f1ec77cf3baacc9a2638395b75957e29a6e36eec029053b81f0a9d3c260:1",
+      "source_row": 902,
+      "statement": "My coffee is steaming, therefore it will burn my tongue.",
+      "design_point": "['opinion', 'physical', 'literal language', 'positive', 'reasoning', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "c910ac44b57f4bfbebe30af1d1fe98cebf4f59391960afe98fbf7a733c6e8179:1",
+      "source_row": 909,
+      "statement": "The milk smells sour, therefore it will taste bad.",
+      "design_point": "['opinion', 'physical', 'literal language', 'positive', 'reasoning', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "3fec01e7c56e7c6b16a2c44779b1f91c9a27e7d4d21f93d134414a6bfd7c1b88:1",
+      "source_row": 919,
+      "statement": "The metal was left in sun, therefore it will feel hot.",
+      "design_point": "['opinion', 'physical', 'literal language', 'positive', 'reasoning', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "83ba827ce7f765807bc5c0697f98de11bf5233b584433fb328387653ac2c8b6c:1",
+      "source_row": 939,
+      "statement": "Don't poke the bear at family dinners.",
+      "design_point": "['opinion', 'social', 'figure of speech', 'normative', 'knowledge', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "8f658ed682807ca31dcbadbf02c5dc17702a1a9720e9f842775087598989ba26:1",
+      "source_row": 940,
+      "statement": "Laughter is the best medicine for bad days.",
+      "design_point": "['opinion', 'social', 'figure of speech', 'normative', 'knowledge', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "3df6eba6407e75fa8098395f6ec9f460597e21c2db73787b84eac13095baad9b:1",
+      "source_row": 947,
+      "statement": "Wet firewood was used, so the campfire produces thick smoke.",
+      "design_point": "['fact', 'physical', 'literal language', 'positive', 'reasoning', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "05b2c8967236f3534647f8a7dd105bde0f66e829b88aa9176dd0f092c672aa9b:1",
+      "source_row": 954,
+      "statement": "Cut apple left exposed turned brown, so its surface oxidized in air.",
+      "design_point": "['fact', 'physical', 'literal language', 'positive', 'reasoning', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "8533123c71a453ffac9ce587ab509f123a56717ae4eebb59a05f04b11beab2a2:1",
+      "source_row": 957,
+      "statement": "Stone thrown into pond sank, so ripples spread across the surface.",
+      "design_point": "['fact', 'physical', 'literal language', 'positive', 'reasoning', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "1d3ab92e3592a57172dc6a1b31c7802ca2c810e7f3193e9ea20c7ef745464427:1",
+      "source_row": 958,
+      "statement": "Child ran barefoot on hot sand, so his feet got burned.",
+      "design_point": "['fact', 'physical', 'literal language', 'positive', 'reasoning', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "c82ebd8ec98a0321d8f2614119e5cce6b55da60fa939d7836e725f76828164b8:1",
+      "source_row": 961,
+      "statement": "Don't bite off more than you can chew.",
+      "design_point": "['opinion', 'physical', 'figure of speech', 'normative', 'knowledge', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "060e040ae28750e268efb68604fb7a8bac79e0bfdb4ed4bb552d939211977391:1",
+      "source_row": 976,
+      "statement": "Do not rock a steady boat.",
+      "design_point": "['opinion', 'physical', 'figure of speech', 'normative', 'knowledge', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "f1cba9c9777146bc515f0e82a8c0b79275124ae1443e6314b2609f5985f12240:1",
+      "source_row": 978,
+      "statement": "Clean hands make family dinners healthier.",
+      "design_point": "['opinion', 'physical', 'figure of speech', 'normative', 'knowledge', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "e7a524f10bd8291a79c5d2af14201d55763abbda5d00cc661b610e1fd947e051:1",
+      "source_row": 989,
+      "statement": "The movie already started, so late viewers missed the beginning.",
+      "design_point": "['fact', 'social', 'literal language', 'positive', 'reasoning', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "c0e63576622a2a50c1043ebded09e21957e9d319096ee79a4959743f10b20360:1",
+      "source_row": 992,
+      "statement": "The library closed early, so readers left the building.",
+      "design_point": "['fact', 'social', 'literal language', 'positive', 'reasoning', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "30ab281518278fd2b5250616d00e5fe864a606739283de42f1e84d4ef44ed9a1:1",
+      "source_row": 993,
+      "statement": "The flight was cancelled, so travelers rebooked their tickets.",
+      "design_point": "['fact', 'social', 'literal language', 'positive', 'reasoning', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "c7f81fe6cd5aa8a7a605d484a192d462f5fe258427b08eba91a4c7111e556ac2:1",
+      "source_row": 1016,
+      "statement": "Respect is earned, never freely given.",
+      "design_point": "['fact', 'social', 'figure of speech', 'normative', 'knowledge', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "6265400885c4827c5b63887dfe28e1b1cf7f077821870177c7b1afec192500c1:1",
+      "source_row": 1025,
+      "statement": "You should rest in bed when you have a fever.",
+      "design_point": "['opinion', 'physical', 'literal language', 'normative', 'knowledge', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "3a1e6c880ea759851fd3536c355c6e2d620b6744500289fd8e270a7fe600dd01:1",
+      "source_row": 1055,
+      "statement": "It is kind to hold the door for others.",
+      "design_point": "['opinion', 'social', 'literal language', 'normative', 'knowledge', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "f02485f46c9c0dfd47a47879de2fa708749b1dfe7cc4ed93469d359080ffd46f:1",
+      "source_row": 1062,
+      "statement": "You should drink water when you feel thirsty.",
+      "design_point": "['fact', 'physical', 'literal language', 'normative', 'knowledge', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "3dcfc9f1bc9bdf800809502b31432ea0149e0a221d203b4be3facb37fe552686:1",
+      "source_row": 1077,
+      "statement": "You should sit down when feeling dizzy to avoid falling.",
+      "design_point": "['fact', 'physical', 'literal language', 'normative', 'knowledge', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "0fa8ea6b1c99984cd560fbeb12a3134eec5561bd8d776b3445d0edf733bec340:1",
+      "source_row": 1078,
+      "statement": "You should cover your mouth when sneezing to block germs.",
+      "design_point": "['fact', 'physical', 'literal language', 'normative', 'knowledge', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "7c1948b0b8a1aefac363abbf1aac540e87759cc4c7bb13bc9fe0692c8fc50d1a:1",
+      "source_row": 1082,
+      "statement": "Don't touch fire, it bites back hard.",
+      "design_point": "['fact', 'physical', 'figure of speech', 'normative', 'knowledge', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "e1c34ae88295655ff689602daadab368347084ad0a80f80d7996530902b3b0eb:1",
+      "source_row": 1100,
+      "statement": "Never leave milk in the sun's oven.",
+      "design_point": "['fact', 'physical', 'figure of speech', 'normative', 'knowledge', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "1608f2622804ff132376a02293a7e265c12158f1b3cc2eb0ef5f3b2372573776:1",
+      "source_row": 1108,
+      "statement": "Guests should remove shoes when hosts request it.",
+      "design_point": "['fact', 'social', 'literal language', 'normative', 'knowledge', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "b1b7527d9974f1e799c0d33cab213412f76f9816ab7d2e9c443803aca2701c5e:1",
+      "source_row": 1120,
+      "statement": "Citizens should carry identification when traveling abroad.",
+      "design_point": "['fact', 'social', 'literal language', 'normative', 'knowledge', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "ebded6c9d9b0e1dd6c2e01a8e6a2e042acff5923d4e328a4366feff2c4d449cc:1",
+      "source_row": 1121,
+      "statement": "Birds of a feather flock together.",
+      "design_point": "['opinion', 'social', 'figure of speech', 'positive', 'knowledge', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "396d9f0243bf0b41a5c95923edcf01fdaae62d19446fc18f965705f3ac4d415e:1",
+      "source_row": 1131,
+      "statement": "Absence makes the heart grow fonder.",
+      "design_point": "['opinion', 'social', 'figure of speech', 'positive', 'knowledge', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "beac8db361dc4018d86cdc3b8748556a8e8fcd65e83151d0925adf9daf9483c5:1",
+      "source_row": 1145,
+      "statement": "People shake hands when they first meet.",
+      "design_point": "['fact', 'social', 'literal language', 'positive', 'knowledge', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "c44dc98b031e9740c511a36ba8a2a5a292f10ab5c1f3ed2a23dce92823262b6e:1",
+      "source_row": 1181,
+      "statement": "Water freezes into ice when very cold.",
+      "design_point": "['fact', 'physical', 'literal language', 'positive', 'knowledge', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "ba3c6ec8250bcabf69ba7a34f98101705a061568d94c53b0c03419ad17f152d1:1",
+      "source_row": 1183,
+      "statement": "Rain makes the ground wet.",
+      "design_point": "['fact', 'physical', 'literal language', 'positive', 'knowledge', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "d446e393780395a5ac3d7badf7cbf7c76eefdad6bc9b1d8eb4420b0647fc6991:1",
+      "source_row": 1188,
+      "statement": "Snow feels cold to touch.",
+      "design_point": "['fact', 'physical', 'literal language', 'positive', 'knowledge', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "0da8122cbd25b8382845f421f68f2b836541a5514403990edd13078ce8570e4a:1",
+      "source_row": 1189,
+      "statement": "The sun rises in the east.",
+      "design_point": "['fact', 'physical', 'literal language', 'positive', 'knowledge', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "2efe7300f9ff9c43c20be874073728081c42c975569aa19d36c134d057f2469a:1",
+      "source_row": 1193,
+      "statement": "Sharp knives cut bread easily.",
+      "design_point": "['fact', 'physical', 'literal language', 'positive', 'knowledge', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "a656b006ce2a0483541b54970feb2e154f4e49f32147bc90123f42d0dd9214b4:1",
+      "source_row": 1194,
+      "statement": "Wet clothes dry in sunlight.",
+      "design_point": "['fact', 'physical', 'literal language', 'positive', 'knowledge', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "cbbf1238b267229ce406ea0b6378843a7d234cdeade462c4c2331cd9f80c82e4:1",
+      "source_row": 1197,
+      "statement": "Hot coffee cools if left sitting.",
+      "design_point": "['fact', 'physical', 'literal language', 'positive', 'knowledge', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "9e1b58171c7b17212a1594b63e551510440cce4085ae96c9188fe8766fedff6d:1",
+      "source_row": 1199,
+      "statement": "Bigger containers hold more water.",
+      "design_point": "['fact', 'physical', 'literal language', 'positive', 'knowledge', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "54299a4a946aa0a1d7fc65f1531feaca0523aecd47f3ef3bd94c8305a449b1fa:1",
+      "source_row": 1220,
+      "statement": "Late-night snacks taste better during friendly sleepovers.",
+      "design_point": "['opinion', 'social', 'literal language', 'positive', 'knowledge', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "b0e111ee979bafe980d2f395b3bbb75b1c7836a61594199f5890e6fc1e7a395f:1",
+      "source_row": 1242,
+      "statement": "Next winter will be colder than this summer.",
+      "design_point": "['opinion', 'physical', 'literal language', 'positive', 'knowledge', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "40fbe29a7728e4dbde3795051b041a5ed945216fd089a9df5dac3e09e92e032a:1",
+      "source_row": 1247,
+      "statement": "The grass will be taller next week.",
+      "design_point": "['opinion', 'physical', 'literal language', 'positive', 'knowledge', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "5912420573e4cee53638cc0ac51cc1f2a8b7b497eccb51e0813fc1b4aed02e94:1",
+      "source_row": 1256,
+      "statement": "The baby will sleep longer after feeding.",
+      "design_point": "['opinion', 'physical', 'literal language', 'positive', 'knowledge', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "ef0d08c18211d81d60896080b4edb7e9c64261583abfb3b6aa8e1a610b88b3b8:1",
+      "source_row": 1259,
+      "statement": "The snow will melt by next afternoon.",
+      "design_point": "['opinion', 'physical', 'literal language', 'positive', 'knowledge', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    },
+    {
+      "source_id": "348b57bbe03e94e19728e8b09e70e0cb7afb17bdb4041166d438ee0919c25545:1",
+      "source_row": 1276,
+      "statement": "No man is an island.",
+      "design_point": "['fact', 'social', 'figure of speech', 'positive', 'knowledge', 'everyday']",
+      "gen_model": "meta/muse-spark-1.3"
+    }
+  ],
+  "schema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "features": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "fact": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "classification": {
+                "type": "string",
+                "enum": [
+                  "fact",
+                  "opinion"
+                ]
+              },
+              "confidence": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4
+              },
+              "explanation": {
+                "type": "string",
+                "description": "Explain in 1 to 2 sentences why you chose this label and your confidence in that classification."
+              }
+            },
+            "required": [
+              "classification",
+              "confidence",
+              "explanation"
+            ]
+          },
+          "physical": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "classification": {
+                "type": "string",
+                "enum": [
+                  "physical",
+                  "social"
+                ]
+              },
+              "confidence": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4
+              },
+              "explanation": {
+                "type": "string",
+                "description": "Explain in 1 to 2 sentences why you chose this label and your confidence in that classification."
+              }
+            },
+            "required": [
+              "classification",
+              "confidence",
+              "explanation"
+            ]
+          },
+          "literal language": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "classification": {
+                "type": "string",
+                "enum": [
+                  "literal language",
+                  "figure of speech"
+                ]
+              },
+              "confidence": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4
+              },
+              "explanation": {
+                "type": "string",
+                "description": "Explain in 1 to 2 sentences why you chose this label and your confidence in that classification."
+              }
+            },
+            "required": [
+              "classification",
+              "confidence",
+              "explanation"
+            ]
+          },
+          "positive": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "classification": {
+                "type": "string",
+                "enum": [
+                  "positive",
+                  "normative"
+                ]
+              },
+              "confidence": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4
+              },
+              "explanation": {
+                "type": "string",
+                "description": "Explain in 1 to 2 sentences why you chose this label and your confidence in that classification."
+              }
+            },
+            "required": [
+              "classification",
+              "confidence",
+              "explanation"
+            ]
+          },
+          "knowledge": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "classification": {
+                "type": "string",
+                "enum": [
+                  "knowledge",
+                  "reasoning"
+                ]
+              },
+              "confidence": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4
+              },
+              "explanation": {
+                "type": "string",
+                "description": "Explain in 1 to 2 sentences why you chose this label and your confidence in that classification."
+              }
+            },
+            "required": [
+              "classification",
+              "confidence",
+              "explanation"
+            ]
+          },
+          "everyday": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "classification": {
+                "type": "string",
+                "enum": [
+                  "everyday",
+                  "abstract"
+                ]
+              },
+              "confidence": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4
+              },
+              "explanation": {
+                "type": "string",
+                "description": "Explain in 1 to 2 sentences why you chose this label and your confidence in that classification."
+              }
+            },
+            "required": [
+              "classification",
+              "confidence",
+              "explanation"
+            ]
+          }
+        },
+        "required": [
+          "fact",
+          "physical",
+          "literal language",
+          "positive",
+          "knowledge",
+          "everyday"
+        ]
+      },
+      "commonsense": {
+        "type": "integer",
+        "enum": [
+          0,
+          1
+        ],
+        "description": "1 if the statement is an example of human common sense; 0 if it is not."
+      },
+      "commonsense_explanation": {
+        "type": "string",
+        "description": "A short explanation of the common-sense assessment."
+      }
+    },
+    "required": [
+      "features",
+      "commonsense",
+      "commonsense_explanation"
+    ]
+  },
+  "jsonl_file": "batch-3e8e0e870d2948dd8e51a310f607dfef.jsonl",
+  "request_ids": {
+    "45255f0913470acc99936908fb2c629de2e9832e00ab52281395386e2efdc0fd": "c3d1067e35d2dcb4f8932cf74a5c535e00442fe3c60ae9c0c21795631c7924fe:1",
+    "f7789216abe956f3d2e02f2936698175b8081aeca1c933d590f64d3388df218e": "648918b3642fe9ab198e785cc7be24fa218f5949962a97977756c274cd284128:1",
+    "3b0a2e2f03a3b79443b04fabe9028d39802228fe8a90bfc15af17feeb2941366": "a294cce01363248046979317a6c88b68e8860a8a97bb9a33a3a19fb181a976e3:1",
+    "b39c306a249a307ab86c32762844bc36cf76a96657136bf480ef8f7c55d7ae6c": "d0de7de8761088365a56b7a3e3707542c57a4bab7099bc61a1e4aecd330f8223:1",
+    "16c7d7a7fbac4e50c84c1e35210f8269feafe58cc1ad7a61786e9638a2b84295": "7bc66fe0f2b4ce4bc8ba6c88dd504d2cce32f150897c000fdd5493c73bef8e38:1",
+    "d1f6d65edb66446995aea29da4f4507c1d903c56ca5e88e5140caf2bfcf7e7d8": "1952c9d732fa11e7d5d5ce441034a5ddb2e042499be9dac05ba2adeabfe1bd1b:1",
+    "91e93943f01109dabeeca932e72f7aa4c809cf33777d1f16cc16cec76e353b70": "6166739c199ec10e2675ed8f10a40da03b0c10d0ead443ee7002d4670e6790e6:1",
+    "0e868a43a88323f259fe2dd5b0970f29676638277fde5f233ca7fc4a665ad0ad": "281048f149e82292a84fca4c77842471d801d32c37c7855fd691cc120e51ebab:1",
+    "6ad68b8d214d5f1b77fef9599cb81717ad015971c8cb169ca3f10cab757b4368": "9594c9abf5b7c1d85a928ececc8c0d805f0383e33244911fac8b69f624c6bdc4:1",
+    "f86680b1b0c5773f4d842b33415788b609b398e480f3a16c233f428582cbd47b": "f14d8a8067de1358be4db5ddd225fa0f40be66143582f2e5d4c3ff8fd75d3917:1",
+    "0f4d10ece5b7020afcedfc0c58c5e8589de06474e11ebdde7ce2b739801cb4d1": "2432a72d711c0045774f4c8e1f116165339f74b889cf472c9801e2973017acc5:1",
+    "891261f0361e20a59f454d8e80946226ee7eceba27fec0ac602539e60ea4ca94": "a1aa2fb2e635a8072d043f630ed62a1035abcb6a6d2555b811c9344e92e854a5:1",
+    "5f171730c27e62ec286d9db20edd62daffbad59546178875cadbebe4acd60186": "4345abb75f9c456b2fbaf01da8fbaac1f9b32eff7e09ebc2ff3440746e3b4285:1",
+    "60842f3c4a608309b93622410144783f686f40cc4e0be6515b9b0054e7ada1bb": "f44a5c4ada112a516b48fd00d0b4166aa2c0e810a084d7a4a7b8094282f6cb62:1",
+    "e1e6afc4b6649dc44b70752e0cd9d06a471cf5cdd14d4a745cf18a5c660c1daf": "abbf75cc716246de6ded36ec6f136d5953af96af8bd3fd5fbb249119b798cbbd:1",
+    "84b6904f5d99be8e59d437832e296e451bbd91811c19ee2be0cb1fa5164ce13a": "2942714b38688c2df871e3e8e20f43fc5ef08097767b8fa72415eea145fb3291:1",
+    "2c4728653efa2fb5a79f923b5117211eb21152c91d8b4fa7de84f85144bbca20": "1ec138e93fc6cd5cf82eb55693602eb54750aeeeb672779e61927ef787ff5271:1",
+    "c13055be6dd934bfafc0b6061dab40c2575e0f2de7da8273943d6083017b2115": "f9c0b3d1862f7c7c36a051b7dd2c8b9b1a89e74e2e22c93d5bf9a1ce8c69888d:1",
+    "b3474390a61732141e4924096ae5d7b99bb82e1ea02f79905b10631445a8bcb9": "7ca3a701e2b93d07a31074c376867bb3d6c801500fb02bd0d9c4f72cfcfb124b:1",
+    "69b9b0df9711056ad05fa1d56079b2f0939399635f2ef0ad045add28a14553aa": "2e16e293d94482f4c1f49006164e1ddcca47ead26715db5ddc6d9eeed8b45177:1",
+    "84927852d907835f48eec6086aecd1eb4ec01b348228c558baaa250c82bff294": "abdf53fe9a13aead3a90132b6badc0fe42c96c673068e978c2d6df3253420673:1",
+    "6defbaf2a8f685bc6defac902c4f3819d2bb69a24e2f835f61f1b6d87ef4d35a": "a791e891f64d7cf6f6773349eb191995688efc9636052de5b89fe5b0a428effb:1",
+    "f762aacbab2972c9e1e70d94958cf905c7a35e497b589a2e6678fbce4c8e4678": "ad46524ee9b104e9f439b6fa9ef2e99e3c497b2cabcf18e14c2362572980889f:1",
+    "474d3e543cc3aa36d16fb7598ff77299f1be80237649222ab642e65728c0f4f3": "a376833d1b5e66ccc53b5d63476c818336a4ce64e9650bf21c1d9c98b8ea9e57:1",
+    "7e36e0cf94317acf080d6f7f40c9dbe83fb031e9be07491898ceec02a409c672": "30d8f3fd9b065346f50f3fac20c8bf055a272e5f5cb1b4f93f13c77ec910a48f:1",
+    "61c62d4727e7db7d849c4b0cce086dc87da3c8d011dd65138cf942ea295dc2c9": "f96710c9d2bdc1d8bcfa2e14ad9dbc5d58514aba37191490c9cf4661e28a26aa:1",
+    "3c57e0928827c4712d4f90ea8353c0ea2cec9d5f9da5ad6f5bcc4d7010200985": "b152207a945135cbfa2c95bb0d436e173018ba3283c74db3442fdec7537fd187:1",
+    "54fa3f67325e20790d87c6cb0b1a95a84c4e697470096b0efc69e8ed037aec48": "e181b3067bf2db79e7aedf2fc620b45d14583b4a104b43cf347b9d41bb99fbcf:1",
+    "2e2053d287f112c1ef2ae20591af5c332784b389d151f75ba9f512b0cf620658": "efd5548761f954c0d421a19fbafea32b77aabbe9bb84e69b51276bc41db9a943:1",
+    "7a03f15bbc22fa16ee66c1a60ce8521057ddb40ab84e28d96afacce29d0f499e": "84ea683f0cc82b327d26d1b6fc42c5e64f9f0d7318a4163d08c132407bbbba47:1",
+    "201d3fca69b9b8ad79de264e51bd23a855fb54374aff6952089bbda01753df4a": "6f431f6bd2f036201be1469cf463a2c935bdc4b64bc4a6d0f979ae624ca72833:1",
+    "689f4d4f7e15c5f091eb706808d182e25285dc519c7838d9ec94103155314b58": "d7fb91f27a3a5a32fe4db3c86beebfb363afe228aec947b0d0656650f423604d:1",
+    "66a2233d77f99b8dcce75d35b8062695ad23cf226df64d7656305a8f3c89ad22": "2a16ad237ecf45fab0e9fd9e4cbdc3ab96fa99fbe05c65d11b40a2955b33b0ea:1",
+    "e7a9b55a2eec667ff6ba852b02352c263aa9ee97cbf935eae1793550c35de28a": "6429605ef2b12922b9c738832337f40f0e531cb61c8315fd6ae6edc28bc34a1c:1",
+    "4e803c22da9ae0126b72f696126d331cc95b333476478284e919d9779f0d8f00": "7d06f692cc3f2614c5f175a7ae332f4b19e091d6a03148648f7354053ff1a314:1",
+    "52d2bcea4a1ebdf4ffcca7f4ef40c9e0971be71d22736596d4aa6f8cc683e367": "019d50a8eabb463637533f9d2293289f333aa007133a79fe02330f84aa5a9c24:1",
+    "3da8aa9e2de74bb1a05ede5dadd20f19664f20c892c9eacec2273c93614965d3": "cd6fe809c457d091d7773845104bc59aaa4eced574794d8af9273e10f04b6017:1",
+    "0eb55d462c2452145da070b4d00fd0faf1ccd9391b4923ead30ceb70d9bf54a1": "a81e53a4f6de0c9e07f11278bd27bc3d397bdac2d6cd6f63131d28c89799811f:1",
+    "a028d5e341bb30a68af63a90dd6ddd14d13ebfb5d8c0616957c28a44cf50ef70": "f3f65e81e8552292df62c3bf820f34db340e015bdbb4780bd42ee69a83bc0ff4:1",
+    "54ff45f791c65bea58f641b16a40e48a627eeabe6411254e5d5cb8014d71a67b": "17470b6fb9e41a34414caf9d179ea69931af2a12f1c3ed4873317a580fcd8296:1",
+    "55411356a9dbc13b46b96519667fbb488a42477406eac5b487fdf5e676107ef5": "e982fad208505d60911f3b651930647bf9db6df3873600c24dde7cac265d43f3:1",
+    "f2af1eedb95dd43a8c55b2b8f9307d00346ca54aa8f75a879d6734068c134e63": "b1672ed0ca6f8e6ac89f3101ba24d529cdfd15aef4fcd6097ee091e5f18b2292:1",
+    "741ce77f20c035a8ef80d4f37efe5fbde6a22ab9a7d0454e718f794a16c864de": "f2b85a0036636f9418f81d9bfcd3e4e23ae05aadcfc845fd842cdac7a59fffc5:1",
+    "c3d36563e2709f8951bdd26c39b68ef614ebf929738366fb665ef3d31a1c31be": "2304b93b681e0e968560c2a79b69691cc6a6e01dd14577e51ca2234f37779782:1",
+    "6ff94b3dbbea0396f8e3d84c145f5ae2279198908aa6a79a0a453085290ed79b": "335fa90bf3006ce58c8073b6e7987912e183a80e75aa3139328f708b807750a5:1",
+    "328d8cc175e3f9aa283cf32d4760462dd8b82366f5430efd085e9676c98b0824": "c11e39620ec591db1d8e48fe6a877a9a46946126210252066b2ed93786c07b51:1",
+    "f21a3aa13bf531b761def6c670f3e7d5352f76e002302855b09335fd6c139ab0": "57cf067dd2d905c066a68e7d2c1bea5fc61f4f52fe25ecafef579deba56d45cf:1",
+    "bc9a866ca8c5e149ccdf2581815bd8da5b3bba30faca12808bf8a6d4c521e54d": "ed0d087bd1b7be359d404675d886f1148c3a019cf948860766a0ded81b8246e5:1",
+    "7b62f95ae2e5636ce7624a9bbac3111e55e7f158f9343c930abc2d7b33990da2": "a8fcdcb115c0103cc8d28088b6ac7f203ac3d9c6503352d49533141ca157f737:1",
+    "87ef65106b915d868da720e935087e10d5a2cab5f1ae72491ae0ddd58b838f0e": "b44e774b39d2efcb920954383318fffb2dd14a9b49daf799eafe378eb34100aa:1",
+    "8ab02fb8bd6ddf9503faab6fbf7ce2d19fc655f7bd7fbd0cf775a0b0933985eb": "62fa2e90d07ef9ca24967259fb7afe2c9e83045d62e00933e4ec806ec4e3d094:1",
+    "22772a07b25039b0fc61fca12ae94f4b6248cacc0476e008e7eb2c1cd0f006de": "12ad8eac33809549c6fdbee2e6032dc8bca37b6a3a268a092c194c4757b89249:1",
+    "00c5287aa60594989a666abef9e18f1c49db661cbdc4a1a927cf9fa3bbb2b4bd": "cfcdd1ebb587d0cccb65b29df7fb7d71739f3fb618a90e08808b020f773cfc4a:1",
+    "08c44e5eb0f5317d80552d79ddeda84cc668e3b7e189cdfccaf4cc7714cf5e9e": "584bf36fec334949d79788ff73b3e17051aeee86be09d5056dd1d960eb27da46:1",
+    "c2ea8e2e7a7869d7d426a87213b5e0fd3cfd2612b739e0926815d8ec6b48a730": "b43ae5d87c8dcda586501d843a7b2fba0bf9053941b677c567a00866cb4586d2:1",
+    "746c0a8bdb8ac377770b704ff894ee3ab1aa55df85505c50aaf069c23de4de86": "92bf1b5d18f5eb0cb7dc2c3cc5e28218ef607b41163905520e187fd963260a8e:1",
+    "754dc2e8a314081345200da4cf64465c7634f93a2db9997d87fd08e68c3f476a": "a21c355d0b55f354cf3ac7648a35256194874b8ede8d8bd3314bedf441707616:1",
+    "60decad6fbace5f5c614b9a8b14493b34280505152e373d8d50d258571e9a845": "48f5785cd084bb4ede6f1cac9a9aa62a114492fed7a45f21694d48e9355de0b0:1",
+    "5af31945f7d5881da67eec8ed6bd04580f195ae887d194d8dc108a7f2bbeda6c": "67666e4ae4df4757ef9533ec42967e55dc4e605afc5bad3e1450bac2341d19e2:1",
+    "8af461e56ea4886515178bac9082bd66f9bb6c2a61e65510cc3ff545257b5f48": "9e1fb74a9987a48e7c32a0f03870c8f8fa29c12b889285797953074e7278dc19:1",
+    "a5b1f5acfd2cb5cd3d5394232c6cb4b1588b9c9fe359ce3db0384b62e3f86ec3": "2d733b662a6b28717256c4cfae8f1684b7b0ca95e477326f3659905a99d158ad:1",
+    "0061e6342010fa398d180ca4c275e282feb59a98b89741cf71bcdeda5c7f2676": "ce28b08e847f0074c0e0f0c3c63921b1d88ac5960370bf71e7b15afd4bd436f1:1",
+    "f1913b12ef276d269ecf119eacb6ced418a0eabc999785cf84c91ab771399cbc": "da2fb78ef75cd992878bea0fe36401399781d734953e069b4c1b98a23234f0fd:1",
+    "e33cf7957633225032a7939d5d0a05d953c8c01b38ffd0b8debe54203c27334c": "ab5bc60d6d0286bc2d4cfada2d32b776faf70ebf004a89ad0731c1b97bd426e6:1",
+    "03dda91f22c46ee200ba7949b656f70e4076527658f7c5e664726b0dec833336": "34122920eb22073ad05a6c63ca82e0adb1988f8e40d9db39d249e75534a67c4d:1",
+    "b054e14efdf1bace6a2f60c6e9aa98c5eb91f6d4d3155a5987d813068bf9ceb2": "4eaf98be0c0a06c5f51e98e7e97225b2a4e434d5c11c5efdb0130aff1173a383:1",
+    "7edf57a624f545ccce5a7d2c99ba4806a4e8c5fdeb5bc82e50637632dea89acf": "ca944fd03e4adc5103cf113edc864c509897b0871d98de91efcd26ecd96f4e03:1",
+    "48531014aba4e0f2f2756421884f7773a642862175540aaf6a408f7b586c467e": "65e9039d32ac8d295a5f2da1bba4e0391e2326e29d48f154a6d365352fc1653d:1",
+    "88405d2a0278972572e6cf0cfa2d140902f683b18be8827968c9f9756a2414b7": "a4abc26e02161203c9ce59384457fc28fbd5a88734718d4722c7ccf13d5c5337:1",
+    "2473f3bc43308e1287871decb9cd80e6ca6e252384b6778d37e056929adc00c6": "806fde47d606899e1ddc8d5252b7f3b87fb75e92d6a30dbac568f49622ee058c:1",
+    "7b82abc4ab4d833ef6efe185ba9e99b3458593ddd188a29bb98b543ad97c5ada": "2517aebffaeb7a49f158f7edb1e38cb312012516020bab9d4b9e68d536b71442:1",
+    "d230800179aff93540e6b076f75d7589c9afe9c739548bdc98b25537ce345318": "92f14924dad3fa84f784fc9b8c08565852dfd8654ae718ef3aa39f16a9845238:1",
+    "c0a41bf9132ce6821140432475b4b37b7dc288f7f53715bd548681a97cfb8205": "81e039845b3cc97ce1ee0a54e66676653ee9a91ae37741a882a14be82f490638:1",
+    "3316b527f9ac9c9d4b18d50bfeb8892c1c3e943c9a9de1934b3869e8e0527b39": "7864fa4c151b3db53b4ee1848466be5f56741723ff6e8f0cfe4922ef1e4d4b7a:1",
+    "70e9cd58a2fbcb7e324008719729a4f758f37e15a7521b4ad2f39fdd297af61c": "2edbc2ca58431647840a4d2d90d8c07a8e74984ed36a0d1661bdbd9b1ca842cf:1",
+    "d342737ffaf17bfcbda6063528db3094ed34c6d9c69f067c879f83657784134b": "f22b0887c30a50e1145a3ad48a0bad4593b701f41064311fdfed7d5872e515d8:1",
+    "c7c0b62e6a2e96c6fdbc41fdf4503f224a364e35ecd064804e84daa38edf5c95": "fd5c7a39ee9d6f0459dd6d839e2b592213fed01b57170dae18715a9728ba96f4:1",
+    "c92ab39c2abb4746ce0d73e0b32bf7cbea2daa517d2997567dbcf34e6cbc17ef": "b187d5d63e901ae5c9062b9c235e9c613bbc4454827589007872a73f71d282d7:1",
+    "6914cfd9c497704305354751b3bdb59c3f663c003bcf9fa408297948b9ea56f5": "feeab468c043a385e8bd4cf245d49530f574029f767105daca9c4dba42123ea6:1",
+    "d6dfae2261f200613c8f32b5b5347895f9c15417b4030f224880ed25dafe9f6f": "29510644a2e86822afdb3abd12ee4a492d1f2ef3fcd3fe43496d297f25dffc68:1",
+    "ae00a0b4b1ba3fda24bf6c8cb3779cd8178a963d0f94d500fd26cc32193c8bd8": "0189c16f925f65746d5812ae2e019c4272d6a8fa93678ab23fadbf6d08ecdad9:1",
+    "a35484cc815d60d094eae06142e20c957884c55843d3351c9c72d3002eca600a": "a00e010f00e9ef00b59383f0337b595a2f43fdc50c1df0f448416862773e9702:1",
+    "aae6c96241650d66325ebd477a9b1aece6d2d59c1b8a487482077cc50e8db372": "26d4d9a5ee7ad9c16ecdf7eb5672736f6180e7871ce4a03e8888148d8598f90e:1",
+    "5929970b3a241e50d68c2855ff2a33fca8b367b03eded8ea928070154b0ef528": "e9e626f6f42f23473b0dc54b71656314eb816b019cff7de1a1021f97e1ed7b9d:1",
+    "9b9383674ddf4cba5aea508648fe0d488adce0037dbf86896fe391bb14896565": "11e3c1e1cb27c7edc20efdaf2709a0a875c19eb5b051637c49e69b97f1c3291d:1",
+    "2608b8eaaa2b24ca1559b4c4cde7b2954c42192a1e124b38fecfcdca03104598": "e3a6d6d2a38f59842187c15942a31fd0dc4178b1d7ebe4213e215c4f3ade6bc7:1",
+    "959ecf4cbe682716bd3e0b8887103afe415a4dbcabfca5f0c0cb0c5e6f7900f1": "b3b532564fd4ffa2cb3c210fbc95b63e8b89cb1dfe283e56f527c8e623b780e3:1",
+    "1b2d1c47128915ca2f2508604cf6179e2c5ff51c9aa5cecfba7b37601b364afb": "0b2bd8aa4f6fb01e6c456508c8aac6a464619e8d592d3837b11695ce4f78060a:1",
+    "040b46636420177e02ce25a19a484c795006c65bceb76c934c68bbf189224899": "7e856ecf3fb4542c94bc650eff0ddaa85afe3cdba9d5a36f19372f10177ae5d0:1",
+    "1da78bc9b742e1f18bae1da6bde1c11efcd8178ae923cdc10676a18961214059": "bf19e163a27638c579600c8650bea987710c7a5fccd1c7e95fbfa1dfcfbd9a9c:1",
+    "9f42591d865bd34978bca8ad2bd19a99f5678ae063220fead9f199e5c43e3e3a": "e533f44cdbfeb45ee4b9a6f019eb845aa59c34e5b8a3e4e27766ecca882a1b81:1",
+    "68ec5dad5f0ea20ddd78ee5029e123c9a65c3445fdbaea1f05283a280182e3be": "f592c44a3f9e3132ae5c8679b313d53784eff065c18b30fd29538e29af556e37:1",
+    "e3d4c3c146bc424d717895844bab0f29b753c20dc6fb6bc5a9ea0183a3faf567": "81a612542790110f4efde804cc74b11973dd7b3daa9f0bd7d9c385104557a8af:1",
+    "af573738a57ec456643bc512d66c466843fb8261976baede1ce1c4fb224d48a8": "d0e9eb0150c2a4cd8851cd4eb65e99d8c1983d218ff9deca3e0932f85acb6660:1",
+    "6e92b293d44e36329ebf94d9d4ea93b71190d80b5ed773b4e5faaebdd1d888b6": "723cce5890ec9330b8f132c2a441339f8a930a53fa05dfa1a18ddf192a6a6f65:1",
+    "d85bdcc19491e6b9f29e345409233b07d0b30f47f21e2d7fab9596ebe5faf138": "c549113cfba3d583073cabccacbd7fd3101ac3d3c248fb40b260fe3a666414bf:1",
+    "c7699c7e79ee13beb1b830e114a3782bbd4518465ee86de81f3275c7cc8a1da5": "0495fecfb23d4df09b607d3bf4984ddccb117ed84e22fe324cc4880b508e4e9d:1",
+    "a685042ebea26c987170c79d17f5cc2f236c9d7624cc5497694e0dc06f2bba74": "fa2d7edd83136aeb6acac5d15108c9bd39ef33252d3bc7fd6d1a9b50284b12eb:1",
+    "0c681dae431278b578948185c717cbf57b123cfef8b3eb95038374a73d86b580": "62d7eedf53f54cc0ad4ba42c5046a805d7847ca6bcb31f43daa34cabc3617e75:1",
+    "3d60bb3481692f7601a90be06890413c7baf922ff83ddf0b08550cee1c0ada63": "e9c326dbeaed955fdc27dfa745007812e1a1be656bc785a0d4633ba8fef66f59:1",
+    "626e15ac932c95176916642dc1c9e447a7fc975f1b5bb37ffd7f13a04b916e00": "3e56c72935ed8b128588eee007d9540aa01951a31b82eca2e99107da558438a8:1",
+    "8fe41fd757590ac8d05af126acc2d20072dc18bae459e030fc3c1d6ce820b058": "736e37c92230c7c0879cf5e0875dfbb53fa13a3cd8b443b4c3e099e6fcf8c463:1",
+    "12444ab0c15b6af34e995cecb6ec99ce94ffdb6d89851b1529a0c1ba268e9065": "c27a52d7395d664789fecb31356d7bd29387cdb675cbaa32ede512d141019edc:1",
+    "164601445ee822fa8cb9b67c023458abffff5295e6319d574438c743f87444c6": "61178f1ec77cf3baacc9a2638395b75957e29a6e36eec029053b81f0a9d3c260:1",
+    "c006bf1d8c39242e43d499e33ca6b086a5514534010bcff24407e24c836d2b01": "c910ac44b57f4bfbebe30af1d1fe98cebf4f59391960afe98fbf7a733c6e8179:1",
+    "dd10433158f2e64475f6115cb756c6bb1093a77935f2f239e462f189c6039bdb": "3fec01e7c56e7c6b16a2c44779b1f91c9a27e7d4d21f93d134414a6bfd7c1b88:1",
+    "3afa55877aba1dca6e57f0f17fcad0dbee341e803af61599318f23712abcfcae": "83ba827ce7f765807bc5c0697f98de11bf5233b584433fb328387653ac2c8b6c:1",
+    "41cab372976041dc643d39f79ba08a252a877b5ef7df15e5feba5009056341c7": "8f658ed682807ca31dcbadbf02c5dc17702a1a9720e9f842775087598989ba26:1",
+    "676d7c4bfbeb4ee1b2c31aecd895ebcb72f396835b7417d0ff8481ce5f0b76ad": "3df6eba6407e75fa8098395f6ec9f460597e21c2db73787b84eac13095baad9b:1",
+    "f4607fa85cb2686494bd6719f54383807c510b38efb7d16728bdede481693362": "05b2c8967236f3534647f8a7dd105bde0f66e829b88aa9176dd0f092c672aa9b:1",
+    "228c9b68490daf0e74257730550659440a1d5b165b3046a5e96a4e13ff57637d": "8533123c71a453ffac9ce587ab509f123a56717ae4eebb59a05f04b11beab2a2:1",
+    "4a3856f95646c4d788c6138590ffbebc9afa10726900c93cf6cbf8f413062634": "1d3ab92e3592a57172dc6a1b31c7802ca2c810e7f3193e9ea20c7ef745464427:1",
+    "35f4554d4ba54f36c1b43ef539ca7878c144d8e3408a87e4700ded11f6c19a84": "c82ebd8ec98a0321d8f2614119e5cce6b55da60fa939d7836e725f76828164b8:1",
+    "ab2dcbff699efb12fd0f59880c1ef70df017a6f5455b7bf4d14bc3bcb8bd36c6": "060e040ae28750e268efb68604fb7a8bac79e0bfdb4ed4bb552d939211977391:1",
+    "07a76f89e0de502415d9ca96441c85c8ab5827a9af9dad4db55df032b9301b87": "f1cba9c9777146bc515f0e82a8c0b79275124ae1443e6314b2609f5985f12240:1",
+    "19001de98cc65cfe42c5d1e2c6eeb74ab110083e45253ba89f283614d4b90f87": "e7a524f10bd8291a79c5d2af14201d55763abbda5d00cc661b610e1fd947e051:1",
+    "d36ec7441deaaa7f35cc11e2e820ce83f98c8af005fc55dc850ccc595ab1d4ad": "c0e63576622a2a50c1043ebded09e21957e9d319096ee79a4959743f10b20360:1",
+    "7980e1160b139950e30f458dc85cb51e88b1725498f42270b3ae33759b8d8efa": "30ab281518278fd2b5250616d00e5fe864a606739283de42f1e84d4ef44ed9a1:1",
+    "3f1c5d150986873f21830089c0ed3dfb7c24bc9f27638ed22b1fcd4e8fae3aa6": "c7f81fe6cd5aa8a7a605d484a192d462f5fe258427b08eba91a4c7111e556ac2:1",
+    "9155aabd704c285ca2dcbb92612d256f30693059785a2de50008cbe556e4787b": "6265400885c4827c5b63887dfe28e1b1cf7f077821870177c7b1afec192500c1:1",
+    "b158b9d6bb29ac9d3009b36d607ed10a3565d1414e9adad2489ef794a5738a3a": "3a1e6c880ea759851fd3536c355c6e2d620b6744500289fd8e270a7fe600dd01:1",
+    "735407ba76384483583d0e9d020e814158705402b946877068fa82b64e98447c": "f02485f46c9c0dfd47a47879de2fa708749b1dfe7cc4ed93469d359080ffd46f:1",
+    "fbc31c6d24c9c6c8d33280d7c9dba9a1eb2a1dc721b636436fe0d51118345955": "3dcfc9f1bc9bdf800809502b31432ea0149e0a221d203b4be3facb37fe552686:1",
+    "c978da7534df8a7ca09f236d2f6a5aabae627d5d1b900bbd0c0d2eb22604e8cb": "0fa8ea6b1c99984cd560fbeb12a3134eec5561bd8d776b3445d0edf733bec340:1",
+    "5edfb3196bdeb41af853c7be3cf009f3ecf7b8ef2e43652be8775cc6b8759b1d": "7c1948b0b8a1aefac363abbf1aac540e87759cc4c7bb13bc9fe0692c8fc50d1a:1",
+    "9b2fb61ff276a1fd85312f3c40ea94fd5975de5a68f31d569b4c2d7ae87ed47a": "e1c34ae88295655ff689602daadab368347084ad0a80f80d7996530902b3b0eb:1",
+    "6dd4bb6d64d33332eb482c0c658015ef3ede8063c1b1d2f8fd28d284e22462df": "1608f2622804ff132376a02293a7e265c12158f1b3cc2eb0ef5f3b2372573776:1",
+    "0645f3c9dfbceb2dde2bf3094eb00d017a79ad63119a9fbe1a4e25cac4b52908": "b1b7527d9974f1e799c0d33cab213412f76f9816ab7d2e9c443803aca2701c5e:1",
+    "0f4018acd716cc25f2011e2dc2592f27cb05fdcd07fe3c8c72c25435764f725e": "ebded6c9d9b0e1dd6c2e01a8e6a2e042acff5923d4e328a4366feff2c4d449cc:1",
+    "850749b667f6dd1a7f628f1dab51a3e18df62c9f7932d3b7b5ededdbf7ccbe51": "396d9f0243bf0b41a5c95923edcf01fdaae62d19446fc18f965705f3ac4d415e:1",
+    "1ac8fb09c1f0a21f797a61fba0776d44a874ae680044dab365af1259f47a5fe1": "beac8db361dc4018d86cdc3b8748556a8e8fcd65e83151d0925adf9daf9483c5:1",
+    "0d9dc7e7349f9ff80ce1c57cc66214aa4117663b36f057a9fd3f46fb5b48c1cf": "c44dc98b031e9740c511a36ba8a2a5a292f10ab5c1f3ed2a23dce92823262b6e:1",
+    "cc882d1dc363d21fb4a60009999600a67f9c6730721b75cd0398db3f1c4a8717": "ba3c6ec8250bcabf69ba7a34f98101705a061568d94c53b0c03419ad17f152d1:1",
+    "c7c4e38664b81b5c452464976aa4b1d84e3439fba0e916b4be5d5d3606a0c8af": "d446e393780395a5ac3d7badf7cbf7c76eefdad6bc9b1d8eb4420b0647fc6991:1",
+    "c60627a2d64ffb06a060cf385c749743d76d2e7e40186fb2e321822b2cad22cf": "0da8122cbd25b8382845f421f68f2b836541a5514403990edd13078ce8570e4a:1",
+    "b91a734b289f1b1df4c1c6acb9f91d69fc26705d73b9d7cbcaababa3e107effe": "2efe7300f9ff9c43c20be874073728081c42c975569aa19d36c134d057f2469a:1",
+    "d1e1fc479a2cba6d2171df8323f902d1aa7eccb3b66b7f7943da69cc4edff5f2": "a656b006ce2a0483541b54970feb2e154f4e49f32147bc90123f42d0dd9214b4:1",
+    "d252c30e70508fe449c7a60414323d3e2eab091e1055b3b53480003c20c8dea8": "cbbf1238b267229ce406ea0b6378843a7d234cdeade462c4c2331cd9f80c82e4:1",
+    "13305f0d2ade8a448595e037cb65e919b6af53bb2f184e0eda3cc14eaf660279": "9e1b58171c7b17212a1594b63e551510440cce4085ae96c9188fe8766fedff6d:1",
+    "0818db74274f1a678d256ef2397ec695e80b5d0e88f9b47fc1201c9bc9ba153f": "54299a4a946aa0a1d7fc65f1531feaca0523aecd47f3ef3bd94c8305a449b1fa:1",
+    "b9255676192e5290dbfd9a41a33695b24dbdca7e996e1dd2a5ac61b3dd122fbb": "b0e111ee979bafe980d2f395b3bbb75b1c7836a61594199f5890e6fc1e7a395f:1",
+    "f9ddfd9848a285aa2bad19889d09fcdfe213dad77f52cb8430d771bdd70e90aa": "40fbe29a7728e4dbde3795051b041a5ed945216fd089a9df5dac3e09e92e032a:1",
+    "b28f2a1e2b0bf376e11b5b6de78766ae13501a5ec97d862ef5fb1aec035b79ff": "5912420573e4cee53638cc0ac51cc1f2a8b7b497eccb51e0813fc1b4aed02e94:1",
+    "c9844141134ae2e7c0764ac277b69d73ba176db4a00ce5149c427743385f5210": "ef0d08c18211d81d60896080b4edb7e9c64261583abfb3b6aa8e1a610b88b3b8:1",
+    "78ad60d4fc6415682cfff02cecaceb6330199f42bd93223b166c2b16e04e6264": "348b57bbe03e94e19728e8b09e70e0cb7afb17bdb4041166d438ee0919c25545:1"
+  },
+  "batch_id": "batch-1790169214-4V9efJumohccyF4Md8Hb"
+}

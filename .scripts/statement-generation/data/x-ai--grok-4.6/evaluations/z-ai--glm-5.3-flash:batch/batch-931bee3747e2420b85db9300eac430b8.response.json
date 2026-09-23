@@ -1,0 +1,20 @@
+{
+  "id": "batch-1790106016-EJUrctZPa7D7J2BJJNAx",
+  "object": "batch",
+  "endpoint": "/v1/chat/completions",
+  "model": "z-ai/glm-5.3-flash-20260826",
+  "completion_window": "24h",
+  "status": "expired",
+  "created_at": 1790106016,
+  "finalized_at": 1790181895,
+  "request_counts": {
+    "total": 1280,
+    "completed": 0,
+    "failed": 1280
+  },
+  "usage": null,
+  "results": null,
+  "error": {
+    "message": "The provider ended this batch as \"expired\" without reporting a reason."
+  }
+}

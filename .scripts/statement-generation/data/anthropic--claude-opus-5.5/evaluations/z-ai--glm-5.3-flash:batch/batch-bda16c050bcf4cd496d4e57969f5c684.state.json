@@ -1,0 +1,1427 @@
+{
+  "phase": "submitted",
+  "gen_model": "anthropic/claude-opus-5.5",
+  "judge_model": "z-ai/glm-5.3-flash:batch",
+  "api_model": "z-ai/glm-5.3-flash",
+  "records": [
+    {
+      "source_id": "6ae58a22ac4189ad6cc38fcd5b67f7095ea82c7ff1d8a9648fe07efb8af45076:1",
+      "source_row": 5,
+      "statement": "Tax hikes on cigarettes choke demand, so fewer people smoke.",
+      "design_point": "['fact', 'social', 'figure of speech', 'positive', 'reasoning', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "83977778080b185a88470b21a4b2b7d32636cb24048622a37bf0a7c2e387b2f6:1",
+      "source_row": 18,
+      "statement": "Echo chambers amplify views online, so political polarization deepens.",
+      "design_point": "['fact', 'social', 'figure of speech', 'positive', 'reasoning', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "4408ee65446f0c8f267b5c6a4f6cf251e0f8244492231a65343177a9c2af18f6:1",
+      "source_row": 45,
+      "statement": "Money is the root of all evil, so greed should be curbed.",
+      "design_point": "['opinion', 'social', 'figure of speech', 'normative', 'reasoning', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "8d5eff374653791e5f5e218bed2a4f4a8a2170d2462f472914d3d73397a01288:1",
+      "source_row": 92,
+      "statement": "Radiation raises cancer risk, so nuclear waste must be stored securely.",
+      "design_point": "['fact', 'physical', 'literal language', 'normative', 'reasoning', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "87b7950f10d4198edcb728c83cbb34deea9b2e0f35926f9074870e767f7e33f4:1",
+      "source_row": 96,
+      "statement": "Mercury accumulates in fish, so pregnant women should limit tuna consumption.",
+      "design_point": "['fact', 'physical', 'literal language', 'normative', 'reasoning', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "6c5b2bbe779320b7762838c196d46d5138744639e393ce08b6fac29387645d3f:1",
+      "source_row": 98,
+      "statement": "Sugary drinks raise diabetes risk, so schools should not sell them.",
+      "design_point": "['fact', 'physical', 'literal language', 'normative', 'reasoning', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "5bc888dff574ce7786a5c3dfd3f939b7a8fa28f3cc62f5d46749017e4519ea63:1",
+      "source_row": 100,
+      "statement": "Fatigue increases human error, so pilots' consecutive flight hours should be limited.",
+      "design_point": "['fact', 'physical', 'literal language', 'normative', 'reasoning', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "5acb995418a5a967c2d5a2208a04cfc94909b0165aaa4a4e011bcb0bd19e6052:1",
+      "source_row": 104,
+      "statement": "Nuclear power emits little carbon, so it should replace fossil fuel plants.",
+      "design_point": "['opinion', 'physical', 'literal language', 'normative', 'reasoning', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "902813d9d5a00b97444eafb8ba17207caef74fb8c7fa7263a61ada05d6c4fbb4:1",
+      "source_row": 105,
+      "statement": "Asteroid impacts can cause extinctions, so nations should fund planetary defense programs.",
+      "design_point": "['opinion', 'physical', 'literal language', 'normative', 'reasoning', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "b22cd9bcb85916109d4c1718b1ae17b45247e857bc679ca375b74e5d34d74272:1",
+      "source_row": 110,
+      "statement": "Since fluoride strengthens teeth, cities should add it to public water.",
+      "design_point": "['opinion', 'physical', 'literal language', 'normative', 'reasoning', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "d6dc13b3941a8b36e77925174f0a275dc2c8ab6371e80950c0440bb416076d1d:1",
+      "source_row": 122,
+      "statement": "US presidents face term limits, so none can legally win a third term.",
+      "design_point": "['fact', 'social', 'literal language', 'normative', 'reasoning', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "7376805c3a5edcd86b9d78b996e2dbc97ce50881cc29eaecdf7f9d7a672085db:1",
+      "source_row": 125,
+      "statement": "Copyright eventually expires, so very old novels can be republished by anyone.",
+      "design_point": "['fact', 'social', 'literal language', 'normative', 'reasoning', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "6c2a40b2f9653158e47465db6493e62274a28b2a91e397bb563edd971ad10251:1",
+      "source_row": 132,
+      "statement": "Journalism ethics forbid fabrication, so reporters who invent quotes are often fired.",
+      "design_point": "['fact', 'social', 'literal language', 'normative', 'reasoning', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "ecfa7d32bb90c2f6ab9e652b6b68fe4beeea287983d2708a8ea63dcf199ab443:1",
+      "source_row": 137,
+      "statement": "Ballots are secret by law, so employers cannot demand to see employees' votes.",
+      "design_point": "['fact', 'social', 'literal language', 'normative', 'reasoning', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "d43cccfc79271ef322dd09d3d56af1c0b629233f5de0c85e7f420043698d52b4:1",
+      "source_row": 138,
+      "statement": "Lawyers owe clients confidentiality, so they generally cannot disclose client secrets.",
+      "design_point": "['fact', 'social', 'literal language', 'normative', 'reasoning', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "802971317b1da1e50b9c3c91eebf4db623976b6dccb62f18476d6777cd8b2ddc:1",
+      "source_row": 144,
+      "statement": "Sugar is a silent thief of teeth, so children should brush twice daily.",
+      "design_point": "['fact', 'physical', 'figure of speech', 'normative', 'reasoning', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "d754667223b953d2741f5332c29fca8667dfbfe8eb961efc41e193e7df9426e3:1",
+      "source_row": 148,
+      "statement": "UV rays are invisible bullets, so wear sunscreen to prevent skin cancer.",
+      "design_point": "['fact', 'physical', 'figure of speech', 'normative', 'reasoning', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "f6359adc543c9aee6eb719a0f38d7d978686848ea711c13d2842137ac2ed29a9:1",
+      "source_row": 157,
+      "statement": "Excess salt is a slow poison for arteries, so limit your sodium.",
+      "design_point": "['fact', 'physical', 'figure of speech', 'normative', 'reasoning', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "80777a2f102a49ff881cf5b08c41b06219b547fe78d7ac2a1e40ed3225341d6b:1",
+      "source_row": 175,
+      "statement": "Since propaganda poisons public discourse, schools should teach media literacy.",
+      "design_point": "['fact', 'social', 'figure of speech', 'normative', 'reasoning', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "3080c46e0db413642114f00622eb76d49f4b2a3b85b11e421cb7c1e616e12913:1",
+      "source_row": 194,
+      "statement": "Earth's resources will dwindle, so humanity should reach for the stars.",
+      "design_point": "['opinion', 'physical', 'figure of speech', 'normative', 'reasoning', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "e77bedcd61714c35c03e5622acedc87debaeb3c7bc718b6ff8e9c018513a29fe:1",
+      "source_row": 199,
+      "statement": "Ice sheets are melting, so ignoring sea-level rise is fiddling while Rome burns.",
+      "design_point": "['opinion', 'physical', 'figure of speech', 'normative', 'reasoning', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "ba4927ba722edb6a575030caa7534215c5ae8839cd2e38c3bc2e4c04cdaf1f07:1",
+      "source_row": 213,
+      "statement": "The moon is the ocean's puppeteer, since its gravity pulls the tides.",
+      "design_point": "['fact', 'physical', 'figure of speech', 'positive', 'reasoning', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "deef80b57d714ddc5863425f46ac94104e7c82b36dcc15745e34a4e3d8387614:1",
+      "source_row": 220,
+      "statement": "The heart is a tireless pump, beating billions of times because muscle never rests.",
+      "design_point": "['fact', 'physical', 'figure of speech', 'positive', 'reasoning', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "183019b023494356be9d7899c0a24a5244a65ae6353313952579cb6886e2c2fb:1",
+      "source_row": 232,
+      "statement": "Because privacy protects freedom, governments should not collect citizens' data without warrants.",
+      "design_point": "['opinion', 'social', 'literal language', 'normative', 'reasoning', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "8bd2d83198dfb42d5c183a679ccc82540bc1ac770b54f71c37c2a984985cbf62:1",
+      "source_row": 238,
+      "statement": "Since monopolies harm consumers, governments should break up giant tech companies.",
+      "design_point": "['opinion', 'social', 'literal language', 'normative', 'reasoning', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "4b37a1ff20ed224f38a06952eaa8fd4b2bafc5cf0e96f2088e7434766d1d0b46:1",
+      "source_row": 242,
+      "statement": "Sunlight takes eight minutes to reach Earth, so we see the Sun's past.",
+      "design_point": "['fact', 'physical', 'literal language', 'positive', 'reasoning', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "d58ca31d17860bd864d5728dfcbde5b6f5573fdf5f65a60ac451a3fbb3be3d98:1",
+      "source_row": 243,
+      "statement": "Sea fossils found on mountains show those rocks were once underwater.",
+      "design_point": "['fact', 'physical', 'literal language', 'positive', 'reasoning', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "6571000132d95d2a19a15da951857a50312cfdd75eeee8f1e237b2cdf0f62c89:1",
+      "source_row": 245,
+      "statement": "Viruses lack their own cell machinery, so they must infect cells to reproduce.",
+      "design_point": "['fact', 'physical', 'literal language', 'positive', 'reasoning', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "159f7624d6fea1637e2d16cebc684ea611772b085a6467238658d575a08f84f0:1",
+      "source_row": 250,
+      "statement": "Radioactive decay rates are constant, so isotopes can be used to date rocks.",
+      "design_point": "['fact', 'physical', 'literal language', 'positive', 'reasoning', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "d5c0844026fc2dbb21b6f116e12a850d6841f123eb36e785d7287dd66e579235:1",
+      "source_row": 257,
+      "statement": "Venus's thick carbon dioxide atmosphere traps heat, making it hotter than Mercury.",
+      "design_point": "['fact', 'physical', 'literal language', 'positive', 'reasoning', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "126ab8d1b3749c26ae2e75eccb13819391f12517cd3d1b20023c646b897826e5:1",
+      "source_row": 302,
+      "statement": "Most democracies require citizens to be at least eighteen to vote.",
+      "design_point": "['fact', 'social', 'literal language', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "9a93b167a2abe38bf7107cfb5d2ca79a4ced690ed6a3be817d5ee70c5a884fb1:1",
+      "source_row": 308,
+      "statement": "Most legal systems presume a defendant innocent until proven guilty.",
+      "design_point": "['fact', 'social', 'literal language', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "28030c8bba141141b50dd966b2d198bf3fbb83aa634518245aee17deb7796fb7:1",
+      "source_row": 317,
+      "statement": "In most countries, being married to two spouses simultaneously is illegal.",
+      "design_point": "['fact', 'social', 'literal language', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "d5d7436f05d0f97a3877d2a74b733e7b9197c8b11bcc65f73ddd5a42fce928c9:1",
+      "source_row": 330,
+      "statement": "Because rent control limits landlord profits, it will shrink the housing supply.",
+      "design_point": "['opinion', 'social', 'literal language', 'positive', 'reasoning', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "4957d267775806b75e744f1f4e3cb00d9c4ee2a431d73fa1250c5bf4295e2342:1",
+      "source_row": 352,
+      "statement": "Entropy is the tax the universe charges, so waste nothing.",
+      "design_point": "['opinion', 'physical', 'figure of speech', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "8562ae48e6f414b78fb2c89722d3ab0cf9f3057f0eae93601cadc59597879f60:1",
+      "source_row": 355,
+      "statement": "Genes load the gun, but lifestyle pulls the trigger.",
+      "design_point": "['opinion', 'physical', 'figure of speech', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "88d65dbed7d9875c92a5979570f296e82b839c953a9fcc5d000f9affc7de860f:1",
+      "source_row": 360,
+      "statement": "The stars are humanity's next shore; we should keep sailing toward them.",
+      "design_point": "['opinion', 'physical', 'figure of speech', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "c40d697d829a80e0b13da0cb9eb6345c332209f91940a60a698ed9e76473191f:1",
+      "source_row": 364,
+      "statement": "Wealthy people should pay higher taxes.",
+      "design_point": "['opinion', 'social', 'literal language', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "67c7263705d08d696eca7a7a21b1c0ab25e952aa4950add78a2e7e555bdf05a0:1",
+      "source_row": 365,
+      "statement": "The death penalty is morally wrong.",
+      "design_point": "['opinion', 'social', 'literal language', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "a04702d9742ce10cde2817329ec5cca2bab1ebadc0f5abb462c9abe421665680:1",
+      "source_row": 370,
+      "statement": "Honesty in politicians matters more than their charisma.",
+      "design_point": "['opinion', 'social', 'literal language', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "1143ef76ae056adeffcdd6fc95d504106943d04ac9b11eabcb7500630a690380:1",
+      "source_row": 373,
+      "statement": "Nations should welcome refugees fleeing war.",
+      "design_point": "['opinion', 'social', 'literal language', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "2125315403447ecb9c2a5b0ce36894347496d461d34b38d2416efaeb21b431b3:1",
+      "source_row": 374,
+      "statement": "Animals deserve legal protection from cruelty.",
+      "design_point": "['opinion', 'social', 'literal language', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "4256aef10f0a7a54fb00777e01a59ceb385b9ca935d7529f0fcaad0ebd7027dc:1",
+      "source_row": 375,
+      "statement": "A minimum wage should allow workers to live decently.",
+      "design_point": "['opinion', 'social', 'literal language', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "cd0c50d560d555b4ab1ac138ae55734a0807e6d7c3542bcaf66e436f2bb48f1e:1",
+      "source_row": 376,
+      "statement": "Religious freedom must be protected by law.",
+      "design_point": "['opinion', 'social', 'literal language', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "a478a9927436b0b34c14976152f472a4213f0ab61408d69be88c5d808d288f7d:1",
+      "source_row": 377,
+      "statement": "Prisons should focus on rehabilitation rather than punishment.",
+      "design_point": "['opinion', 'social', 'literal language', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "21b22ddd63aa4b82a73344599f89b3e8f07ad4538fcc96d844c1e2fd4c929c7f:1",
+      "source_row": 394,
+      "statement": "Small leaks sink great ships, so fix cracks promptly.",
+      "design_point": "['fact', 'physical', 'figure of speech', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "36941fae5614cac4533a7ddba117dd7453a502ef33a0b8869ebe7e562ecc13ae:1",
+      "source_row": 412,
+      "statement": "Doctors should not prescribe antibiotics for viral infections.",
+      "design_point": "['opinion', 'physical', 'literal language', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "be680358bbe4746501dd8a6f4e5a8e8949eb425f95b16a5a19067d68ec7ab54c:1",
+      "source_row": 416,
+      "statement": "Adults should get at least seven hours of sleep each night.",
+      "design_point": "['opinion', 'physical', 'literal language', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "a5d0b282745afd5f329c9bbc0af41c9692dc719db3344e6bedfe60cf55e9db4b:1",
+      "source_row": 426,
+      "statement": "Normans ruled England for centuries, so English contains many French-derived words.",
+      "design_point": "['fact', 'social', 'literal language', 'positive', 'reasoning', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "4bd0ac5e627e890030abbacda93b1c1d7185b9f2105d2a3e8eb6c074ae59e947:1",
+      "source_row": 428,
+      "statement": "Businesses cut spending during recessions, so unemployment usually rises.",
+      "design_point": "['fact', 'social', 'literal language', 'positive', 'reasoning', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "6841aadf5ef1237a8052c2d462b3c1d4f37cabba0365f99757c1b12646988e99:1",
+      "source_row": 434,
+      "statement": "Wartime governments boost military spending, so civilian programs often receive less funding.",
+      "design_point": "['fact', 'social', 'literal language', 'positive', 'reasoning', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "36679f0f258ea65ad78592c9e16db33118aff03e4c4b3ac95bc7739b9b9a272b:1",
+      "source_row": 439,
+      "statement": "Higher education raises average earnings, so college graduates typically out-earn non-graduates.",
+      "design_point": "['fact', 'social', 'literal language', 'positive', 'reasoning', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "3be818fdd0d91cbeb7418ff7c77cea50e799668f2f347f717e00193daee46043:1",
+      "source_row": 441,
+      "statement": "In courts of law, justice is blind: all stand equal before it.",
+      "design_point": "['fact', 'social', 'figure of speech', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "2dd1aee63dcf21457fcc782fe9690f8c2681b0b18a879ff1150008385523f8ab:1",
+      "source_row": 453,
+      "statement": "Attorney-client privilege locks a client's secrets behind a legal wall.",
+      "design_point": "['fact', 'social', 'figure of speech', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "0428e0beb266365dab69d6ebf3b0224b4a492af6a272de7b1f72ba74230acac3:1",
+      "source_row": 456,
+      "statement": "Double jeopardy law denies prosecutors a second bite at the apple.",
+      "design_point": "['fact', 'social', 'figure of speech', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "de8314dddcccc4e50d15b80847f4f6b0155d35d4d31ff98b83d894b7a3f60c32:1",
+      "source_row": 463,
+      "statement": "Smokers should quit because smoking greatly raises lung cancer risk.",
+      "design_point": "['fact', 'physical', 'literal language', 'normative', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "79849ed8721f4cfc8980a8cc4bf62c41d427ed6bb26e9a2c91e9422dea4820e3:1",
+      "source_row": 481,
+      "statement": "Money talks loudly in modern election campaigns.",
+      "design_point": "['fact', 'social', 'figure of speech', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "7fece3b0b46f9829b6b5f4f69641ae0ac04dbf8ed1a55da7dfaf9bfc668162ad:1",
+      "source_row": 499,
+      "statement": "Celebrity endorsements give sales a big boost.",
+      "design_point": "['fact', 'social', 'figure of speech', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "4408914f9ed0c9a3aa6c72b2d9cc5e7cc6790179dc4718f27bb3d011fcdfc8d3:1",
+      "source_row": 503,
+      "statement": "Wealthier countries tend to have lower birth rates than poorer countries.",
+      "design_point": "['fact', 'social', 'literal language', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "e673d356261fc49b0e4b3e14d14fd94f144f3d209264c16e3d7b6605c51ce2a9:1",
+      "source_row": 504,
+      "statement": "Most countries require children to attend school.",
+      "design_point": "['fact', 'social', 'literal language', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "456789ee157c1b20bde487986c5e0c7ec92386ee7f4eb8a3f8d657619191e1c1:1",
+      "source_row": 505,
+      "statement": "Mandarin Chinese has more native speakers than any other language.",
+      "design_point": "['fact', 'social', 'literal language', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "afa97f486598de387c20fd84a80c46e32fbdd74b36ec1aa0e242f8e6e3237950:1",
+      "source_row": 508,
+      "statement": "The United Nations has nearly two hundred member states.",
+      "design_point": "['fact', 'social', 'literal language', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "121bf7835218f0777e834e33f7a635ad2fae213acae34f33241a047c3927cb6b:1",
+      "source_row": 510,
+      "statement": "People with more education tend to earn higher incomes.",
+      "design_point": "['fact', 'social', 'literal language', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "94684e03dd342291b0ac22ed9915b1f2bca79ee47940daed4fd4d38eddbdc67f:1",
+      "source_row": 512,
+      "statement": "Voter turnout in the US is higher in presidential than midterm elections.",
+      "design_point": "['fact', 'social', 'literal language', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "9eb3b03f1e20c0e7b31519ccd6bffc5aa2c0618e97dda93e199c3998e0eea4c8:1",
+      "source_row": 516,
+      "statement": "English is the most widely studied foreign language in the world.",
+      "design_point": "['fact', 'social', 'literal language', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "94222dd481a39af05811a1ca60e52decf5b98bd5e7c4cd38a528ffd00e901018:1",
+      "source_row": 525,
+      "statement": "A rising tide lifts all boats.",
+      "design_point": "['opinion', 'social', 'figure of speech', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "cdf8d96e04ed8ce7ba93d91a5de6712c0fd7ba69c24513c2ffe1f82ea70af131:1",
+      "source_row": 530,
+      "statement": "Culture eats strategy for breakfast.",
+      "design_point": "['opinion', 'social', 'figure of speech', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "aaa17e28d8cb4c194ecd46a664391f5b5fdb4147f92c3bbf6b934094629d941d:1",
+      "source_row": 549,
+      "statement": "Water molecules are made of hydrogen and oxygen atoms.",
+      "design_point": "['fact', 'physical', 'literal language', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "2bc9f0519160fd8b1294e515572bdc4b68425c5f7b7a629efd82a3a92faeba54:1",
+      "source_row": 559,
+      "statement": "Earthquakes are caused by moving tectonic plates.",
+      "design_point": "['fact', 'physical', 'literal language', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "ef7de94606339592d3e522cb215cf0630cdba2f4c0735d06e1f5e6f5d8fac3cd:1",
+      "source_row": 560,
+      "statement": "Light travels much faster than sound.",
+      "design_point": "['fact', 'physical', 'literal language', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "b638133d30687c4b293d05eb57b9f00eaa908086139bcd4ee03425572c8f06b8:1",
+      "source_row": 567,
+      "statement": "A major earthquake will strike California within the next few decades.",
+      "design_point": "['opinion', 'physical', 'literal language', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "48f7c43c333657da5bd4413ee1abfa971d640a6cd6d3a3d5f4ae712838c8afe2:1",
+      "source_row": 568,
+      "statement": "Human life expectancy will continue to increase over the next century.",
+      "design_point": "['opinion', 'physical', 'literal language', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "ae8dd74913908b8644d904186c66457ff486288fa66de442b37004af4457a9b9:1",
+      "source_row": 571,
+      "statement": "Quantum computers will eventually outperform classical computers at most tasks.",
+      "design_point": "['opinion', 'physical', 'literal language', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "76a8f67a3294633ba4b234ab89fad786efcb417b6f4e5478cb45cf81855512de:1",
+      "source_row": 575,
+      "statement": "Electric cars will outnumber gasoline cars on the road by 2050.",
+      "design_point": "['opinion', 'physical', 'literal language', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "1be510d56497bac17cc2b6805a6b815214104c5b4ca3a33837ed5f9f321b6f3a:1",
+      "source_row": 611,
+      "statement": "Light sets the universe's ultimate speed limit.",
+      "design_point": "['fact', 'physical', 'figure of speech', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "a43368c997ff1f147f8231be83329609d6b947f9ca0317db82ed68aea0c0ff13:1",
+      "source_row": 613,
+      "statement": "Earth's atmosphere is a blanket that traps heat and keeps us warm.",
+      "design_point": "['fact', 'physical', 'figure of speech', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "399f288cbabc82dd6ec48315ccca4d22fd4112fcb841cf39b74657338711de91:1",
+      "source_row": 626,
+      "statement": "Immigration raises wages for native-born workers overall.",
+      "design_point": "['opinion', 'social', 'literal language', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "1cad07ac1ef853047b9e89788bd6c5d2cce4db8519937f168d92ec8ef9a8e214:1",
+      "source_row": 633,
+      "statement": "Remote work makes employees more productive.",
+      "design_point": "['opinion', 'social', 'literal language', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "69867dc2ca6aa87b2b578b41b36474b899f2f86740527098911ba284f6501d0f:1",
+      "source_row": 639,
+      "statement": "Most voters are poorly informed about government policy.",
+      "design_point": "['opinion', 'social', 'literal language', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "59b74e38367c431532c11155650553637dfe861c774f22f2a348496b11e42d40:1",
+      "source_row": 640,
+      "statement": "Rent control reduces the supply of available housing.",
+      "design_point": "['opinion', 'social', 'literal language', 'positive', 'knowledge', 'abstract']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "ebab1fb1bfd359ac09bd4a210465d998258b1b1c15283521f2e317390460ff25:1",
+      "source_row": 642,
+      "statement": "He never calls back, so the ball's in his court; stop chasing.",
+      "design_point": "['opinion', 'social', 'figure of speech', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "682148e4c6a522a409632028a07179c73706f1648d83e81c53ad2b5001678da7:1",
+      "source_row": 649,
+      "statement": "Kids are sponges, so parents should watch their language at home.",
+      "design_point": "['opinion', 'social', 'figure of speech', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "d05fb26ab71f862915dd7896dd619c6d1b16d4790eb44c9bf197eaf0f1d972e2:1",
+      "source_row": 665,
+      "statement": "Your spine isn't a crane, so lift with your legs.",
+      "design_point": "['opinion', 'physical', 'figure of speech', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "1d68c936649d4eda6aa5bc5a6846545adac7728d3c3651c164c532c4f60ea883:1",
+      "source_row": 677,
+      "statement": "Wild mushrooms are dice rolls, so eat only what experts approve.",
+      "design_point": "['opinion', 'physical', 'figure of speech', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "5f2cfffe6412a7cb15f3ae31358bcaac6c81548d6613a45d1ffdb9ab973a18ab:1",
+      "source_row": 681,
+      "statement": "Don't play with fire, because flames will burn your hands every time.",
+      "design_point": "['fact', 'physical', 'figure of speech', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "ce681b3a544667485e23f9caaaba2a858ee46280944b64a142d0ab21fa7fc66b:1",
+      "source_row": 685,
+      "statement": "Wet floors are slippery, so walk on eggshells after mopping.",
+      "design_point": "['fact', 'physical', 'figure of speech', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "71984e07ecd9f4e6d8bdfb4b3da5588bdb21bb9ec4f29704d9579a313283abfe:1",
+      "source_row": 687,
+      "statement": "Milk sours in warm rooms, so refrigerate it before it turns into cheese.",
+      "design_point": "['fact', 'physical', 'figure of speech', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "3d073dde5cbbcd006348f883892edb46b882bfade7753756d272aec2edd61b11:1",
+      "source_row": 692,
+      "statement": "Cars need fuel, so fill up before you're running on fumes.",
+      "design_point": "['fact', 'physical', 'figure of speech', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "8acf3047f03231e4c0967d91b152d2d51667b419ab4a32bd46f4974686427502:1",
+      "source_row": 693,
+      "statement": "Heavy boxes strain backs, so lift with your legs or break your back.",
+      "design_point": "['fact', 'physical', 'figure of speech', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "a4bba58d36a4dcd970d703588475db9c405dac2eb4479b437939366a28698d55:1",
+      "source_row": 694,
+      "statement": "Toddlers mouth everything, so keep coins away from those little vacuum cleaners.",
+      "design_point": "['fact', 'physical', 'figure of speech', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "c3468e35d511c8d5ae9ea51373095ff3a49f83e11c5e076d1c2e0ff1ba9d37c6:1",
+      "source_row": 696,
+      "statement": "Fresh coffee scalds tongues, so let it cool before you drink lava.",
+      "design_point": "['fact', 'physical', 'figure of speech', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "ca9759434b211341091203280f80c80631364925d86c195f333678dda1272231:1",
+      "source_row": 698,
+      "statement": "Sleep loss slows reflexes, so don't drive when you're dead on your feet.",
+      "design_point": "['fact', 'physical', 'figure of speech', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "79788f85b2fcb5985f030de1b75f56fc3f70f258b8f210213e5d39c81e81b3b8:1",
+      "source_row": 700,
+      "statement": "Loud music damages hearing, so turn it down before your ears ring like church bells.",
+      "design_point": "['fact', 'physical', 'figure of speech', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "b46e1f61b8e680f1236dda01e847a44b96fe333082c0117316dffacd6d2ebb24:1",
+      "source_row": 727,
+      "statement": "It's my coworker's birthday, so I should sign her card.",
+      "design_point": "['opinion', 'social', 'literal language', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "9b559e32e1b97cd8c2fd363606fde7ba4cb68f02b8713b4d5ef228658895e4c8:1",
+      "source_row": 729,
+      "statement": "The neighbor's music is loud at midnight, so asking them to stop is reasonable.",
+      "design_point": "['opinion', 'social', 'literal language', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "40c7582b80337a0c8b8887f05045e29b786f2edf494c64074f3e15a018d79d07:1",
+      "source_row": 739,
+      "statement": "Guests are arriving soon, so I should tidy the living room.",
+      "design_point": "['opinion', 'social', 'literal language', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "f0aa30c4d2aa5027c26ef55cbd47767701f1ca76f8903be53ed099bf4e96940a:1",
+      "source_row": 754,
+      "statement": "The chicken is pink inside, so you should cook it longer.",
+      "design_point": "['opinion', 'physical', 'literal language', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "e79e610b835d280e39154d1bc866c21694470fe67988b994bdceeaeebfe798ca:1",
+      "source_row": 764,
+      "statement": "The milk smells sour, so you should not drink it.",
+      "design_point": "['fact', 'physical', 'literal language', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "fb611e491d2d927ef124d6ffe85405c9cbacabbc7bcbc608e0e022dd533d46cd:1",
+      "source_row": 793,
+      "statement": "That spot has a disability sign, so parking there requires a permit.",
+      "design_point": "['fact', 'social', 'literal language', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "85e9999730bf4ff0211164daccd416d95880642d5d75c6d5cad3d5f7b7ecff4b:1",
+      "source_row": 796,
+      "statement": "The package is addressed to your neighbor, so you should not open it.",
+      "design_point": "['fact', 'social', 'literal language', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "53202fd12bf3a3a5caaae4e05a040e715e2b2a1ceda22154ef9d92a80ad0b2f5:1",
+      "source_row": 798,
+      "statement": "The invitation asks for an RSVP by Friday, so you should reply by then.",
+      "design_point": "['fact', 'social', 'literal language', 'normative', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "d53e1b52188803864935b87936a0513e7bbba979e226e68bd25f6c9f4ccf8bf8:1",
+      "source_row": 814,
+      "statement": "She aced every interview round, so the job is practically in the bag.",
+      "design_point": "['fact', 'social', 'figure of speech', 'positive', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "c20b232ef7d6791f6514a91f948f72a347ec18e9a929ebf0dd29b6c4ffdf22ed:1",
+      "source_row": 827,
+      "statement": "The road is a sheet of glass, so cars will skid when braking.",
+      "design_point": "['fact', 'physical', 'figure of speech', 'positive', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "b8c2647cfefcb12395e2c5a22131f97a30824dcf97bb8be4ddad5f17386333ac:1",
+      "source_row": 839,
+      "statement": "Snow buried the car overnight, so it must be dug out before driving.",
+      "design_point": "['fact', 'physical', 'figure of speech', 'positive', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "556a7523a68b4c08da64a3130c8c77137ca406dac559ccbff35feb3b049ab0c6:1",
+      "source_row": 860,
+      "statement": "The movie sold out quickly, so most viewers will probably enjoy it.",
+      "design_point": "['opinion', 'social', 'literal language', 'positive', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "53bd3451ea2d904fc121a8e4b704a691e177cc3523def8bcdd8fc7ec35f201e6:1",
+      "source_row": 862,
+      "statement": "She burned her bridges at work, so no one will give her references.",
+      "design_point": "['opinion', 'social', 'figure of speech', 'positive', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "93f59570148301c545faac613d0a096ee9eb4884835967ada86845e7ad37efd5:1",
+      "source_row": 865,
+      "statement": "He's all bark and no bite, so his threats won't lead anywhere.",
+      "design_point": "['opinion', 'social', 'figure of speech', 'positive', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "260d636da41fbd29bd346d199c11abc4dd91ac9d1cf76eadee9e7f4df8c7cd6a:1",
+      "source_row": 870,
+      "statement": "The squeaky wheel gets the grease, so complain loudly for better service.",
+      "design_point": "['opinion', 'social', 'figure of speech', 'positive', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "a1cf63676beeed5b8ab830dac3aab1e8eff4ce287450457e25235e13a6b3b519:1",
+      "source_row": 875,
+      "statement": "Kids are sponges, so they'll repeat whatever swear words you use.",
+      "design_point": "['opinion', 'social', 'figure of speech', 'positive', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "aeca990e79f6da9b650ef57e92baf92e4522d5817216c6c1daf1f6f262d6df5c:1",
+      "source_row": 889,
+      "statement": "The bread is a brick, so it must have been baked days ago.",
+      "design_point": "['opinion', 'physical', 'figure of speech', 'positive', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "1e3e4794ca8ac741c9b0fca979d5b8ae862ddf644ee15bc064a18ad468e441d4:1",
+      "source_row": 894,
+      "statement": "The baby is a ticking bomb; she skipped her nap, so a meltdown looms.",
+      "design_point": "['opinion', 'physical', 'figure of speech', 'positive', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "0d511bef09ad383775801a5468f0289d8ecfa830a6fe734c438d4db2de437a9d:1",
+      "source_row": 906,
+      "statement": "The plant got no water for weeks, so it wilted.",
+      "design_point": "['fact', 'physical', 'literal language', 'positive', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "47ded2610951a4f9312881f5618105aa65cb95ef427cc6790aabc7f0df170a20:1",
+      "source_row": 908,
+      "statement": "The bread sat out for two weeks, so it grew mold.",
+      "design_point": "['fact', 'physical', 'literal language', 'positive', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "027b3076ef7083c7b656506ad7a6d70fe7159a5afd0e53804b957b4e4371ce81:1",
+      "source_row": 909,
+      "statement": "The light bulb burned out, so the lamp gives no light.",
+      "design_point": "['fact', 'physical', 'literal language', 'positive', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "64b70eed710c8077b8b54d180f358af695cceb8f2c9340dc3ed04ed17d683541:1",
+      "source_row": 917,
+      "statement": "The balloon touched the cactus spines, so it popped.",
+      "design_point": "['fact', 'physical', 'literal language', 'positive', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "abf453f94b1c8b5af7ca034db123374d4604646f2596f1d1dca8584a115f009f:1",
+      "source_row": 920,
+      "statement": "The candle burned for hours, so it is shorter than before.",
+      "design_point": "['fact', 'physical', 'literal language', 'positive', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "6d68e2efa95509ff000df20f47a8edc9e4f167ca28cd3d6925a31dbd524fc647:1",
+      "source_row": 941,
+      "statement": "Today is Sunday, so tomorrow is Monday.",
+      "design_point": "['fact', 'social', 'literal language', 'positive', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "96c61c1b0580a37f9443d8aa97cb4755e8d82f02706e6d376257072066969121:1",
+      "source_row": 942,
+      "statement": "It is December 24th, so tomorrow is Christmas Day.",
+      "design_point": "['fact', 'social', 'literal language', 'positive', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "ba65dd3ed30af2135b96ab80988810552f9e1df46faf439d8144bcdeee15f5d9:1",
+      "source_row": 943,
+      "statement": "The store closes at nine, so at ten its doors are locked.",
+      "design_point": "['fact', 'social', 'literal language', 'positive', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "f5dce2521872caafc2ee3491d0fcfb3eebaa263bc08c8de9b91a6a3e3ae1f303:1",
+      "source_row": 951,
+      "statement": "He is the youngest child, so his siblings are all older than him.",
+      "design_point": "['fact', 'social', 'literal language', 'positive', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "8e65ef6a475f906ca92755ee3560b25112cb6bd206618b54dc52b0ded9c0a142:1",
+      "source_row": 953,
+      "statement": "School is out for summer, so the kids are not attending classes.",
+      "design_point": "['fact', 'social', 'literal language', 'positive', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "eb23fdc5933a0a3980c292935fc7662638fb176a62f27885dae2860461b4f6bb:1",
+      "source_row": 954,
+      "statement": "The receipt lists two coffees, so we were charged for two drinks.",
+      "design_point": "['fact', 'social', 'literal language', 'positive', 'reasoning', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "4b720b28042c476b5860a019d5b079750c58872e0ca1852887ee06ae470ee88b:1",
+      "source_row": 965,
+      "statement": "Never air your dirty laundry in public.",
+      "design_point": "['opinion', 'social', 'figure of speech', 'normative', 'knowledge', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "361b401860a409da71348f97e94855b90a5ca32881c8b9d1646cf91f8f719b0b:1",
+      "source_row": 979,
+      "statement": "A borrowed book should come home like a lost child.",
+      "design_point": "['opinion', 'social', 'figure of speech', 'normative', 'knowledge', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "35161cabe997c9475684caaeee7a79c675719ed7b6d8c2848f3467e7f230cf4f:1",
+      "source_row": 991,
+      "statement": "Don't burn the candle at both ends.",
+      "design_point": "['fact', 'physical', 'figure of speech', 'normative', 'knowledge', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "956095f52144aee9dec6c190128e5e63432c2ed6f664f9cbdb2cc773ada2718f:1",
+      "source_row": 1002,
+      "statement": "Strike while the iron is hot.",
+      "design_point": "['opinion', 'physical', 'figure of speech', 'normative', 'knowledge', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "ff05c1f9874cf881ede970c1bf05777f56abeb091e404d685b2113735575dd2f:1",
+      "source_row": 1025,
+      "statement": "Students are expected to raise their hands before speaking in class.",
+      "design_point": "['fact', 'social', 'literal language', 'normative', 'knowledge', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "3ea9dddb424c298a746daef38110aa5b0e8f953844322d0fc55fae010c955d62:1",
+      "source_row": 1032,
+      "statement": "In Western cultures, wedding guests are expected not to wear white.",
+      "design_point": "['fact', 'social', 'literal language', 'normative', 'knowledge', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "f9e33b5d5342b3b7518f494bed52f5ca6242c06930afd92190634183b28de2ed:1",
+      "source_row": 1036,
+      "statement": "Moviegoers are expected to silence their phones during films in theaters.",
+      "design_point": "['fact', 'social', 'literal language', 'normative', 'knowledge', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "85897c2a143e53a835e712a93c4e456400568d782c25f10d7152b36de699e67f:1",
+      "source_row": 1054,
+      "statement": "Houseplants should be watered about once a week.",
+      "design_point": "['opinion', 'physical', 'literal language', 'normative', 'knowledge', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "c6a078bd4f2bc2b64147018418ceff9078ba759465a8383dc25cfd6814c5df64:1",
+      "source_row": 1057,
+      "statement": "Steak should be cooked medium rare for the best taste.",
+      "design_point": "['opinion', 'physical', 'literal language', 'normative', 'knowledge', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "b1f79a4aaa58c155d33b4ccb508fb049e8badd98df4d5875c5f3bd53a14dba28:1",
+      "source_row": 1072,
+      "statement": "It is polite to offer elderly people your seat on the bus.",
+      "design_point": "['opinion', 'social', 'literal language', 'normative', 'knowledge', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "24564d2b70eacc6d86e376dd0ce0951e98c1ec09bc6a981452df9565a89673e5:1",
+      "source_row": 1080,
+      "statement": "You should dress neatly for a job interview.",
+      "design_point": "['opinion', 'social', 'literal language', 'normative', 'knowledge', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "6621d11a8794cdf48532b7fc9065fccea091c7d0eb2f742dc93d2600828a2560:1",
+      "source_row": 1083,
+      "statement": "You should wash your hands before eating to remove germs.",
+      "design_point": "['fact', 'physical', 'literal language', 'normative', 'knowledge', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "d4304f56c6a441f86fb71c06c2039bdd344b6c70aeddac2b33b8dc5caba07407:1",
+      "source_row": 1096,
+      "statement": "You should not pour water on a grease fire.",
+      "design_point": "['fact', 'physical', 'literal language', 'normative', 'knowledge', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "1dd5f5361b35ef87e16d0be880d4307a305b07c5407e4c21bb23fd82140a4aa4:1",
+      "source_row": 1108,
+      "statement": "Don't put all your eggs in one basket with your savings.",
+      "design_point": "['fact', 'social', 'figure of speech', 'normative', 'knowledge', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "641edc4c57de70c6787e825d205023f373f2bbfe1f2b1d6a358e92aab20564fc:1",
+      "source_row": 1113,
+      "statement": "Give credit where credit is due in group projects.",
+      "design_point": "['fact', 'social', 'figure of speech', 'normative', 'knowledge', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "e8978a550ec24b66c9aa1726ad7f873a0d90688242d81b3d4457f0d0f6976d1c:1",
+      "source_row": 1136,
+      "statement": "Mosquitoes always find the one patch of bare skin.",
+      "design_point": "['opinion', 'physical', 'figure of speech', 'positive', 'knowledge', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "c63a82faecc6f13e65188ea66c19027a0e58385dbb5428567a35e17f88f6e471:1",
+      "source_row": 1154,
+      "statement": "Rush hour turns the highway into a giant parking lot.",
+      "design_point": "['opinion', 'social', 'figure of speech', 'positive', 'knowledge', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "9f888333232b2acc978a37b7996d8ded52f800b66f4a58d356a68c46c21592ae:1",
+      "source_row": 1184,
+      "statement": "Oil and water don't mix.",
+      "design_point": "['fact', 'physical', 'figure of speech', 'positive', 'knowledge', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "90b1cdf09c6c73249798812280be03a6b65bc7ae207aaf858d325d781ab22f24:1",
+      "source_row": 1213,
+      "statement": "Neighbors who say hello make a street feel safer.",
+      "design_point": "['opinion', 'social', 'literal language', 'positive', 'knowledge', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "4899ea9b17211dbb3ef21c7ae3eec9faa7ee9c97c6ad8d630dbb1d580c1205e2:1",
+      "source_row": 1217,
+      "statement": "Most people dislike phone calls from unknown numbers.",
+      "design_point": "['opinion', 'social', 'literal language', 'positive', 'knowledge', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "80755041158c09d3fbd95fb3c7b4efa533b170841348b582301dbefb458516d0:1",
+      "source_row": 1219,
+      "statement": "First dates are awkward for most people.",
+      "design_point": "['opinion', 'social', 'literal language', 'positive', 'knowledge', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "64226a5b7d0d98939cd091428e2026fea9ae50210151f23ca8a59482da3bee66:1",
+      "source_row": 1233,
+      "statement": "Oil floats on top of water.",
+      "design_point": "['fact', 'physical', 'literal language', 'positive', 'knowledge', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "ea3957c55063c9e028cf0e6e7ec9cfc7963dc9b3f714116b24c3fe9641582748:1",
+      "source_row": 1241,
+      "statement": "In the United States, cars drive on the right side of the road.",
+      "design_point": "['fact', 'social', 'literal language', 'positive', 'knowledge', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "a85cd1aa7a501b58faa8d1a598f9dfff4974fda8b86bdbeaf19859e4d1173a43:1",
+      "source_row": 1256,
+      "statement": "The US Postal Service does not deliver regular mail on Sundays.",
+      "design_point": "['fact', 'social', 'literal language', 'positive', 'knowledge', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "1cb6639f1ef34faad043057f6b40b4a0a565945008be9e0690ec995f1f1fcccc:1",
+      "source_row": 1262,
+      "statement": "Tomorrow morning will be colder than today.",
+      "design_point": "['opinion', 'physical', 'literal language', 'positive', 'knowledge', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "8ddd733a2161e13cfad8ffca36c0488a7f1e0b1cffb9ba77805d29891a1d7577:1",
+      "source_row": 1266,
+      "statement": "Humid heat feels worse than dry heat.",
+      "design_point": "['opinion', 'physical', 'literal language', 'positive', 'knowledge', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "9accac804381bfec163489e1249c840a0ff9fd9f6a5ff24e09d591a3fc977261:1",
+      "source_row": 1269,
+      "statement": "Wool sweaters feel too itchy against bare skin.",
+      "design_point": "['opinion', 'physical', 'literal language', 'positive', 'knowledge', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "5fedb3dd646a0cc23637780ad0c54b9e10eb6b0b44f894918addf5aac2ca9bff:1",
+      "source_row": 1273,
+      "statement": "The ocean is too cold for swimming in May.",
+      "design_point": "['opinion', 'physical', 'literal language', 'positive', 'knowledge', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "25ac37f2509b16644d9b458b6c18e4589025f8d2d1b6259dfaa5d2621c429331:1",
+      "source_row": 1278,
+      "statement": "Roses smell sweeter than lilies.",
+      "design_point": "['opinion', 'physical', 'literal language', 'positive', 'knowledge', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    },
+    {
+      "source_id": "7598dadbc85afe1ddd490b7c0d3cdcde9899fd44b23d967bc35ec6c362b804aa:1",
+      "source_row": 1279,
+      "statement": "My houseplant will bloom again next spring.",
+      "design_point": "['opinion', 'physical', 'literal language', 'positive', 'knowledge', 'everyday']",
+      "gen_model": "anthropic/claude-opus-5.5"
+    }
+  ],
+  "schema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "features": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "fact": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "classification": {
+                "type": "string",
+                "enum": [
+                  "fact",
+                  "opinion"
+                ]
+              },
+              "confidence": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4
+              },
+              "explanation": {
+                "type": "string",
+                "description": "Explain in 1 to 2 sentences why you chose this label and your confidence in that classification."
+              }
+            },
+            "required": [
+              "classification",
+              "confidence",
+              "explanation"
+            ]
+          },
+          "physical": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "classification": {
+                "type": "string",
+                "enum": [
+                  "physical",
+                  "social"
+                ]
+              },
+              "confidence": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4
+              },
+              "explanation": {
+                "type": "string",
+                "description": "Explain in 1 to 2 sentences why you chose this label and your confidence in that classification."
+              }
+            },
+            "required": [
+              "classification",
+              "confidence",
+              "explanation"
+            ]
+          },
+          "literal language": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "classification": {
+                "type": "string",
+                "enum": [
+                  "literal language",
+                  "figure of speech"
+                ]
+              },
+              "confidence": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4
+              },
+              "explanation": {
+                "type": "string",
+                "description": "Explain in 1 to 2 sentences why you chose this label and your confidence in that classification."
+              }
+            },
+            "required": [
+              "classification",
+              "confidence",
+              "explanation"
+            ]
+          },
+          "positive": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "classification": {
+                "type": "string",
+                "enum": [
+                  "positive",
+                  "normative"
+                ]
+              },
+              "confidence": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4
+              },
+              "explanation": {
+                "type": "string",
+                "description": "Explain in 1 to 2 sentences why you chose this label and your confidence in that classification."
+              }
+            },
+            "required": [
+              "classification",
+              "confidence",
+              "explanation"
+            ]
+          },
+          "knowledge": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "classification": {
+                "type": "string",
+                "enum": [
+                  "knowledge",
+                  "reasoning"
+                ]
+              },
+              "confidence": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4
+              },
+              "explanation": {
+                "type": "string",
+                "description": "Explain in 1 to 2 sentences why you chose this label and your confidence in that classification."
+              }
+            },
+            "required": [
+              "classification",
+              "confidence",
+              "explanation"
+            ]
+          },
+          "everyday": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "classification": {
+                "type": "string",
+                "enum": [
+                  "everyday",
+                  "abstract"
+                ]
+              },
+              "confidence": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4
+              },
+              "explanation": {
+                "type": "string",
+                "description": "Explain in 1 to 2 sentences why you chose this label and your confidence in that classification."
+              }
+            },
+            "required": [
+              "classification",
+              "confidence",
+              "explanation"
+            ]
+          }
+        },
+        "required": [
+          "fact",
+          "physical",
+          "literal language",
+          "positive",
+          "knowledge",
+          "everyday"
+        ]
+      },
+      "commonsense": {
+        "type": "integer",
+        "enum": [
+          0,
+          1
+        ],
+        "description": "1 if the statement is an example of human common sense; 0 if it is not."
+      },
+      "commonsense_explanation": {
+        "type": "string",
+        "description": "A short explanation of the common-sense assessment."
+      }
+    },
+    "required": [
+      "features",
+      "commonsense",
+      "commonsense_explanation"
+    ]
+  },
+  "jsonl_file": "batch-bda16c050bcf4cd496d4e57969f5c684.jsonl",
+  "request_ids": {
+    "5e7b7cfdfd93cc495ca4e7de4a2d061c8db5c1fb500a3076212fd42d3c92ed19": "6ae58a22ac4189ad6cc38fcd5b67f7095ea82c7ff1d8a9648fe07efb8af45076:1",
+    "33060358f02c6cf83590eddc09e7ccbf64a26780e096f7d5ebcafa814f2d6c00": "83977778080b185a88470b21a4b2b7d32636cb24048622a37bf0a7c2e387b2f6:1",
+    "00f036d5660c3470d57fc7e681058e211f2053577554ff7de6c4dad6e0602f46": "4408ee65446f0c8f267b5c6a4f6cf251e0f8244492231a65343177a9c2af18f6:1",
+    "9651ae2812be020387db0320cfda6bdb6f200644c831602272a7bf83bfc4d536": "8d5eff374653791e5f5e218bed2a4f4a8a2170d2462f472914d3d73397a01288:1",
+    "f6f6036d9f3248fd260c54b58a4bd4fba0e212820b3fc93b6cbd9e2a682bd773": "87b7950f10d4198edcb728c83cbb34deea9b2e0f35926f9074870e767f7e33f4:1",
+    "89c7fd97b029f35ec786ac275fdec611d429115893f05f3bb7fe888bfad8aeac": "6c5b2bbe779320b7762838c196d46d5138744639e393ce08b6fac29387645d3f:1",
+    "054ed704b0748ba1b2afdbde5855d2c58287a30b399e8e46bde3b10577b227bb": "5bc888dff574ce7786a5c3dfd3f939b7a8fa28f3cc62f5d46749017e4519ea63:1",
+    "634ed46d88850cc60c04cc627f2c1eb10fe7e26a6b57e55dc5b50c073a9f9bd7": "5acb995418a5a967c2d5a2208a04cfc94909b0165aaa4a4e011bcb0bd19e6052:1",
+    "e602cb668aaf40f3459d9bee114a90530df51f1082283e05c97c009235a24270": "902813d9d5a00b97444eafb8ba17207caef74fb8c7fa7263a61ada05d6c4fbb4:1",
+    "f1bfa7146e6a5b760cbeb17620cd70451add999e4718e1d68600d5b123f210b7": "b22cd9bcb85916109d4c1718b1ae17b45247e857bc679ca375b74e5d34d74272:1",
+    "4c94f404ad36159aa864f780243288df536da64cc99663724061e273f26718ab": "d6dc13b3941a8b36e77925174f0a275dc2c8ab6371e80950c0440bb416076d1d:1",
+    "2bfb3e10c6e90a763e049520b7788e793c96fa388358e17942a0c43b1676f6d5": "7376805c3a5edcd86b9d78b996e2dbc97ce50881cc29eaecdf7f9d7a672085db:1",
+    "bfe8e7dbddd2f9de5d814328be0f8bd8d5b5f3076f24326920d42646374141ff": "6c2a40b2f9653158e47465db6493e62274a28b2a91e397bb563edd971ad10251:1",
+    "a6b81e1dc6c6968cd9284eacec7d49d3f3f26e935dbb82812beb0b747d976b4c": "ecfa7d32bb90c2f6ab9e652b6b68fe4beeea287983d2708a8ea63dcf199ab443:1",
+    "36bebe4b81ece0ff299f4e3eb4d4cc3cfe9ea3edd18426b03633467ce73a05be": "d43cccfc79271ef322dd09d3d56af1c0b629233f5de0c85e7f420043698d52b4:1",
+    "c5cf77e4d0f9b7c51a02f6aadbfb4e8f2a0562bafc26f9e6c619265f62db3b18": "802971317b1da1e50b9c3c91eebf4db623976b6dccb62f18476d6777cd8b2ddc:1",
+    "6905e0e6a449427c79f5ec154521ead09ecc157adec0f15e366913061f82b808": "d754667223b953d2741f5332c29fca8667dfbfe8eb961efc41e193e7df9426e3:1",
+    "db17e891eb6f4be527712c8c0c3aae162ef2eed1d1821392a8c227f2b5620172": "f6359adc543c9aee6eb719a0f38d7d978686848ea711c13d2842137ac2ed29a9:1",
+    "6fa52a5f4e58df08cd5762be2c9b5d7a8512620182d7e5a4fc83bf954977ab05": "80777a2f102a49ff881cf5b08c41b06219b547fe78d7ac2a1e40ed3225341d6b:1",
+    "32af3be220de54b3bb179be1703cfd7f7455d4fdb33f00aba4509d5917fe466c": "3080c46e0db413642114f00622eb76d49f4b2a3b85b11e421cb7c1e616e12913:1",
+    "63ef748525977085ecbd06dd546bda2f0577a211fc560264199057470b1d9dc7": "e77bedcd61714c35c03e5622acedc87debaeb3c7bc718b6ff8e9c018513a29fe:1",
+    "aa0cb648712a31d36d88102e64622e89a84e97fd1821b3e35e4eb2cbdb0d3095": "ba4927ba722edb6a575030caa7534215c5ae8839cd2e38c3bc2e4c04cdaf1f07:1",
+    "8c46f6515df42bf77dfb6f6caf7dfe08dd1674bc7be67257ae0b412f4432c98d": "deef80b57d714ddc5863425f46ac94104e7c82b36dcc15745e34a4e3d8387614:1",
+    "19bf922f29649170b23330de8af707a8f2a5fbc70c6f8d62eef84711357a77c6": "183019b023494356be9d7899c0a24a5244a65ae6353313952579cb6886e2c2fb:1",
+    "b4d6170d6a422367a84aa0fcf790aa129d58b65c7450668301cdcbe2dcd2a98a": "8bd2d83198dfb42d5c183a679ccc82540bc1ac770b54f71c37c2a984985cbf62:1",
+    "46d739f50693b302d2e997e646c402b4727b9f7833135e27302e73e3e0ec5876": "4b37a1ff20ed224f38a06952eaa8fd4b2bafc5cf0e96f2088e7434766d1d0b46:1",
+    "cd8720e3560b212775f275299379b4965170784561e4bd3fb0c58f06000540d7": "d58ca31d17860bd864d5728dfcbde5b6f5573fdf5f65a60ac451a3fbb3be3d98:1",
+    "f2689d96a5b7cb1251c0b53bda6ea11e5cd0f7f5b33288ca39f4396535fb7b9d": "6571000132d95d2a19a15da951857a50312cfdd75eeee8f1e237b2cdf0f62c89:1",
+    "78898905a411cf95f2b2b5f1502a61f6ecdac64a1518838c867f5ff9db698421": "159f7624d6fea1637e2d16cebc684ea611772b085a6467238658d575a08f84f0:1",
+    "ae5d7f508230a2e161f6697738feabecfc4dac31e3e6aaae7b2dd5c9b180d3cf": "d5c0844026fc2dbb21b6f116e12a850d6841f123eb36e785d7287dd66e579235:1",
+    "e2518660dc7b2add0578037151432b970c27fca8a896054f566481b858a31bd1": "126ab8d1b3749c26ae2e75eccb13819391f12517cd3d1b20023c646b897826e5:1",
+    "07f8132154d3159a582e73ddab11a04ca3cf71395e758096558c9dd25fc51a03": "9a93b167a2abe38bf7107cfb5d2ca79a4ced690ed6a3be817d5ee70c5a884fb1:1",
+    "71de3b4ccfe000614ec28e56497aa8138b13e0c6a60369ad5a5c0d8f35c9274e": "28030c8bba141141b50dd966b2d198bf3fbb83aa634518245aee17deb7796fb7:1",
+    "d09e9e5ff9e1802ddfcb9a80f4f25f5183ca7736f58a4a19ce0b0e7193074629": "d5d7436f05d0f97a3877d2a74b733e7b9197c8b11bcc65f73ddd5a42fce928c9:1",
+    "37d27baee7d8449b9c2542c67d2e26393cac94d6b3d71c7174dd5bb3276855ad": "4957d267775806b75e744f1f4e3cb00d9c4ee2a431d73fa1250c5bf4295e2342:1",
+    "e3bb63cf393b8f44bcdecbb77713f39568f407836e3f0a02e6dfc8aa26bf43e3": "8562ae48e6f414b78fb2c89722d3ab0cf9f3057f0eae93601cadc59597879f60:1",
+    "02f2f9c2c2ae7879a525353a63672296b70a8950aeecfd9ca3343c7963f8b625": "88d65dbed7d9875c92a5979570f296e82b839c953a9fcc5d000f9affc7de860f:1",
+    "42968dcbcb19ea58b60648c61b1a39254b6d3b4e9e4250d7b3d6a4bc2765e1ef": "c40d697d829a80e0b13da0cb9eb6345c332209f91940a60a698ed9e76473191f:1",
+    "6c483b66e95abb48b560703661b5aea7f62a82b400c7249599e83076f12554c5": "67c7263705d08d696eca7a7a21b1c0ab25e952aa4950add78a2e7e555bdf05a0:1",
+    "581cbf6ca6c9f78c12d0464584c3fe1b10e89d39a720f171efb2df4720c7b1df": "a04702d9742ce10cde2817329ec5cca2bab1ebadc0f5abb462c9abe421665680:1",
+    "4631dfda101681d135021944b7c07b47c83eccf6001f9c307f4cf6474871ef18": "1143ef76ae056adeffcdd6fc95d504106943d04ac9b11eabcb7500630a690380:1",
+    "5b873f8c0ffede9e9ba72bac6e4246f8169ceec7af24cafcd46b3c45436de808": "2125315403447ecb9c2a5b0ce36894347496d461d34b38d2416efaeb21b431b3:1",
+    "9788afa0f6bfa397934f7e888315f00853a6e9a7327c90bf4c3068a55c71cb83": "4256aef10f0a7a54fb00777e01a59ceb385b9ca935d7529f0fcaad0ebd7027dc:1",
+    "b923a9e4c1e51b475de7dce2e2bf02e8f585882d6f854463f046d02b1360c07a": "cd0c50d560d555b4ab1ac138ae55734a0807e6d7c3542bcaf66e436f2bb48f1e:1",
+    "2f57fc5623f11c2ad0d4a2c38809b7f8d0e8c49e523acf33b2eead036e5275f6": "a478a9927436b0b34c14976152f472a4213f0ab61408d69be88c5d808d288f7d:1",
+    "b109376d3c18b0538494dc64f24e968677c017c18750c4b02dd097dbc9d80877": "21b22ddd63aa4b82a73344599f89b3e8f07ad4538fcc96d844c1e2fd4c929c7f:1",
+    "1f14ceba8b8ab132563e50c8d05f3cb82d20b3e8875561d735478778e7528019": "36941fae5614cac4533a7ddba117dd7453a502ef33a0b8869ebe7e562ecc13ae:1",
+    "a50ffe386374c85af0008b56e7e3bf7fa7c085e0da5e13d6e91a20ed9bcd1e13": "be680358bbe4746501dd8a6f4e5a8e8949eb425f95b16a5a19067d68ec7ab54c:1",
+    "8a91f4d34fcf41f6f5f3eed6474a61b4efa41cb34a6125cec6b79f68cbf4cc5a": "a5d0b282745afd5f329c9bbc0af41c9692dc719db3344e6bedfe60cf55e9db4b:1",
+    "abc6779d633a1518e2e5e0188d6f886cd540f6eb362e01e19c14b50ac3219c0a": "4bd0ac5e627e890030abbacda93b1c1d7185b9f2105d2a3e8eb6c074ae59e947:1",
+    "e57978feaab7c18cfe18001a9c62ec398f045676a1ea541c79b8baf32068340e": "6841aadf5ef1237a8052c2d462b3c1d4f37cabba0365f99757c1b12646988e99:1",
+    "7ff873a3c3cb51aab9fbff88d6d6a7bc7291b73910ac9686491402328443c53b": "36679f0f258ea65ad78592c9e16db33118aff03e4c4b3ac95bc7739b9b9a272b:1",
+    "0b3fd8dc9af4f2fb6397af67ae280f11ce7a5dbcef2737e6bd178b55e1163961": "3be818fdd0d91cbeb7418ff7c77cea50e799668f2f347f717e00193daee46043:1",
+    "ed796752a51519c9e1000de629b2a21ad2054f279eea040c1c2f30c9018478ae": "2dd1aee63dcf21457fcc782fe9690f8c2681b0b18a879ff1150008385523f8ab:1",
+    "6851ed51650e9eefcd7ea77f79404284da7a5d1bb69bc6e754f918049258634a": "0428e0beb266365dab69d6ebf3b0224b4a492af6a272de7b1f72ba74230acac3:1",
+    "439cc87e14d45e8d0ad2a1f3476c03b6f591557dd68cd3e9cb0236d8b6948eb2": "de8314dddcccc4e50d15b80847f4f6b0155d35d4d31ff98b83d894b7a3f60c32:1",
+    "073563fad8f188d20b009e6e7c03019fa4dc2f52b8cc66b2055f14f03b0307db": "79849ed8721f4cfc8980a8cc4bf62c41d427ed6bb26e9a2c91e9422dea4820e3:1",
+    "e0dca886cddd80e890e559d1d49f861ec8ef4fcd92efbdf10d4217e0b198004a": "7fece3b0b46f9829b6b5f4f69641ae0ac04dbf8ed1a55da7dfaf9bfc668162ad:1",
+    "97eb659be988261e96a75dddee6c4c3bf97aa9255c382c01651df7743de06a64": "4408914f9ed0c9a3aa6c72b2d9cc5e7cc6790179dc4718f27bb3d011fcdfc8d3:1",
+    "0f87ce390f99423166a7ae82725462a3b745065c79b94c546700c10017366a7e": "e673d356261fc49b0e4b3e14d14fd94f144f3d209264c16e3d7b6605c51ce2a9:1",
+    "0934ea3fd221e6f982dd889a664ca0968fc8798598ac99184366432372be4047": "456789ee157c1b20bde487986c5e0c7ec92386ee7f4eb8a3f8d657619191e1c1:1",
+    "32ada712156ab33fd5540097e7a1443fa6e67325985f4f29422fb68c88804435": "afa97f486598de387c20fd84a80c46e32fbdd74b36ec1aa0e242f8e6e3237950:1",
+    "cce69235b0e905d029694e1e519c8a83ad7576dcd7609699c38a6ba8063cb86f": "121bf7835218f0777e834e33f7a635ad2fae213acae34f33241a047c3927cb6b:1",
+    "19ee54a93f5f7892377d1aad0184b32c4de6ceeb1efbd49842f926b7990ed6ba": "94684e03dd342291b0ac22ed9915b1f2bca79ee47940daed4fd4d38eddbdc67f:1",
+    "30cceee6fa77505a14e242f32373ccf7c269a803159bc343962d0610f27866ad": "9eb3b03f1e20c0e7b31519ccd6bffc5aa2c0618e97dda93e199c3998e0eea4c8:1",
+    "dcead01a7fb8961c86ee004c1e3dd803557dd002a600577d6c71c4745cb3abde": "94222dd481a39af05811a1ca60e52decf5b98bd5e7c4cd38a528ffd00e901018:1",
+    "3fc4ae86dcd1c6f75856b30432bc643352f0dde50ed933adf0e2ec1fd8296a50": "cdf8d96e04ed8ce7ba93d91a5de6712c0fd7ba69c24513c2ffe1f82ea70af131:1",
+    "bdc2ac998eb4fbb1b8e10f98368328dbb14c63e1023e8f3da2b93dfd46d843ee": "aaa17e28d8cb4c194ecd46a664391f5b5fdb4147f92c3bbf6b934094629d941d:1",
+    "ebfd58bdf6140ee9858af2b372909932e3cd400f9f8fd7c3b5aac8cd4954340d": "2bc9f0519160fd8b1294e515572bdc4b68425c5f7b7a629efd82a3a92faeba54:1",
+    "b0f551957983d3629a4b325b082136d5e27dd573b209c57c6cdb702c4514703c": "ef7de94606339592d3e522cb215cf0630cdba2f4c0735d06e1f5e6f5d8fac3cd:1",
+    "140fc66968ef260b5422313e314a374350bd6bfbc34834c2480441ad61659838": "b638133d30687c4b293d05eb57b9f00eaa908086139bcd4ee03425572c8f06b8:1",
+    "72e11e2e57d1e6e5bc95f5130443685baa8b9e14fe7c19af35e9bb4be0d30bde": "48f7c43c333657da5bd4413ee1abfa971d640a6cd6d3a3d5f4ae712838c8afe2:1",
+    "917e9d96e02eb625e7beff1e9e0a1e3a6f68d8f1f82c20dea5e4e34e7d20e88e": "ae8dd74913908b8644d904186c66457ff486288fa66de442b37004af4457a9b9:1",
+    "d07b23091afb23d05422bfc5b54306222de778b0fd50c69f2f90e68333ed38fc": "76a8f67a3294633ba4b234ab89fad786efcb417b6f4e5478cb45cf81855512de:1",
+    "69d6d17c16d9b4c0a8c372f31f1795d36a338bc86e3764fece9c0901a8636925": "1be510d56497bac17cc2b6805a6b815214104c5b4ca3a33837ed5f9f321b6f3a:1",
+    "f5531698cd90c961eaf15ffac44a587eb5750451be9cfdd8003b13afa21cb248": "a43368c997ff1f147f8231be83329609d6b947f9ca0317db82ed68aea0c0ff13:1",
+    "fc275b57163d8f58c0b98c2651f5dceed2cc8e1d88bb135ccba74942083dbabf": "399f288cbabc82dd6ec48315ccca4d22fd4112fcb841cf39b74657338711de91:1",
+    "487f8b7d024c7e1fe0a8b979e58a27b992b21ca2f357b7280d61a344073914ad": "1cad07ac1ef853047b9e89788bd6c5d2cce4db8519937f168d92ec8ef9a8e214:1",
+    "420c31e5b8ddeadd44c503b073f2ed2253067cb3c858015be04f4a272ff8cbf7": "69867dc2ca6aa87b2b578b41b36474b899f2f86740527098911ba284f6501d0f:1",
+    "b1aff303d407496e54b35b0358ac21749fbdb60325a61997f2fbb9dd1f0f9f45": "59b74e38367c431532c11155650553637dfe861c774f22f2a348496b11e42d40:1",
+    "36306eb57d27ef08d90c6fdcdbe4a9d79a521902e5e6030da33d3faebcd33ac9": "ebab1fb1bfd359ac09bd4a210465d998258b1b1c15283521f2e317390460ff25:1",
+    "516434d68d486b303ba6fbf9a2d617eee53493367efe5831f6dab2918382b7a8": "682148e4c6a522a409632028a07179c73706f1648d83e81c53ad2b5001678da7:1",
+    "a5c2a128175b0866e607b74bfe77da778b682b6d9bd3c3b4cadba7c6ed563dd3": "d05fb26ab71f862915dd7896dd619c6d1b16d4790eb44c9bf197eaf0f1d972e2:1",
+    "46f5094d58cc970597b4ea84d4dd264be7262fd143409943d7b7966b049a5d5a": "1d68c936649d4eda6aa5bc5a6846545adac7728d3c3651c164c532c4f60ea883:1",
+    "02c36816c0026b268800b36a23ddd7164f85955c56d2142cd3491c8b69967d89": "5f2cfffe6412a7cb15f3ae31358bcaac6c81548d6613a45d1ffdb9ab973a18ab:1",
+    "2f300f39ad97b9f547c841f0148f856b3400727b493a06ee7f7c64137cb6db17": "ce681b3a544667485e23f9caaaba2a858ee46280944b64a142d0ab21fa7fc66b:1",
+    "df1b63c8d1d00cf74c64ef4180bf577e70c3472006143318ccfd8769c33310b9": "71984e07ecd9f4e6d8bdfb4b3da5588bdb21bb9ec4f29704d9579a313283abfe:1",
+    "4bc8ff406f5e12d6bee307fcb8655a3736f8003bc967e2350821c24d2091e95f": "3d073dde5cbbcd006348f883892edb46b882bfade7753756d272aec2edd61b11:1",
+    "4c7fb787bb4be566939ac883ff5ce03b63174e8b6cb0c7f075aefc55cb2fa9a6": "8acf3047f03231e4c0967d91b152d2d51667b419ab4a32bd46f4974686427502:1",
+    "0f224a905b2a558df974d668332186fc10e5992f7fd20dc7bf6a5025fc220970": "a4bba58d36a4dcd970d703588475db9c405dac2eb4479b437939366a28698d55:1",
+    "dc0166529a0270a0175a50025022a794e3fc52ee5bded48b2fffb5afa78f0b29": "c3468e35d511c8d5ae9ea51373095ff3a49f83e11c5e076d1c2e0ff1ba9d37c6:1",
+    "b0ef801874819a96c4a4ee10b15e801ab87f117542c3452ce83942fada972ee8": "ca9759434b211341091203280f80c80631364925d86c195f333678dda1272231:1",
+    "8d0a4b25581ead71b3ba31053cd6c6ba6755685bcac766771f1f6c7ca7a0489a": "79788f85b2fcb5985f030de1b75f56fc3f70f258b8f210213e5d39c81e81b3b8:1",
+    "bb2d7cea315b854fd28103f3f940648e4534c8b229577af91574a2cb35689a7e": "b46e1f61b8e680f1236dda01e847a44b96fe333082c0117316dffacd6d2ebb24:1",
+    "62232cdf5a6b06b793079c026499364507201da1f9d4a172d2eb8da3fca21d1a": "9b559e32e1b97cd8c2fd363606fde7ba4cb68f02b8713b4d5ef228658895e4c8:1",
+    "eb870f491dc798ef21fc1b2338c9e4452d32664364dd799a87c71d31f43e4b75": "40c7582b80337a0c8b8887f05045e29b786f2edf494c64074f3e15a018d79d07:1",
+    "562c6e957b958337f1b88abe0c40a55657b4b45498d8a028b7a088d0ea051d27": "f0aa30c4d2aa5027c26ef55cbd47767701f1ca76f8903be53ed099bf4e96940a:1",
+    "e2799f097d9714c7d8ba9bf1da35b6aeacf78e060ad3bfe1b691f202cd1ef151": "e79e610b835d280e39154d1bc866c21694470fe67988b994bdceeaeebfe798ca:1",
+    "a593412cdab3732fc262ebb6d74cb941d3dc21423395a9d4b5ce26e683c2879b": "fb611e491d2d927ef124d6ffe85405c9cbacabbc7bcbc608e0e022dd533d46cd:1",
+    "7dd1f821aa7bd1a136633312781902053a158030ce32779aee67747aac13bd8b": "85e9999730bf4ff0211164daccd416d95880642d5d75c6d5cad3d5f7b7ecff4b:1",
+    "a00850a01ccfd0366815a3855a32229d6b737811a2f076d54bafd22fca83cbe4": "53202fd12bf3a3a5caaae4e05a040e715e2b2a1ceda22154ef9d92a80ad0b2f5:1",
+    "cfcaeaeaa89c5adcee2f1dfeeb01e1274d930ce2d0455392e163ff8cee535c38": "d53e1b52188803864935b87936a0513e7bbba979e226e68bd25f6c9f4ccf8bf8:1",
+    "3c0f81c348e593db48ba674e6222aa8d1a684ae4d620f754816f48a1ef8ac5d0": "c20b232ef7d6791f6514a91f948f72a347ec18e9a929ebf0dd29b6c4ffdf22ed:1",
+    "5dade9ce2cf8f624aa5133e75655dc2d09b298f413414bab00829a3e35107866": "b8c2647cfefcb12395e2c5a22131f97a30824dcf97bb8be4ddad5f17386333ac:1",
+    "997a2bdd95e5f5a96c33c712beed299f94e493c09b1d9a88155cb4e38e0af44a": "556a7523a68b4c08da64a3130c8c77137ca406dac559ccbff35feb3b049ab0c6:1",
+    "25a2dbd236e1749463f5ee32e9a6d5dcfde3990f444afb192c1b48420696ab88": "53bd3451ea2d904fc121a8e4b704a691e177cc3523def8bcdd8fc7ec35f201e6:1",
+    "ed76f1911a00e8cee8e0a620d59f27e2b18c777da2af063e0749843cfbca047f": "93f59570148301c545faac613d0a096ee9eb4884835967ada86845e7ad37efd5:1",
+    "a9a7b1a281c84368bba7b14162e865a00c8e8218662fa2b05f618ac8e334a484": "260d636da41fbd29bd346d199c11abc4dd91ac9d1cf76eadee9e7f4df8c7cd6a:1",
+    "fa063202c85dd521d722e57350e7a06417b32da631aa82985f6f16701fdd4ae8": "a1cf63676beeed5b8ab830dac3aab1e8eff4ce287450457e25235e13a6b3b519:1",
+    "3cab03510afd7569418668936f251a9b534cd6adb9dfd319d4f4cffd02d297fe": "aeca990e79f6da9b650ef57e92baf92e4522d5817216c6c1daf1f6f262d6df5c:1",
+    "0a07288b93b783cd578a99a56a8c033307ee070cd7a895ec0a08e16cd5c545be": "1e3e4794ca8ac741c9b0fca979d5b8ae862ddf644ee15bc064a18ad468e441d4:1",
+    "0d762f9bf32839587e5f40b8fc3b35c101199cd4918d36e32fabb0b9c57591a4": "0d511bef09ad383775801a5468f0289d8ecfa830a6fe734c438d4db2de437a9d:1",
+    "49bc1972ca8a3305c2a65b5d1f56821041cd6143c5895c013e3f9e5cc46d82f5": "47ded2610951a4f9312881f5618105aa65cb95ef427cc6790aabc7f0df170a20:1",
+    "f407d84b27deefa80e517a5148d13be829ca2af89fd8b1b4a91d47b5894aff44": "027b3076ef7083c7b656506ad7a6d70fe7159a5afd0e53804b957b4e4371ce81:1",
+    "009b73eefcf574666b003a835bd12c13b2ce07468618ef294b304d49c6d3e6a0": "64b70eed710c8077b8b54d180f358af695cceb8f2c9340dc3ed04ed17d683541:1",
+    "5dc31bf2ea03fbe8c4f6a8ff246edd9849ded119832d0d90e871ae68fc54b8ae": "abf453f94b1c8b5af7ca034db123374d4604646f2596f1d1dca8584a115f009f:1",
+    "7d64d5923a41d576ab44552850368b688459bcb6befdf6fb648a5d1a1cdfbbc9": "6d68e2efa95509ff000df20f47a8edc9e4f167ca28cd3d6925a31dbd524fc647:1",
+    "5bde175b278dd5b063323c984b1cd901cd6606aa66590cebaf9e614f17400e03": "96c61c1b0580a37f9443d8aa97cb4755e8d82f02706e6d376257072066969121:1",
+    "6f907bf9dcad3b11f9039c288b2b8f49e8f8313f2dab0499da4d3fe7cf1d7aa9": "ba65dd3ed30af2135b96ab80988810552f9e1df46faf439d8144bcdeee15f5d9:1",
+    "3dbd732e3a450b69cfd67d8ea4322c941b7c76ebbd478dff87c0fb73badf0c00": "f5dce2521872caafc2ee3491d0fcfb3eebaa263bc08c8de9b91a6a3e3ae1f303:1",
+    "477c671583e23f149da0e80647f42bb01824d8b233126ebfce39e554976e9a80": "8e65ef6a475f906ca92755ee3560b25112cb6bd206618b54dc52b0ded9c0a142:1",
+    "e36d09a0671868b67fe6a8f109121a84edeb5ee822672ced91f14560d9906d89": "eb23fdc5933a0a3980c292935fc7662638fb176a62f27885dae2860461b4f6bb:1",
+    "8a412cfcbeeb03a1f377d484677e25387d85f67deb1b53eb0e1d30906eadb5d8": "4b720b28042c476b5860a019d5b079750c58872e0ca1852887ee06ae470ee88b:1",
+    "87182ef080653b948162a307d3adadb4de743a02f9a3432e91f6daf9280fc604": "361b401860a409da71348f97e94855b90a5ca32881c8b9d1646cf91f8f719b0b:1",
+    "a34688bc3fa5036dcacae6e1c7cc87114c49c60b67dc47e48b4a073fa376583e": "35161cabe997c9475684caaeee7a79c675719ed7b6d8c2848f3467e7f230cf4f:1",
+    "2b0ad2a3590680a978c26218dbdc67b9a948cf551efe6f69f913dd13680c9cdd": "956095f52144aee9dec6c190128e5e63432c2ed6f664f9cbdb2cc773ada2718f:1",
+    "4b485e349e1d63b838f39de36c7fb79288219610e4754bb9377a61b87a514869": "ff05c1f9874cf881ede970c1bf05777f56abeb091e404d685b2113735575dd2f:1",
+    "ee50bbfcf1b549e562c8aa9f34b8ad85342b44777e740268aa7af509c66bf62f": "3ea9dddb424c298a746daef38110aa5b0e8f953844322d0fc55fae010c955d62:1",
+    "203d81f407da8d279a5d3f38e7483aa1341f2126182bc62754f50811180a8d18": "f9e33b5d5342b3b7518f494bed52f5ca6242c06930afd92190634183b28de2ed:1",
+    "7276d89bcbfdf791b172625a5f2c60f1e7096e31b462e5b0195b30c334d533fa": "85897c2a143e53a835e712a93c4e456400568d782c25f10d7152b36de699e67f:1",
+    "b9781ba0b1be1a609f106ea4c646cff590b6220828a777f1c1f482ba537c9469": "c6a078bd4f2bc2b64147018418ceff9078ba759465a8383dc25cfd6814c5df64:1",
+    "12b2f0593c4a8dc8db0ea38850e74d89c62e87d969da6df4a198083c1bb8b4a2": "b1f79a4aaa58c155d33b4ccb508fb049e8badd98df4d5875c5f3bd53a14dba28:1",
+    "531fc9cad55bdfed049dd585f76ba4141902189156ef2a713ec684169482dbe5": "24564d2b70eacc6d86e376dd0ce0951e98c1ec09bc6a981452df9565a89673e5:1",
+    "c8e439de67eca61ad11105ae98aa1a8c5b2b26ce4524c36ec0f9a9cb3f7f9aab": "6621d11a8794cdf48532b7fc9065fccea091c7d0eb2f742dc93d2600828a2560:1",
+    "01fd75f2b76467abb3bfd349c05afa7b41f9c28e24cd406a9ccebec067288cd8": "d4304f56c6a441f86fb71c06c2039bdd344b6c70aeddac2b33b8dc5caba07407:1",
+    "d77347f231d48a1c7e4d40942570ad1daf990cde062d684015709080e306728f": "1dd5f5361b35ef87e16d0be880d4307a305b07c5407e4c21bb23fd82140a4aa4:1",
+    "c95bd0ab58191e3e3028deb5ab2ffa8a37d2ddecf3e2a252852fa575dbadd2d0": "641edc4c57de70c6787e825d205023f373f2bbfe1f2b1d6a358e92aab20564fc:1",
+    "209d06e99650327e294f1291308fd367894c2a781a9ae6bd4a329e405715e280": "e8978a550ec24b66c9aa1726ad7f873a0d90688242d81b3d4457f0d0f6976d1c:1",
+    "4dfcf52686a84b294977b493e88b95513a2beb0b0be2fcab2f6d99af8b4d0905": "c63a82faecc6f13e65188ea66c19027a0e58385dbb5428567a35e17f88f6e471:1",
+    "e7c4b7a51df1547ec217e3ca5d9448fb5810eb4c977482f4fa8e4a13d6e6e1ec": "9f888333232b2acc978a37b7996d8ded52f800b66f4a58d356a68c46c21592ae:1",
+    "6157109a030448d758d9dfc5ccc009e3825e248ad031cdb8da16309d10002e5f": "90b1cdf09c6c73249798812280be03a6b65bc7ae207aaf858d325d781ab22f24:1",
+    "45112064c1db7f9f620009f692ee8ccc6968cd7be6bd741af3a9846b75155008": "4899ea9b17211dbb3ef21c7ae3eec9faa7ee9c97c6ad8d630dbb1d580c1205e2:1",
+    "807ecb86165ef2070d5230f622dee5427508f7be0bd4d23f6ee4a4f5f4760836": "80755041158c09d3fbd95fb3c7b4efa533b170841348b582301dbefb458516d0:1",
+    "e3379c6f3943a4e08cdf47dcc6015977018a1e0edcd7fd96c6029b51cf2eb95a": "64226a5b7d0d98939cd091428e2026fea9ae50210151f23ca8a59482da3bee66:1",
+    "25b229246e69b70cfc2a53e98720d1bc46f4ea7986bcf2429dce3209a81a500b": "ea3957c55063c9e028cf0e6e7ec9cfc7963dc9b3f714116b24c3fe9641582748:1",
+    "f2b5b7a93aa0fe6ba9f934fd22831f7392423514b2ffa892379dce8d9ff77783": "a85cd1aa7a501b58faa8d1a598f9dfff4974fda8b86bdbeaf19859e4d1173a43:1",
+    "ebc6645945ed337b2cfe6cee956838bc555a534e7175270c7e0c4416ed0068e4": "1cb6639f1ef34faad043057f6b40b4a0a565945008be9e0690ec995f1f1fcccc:1",
+    "73bff4f3eb49251d98cf70767167b10353864f9756de622e213675e5b3b7a352": "8ddd733a2161e13cfad8ffca36c0488a7f1e0b1cffb9ba77805d29891a1d7577:1",
+    "8ed211e22a48663224d267c17a155a4e0b776239a90b60890500c58e4f976be3": "9accac804381bfec163489e1249c840a0ff9fd9f6a5ff24e09d591a3fc977261:1",
+    "7389d879bf8a28244ffb7447e99448fc54950ee9d5217ce9cda29be5085dc697": "5fedb3dd646a0cc23637780ad0c54b9e10eb6b0b44f894918addf5aac2ca9bff:1",
+    "ca089d6d672b77246f935645d386e8512f3e6eff4ca59854f4b86f31b5b7e69b": "25ac37f2509b16644d9b458b6c18e4589025f8d2d1b6259dfaa5d2621c429331:1",
+    "b99f069f531788e1f73824e7dffc6bb890dd4a8799e8f4827308d0e2c874e7fc": "7598dadbc85afe1ddd490b7c0d3cdcde9899fd44b23d967bc35ec6c362b804aa:1"
+  },
+  "batch_id": "batch-1790169233-cnhsIUOEDPUHVjZtzKJC"
+}
