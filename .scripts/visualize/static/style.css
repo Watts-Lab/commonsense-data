@@ -1738,24 +1738,24 @@ td { padding: 10px 14px; vertical-align: middle; }
 /* Cap and center this panel's cards (not the generic .chart-card everywhere
    else) so the tables inside — which fill 100% of their card — don't sprawl
    edge to edge on very wide screens. */
-#panelStmtGen .chart-card { max-width: 1500px; margin-left: auto; margin-right: auto; }
+#panelStmtGen .chart-card, #panelStmtAudit .chart-card { max-width: 1500px; margin-left: auto; margin-right: auto; }
 /* Same narrower gutters as the Design Points panel, so the feature headers fit */
-#panelStmtGen .scores-wrap { padding-left: max(20px, 6vw); padding-right: max(20px, 6vw); }
+#panelStmtGen .scores-wrap, #panelStmtAudit .scores-wrap { padding-left: max(20px, 6vw); padding-right: max(20px, 6vw); }
 .sg-caption { margin: 4px 0 16px; color: #64748B; font-size: .85rem; line-height: 1.55; }
 .sg-table-wrap { max-height: 635px; overflow-x: auto; overflow-y: auto; position: relative; }
-#sgTable { width: 100%; margin-top: 16px; border-collapse: separate; border-spacing: 0; font-size: .8rem; }
-#sgTable th.sg-col-num, #sgTable td.sg-col-num { width: 42px; text-align: right; }
-#sgTable th.sg-col-meta, #sgTable td.sg-col-meta { width: 115px; text-align: center; font-variant-numeric: tabular-nums; white-space: nowrap; }
+:is(#sgTable, #auTable) { width: 100%; margin-top: 16px; border-collapse: separate; border-spacing: 0; font-size: .8rem; }
+:is(#sgTable, #auTable) th.sg-col-num, :is(#sgTable, #auTable) td.sg-col-num { width: 42px; text-align: right; }
+:is(#sgTable, #auTable) th.sg-col-meta, :is(#sgTable, #auTable) td.sg-col-meta { width: 115px; text-align: center; font-variant-numeric: tabular-nums; white-space: nowrap; }
 /* Override the app-wide thead th { white-space: nowrap } so long metric
    labels ("Calculated") can wrap to two lines instead of clipping. */
-#sgTable th.sg-col-meta { white-space: normal; }
+:is(#sgTable, #auTable) th.sg-col-meta { white-space: normal; }
 /* New holds a "123 / 140" fraction pill, wider than the other count pills */
-#sgTable th.sg-col-new, #sgTable td.sg-col-new { width: 150px; }
-#sgTable th.sg-col-num, #sgTable th.sg-col-meta { vertical-align: middle; text-align: center; font-size: .62rem; padding-left: 4px; padding-right: 4px; }
-#sgTable th.sg-col-num { text-align: right; white-space: nowrap; }
-#sgTable th.sg-col-meta.sg-sortable { cursor: pointer; user-select: none; }
-#sgTable th.sg-col-meta.sg-sortable:hover { color: #1E293B; }
-#sgTable th.sg-col-meta.sg-sortable.sg-sort-active { color: #1D4ED8; }
+:is(#sgTable, #auTable) th.sg-col-new, :is(#sgTable, #auTable) td.sg-col-new { width: 150px; }
+:is(#sgTable, #auTable) th.sg-col-num, :is(#sgTable, #auTable) th.sg-col-meta { vertical-align: middle; text-align: center; font-size: .62rem; padding-left: 4px; padding-right: 4px; }
+:is(#sgTable, #auTable) th.sg-col-num { text-align: right; white-space: nowrap; }
+:is(#sgTable, #auTable) th.sg-col-meta.sg-sortable { cursor: pointer; user-select: none; }
+:is(#sgTable, #auTable) th.sg-col-meta.sg-sortable:hover { color: #1E293B; }
+:is(#sgTable, #auTable) th.sg-col-meta.sg-sortable.sg-sort-active { color: #1D4ED8; }
 /* Metric labels wrap to two lines instead of clipping when the column is too
    narrow for the full word (e.g. "Calculated"); the help button sits on its
    own centered line below rather than inline, using the layout .sg-help-btn
@@ -1780,7 +1780,7 @@ td { padding: 10px 14px; vertical-align: middle; }
 /* Size columns to content: under the app-wide table-layout: fixed the six
    feature columns got an equal share of what the # and metric columns left,
    too narrow for their labels */
-#sgTable { table-layout: auto; }
+:is(#sgTable, #auTable) { table-layout: auto; }
 .sg-th-prop { padding: 10px 6px 6px; text-align: center; vertical-align: middle; cursor: pointer; user-select: none; }
 .sg-th-prop:hover .sg-prop-label { color: #1E293B; }
 /* Inherits the uppercase bold grey thead style. Each pole ("Fact ●") and the
@@ -1799,15 +1799,15 @@ td { padding: 10px 14px; vertical-align: middle; }
 .sg-val-0 { color: #CBD5E1; }
 .sg-option-dot { margin-right: 1px; font-size: 1.5em; line-height: 1; vertical-align: middle; }
 .sg-th-alt, td.sg-prop-alt { background: rgba(100, 116, 139, .07); }
-#sgBody tr:nth-child(even) td.sg-prop-alt { background: rgba(100, 116, 139, .13); }
+:is(#sgBody, #auBody) tr:nth-child(even) td.sg-prop-alt { background: rgba(100, 116, 139, .13); }
 .sg-th-prop.sg-filter-v1 { background: #EFF6FF; }
 .sg-th-prop.sg-filter-v0 { background: #F1F5F9; }
 /* Sticky header cells must stay fully opaque or scrolled-past rows show
    through the low-alpha alt-column tint above; these solid equivalents are
    layered so an active filter tint still wins when both apply. */
-#sgTable thead th.sg-th-alt { background: rgb(241, 244, 247); }
-#sgTable thead th.sg-th-alt.sg-filter-v1 { background: #EFF6FF; }
-#sgTable thead th.sg-th-alt.sg-filter-v0 { background: #F1F5F9; }
+:is(#sgTable, #auTable) thead th.sg-th-alt { background: rgb(241, 244, 247); }
+:is(#sgTable, #auTable) thead th.sg-th-alt.sg-filter-v1 { background: #EFF6FF; }
+:is(#sgTable, #auTable) thead th.sg-th-alt.sg-filter-v0 { background: #F1F5F9; }
 .sg-help-btn {
   position: absolute;
   right: 5px;
@@ -1848,9 +1848,9 @@ td { padding: 10px 14px; vertical-align: middle; }
 .sg-count.sg-status-none { color: #9F1239; background: #FFE4E6; }
 .sg-count.sg-status-help { color: #173F78; background: #EFF6FF; }
 .sg-count.sg-status-none-help { color: #94A3B8; background: #F1F5F9; }
-#sgBody tr[data-combo] { cursor: pointer; }
-#sgBody tr[data-combo]:hover td { background: #EFF6FF !important; }
-#sgBody tr[data-combo].sg-selected td { background: #DBEAFE !important; }
+:is(#sgBody, #auBody) tr[data-combo] { cursor: pointer; }
+:is(#sgBody, #auBody) tr[data-combo]:hover td { background: #EFF6FF !important; }
+:is(#sgBody, #auBody) tr[data-combo].sg-selected td { background: #DBEAFE !important; }
 .sg-empty-row td { padding: 40px; color: #94A3B8; font-size: .9rem; text-align: center; }
 .sg-detail-table-wrap { margin-top: 12px; height: 50vh; overflow: auto; }
 /* width: 100% so the table spans the full card (the card itself is capped —
@@ -1893,6 +1893,8 @@ td { padding: 10px 14px; vertical-align: middle; }
 .sg-statement-table td.sg-col-generator { color: #64748B; font-size: .9rem; }
 .sg-statement-table td.sg-col-num-judges { font-variant-numeric: tabular-nums; }
 .sg-judge-count { display: inline-block; min-width: 20px; padding: 2px 9px; border-radius: 999px; background: #F0FDFA; color: #0F766E; font-weight: 700; }
+.au-feature-cell { cursor: pointer; }
+.au-feature-cell:hover { background: #CCFBF1; }
 .sg-status-chip { display: inline-block; padding: 3px 7px; border-radius: 999px; font-size: .68rem; font-weight: 700; }
 .sg-status-chip.sg-yes { color: #166534; background: #DCFCE7; }
 .sg-status-chip.sg-no { color: #9F1239; background: #FFE4E6; }
@@ -1934,6 +1936,8 @@ td { padding: 10px 14px; vertical-align: middle; }
 .sg-feature-confidence { margin-bottom: 5px; color: #64748B; font-size: .8rem; }
 .sg-agreement-badge { margin-left: 8px; font-size: .68rem; color: #166534; }
 .sg-agreement-badge--partial { color: #9F1239; }
+/* Click a feature's own header to show only that feature; click again for all six. */
+.sg-statement-feature.sg-feature-hidden { display: none; }
 
 #sgFeatPopup {
   display: none;
@@ -1956,3 +1960,28 @@ td { padding: 10px 14px; vertical-align: middle; }
   font-weight: 400;
   margin-top: 1px;
 }
+
+/* ── Published Statement Audit ───────────────────────────────── */
+.au-agreement-wrap { overflow-x: auto; }
+/* The shared max-width rule centers these cards with auto margins, which
+   makes a flex item size to its content, so the wide audit table would widen
+   the card (and the page) past the window. A definite width keeps the card at
+   the page width and lets the table scroll inside it. */
+#panelStmtAudit .chart-card { width: 100%; }
+.au-agreement-table { width: 100%; table-layout: auto; border-collapse: collapse; font-size: .8rem; font-variant-numeric: tabular-nums; }
+.au-agreement-table th { font-size: .62rem; text-align: center; white-space: normal; vertical-align: middle; }
+.au-agreement-table td { text-align: center; padding: 8px 10px; }
+.au-agreement-table td.au-judge { text-align: left; font-weight: 600; white-space: nowrap; }
+.au-agreement-table td.au-low { color: #9F1239; font-weight: 700; }
+.au-agreement-table tr.au-any-row td { border-top: 2px solid #CBD5E1; font-weight: 700; }
+.au-none { color: #CBD5E1; }
+/* Audit table counts are labels, not buttons: the row itself is the click target */
+#auBody .sg-count { cursor: inherit; }
+#auBody .sg-count:hover { filter: none; }
+/* Audit statement list: seven short "X / Y" columns, so keep them narrow and
+   leave the width to the statement text */
+.sg-statement-table[data-metric="audit"] th.sg-col-num-judges,
+.sg-statement-table[data-metric="audit"] td.sg-col-num-judges { width: 88px; padding-left: 4px; padding-right: 4px; }
+/* Smaller header text (as in the Coverage table's count headers) so words like
+   "Knowledge" fit whole; wrap only between words */
+.sg-statement-table[data-metric="audit"] th.sg-col-num-judges { font-size: .62rem; letter-spacing: .04em; overflow-wrap: normal; }

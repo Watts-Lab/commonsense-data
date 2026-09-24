@@ -21,6 +21,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE_DIR)
 from utils import individual_commonsensicality, statement_commonsensicality
 import statement_coverage
+import statement_audit
 
 DATA_DIR = os.environ.get("DATA_DIR", os.path.join(BASE_DIR, "data"))
 # Default to the in-repo location for local dev; override with STATEMENTS_PATH
@@ -1033,6 +1034,23 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 return
             try:
                 statements = statement_coverage.get_statements_for_combo(combo, metric)
+            except ValueError as exc:
+                self._send_error_json(400, str(exc))
+                return
+            self._send_json(json.dumps({"statements": statements, "metric": metric}, ensure_ascii=False).encode("utf-8"))
+        elif parsed.path == "/api/statement-audit":
+            data = statement_audit.get_audit()
+            payload = {k: v for k, v in data.items() if k != "by_combo"}
+            self._send_json(json.dumps(payload, ensure_ascii=False).encode("utf-8"))
+        elif parsed.path == "/api/statement-audit-statements":
+            metric = params.get("metric", ["published"])[0]
+            try:
+                combo = tuple(int(params[key][0]) for key in statement_audit.FEAT_KEYS)
+            except (KeyError, ValueError):
+                self._send_error_json(400, "Missing or invalid feature parameters")
+                return
+            try:
+                statements = statement_audit.get_audit_statements(combo, metric)
             except ValueError as exc:
                 self._send_error_json(400, str(exc))
                 return

@@ -23,7 +23,7 @@ RUN pip install --no-cache-dir \
       "PyYAML==6.0.2"
 
 # App code + generated data (paths are relative to the repo-root build context)
-COPY .scripts/visualize/server.py .scripts/visualize/utils.py .scripts/visualize/statement_coverage.py ./
+COPY .scripts/visualize/server.py .scripts/visualize/utils.py .scripts/visualize/statement_coverage.py .scripts/visualize/statement_audit.py ./
 COPY .scripts/visualize/index.html ./index.html
 COPY .scripts/visualize/static ./static
 COPY .scripts/visualize/data ./data
@@ -34,6 +34,9 @@ COPY .scripts/visualize/data ./data
 # requests, etc.), which this read-only aggregation never imports.
 COPY .scripts/statement-generation/gap_analysis.py .scripts/statement-generation/prompt.yml ./statement-generation/
 COPY .scripts/statement-generation/data ./statement-generation/data
+# Published-statement snapshot and its judge results for the audit page
+# (statement_audit.py reads STATEMENT_GEN_DIR/existing/published).
+COPY .scripts/statement-generation/existing ./statement-generation/existing
 
 # Vendor the raw tables gap_analysis.py reads directly, next to the app (flat,
 # not nested) so the container has no dependency on the repo's ../../ layout

@@ -229,6 +229,7 @@
       <div class="toolbar-left">
         <a class="toolbar-btn" href="design_points" style="text-decoration:none">&larr; Back to Design Points</a>
       </div>
+      <a class="toolbar-btn" href="statement_audit" style="margin-left:auto;text-decoration:none">Audit published statements &rarr;</a>
     </div>
     <div class="scores-wrap">
       <div class="chart-card">
@@ -248,6 +249,42 @@
           <table class="sg-statement-table">
             <thead><tr id="sgDetailHead"></tr></thead>
             <tbody id="sgDetailBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Published Statement Audit panel ──────────────────── -->
+  <div id="panelStmtAudit" class="panel hidden">
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <a class="toolbar-btn" href="statement_generation" style="text-decoration:none">&larr; Back to Design Point Coverage</a>
+      </div>
+    </div>
+    <div class="scores-wrap">
+      <div class="chart-card">
+        <div class="chart-title">Judge Agreement with Stored Labels</div>
+        <p class="sg-caption" id="auAgreementCaption"></p>
+        <div id="auAgreement"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Published Statement Audit</div>
+        <p class="sg-caption">LLM judges rated each published statement with the same prompt used for generated statements, without seeing its stored labels. A judge agrees when it rates the statement as common sense and gives all six features the stored label. Rows are the design points of the stored labels; click a row to list its statements. Hover or click on the ? button for definitions; click a property header to filter by it, again to switch to its opposite, and once more to clear.</p>
+        <div class="sg-table-wrap">
+          <table id="auTable">
+            <thead><tr id="auHead"></tr></thead>
+            <tbody id="auBody"><tr class="sg-empty-row"><td colspan="12">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <div id="auDetailCard" class="chart-card hidden">
+        <div class="chart-title" id="auDetailTitle"></div>
+        <div class="chart-sub" id="auDetailSub"></div>
+        <div class="sg-detail-table-wrap">
+          <table class="sg-statement-table">
+            <thead><tr id="auDetailHead"></tr></thead>
+            <tbody id="auDetailBody"></tbody>
           </table>
         </div>
       </div>

@@ -303,6 +303,8 @@ All endpoints are served under `/api/` and respond with JSON.
 | `GET /api/user-detail` | `userId`, `target`, `reference` | Statement-level detail for one user |
 | `GET /api/statement-countries` | `statementId` | Top-5 countries by rating count for a statement |
 | `GET /api/statement-meta` | `statementId` | Source and category of a statement, from `statements_1.csv` |
+| `GET /api/statement-audit` | — | Judge agreement with published statements' stored labels, per design point |
+| `GET /api/statement-audit-statements` | property flags, `metric` | Published statements for one design point, with every judge's answer |
 
 Use `country=all` (or `target=all` / `reference=all`) to include all countries.
 
