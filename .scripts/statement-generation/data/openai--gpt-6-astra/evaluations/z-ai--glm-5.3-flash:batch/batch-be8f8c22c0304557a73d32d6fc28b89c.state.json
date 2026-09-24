@@ -1,5 +1,5 @@
 {
-  "phase": "submitted",
+  "phase": "collected",
   "gen_model": "openai/gpt-6-astra",
   "judge_model": "z-ai/glm-5.3-flash:batch",
   "api_model": "z-ai/glm-5.3-flash",
@@ -10447,5 +10447,31 @@
     "cc9355f316a84cd3e4894fe3045b2f7eda8d54baf84bc020fdd485b6b7b33452": "afb6ce37b3bf10e3e08ea36e79c26129687365a70e44989385596f371f14ec23:1",
     "a961052441f1fb92693d066c4a4a4953b22da1eb317c5fe7a5192a5b5e8fbeb9": "0f0e78d0e5eb2a07ef8957e02eccce55d3444b0f508529265e8715801b377447:1"
   },
-  "batch_id": "batch-1789484158-EuqNYbXryXHa8yx0bt9m"
+  "batch_id": "batch-1789484158-EuqNYbXryXHa8yx0bt9m",
+  "failures": [
+    {
+      "source_id": "bf33bdb6a55240ae3f57f8884e301a897de80e6b208e9c5e3b4ea2a55873b770:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "812ba1c04bb3f75f22a72fb058dc7e5d21f3233e3b761c4b8d6739aacfb2c244:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "ecffdf7df5d60c2ccb0acc5bfb901bd1eb7bb72486b4e5080d17ec7550c2b93b:1",
+      "error": "Additional properties are not allowed ('note' was unexpected)"
+    },
+    {
+      "source_id": "138b8888ae0307c6822fabeda12f6aa982e1ab2065674aad985b3917cee7a4a0:1",
+      "error": "Additional properties are not allowed ('abstract' was unexpected)"
+    },
+    {
+      "source_id": "b0fa529eb7c2125f325e1b8c321bc49b84c2314597901632d44307e66550a7b6:1",
+      "error": "Additional properties are not allowed ('confidence_note_removed' was unexpected)"
+    },
+    {
+      "source_id": "5efc266ef55f7a4fe8d1b6da8388b5e18035f6adbf27ef43f4c10287cf188850:1",
+      "error": "Judge response truncated or refused"
+    }
+  ]
 }

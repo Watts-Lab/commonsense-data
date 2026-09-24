@@ -1,0 +1,1961 @@
+{
+  "id": "batch-1790257774-RIoKY4WFotL01luenLLH",
+  "object": "batch",
+  "endpoint": "/v1/chat/completions",
+  "model": "anthropic/claude-opus-5.5-20260921",
+  "completion_window": "24h",
+  "status": "completed",
+  "created_at": 1790257774,
+  "finalized_at": 1790258115,
+  "request_counts": {
+    "total": 40,
+    "completed": 40,
+    "failed": 0
+  },
+  "usage": {
+    "prompt_tokens": 94619,
+    "completion_tokens": 22971,
+    "total_tokens": 117590,
+    "cost": 0.418948,
+    "is_byok": false
+  },
+  "error": null,
+  "results": [
+    {
+      "id": "msg_011CfNNZ2AUxfKwbnxL3jie6",
+      "custom_id": "695543327b33b34cf5d9a87accf29a5f84542eef10537581bdaac2cf08759839",
+      "response": {
+        "status_code": 200,
+        "request_id": null,
+        "body": {
+          "model": "anthropic/claude-opus-5.5",
+          "id": "gen-batch-1790257774-0cdfa61cd2c3d42db6c4",
+          "created": 1790258114,
+          "system_fingerprint": null,
+          "object": "chat.completion",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\"features\":{\"fact\":{\"classification\":\"fact\",\"confidence\":4,\"explanation\":\"The role of stress and strain in describing material response is established by mechanics and can be verified experimentally. It does not depend on anyone's opinion.\"},\"physical\":{\"classification\":\"physical\",\"confidence\":4,\"explanation\":\"Stress and strain are physical quantities from materials science and engineering mechanics. They describe objective properties of matter.\"},\"literal language\":{\"classification\":\"literal language\",\"confidence\":4,\"explanation\":\"The statement uses technical terms in their plain, literal sense. It contains no metaphor or hyperbole.\"},\"positive\":{\"classification\":\"positive\",\"confidence\":4,\"explanation\":\"It describes a scientific regularity about how materials behave under loads. It makes no value judgment.\"},\"knowledge\":{\"classification\":\"knowledge\",\"confidence\":3,\"explanation\":\"It states a piece of established engineering knowledge rather than drawing a conclusion from premises. The word 'determine' hints at causal logic, but the statement is not presented as a derived argument.\"},\"everyday\":{\"classification\":\"abstract\",\"confidence\":3,\"explanation\":\"Stress and strain are formal technical concepts learned through engineering education, not through ordinary experience. However, people do see materials bend or break in daily life, so some intuitive familiarity exists.\"}},\"commonsense\":0,\"commonsense_explanation\":\"The statement relies on specialized engineering terminology and concepts that most people would not know without technical training, so it is domain knowledge rather than common sense.\"}",
+                "refusal": null,
+                "reasoning": null
+              },
+              "finish_reason": "stop",
+              "native_finish_reason": "end_turn",
+              "logprobs": null
+            }
+          ],
+          "service_tier": "batch",
+          "usage": {
+            "prompt_tokens": 2367,
+            "completion_tokens": 500,
+            "total_tokens": 2867,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "provider": "Anthropic"
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "msg_011CfNNWX2ykCfc43gqJryqr",
+      "custom_id": "2fa5b1007ae7fe2c7b8c4a7626cfc73036f4625716e176405ac7809e85b3ce13",
+      "response": {
+        "status_code": 200,
+        "request_id": null,
+        "body": {
+          "model": "anthropic/claude-opus-5.5",
+          "id": "gen-batch-1790257774-fa4e647a8a7c18b681bf",
+          "created": 1790258114,
+          "system_fingerprint": null,
+          "object": "chat.completion",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\"features\":{\"fact\":{\"classification\":\"fact\",\"confidence\":3,\"explanation\":\"That people interpret religious symbols differently can be demonstrated through surveys and observation of diverse interpretations. Some might read it as a subjective claim about meaning, so confidence is not maximal.\"},\"physical\":{\"classification\":\"social\",\"confidence\":4,\"explanation\":\"Religious symbols and their meanings are human constructs rooted in belief and culture. This is clearly a social matter.\"},\"literal language\":{\"classification\":\"literal language\",\"confidence\":4,\"explanation\":\"The statement is plain and direct, with no metaphor or hyperbole.\"},\"positive\":{\"classification\":\"positive\",\"confidence\":3,\"explanation\":\"It describes an observable regularity in how people interpret symbols rather than prescribing how they should. Because the subject involves beliefs, it could be read as normative.\"},\"knowledge\":{\"classification\":\"knowledge\",\"confidence\":3,\"explanation\":\"It states an observation about human interpretation rather than deriving a conclusion from premises.\"},\"everyday\":{\"classification\":\"everyday\",\"confidence\":3,\"explanation\":\"People commonly encounter religious symbols and notice that others understand them differently. It is somewhat general, though, so confidence is moderate.\"}},\"commonsense\":1,\"commonsense_explanation\":\"Most people would readily agree that symbols, including religious ones, mean different things to different people, based on ordinary experience.\"}",
+                "refusal": null,
+                "reasoning": null
+              },
+              "finish_reason": "stop",
+              "native_finish_reason": "end_turn",
+              "logprobs": null
+            }
+          ],
+          "service_tier": "batch",
+          "usage": {
+            "prompt_tokens": 2367,
+            "completion_tokens": 465,
+            "total_tokens": 2832,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "provider": "Anthropic"
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "msg_011CfNNWX8gbpspeQ1Te4tfJ",
+      "custom_id": "9f6428729efe4136def0f9fd9dbd1c01e303a3d616dd35116830284db3c4befc",
+      "response": {
+        "status_code": 200,
+        "request_id": null,
+        "body": {
+          "model": "anthropic/claude-opus-5.5",
+          "id": "gen-batch-1790257774-2c428f85a23ca1da9262",
+          "created": 1790258114,
+          "system_fingerprint": null,
+          "object": "chat.completion",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\n  \"features\": {\n    \"fact\": {\n      \"classification\": \"fact\",\n      \"confidence\": 3,\n      \"explanation\": \"Whether opinions on supplements vary and whether scientific support is inconsistent can in principle be checked through surveys and literature reviews. Some subjectivity remains in what counts as 'consistent support', so confidence is not maximal.\"\n    },\n    \"physical\": {\n      \"classification\": \"social\",\n      \"confidence\": 3,\n      \"explanation\": \"The statement centers on people's opinions about supplements and the state of scientific consensus, both of which are human and social phenomena. It does touch on biological efficacy, which adds some uncertainty.\"\n    },\n    \"literal language\": {\n      \"classification\": \"literal language\",\n      \"confidence\": 3,\n      \"explanation\": \"The statement is mostly plain and means what it says. 'Differ wildly' is a mild intensifier rather than a true figure of speech.\"\n    },\n    \"positive\": {\n      \"classification\": \"positive\",\n      \"confidence\": 3,\n      \"explanation\": \"It describes an observed state of affairs, varied opinions and inconsistent evidence, rather than prescribing what ought to be. There is an implicit skeptical judgment, which lowers confidence slightly.\"\n    },\n    \"knowledge\": {\n      \"classification\": \"knowledge\",\n      \"confidence\": 3,\n      \"explanation\": \"It reports an observation about opinions and evidence rather than deriving a conclusion through explicit logic. The linking of differing opinions to lack of support hints at reasoning, but only weakly.\"\n    },\n    \"everyday\": {\n      \"classification\": \"everyday\",\n      \"confidence\": 3,\n      \"explanation\": \"People routinely encounter conflicting claims about supplements from friends, ads, and media. However, the state of scientific support is something one learns from outside personal experience.\"\n    },\n  },\n  \"commonsense\": 1,\n  \"commonsense_explanation\": \"Most people recognize that claims about supplements are contested and that the evidence behind them is often mixed, making this a widely shared, intuitive understanding.\"\n}",
+                "refusal": null,
+                "reasoning": null
+              },
+              "finish_reason": "stop",
+              "native_finish_reason": "end_turn",
+              "logprobs": null
+            }
+          ],
+          "service_tier": "batch",
+          "usage": {
+            "prompt_tokens": 2372,
+            "completion_tokens": 671,
+            "total_tokens": 3043,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "provider": "Anthropic"
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "msg_011CfNNWXFd2gkANT1KNqmA9",
+      "custom_id": "059599e2fcc0ea0c7816d96f9a79c76ccf162296dc05c9695a1468dc50c7e988",
+      "response": {
+        "status_code": 200,
+        "request_id": null,
+        "body": {
+          "model": "anthropic/claude-opus-5.5",
+          "id": "gen-batch-1790257774-3c9765f6154422704f3b",
+          "created": 1790258114,
+          "system_fingerprint": null,
+          "object": "chat.completion",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\n  \"features\": {\n    \"fact\": {\n      \"classification\": \"opinion\",\n      \"confidence\": 4,\n      \"explanation\": \"The claim that emotions produce things logic cannot is a subjective, poetic view that cannot be objectively demonstrated. Its metaphorical framing makes it clearly unverifiable.\"\n    },\n    \"physical\": {\n      \"classification\": \"social\",\n      \"confidence\": 4,\n      \"explanation\": \"It concerns human emotion and the tension between feeling and reason, which belongs to human experience rather than physical laws.\"\n    },\n    \"literal language\": {\n      \"classification\": \"figure of speech\",\n      \"confidence\": 4,\n      \"explanation\": \"Hearts do not literally sing, and logic does not literally compose songs. The statement is a metaphorical aphorism.\"\n    },\n    \"positive\": {\n      \"classification\": \"normative\",\n      \"confidence\": 3,\n      \"explanation\": \"It expresses a value-laden belief that elevates emotion over rational thought in some domains. However, it is phrased descriptively rather than as a prescription, which lowers confidence slightly.\"\n    },\n    \"knowledge\": {\n      \"classification\": \"knowledge\",\n      \"confidence\": 3,\n      \"explanation\": \"It asserts an observation about human nature without presenting premises or a logical derivation.\"\n    },\n    \"everyday\": {\n      \"classification\": \"everyday\",\n      \"confidence\": 3,\n      \"explanation\": \"People commonly experience emotions that drive actions or feelings logic cannot explain, such as love or intuition. The poetic framing adds some abstraction.\"\n    }\n  },\n  \"commonsense\": 1,\n  \"commonsense_explanation\": \"The idea that emotions can inspire or express things beyond rational explanation is widely held and intuitively understood by most people, though it is phrased poetically.\"\n}",
+                "refusal": null,
+                "reasoning": null
+              },
+              "finish_reason": "stop",
+              "native_finish_reason": "end_turn",
+              "logprobs": null
+            }
+          ],
+          "service_tier": "batch",
+          "usage": {
+            "prompt_tokens": 2364,
+            "completion_tokens": 589,
+            "total_tokens": 2953,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "provider": "Anthropic"
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "msg_011CfNNXkNBz1rXkNUY9exYh",
+      "custom_id": "3efa930ef9c240afa331dc880738034708e7c71296f19825a152a1139f5daf51",
+      "response": {
+        "status_code": 200,
+        "request_id": null,
+        "body": {
+          "model": "anthropic/claude-opus-5.5",
+          "id": "gen-batch-1790257774-3db021f3584ae9aa0e25",
+          "created": 1790258114,
+          "system_fingerprint": null,
+          "object": "chat.completion",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\"features\":{\"fact\":{\"classification\":\"fact\",\"confidence\":4,\"explanation\":\"Whether tai chi improves balance can be tested empirically through controlled studies, and research generally supports it. Its truth does not depend on anyone's opinion.\"},\"physical\":{\"classification\":\"physical\",\"confidence\":3,\"explanation\":\"Balance is a physiological and biomechanical capacity that can be measured objectively. Tai chi itself is a cultural practice, which slightly lowers my confidence.\"},\"literal language\":{\"classification\":\"literal language\",\"confidence\":4,\"explanation\":\"The statement plainly claims that tai chi practice improves physical balance, with no metaphor or exaggeration.\"},\"positive\":{\"classification\":\"positive\",\"confidence\":3,\"explanation\":\"It describes an empirical cause-and-effect relationship rather than prescribing what people should do. The word 'promotes' could carry a mild endorsing tone.\"},\"knowledge\":{\"classification\":\"knowledge\",\"confidence\":3,\"explanation\":\"It states an observation about the effects of an activity rather than presenting a conclusion derived through explicit logical steps.\"},\"everyday\":{\"classification\":\"everyday\",\"confidence\":3,\"explanation\":\"Many people practice or observe tai chi and could notice improved stability in their own experience. Rigorous confirmation, however, relies on scientific studies.\"}},\"commonsense\":1,\"commonsense_explanation\":\"It is widely known that tai chi involves slow, controlled movements that improve balance, and most people would readily accept this claim.\"}",
+                "refusal": null,
+                "reasoning": null
+              },
+              "finish_reason": "stop",
+              "native_finish_reason": "end_turn",
+              "logprobs": null
+            }
+          ],
+          "service_tier": "batch",
+          "usage": {
+            "prompt_tokens": 2360,
+            "completion_tokens": 500,
+            "total_tokens": 2860,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "provider": "Anthropic"
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "msg_011CfNNWXeSZCfheaUECkBxQ",
+      "custom_id": "204924e50e7a5b6c79bc4bff340d4074eefe6de272544c4384cfe37faabaaf5a",
+      "response": {
+        "status_code": 200,
+        "request_id": null,
+        "body": {
+          "model": "anthropic/claude-opus-5.5",
+          "id": "gen-batch-1790257774-aa7530c4241778983f1d",
+          "created": 1790258114,
+          "system_fingerprint": null,
+          "object": "chat.completion",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\n  \"features\": {\n    \"fact\": {\n      \"classification\": \"fact\",\n      \"confidence\": 4,\n      \"explanation\": \"Cell theory is a well-established scientific principle that can be checked empirically, independent of anyone's opinion. Edge cases like viruses do not make it subjective.\"\n    },\n    \"physical\": {\n      \"classification\": \"physical\",\n      \"confidence\": 4,\n      \"explanation\": \"The statement describes a biological feature of living organisms, which is an objective aspect of the natural world rather than a human construct.\"\n    },\n    \"literal language\": {\n      \"classification\": \"literal language\",\n      \"confidence\": 4,\n      \"explanation\": \"The statement uses plain scientific language with no metaphor, hyperbole or other figurative device.\"\n    },\n    \"positive\": {\n      \"classification\": \"positive\",\n      \"confidence\": 4,\n      \"explanation\": \"It states a scientific regularity (cell theory) about how the world is, not a judgment about how things should be.\"\n    },\n    \"knowledge\": {\n      \"classification\": \"knowledge\",\n      \"confidence\": 3,\n      \"explanation\": \"It states an observation-based scientific principle rather than presenting a conclusion derived from explicit premises. Cell theory was historically inferred, which leaves slight ambiguity.\"\n    },\n    \"everyday\": {\n      \"classification\": \"abstract\",\n      \"confidence\": 3,\n      \"explanation\": \"Cells are not visible in ordinary experience, and the universal claim about all organisms requires scientific investigation rather than individual observation. However, the idea is widely taught, so some might see it as familiar.\"\n    }\n  },\n  \"commonsense\": 0,\n  \"commonsense_explanation\": \"Although widely known through schooling, this is scientific knowledge that comes from formal education and microscopy, not from intuitive everyday experience, so it is not typically considered common sense.\"\n}",
+                "refusal": null,
+                "reasoning": null
+              },
+              "finish_reason": "stop",
+              "native_finish_reason": "end_turn",
+              "logprobs": null
+            }
+          ],
+          "service_tier": "batch",
+          "usage": {
+            "prompt_tokens": 2365,
+            "completion_tokens": 600,
+            "total_tokens": 2965,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "provider": "Anthropic"
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "msg_011CfNNWX6wdgqSbXGMgPCMK",
+      "custom_id": "492da364322fcf472c0d78cd90649800ae614967cc869114000d90a13f723c07",
+      "response": {
+        "status_code": 200,
+        "request_id": null,
+        "body": {
+          "model": "anthropic/claude-opus-5.5",
+          "id": "gen-batch-1790257774-53be3546514218d07e7b",
+          "created": 1790258114,
+          "system_fingerprint": null,
+          "object": "chat.completion",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\"features\":{\"fact\":{\"classification\":\"opinion\",\"confidence\":4,\"explanation\":\"The claim that physical attractiveness is superficial and less important than inner character is a subjective value judgment that cannot be objectively proven. It is a widely held view, but it remains inherently subjective.\"},\"physical\":{\"classification\":\"social\",\"confidence\":4,\"explanation\":\"The statement concerns human perceptions and values about attractiveness and character, which are socially constructed. It is not a claim about measurable features of skin or biology.\"},\"literal language\":{\"classification\":\"figure of speech\",\"confidence\":4,\"explanation\":\"This is a well-known aphorism that uses 'skin deep' metaphorically to mean superficial. It does not literally describe the depth of skin.\"},\"positive\":{\"classification\":\"normative\",\"confidence\":4,\"explanation\":\"It expresses a value judgment that outward appearance is superficial and should not be overvalued. That is a normative belief rather than an empirical regularity.\"},\"knowledge\":{\"classification\":\"knowledge\",\"confidence\":3,\"explanation\":\"It is presented as a direct observation or belief about the world rather than a conclusion drawn from explicit premises. It could be seen as distilled reasoning, which slightly lowers confidence.\"},\"everyday\":{\"classification\":\"everyday\",\"confidence\":4,\"explanation\":\"People regularly judge and are judged by appearance, and they experience cases where looks do not match character. The idea is therefore grounded in ordinary life.\"}},\"commonsense\":1,\"commonsense_explanation\":\"This proverb expresses a widely shared piece of folk wisdom that most people understand and accept: appearance is superficial and does not reflect a person's true character.\"}",
+                "refusal": null,
+                "reasoning": null
+              },
+              "finish_reason": "stop",
+              "native_finish_reason": "end_turn",
+              "logprobs": null
+            }
+          ],
+          "service_tier": "batch",
+          "usage": {
+            "prompt_tokens": 2356,
+            "completion_tokens": 549,
+            "total_tokens": 2905,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "provider": "Anthropic"
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "msg_011CfNNWXBetKZbTEuTHtw8Y",
+      "custom_id": "7489771fbba0d6a00f0407688f0d80d524ec8b6b7250e5b07e3b8a70be1d107f",
+      "response": {
+        "status_code": 200,
+        "request_id": null,
+        "body": {
+          "model": "anthropic/claude-opus-5.5",
+          "id": "gen-batch-1790257774-a914e6761cba5608418f",
+          "created": 1790258114,
+          "system_fingerprint": null,
+          "object": "chat.completion",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\n  \"features\": {\n    \"fact\": {\n      \"classification\": \"fact\",\n      \"confidence\": 3,\n      \"explanation\": \"Whether judgments of intelligence involve subjective criteria can be examined empirically, for example through studies of how people and institutions assess intelligence. The statement is somewhat interpretive, which lowers confidence slightly.\"\n    },\n    \"physical\": {\n      \"classification\": \"social\",\n      \"confidence\": 4,\n      \"explanation\": \"The statement concerns human judgments and perceptions, which are social in nature. It is not about physical properties of the world.\"\n    },\n    \"literal language\": {\n      \"classification\": \"literal language\",\n      \"confidence\": 4,\n      \"explanation\": \"The statement is plain and means exactly what it says, with no metaphor or hyperbole.\"\n    },\n    \"positive\": {\n      \"classification\": \"positive\",\n      \"confidence\": 3,\n      \"explanation\": \"It describes how judgments are made rather than prescribing how they should be made. However, its subject matter is value-laden judgment, so there is some ambiguity.\"\n    },\n    \"knowledge\": {\n      \"classification\": \"knowledge\",\n      \"confidence\": 4,\n      \"explanation\": \"It states an observation about how people judge intelligence rather than deriving a conclusion from premises.\"\n    },\n    \"everyday\": {\n      \"classification\": \"everyday\",\n      \"confidence\": 3,\n      \"explanation\": \"People regularly judge others' intelligence and notice that such judgments vary by person and context. The concept of 'subjective criteria' is slightly abstract, so confidence is moderate.\"\n    }\n  },\n  \"commonsense\": 1,\n  \"commonsense_explanation\": \"Most people recognize from experience that assessments of who is 'smart' vary and depend on personal perspectives, making this a widely shared intuition.\"\n}",
+                "refusal": null,
+                "reasoning": null
+              },
+              "finish_reason": "stop",
+              "native_finish_reason": "end_turn",
+              "logprobs": null
+            }
+          ],
+          "service_tier": "batch",
+          "usage": {
+            "prompt_tokens": 2365,
+            "completion_tokens": 585,
+            "total_tokens": 2950,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "provider": "Anthropic"
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "msg_011CfNNXxNztqGVp1Bnqa1XA",
+      "custom_id": "e4c1f47080af5d259470dff332175277045bd7f286c42c5af768fb3c182e95c2",
+      "response": {
+        "status_code": 200,
+        "request_id": null,
+        "body": {
+          "model": "anthropic/claude-opus-5.5",
+          "id": "gen-batch-1790257774-4cc6d5e936c9bd6d4c7e",
+          "created": 1790258114,
+          "system_fingerprint": null,
+          "object": "chat.completion",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\n  \"features\": {\n    \"fact\": {\n      \"classification\": \"opinion\",\n      \"confidence\": 3,\n      \"explanation\": \"The claim that belief systems gradually shape perception is plausible and partly supported by psychology, but its metaphorical framing and lack of precise terms make it hard to demonstrate objectively. It reads more as an interpretive view than a verifiable fact.\"\n    },\n    \"physical\": {\n      \"classification\": \"social\",\n      \"confidence\": 4,\n      \"explanation\": \"The statement concerns belief systems and human perception, which are intrinsically of human origin. The water-and-rock imagery is only a comparison, not the subject.\"\n    },\n    \"literal language\": {\n      \"classification\": \"figure of speech\",\n      \"confidence\": 4,\n      \"explanation\": \"It uses a simile comparing belief systems to water eroding rock, and 'sculpt' is metaphorical. The figurative language is unmistakable.\"\n    },\n    \"positive\": {\n      \"classification\": \"positive\",\n      \"confidence\": 2,\n      \"explanation\": \"It describes how beliefs influence perception rather than prescribing what ought to be, making it a descriptive claim. However, its subject is beliefs and values, which pulls somewhat toward normative.\"\n    },\n    \"knowledge\": {\n      \"classification\": \"knowledge\",\n      \"confidence\": 3,\n      \"explanation\": \"It asserts an observation about how beliefs affect perception without presenting premises or logical steps to reach a conclusion.\"\n    },\n    \"everyday\": {\n      \"classification\": \"abstract\",\n      \"confidence\": 3,\n      \"explanation\": \"The gradual shaping of perception by belief systems is a broad regularity that cannot easily be observed through individual experience alone. People may sense it anecdotally, but the claim is general and conceptual.\"\n    }\n  },\n  \"commonsense\": 1,\n  \"commonsense_explanation\": \"Most people would readily agree that what we believe gradually influences how we see the world, making this a widely held intuition, though expressed poetically.\"\n}",
+                "refusal": null,
+                "reasoning": null
+              },
+              "finish_reason": "stop",
+              "native_finish_reason": "end_turn",
+              "logprobs": null
+            }
+          ],
+          "service_tier": "batch",
+          "usage": {
+            "prompt_tokens": 2371,
+            "completion_tokens": 655,
+            "total_tokens": 3026,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "provider": "Anthropic"
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "msg_011CfNNWXos3L1frdQA9Z7HQ",
+      "custom_id": "2dfc699006eb8870ef24446843359581ea78e8960eec430f018556c085c58f7e",
+      "response": {
+        "status_code": 200,
+        "request_id": null,
+        "body": {
+          "model": "anthropic/claude-opus-5.5",
+          "id": "gen-batch-1790257774-1dd3e37661100c5c40b2",
+          "created": 1790258114,
+          "system_fingerprint": null,
+          "object": "chat.completion",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\"features\":{\"fact\":{\"classification\":\"fact\",\"confidence\":4,\"explanation\":\"That DNA carries genetic information essential for inheritance is a well-established, empirically verifiable scientific finding. It does not depend on anyone's subjective view.\"},\"physical\":{\"classification\":\"physical\",\"confidence\":4,\"explanation\":\"The statement concerns molecular biology, an objective feature of the natural world. It has nothing to do with human social constructs.\"},\"literal language\":{\"classification\":\"literal language\",\"confidence\":3,\"explanation\":\"The statement is plain descriptive language. 'Carries information' is a standard scientific expression rather than a deliberate figure of speech, though it is mildly metaphorical.\"},\"positive\":{\"classification\":\"positive\",\"confidence\":4,\"explanation\":\"It describes an empirical scientific regularity about how inheritance works. It makes no value judgment or appeal to norms.\"},\"knowledge\":{\"classification\":\"knowledge\",\"confidence\":3,\"explanation\":\"It states an established observation about the world rather than drawing a conclusion from premises. The link to inheritance is presented as a known fact, not argued.\"},\"everyday\":{\"classification\":\"abstract\",\"confidence\":4,\"explanation\":\"DNA's structure and role in inheritance cannot be observed through ordinary personal experience. Understanding it requires scientific study and instrumentation.\"}},\"commonsense\":0,\"commonsense_explanation\":\"Although widely taught, this is specialized scientific knowledge learned through education rather than intuitive understanding gained from everyday experience.\"}",
+                "refusal": null,
+                "reasoning": null
+              },
+              "finish_reason": "stop",
+              "native_finish_reason": "end_turn",
+              "logprobs": null
+            }
+          ],
+          "service_tier": "batch",
+          "usage": {
+            "prompt_tokens": 2374,
+            "completion_tokens": 504,
+            "total_tokens": 2878,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "provider": "Anthropic"
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "msg_011CfNNWXMaR5QjNRD2QhAmW",
+      "custom_id": "3800061ff7a502ea6a988ad0819d9c7c3b5116e4515708bd7c51ec811e17ee41",
+      "response": {
+        "status_code": 200,
+        "request_id": null,
+        "body": {
+          "model": "anthropic/claude-opus-5.5",
+          "id": "gen-batch-1790257774-c291531204229fe3c28d",
+          "created": 1790258114,
+          "system_fingerprint": null,
+          "object": "chat.completion",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\"features\":{\"fact\":{\"classification\":\"opinion\",\"confidence\":2,\"explanation\":\"While food allergies and intolerances show some foods harm certain people, the aphoristic framing and the claim about preferences are broad, interpretive generalizations rather than precisely demonstrable claims. It could be read as factual, so confidence is moderate-low.\"},\"physical\":{\"classification\":\"social\",\"confidence\":2,\"explanation\":\"The second clause about preferences shaping dietary habits is about human behavior and taste, though the first clause hints at biological differences. The overall emphasis on preferences tips it toward social.\"},\"literal language\":{\"classification\":\"figure of speech\",\"confidence\":4,\"explanation\":\"It adapts the well-known aphorism 'one man's meat is another man's poison,' using 'poison' figuratively. This is clearly proverbial language.\"},\"positive\":{\"classification\":\"positive\",\"confidence\":2,\"explanation\":\"It describes how things are (people differ, and preferences influence diet) rather than prescribing what should be done. Its proverbial nature carries some value-laden tone, lowering confidence.\"},\"knowledge\":{\"classification\":\"knowledge\",\"confidence\":3,\"explanation\":\"It presents two related observations about human variation and diet without an explicit logical derivation. The semicolon juxtaposes claims rather than drawing a conclusion.\"},\"everyday\":{\"classification\":\"everyday\",\"confidence\":4,\"explanation\":\"People routinely encounter differing food tastes and tolerances among friends and family. This is part of ordinary experience.\"}},\"commonsense\":1,\"commonsense_explanation\":\"Most people widely recognize that individuals differ in what foods suit them and that personal preferences shape what they eat, making this a common-sense observation.\"}",
+                "refusal": null,
+                "reasoning": null
+              },
+              "finish_reason": "stop",
+              "native_finish_reason": "end_turn",
+              "logprobs": null
+            }
+          ],
+          "service_tier": "batch",
+          "usage": {
+            "prompt_tokens": 2368,
+            "completion_tokens": 568,
+            "total_tokens": 2936,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "provider": "Anthropic"
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "msg_011CfNNWX8SHHAgqaZkWMHUv",
+      "custom_id": "35805a4a7e44d790e09d19a0c1c1e594c2b73e83df138e3a763c16baa80b5c9f",
+      "response": {
+        "status_code": 200,
+        "request_id": null,
+        "body": {
+          "model": "anthropic/claude-opus-5.5",
+          "id": "gen-batch-1790257774-235299a2d0332f0eddfa",
+          "created": 1790258114,
+          "system_fingerprint": null,
+          "object": "chat.completion",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\n  \"features\": {\n    \"fact\": {\n      \"classification\": \"fact\",\n      \"confidence\": 4,\n      \"explanation\": \"The direction of gravitational attraction can be objectively measured and verified, independent of anyone's opinion. It is roughly accurate, since Earth's gravity points approximately toward its center of mass.\"\n    },\n    \"physical\": {\n      \"classification\": \"physical\",\n      \"confidence\": 4,\n      \"explanation\": \"Gravity is a natural force described by physics and can be measured empirically. It has no human origin.\"\n    },\n    \"literal language\": {\n      \"classification\": \"literal language\",\n      \"confidence\": 4,\n      \"explanation\": \"The statement plainly describes gravity's effect without metaphor or exaggeration. 'Pulls' is the standard way to describe gravitational attraction.\"\n    },\n    \"positive\": {\n      \"classification\": \"positive\",\n      \"confidence\": 4,\n      \"explanation\": \"It describes a scientific law and empirical regularity rather than a value judgment or social norm.\"\n    },\n    \"knowledge\": {\n      \"classification\": \"knowledge\",\n      \"confidence\": 3,\n      \"explanation\": \"It states an observation or scientific fact about the world rather than presenting a conclusion derived from premises. Its original discovery required reasoning, which leaves slight ambiguity.\"\n    },\n    \"everyday\": {\n      \"classification\": \"abstract\",\n      \"confidence\": 2,\n      \"explanation\": \"People see objects fall downward every day, but the claim that gravity pulls toward the Earth's center cannot be established from individual experience alone. Because the phenomenon itself is so familiar, I am somewhat unconfident.\"\n    }\n  },\n  \"commonsense\": 1,\n  \"commonsense_explanation\": \"Most people know that gravity pulls things down toward the Earth, and the idea that it acts toward the planet's center is taught widely enough to be common knowledge.\"\n}",
+                "refusal": null,
+                "reasoning": null,
+                "reasoning_details": [
+                  {
+                    "type": "reasoning.text",
+                    "signature": "CAQShgcKEAgSGAI4AUIIdGhpbmtpbmcSDLKFMDztVB7+hDqmSBoMWAeTL2Do8zTKShgAIjDP81/JzWK2T4DLxzykxF8TF8+Z1IPw/Ty+aTIFI7UTxRFnGy9bOP7RIW5wSZZBbiMqowY8t4B2c4JL6BCYmE8BBKZpsoLBqdj1x4GH/9XqTqOBU1WefKtS0IO5/C4EnSnmhZn1Bb0vewvMSF3Iu/Xx6u70SI5gWAWs3CS1wykVwsjxboTfX6maCvoaSpL6hN2sgVmyTqKvbPfFKk+AJE+Yc1mvZ1nd6DxwhVT4imftJ9BHe6RAw4YoeNC1DKwCm1rqmPBA5Ld9Gru8bgOwpkMnT+hKnqLYT8kv7rQP2TzJYOuEpaBmSO4xwg7gBgN3rKIA1virMgV600ZPE1e5fee+uBKMA/EkznKzoMM9q+PIAnfSSnfQlFrHOY0Mrm5E6zJTkqdXP5pLPispcPeqOklLl1WBfB21tSK2TyzmxFeyfZ6RvsSeDtO6G5WqGu87v4IDa0zkQl3PQhonyoraqjIZnxajf1su2Nm/b+zVrYIbraKQZyf1gR/wQHosGx+6m8AfFiyWkxdcBs/YAOMjnUwq8b0Fh76Q1jKp+0vT+3lE14UtnmhgioGPE3oVc8/laUUYOH12SIGJpFfwXdl+lmE83QE8NVU2YTEFPKc3K2WywhT+VuABvSCfrpZIKbYKMYbLRwDzIdyX0337T4cGKjf75F9YYjY6qxL+mob0voogqwb5RzQ6+Ek80bSf6wCeGLVnkXpUbOf0SewIzydkZMobilnhT/u34y8tjfwvXckCT1roUlw+Y1KhntRXh14DhgnCWOXtp2HlMo+r19bKYXwuZh+GBkDBJLlpstYiydFm5eTpUnfuajgJPWNrGg/92A2SU/yDyBKc3W/ir4NyL/CaNyd2f0prba5pVG+T73fB1EyTpXQ6TClkIfKqHlPY0zpFTDP7zVoZtoFFhC0jwAIH0C9izAwlcRXimsMhGdc1eYv6fmE+Y1wDxZUyyi4BjcOoKAZrmbvtu4es3Gyt74DxjpwlvlDj3E1EhABiesUZgXK3sPuPeXJk8M6/E3IHhKaYlzHF0OkOnaba9yF6I6uXul6YRpqUBHnb/hwXnyxy7hpy4wmgHO6E0CWPku8w6lW6a8raWLjI/tRWYh89KKFH4vxz1jSxoCZYBylV/NbXIhu1zuIDJhgB",
+                    "format": "anthropic-claude-v1",
+                    "index": 0
+                  }
+                ]
+              },
+              "finish_reason": "stop",
+              "native_finish_reason": "end_turn",
+              "logprobs": null
+            }
+          ],
+          "service_tier": "batch",
+          "usage": {
+            "prompt_tokens": 2365,
+            "completion_tokens": 728,
+            "total_tokens": 3093,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 111,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "provider": "Anthropic"
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "msg_011CfNNWcHzLmd3HjDfWphsM",
+      "custom_id": "22b385b03b8da50550067ae7c8c3490038c6cd3443e9823e8ad05e9c3d7de07b",
+      "response": {
+        "status_code": 200,
+        "request_id": null,
+        "body": {
+          "model": "anthropic/claude-opus-5.5",
+          "id": "gen-batch-1790257774-b1a754404efd920f233a",
+          "created": 1790258114,
+          "system_fingerprint": null,
+          "object": "chat.completion",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\"features\":{\"fact\":{\"classification\":\"fact\",\"confidence\":4,\"explanation\":\"Plate tectonics is a well-established scientific theory supported by extensive empirical evidence. Its correctness does not depend on anyone's opinion.\"},\"physical\":{\"classification\":\"physical\",\"confidence\":4,\"explanation\":\"The statement describes geological structures and processes governed by natural laws. It has nothing to do with human social constructs.\"},\"literal language\":{\"classification\":\"literal language\",\"confidence\":4,\"explanation\":\"The statement uses plain scientific language that means exactly what it says. It contains no metaphor or hyperbole.\"},\"positive\":{\"classification\":\"positive\",\"confidence\":4,\"explanation\":\"It describes an empirical feature of the world and a causal mechanism. It makes no value judgment.\"},\"knowledge\":{\"classification\":\"knowledge\",\"confidence\":3,\"explanation\":\"It states an established observation about Earth's structure rather than deriving a conclusion through explicit logic. The causal link to earthquakes is also presented as known fact, though it could be read as mild reasoning.\"},\"everyday\":{\"classification\":\"abstract\",\"confidence\":4,\"explanation\":\"Tectonic plates and their role in earthquakes cannot be observed through ordinary individual experience. This understanding comes from scientific study.\"}},\"commonsense\":0,\"commonsense_explanation\":\"Although widely taught in school, this is scientific knowledge derived from specialized research rather than something people infer from everyday experience.\"}",
+                "refusal": null,
+                "reasoning": null
+              },
+              "finish_reason": "stop",
+              "native_finish_reason": "end_turn",
+              "logprobs": null
+            }
+          ],
+          "service_tier": "batch",
+          "usage": {
+            "prompt_tokens": 2377,
+            "completion_tokens": 485,
+            "total_tokens": 2862,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "provider": "Anthropic"
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "msg_011CfNNWX3iuda5cTzAjne6T",
+      "custom_id": "9375ba8758a055d89561dcdb520398ace65bc9bfbfd1cd3814b56743857a88cd",
+      "response": {
+        "status_code": 200,
+        "request_id": null,
+        "body": {
+          "model": "anthropic/claude-opus-5.5",
+          "id": "gen-batch-1790257774-93082edb5da59e1bbfa5",
+          "created": 1790258114,
+          "system_fingerprint": null,
+          "object": "chat.completion",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\n  \"features\": {\n    \"fact\": {\n      \"classification\": \"opinion\",\n      \"confidence\": 4,\n      \"explanation\": \"The claim that mathematics guides us through the unknown is an evaluative view that cannot be objectively proven or disproven. Its metaphorical framing makes it clearly subjective.\"\n    },\n    \"physical\": {\n      \"classification\": \"social\",\n      \"confidence\": 2,\n      \"explanation\": \"Mathematics itself is tied to logic and natural rules, but the statement expresses a human perception of math's role and value in inquiry. This dual nature lowers my confidence.\"\n    },\n    \"literal language\": {\n      \"classification\": \"figure of speech\",\n      \"confidence\": 4,\n      \"explanation\": \"The statement is a metaphor, casting mathematics as a compass and the unknown as an ocean. It clearly does not mean what it literally says.\"\n    },\n    \"positive\": {\n      \"classification\": \"normative\",\n      \"confidence\": 3,\n      \"explanation\": \"It conveys a value judgment praising mathematics as an essential guide rather than describing an empirical regularity. It implies a belief about math's worth, though it is phrased descriptively.\"\n    },\n    \"knowledge\": {\n      \"classification\": \"knowledge\",\n      \"confidence\": 3,\n      \"explanation\": \"The statement asserts a view about mathematics without presenting premises or a logical chain leading to a conclusion. It is a standalone claim rather than an argument.\"\n    },\n    \"everyday\": {\n      \"classification\": \"abstract\",\n      \"confidence\": 3,\n      \"explanation\": \"It concerns the general role of mathematics in exploring unknown knowledge, a broad idea not directly observed through ordinary individual experience. People do use math daily, which slightly reduces confidence.\"\n    }\n  },\n  \"commonsense\": 0,\n  \"commonsense_explanation\": \"This is a poetic, philosophical aphorism about mathematics' role in discovery, not a practical, widely shared piece of everyday knowledge that most people would regard as obvious.\"\n}",
+                "refusal": null,
+                "reasoning": null
+              },
+              "finish_reason": "stop",
+              "native_finish_reason": "end_turn",
+              "logprobs": null
+            }
+          ],
+          "service_tier": "batch",
+          "usage": {
+            "prompt_tokens": 2371,
+            "completion_tokens": 658,
+            "total_tokens": 3029,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "provider": "Anthropic"
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "msg_011CfNNWXTHHsVfGkcoZ969s",
+      "custom_id": "a6fd32295fba98947e77e2090c9382f9e65b75cd3ba4e17f34991dde2c5806da",
+      "response": {
+        "status_code": 200,
+        "request_id": null,
+        "body": {
+          "model": "anthropic/claude-opus-5.5",
+          "id": "gen-batch-1790257774-766cd65692e614343a43",
+          "created": 1790258114,
+          "system_fingerprint": null,
+          "object": "chat.completion",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\"features\":{\"fact\":{\"classification\":\"opinion\",\"confidence\":4,\"explanation\":\"The claim that nurturing thoughts leads to flourishing growth is a subjective, motivational view that cannot be objectively demonstrated. Its vague, metaphorical nature makes it clearly an opinion.\"},\"physical\":{\"classification\":\"social\",\"confidence\":3,\"explanation\":\"It concerns human thoughts, mindset, and personal development, which are matters of human experience rather than physical laws. The seed imagery is physical, but it is only used as a metaphor.\"},\"literal language\":{\"classification\":\"figure of speech\",\"confidence\":4,\"explanation\":\"It uses an explicit simile comparing thoughts to seeds, plus the metaphor of nurturing and growth. It is clearly not meant literally.\"},\"positive\":{\"classification\":\"normative\",\"confidence\":4,\"explanation\":\"It is an exhortation to nurture one's thoughts well, expressing a value judgment about how one ought to think. It is advice rather than a description of an empirical regularity.\"},\"knowledge\":{\"classification\":\"knowledge\",\"confidence\":2,\"explanation\":\"It presents a piece of folk wisdom as an observation rather than laying out explicit premises leading to a conclusion. However, the implied 'if you nurture, then growth' structure hints at reasoning, so confidence is modest.\"},\"everyday\":{\"classification\":\"everyday\",\"confidence\":3,\"explanation\":\"People commonly experience how their thinking habits and mindset affect their lives and personal growth. The idea is accessible through ordinary life, though 'thoughts' are somewhat abstract.\"}},\"commonsense\":1,\"commonsense_explanation\":\"This is a widely shared piece of folk wisdom that positive, cultivated thinking leads to personal growth. Most people would recognize and broadly accept it as intuitive advice.\"}",
+                "refusal": null,
+                "reasoning": null
+              },
+              "finish_reason": "stop",
+              "native_finish_reason": "end_turn",
+              "logprobs": null
+            }
+          ],
+          "service_tier": "batch",
+          "usage": {
+            "prompt_tokens": 2371,
+            "completion_tokens": 608,
+            "total_tokens": 2979,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "provider": "Anthropic"
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "msg_011CfNNWXGNSj3pKtnZK8nN1",
+      "custom_id": "984090fdcd91077c9d9d30bffd331e75a65c2e71ab4ef567627d650f0b4ffa14",
+      "response": {
+        "status_code": 200,
+        "request_id": null,
+        "body": {
+          "model": "anthropic/claude-opus-5.5",
+          "id": "gen-batch-1790257774-a801b3a9b9433854982c",
+          "created": 1790258114,
+          "system_fingerprint": null,
+          "object": "chat.completion",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\"features\":{\"fact\":{\"classification\":\"opinion\",\"confidence\":2,\"explanation\":\"The claim is a broad generalization about the value of structured analysis that cannot be objectively verified in all cases. It could be tested empirically in specific contexts, which lowers my confidence.\"},\"physical\":{\"classification\":\"social\",\"confidence\":3,\"explanation\":\"Analyses and processes here refer to human organizational and methodological practices, which are of human origin. Some processes are engineering-related, so it is not entirely social.\"},\"literal language\":{\"classification\":\"literal language\",\"confidence\":3,\"explanation\":\"The statement plainly says that systematic analysis improves processes, without an obvious metaphor. 'Refine' is used in its ordinary sense of improving.\"},\"positive\":{\"classification\":\"normative\",\"confidence\":2,\"explanation\":\"The statement implicitly endorses structured analysis as valuable, reflecting a methodological value judgment. However, it is phrased as a descriptive claim about cause and effect, so it could be read as positive.\"},\"knowledge\":{\"classification\":\"knowledge\",\"confidence\":3,\"explanation\":\"It states a general observation or belief rather than drawing a conclusion from stated premises.\"},\"everyday\":{\"classification\":\"abstract\",\"confidence\":3,\"explanation\":\"It is a generalized claim about methodologies and processes that is not directly observed in ordinary daily experience. It reflects professional or organizational knowledge.\"}},\"commonsense\":0,\"commonsense_explanation\":\"The statement is a vague, jargon-like generalization from business or methodology discourse rather than a widely shared, intuitive belief that most people would hold without specialized context.\"}",
+                "refusal": null,
+                "reasoning": null
+              },
+              "finish_reason": "stop",
+              "native_finish_reason": "end_turn",
+              "logprobs": null
+            }
+          ],
+          "service_tier": "batch",
+          "usage": {
+            "prompt_tokens": 2357,
+            "completion_tokens": 538,
+            "total_tokens": 2895,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "provider": "Anthropic"
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "msg_011CfNNWXDeJDSHosVgkbDVR",
+      "custom_id": "8f8a2dc30bb7130b19722566e643b1e91aa6d2b244d44b04c8e8d921c6e24d80",
+      "response": {
+        "status_code": 200,
+        "request_id": null,
+        "body": {
+          "model": "anthropic/claude-opus-5.5",
+          "id": "gen-batch-1790257774-a7cf3657effdf4b5f38a",
+          "created": 1790258114,
+          "system_fingerprint": null,
+          "object": "chat.completion",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\"features\":{\"fact\":{\"classification\":\"opinion\",\"confidence\":4,\"explanation\":\"Whether humility leads to honor cannot be objectively demonstrated; it is a moral belief. The statement is subjective wisdom rather than a verifiable claim.\"},\"physical\":{\"classification\":\"social\",\"confidence\":4,\"explanation\":\"Humility and honor are human virtues and social constructs. They are not features of the physical world.\"},\"literal language\":{\"classification\":\"figure of speech\",\"confidence\":3,\"explanation\":\"The statement is an aphorism, from Proverbs 15:33 and 18:12, that uses 'precedes' figuratively to express a moral truth. It is fairly plain language, which slightly lowers confidence.\"},\"positive\":{\"classification\":\"normative\",\"confidence\":4,\"explanation\":\"It expresses a value judgment that encourages humility as a virtue. It is a moral teaching rather than an empirical regularity.\"},\"knowledge\":{\"classification\":\"knowledge\",\"confidence\":3,\"explanation\":\"It states a claimed observation about how humility and honor relate, without presenting an explicit logical argument. There is an implied causal link, which leaves some ambiguity.\"},\"everyday\":{\"classification\":\"everyday\",\"confidence\":3,\"explanation\":\"People commonly encounter situations where humble behavior earns respect. The concepts are somewhat abstract, though, which lowers confidence slightly.\"}},\"commonsense\":1,\"commonsense_explanation\":\"It is a widely known proverb reflecting broadly shared cultural wisdom that humble people tend to earn respect, so many people would accept it as common sense.\"}",
+                "refusal": null,
+                "reasoning": null
+              },
+              "finish_reason": "stop",
+              "native_finish_reason": "end_turn",
+              "logprobs": null
+            }
+          ],
+          "service_tier": "batch",
+          "usage": {
+            "prompt_tokens": 2355,
+            "completion_tokens": 528,
+            "total_tokens": 2883,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "provider": "Anthropic"
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "msg_011CfNNYnYSaSsVVeDVTvkYF",
+      "custom_id": "02b4c291abe3e12c357d6793d0d58cbc389417dce26310e9cb9877417e89407a",
+      "response": {
+        "status_code": 200,
+        "request_id": null,
+        "body": {
+          "model": "anthropic/claude-opus-5.5",
+          "id": "gen-batch-1790257774-eef5027ff49e6048c271",
+          "created": 1790258114,
+          "system_fingerprint": null,
+          "object": "chat.completion",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\"features\":{\"fact\":{\"classification\":\"fact\",\"confidence\":4,\"explanation\":\"That magnets attract iron can be demonstrated objectively through simple experiments. This does not depend on anyone's opinion.\"},\"physical\":{\"classification\":\"physical\",\"confidence\":4,\"explanation\":\"Magnetism is a physical phenomenon described by physics and measurable empirically.\"},\"literal language\":{\"classification\":\"literal language\",\"confidence\":4,\"explanation\":\"The statement plainly describes magnetic attraction without metaphor or exaggeration.\"},\"positive\":{\"classification\":\"positive\",\"confidence\":4,\"explanation\":\"It describes an empirical regularity of the natural world rather than a value judgment.\"},\"knowledge\":{\"classification\":\"knowledge\",\"confidence\":3,\"explanation\":\"It states an observation about the world rather than deriving a conclusion through logical steps. Confidence is slightly reduced because it is phrased as a general principle.\"},\"everyday\":{\"classification\":\"everyday\",\"confidence\":3,\"explanation\":\"People routinely encounter magnets sticking to iron objects, such as fridge magnets on a refrigerator door. The underlying concept of magnetism is somewhat scientific, though the effect itself is commonly observed.\"}},\"commonsense\":1,\"commonsense_explanation\":\"Most people know from everyday experience that magnets attract iron objects, making this widely shared common knowledge.\"}",
+                "refusal": null,
+                "reasoning": null
+              },
+              "finish_reason": "stop",
+              "native_finish_reason": "end_turn",
+              "logprobs": null
+            }
+          ],
+          "service_tier": "batch",
+          "usage": {
+            "prompt_tokens": 2365,
+            "completion_tokens": 458,
+            "total_tokens": 2823,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "provider": "Anthropic"
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "msg_011CfNNWXBuXinFj23nzhFm2",
+      "custom_id": "c2c12df3372369baf48f3c70069beafea320670c3d7633a32f267eecfa2d27bf",
+      "response": {
+        "status_code": 200,
+        "request_id": null,
+        "body": {
+          "model": "anthropic/claude-opus-5.5",
+          "id": "gen-batch-1790257774-ec154860a60c3c038a15",
+          "created": 1790258114,
+          "system_fingerprint": null,
+          "object": "chat.completion",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\"features\":{\"fact\":{\"classification\":\"opinion\",\"confidence\":3,\"explanation\":\"Whether good manners create opportunities is a broad generalization that depends on context and perception, so it cannot be objectively demonstrated. Some empirical support exists, which keeps confidence from being maximal.\"},\"physical\":{\"classification\":\"social\",\"confidence\":4,\"explanation\":\"Manners are socially constructed conventions, and their effects arise from human perceptions and interactions.\"},\"literal language\":{\"classification\":\"figure of speech\",\"confidence\":4,\"explanation\":\"'Open doors' is a metaphor for creating opportunities, not a reference to physically opening doors.\"},\"positive\":{\"classification\":\"normative\",\"confidence\":3,\"explanation\":\"The statement endorses a social value, good manners, and implicitly encourages people to adopt it. It does describe an outcome, which adds a slight positive element.\"},\"knowledge\":{\"classification\":\"knowledge\",\"confidence\":3,\"explanation\":\"It states a general observation or maxim about the world rather than a conclusion drawn from explicit premises.\"},\"everyday\":{\"classification\":\"everyday\",\"confidence\":4,\"explanation\":\"People routinely experience how politeness affects social and professional interactions in daily life.\"}},\"commonsense\":1,\"commonsense_explanation\":\"This is a widely shared piece of folk wisdom that most people accept based on ordinary social experience.\"}",
+                "refusal": null,
+                "reasoning": null
+              },
+              "finish_reason": "stop",
+              "native_finish_reason": "end_turn",
+              "logprobs": null
+            }
+          ],
+          "service_tier": "batch",
+          "usage": {
+            "prompt_tokens": 2354,
+            "completion_tokens": 454,
+            "total_tokens": 2808,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "provider": "Anthropic"
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "msg_011CfNNWWunoU7kyLag94mWF",
+      "custom_id": "b6d6ed65aeeff2b9099904d18708403d56e3831c3bd66b01fda9359125904bb9",
+      "response": {
+        "status_code": 200,
+        "request_id": null,
+        "body": {
+          "model": "anthropic/claude-opus-5.5",
+          "id": "gen-batch-1790257774-e66b9bf01e43cc5ddd87",
+          "created": 1790258114,
+          "system_fingerprint": null,
+          "object": "chat.completion",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\"features\":{\"fact\":{\"classification\":\"opinion\",\"confidence\":3,\"explanation\":\"Judging someone as unreliable is a subjective evaluation, although the idiom's definition nearly makes it true by definition. That definitional aspect lowers my confidence slightly.\"},\"physical\":{\"classification\":\"social\",\"confidence\":4,\"explanation\":\"The statement concerns friendship and interpersonal behavior, which are human social phenomena. There is no physical or natural-law component.\"},\"literal language\":{\"classification\":\"figure of speech\",\"confidence\":4,\"explanation\":\"'Fair weather friends' is an idiomatic metaphor for people who are friends only in good times. It does not refer to actual weather.\"},\"positive\":{\"classification\":\"normative\",\"confidence\":3,\"explanation\":\"Calling such friends unreliable expresses a value judgment about how friends ought to behave. It could be read as a descriptive generalization, hence moderate confidence.\"},\"knowledge\":{\"classification\":\"knowledge\",\"confidence\":3,\"explanation\":\"It states a general observation about a type of person rather than presenting a conclusion derived from premises. One might argue it is implicitly deduced from the idiom's meaning.\"},\"everyday\":{\"classification\":\"everyday\",\"confidence\":4,\"explanation\":\"Most people encounter friends who disappear when times get hard. This is part of ordinary social experience.\"}},\"commonsense\":1,\"commonsense_explanation\":\"It is a widely shared piece of folk wisdom that people who are friends only in good times cannot be counted on when things go wrong.\"}",
+                "refusal": null,
+                "reasoning": null
+              },
+              "finish_reason": "stop",
+              "native_finish_reason": "end_turn",
+              "logprobs": null
+            }
+          ],
+          "service_tier": "batch",
+          "usage": {
+            "prompt_tokens": 2359,
+            "completion_tokens": 505,
+            "total_tokens": 2864,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "provider": "Anthropic"
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "msg_011CfNNWXP4q4Y7WyYfG34h6",
+      "custom_id": "3cd9cca7a281bade82626791538fa7cf245033dde92880cedcf036da4138d45a",
+      "response": {
+        "status_code": 200,
+        "request_id": null,
+        "body": {
+          "model": "anthropic/claude-opus-5.5",
+          "id": "gen-batch-1790257774-a2bd410430fdc9260c34",
+          "created": 1790258114,
+          "system_fingerprint": null,
+          "object": "chat.completion",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\"features\":{\"fact\":{\"classification\":\"fact\",\"confidence\":4,\"explanation\":\"The urban heat island effect is well documented and measurable through temperature data and energy usage records. Its truth does not depend on anyone's opinion.\"},\"physical\":{\"classification\":\"physical\",\"confidence\":3,\"explanation\":\"The statement describes a physical phenomenon of heat absorption and retention by urban materials that affects temperature. Energy consumption involves human behavior, which lowers confidence slightly.\"},\"literal language\":{\"classification\":\"literal language\",\"confidence\":3,\"explanation\":\"'Urban heat island' is an established technical term, and the statement means exactly what it says. The term 'island' is originally metaphorical, but here it is used as standard terminology.\"},\"positive\":{\"classification\":\"positive\",\"confidence\":4,\"explanation\":\"The statement describes an empirical regularity without making any value judgment or prescription.\"},\"knowledge\":{\"classification\":\"knowledge\",\"confidence\":3,\"explanation\":\"It states an observed scientific finding rather than deriving a conclusion from premises. It does, however, describe a causal chain, which adds slight ambiguity.\"},\"everyday\":{\"classification\":\"abstract\",\"confidence\":2,\"explanation\":\"Establishing the heat island effect and its impact on energy consumption requires systematic measurement across areas, not just individual experience. People may nonetheless notice that cities feel hotter, which lowers confidence.\"}},\"commonsense\":0,\"commonsense_explanation\":\"Many people sense that cities are warmer, but the concept of urban heat islands and their effects on climate and energy use is specialized scientific knowledge rather than common sense.\"}",
+                "refusal": null,
+                "reasoning": null
+              },
+              "finish_reason": "stop",
+              "native_finish_reason": "end_turn",
+              "logprobs": null
+            }
+          ],
+          "service_tier": "batch",
+          "usage": {
+            "prompt_tokens": 2375,
+            "completion_tokens": 540,
+            "total_tokens": 2915,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "provider": "Anthropic"
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "msg_011CfNNYz4Uwqq8tBXc2dVTT",
+      "custom_id": "c877e018afc0a296a3e4a24e17e921fce88fc743d6346ef939a2556ee068f0f7",
+      "response": {
+        "status_code": 200,
+        "request_id": null,
+        "body": {
+          "model": "anthropic/claude-opus-5.5",
+          "id": "gen-batch-1790257774-7572da45e00f302e6943",
+          "created": 1790258114,
+          "system_fingerprint": null,
+          "object": "chat.completion",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\"features\":{\"fact\":{\"classification\":\"fact\",\"confidence\":3,\"explanation\":\"Whether the field of AI ethics addresses bias concerns can be checked against its literature, guidelines and research agendas, which do prominently cover bias. Some might read it as an evaluative claim about how well bias is addressed, which slightly lowers confidence.\"},\"physical\":{\"classification\":\"social\",\"confidence\":4,\"explanation\":\"AI ethics is a human-constructed field concerned with values and fairness, and bias is a social concern. It is not about natural physical laws.\"},\"literal language\":{\"classification\":\"literal language\",\"confidence\":3,\"explanation\":\"The statement plainly says that the field of AI ethics deals with bias issues. The use of 'AI ethics' as the subject doing the addressing is a mild metonymy for practitioners, but it is ordinary usage.\"},\"positive\":{\"classification\":\"positive\",\"confidence\":2,\"explanation\":\"The statement describes what the field does rather than prescribing what should be done. However, its subject matter is inherently about ethics and values, making normative a plausible reading.\"},\"knowledge\":{\"classification\":\"knowledge\",\"confidence\":4,\"explanation\":\"It is a simple observation about the scope of a field. It does not combine premises to reach a conclusion.\"},\"everyday\":{\"classification\":\"abstract\",\"confidence\":3,\"explanation\":\"AI ethics and algorithmic bias are specialized topics learned through media, education or professional work rather than direct personal experience. Growing public exposure to AI makes this somewhat less certain.\"}},\"commonsense\":0,\"commonsense_explanation\":\"Knowing what the field of AI ethics covers requires specialized, relatively recent domain knowledge. It is not something most people across cultures would regard as self-evident.\"}",
+                "refusal": null,
+                "reasoning": null
+              },
+              "finish_reason": "stop",
+              "native_finish_reason": "end_turn",
+              "logprobs": null
+            }
+          ],
+          "service_tier": "batch",
+          "usage": {
+            "prompt_tokens": 2358,
+            "completion_tokens": 577,
+            "total_tokens": 2935,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "provider": "Anthropic"
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "msg_011CfNNWXG84bAYACccTKfmZ",
+      "custom_id": "e341f7dcd88d93e859eef3790c27f3e2fe8536562ec3341dd90d62dc80c6cffb",
+      "response": {
+        "status_code": 200,
+        "request_id": null,
+        "body": {
+          "model": "anthropic/claude-opus-5.5",
+          "id": "gen-batch-1790257774-3942eb61f2b39bc7ed40",
+          "created": 1790258114,
+          "system_fingerprint": null,
+          "object": "chat.completion",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\n  \"features\": {\n    \"fact\": {\n      \"classification\": \"fact\",\n      \"confidence\": 4,\n      \"explanation\": \"The claim that strength training increases muscle mass and improves metabolic health can be tested empirically and is supported by physiological research. It does not depend on anyone's personal viewpoint.\"\n    },\n    \"physical\": {\n      \"classification\": \"physical\",\n      \"confidence\": 4,\n      \"explanation\": \"It describes biological processes, namely muscle hypertrophy and metabolism, which are measurable features of the human body.\"\n    },\n    \"literal language\": {\n      \"classification\": \"literal language\",\n      \"confidence\": 4,\n      \"explanation\": \"The statement uses plain, direct language with no metaphor, hyperbole, or idiom.\"\n    },\n    \"positive\": {\n      \"classification\": \"positive\",\n      \"confidence\": 4,\n      \"explanation\": \"It describes an empirical cause-and-effect regularity rather than prescribing what people should do or expressing a value judgment.\"\n    },\n    \"knowledge\": {\n      \"classification\": \"knowledge\",\n      \"confidence\": 3,\n      \"explanation\": \"It mainly reports an observed relationship about the world. The word 'contributing' implies a causal chain, which gives it a slight reasoning flavor and lowers my confidence a little.\"\n    },\n    \"everyday\": {\n      \"classification\": \"everyday\",\n      \"confidence\": 2,\n      \"explanation\": \"People can see muscle gain from lifting weights in ordinary life. However, the link to 'metabolic health' relies on scientific study and cannot be directly observed through individual experience, so the label is uncertain.\"\n    }\n  },\n  \"commonsense\": 1,\n  \"commonsense_explanation\": \"Most people broadly know that lifting weights builds muscle and is good for health, so the statement fits widely shared common knowledge, even if the metabolic details are more technical.\"\n}",
+                "refusal": null,
+                "reasoning": null
+              },
+              "finish_reason": "stop",
+              "native_finish_reason": "end_turn",
+              "logprobs": null
+            }
+          ],
+          "service_tier": "batch",
+          "usage": {
+            "prompt_tokens": 2368,
+            "completion_tokens": 609,
+            "total_tokens": 2977,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "provider": "Anthropic"
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "msg_011CfNNWXGsBWW6XkBZayvsG",
+      "custom_id": "45503965ad0c070c3e2e799c9b2466315e205c21b01cb6af9a4ef65e78f03230",
+      "response": {
+        "status_code": 200,
+        "request_id": null,
+        "body": {
+          "model": "anthropic/claude-opus-5.5",
+          "id": "gen-batch-1790257774-04b6d902351144b96969",
+          "created": 1790258114,
+          "system_fingerprint": null,
+          "object": "chat.completion",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\n  \"features\": {\n    \"fact\": {\n      \"classification\": \"opinion\",\n      \"confidence\": 3,\n      \"explanation\": \"Calling the equator Earth's 'belt' is a subjective poetic characterization that cannot be proven true or false. It does rest on the verifiable fact that the equator circles Earth's widest point, which keeps my confidence below maximum.\"\n    },\n    \"physical\": {\n      \"classification\": \"physical\",\n      \"confidence\": 3,\n      \"explanation\": \"The statement concerns the equator's geometric position around Earth's middle, which is a physical feature. The equator is partly a human-defined reference line, adding slight uncertainty.\"\n    },\n    \"literal language\": {\n      \"classification\": \"figure of speech\",\n      \"confidence\": 4,\n      \"explanation\": \"The statement is clearly a metaphor comparing the equator to a belt around a waist. The equator does not literally cinch anything.\"\n    },\n    \"positive\": {\n      \"classification\": \"positive\",\n      \"confidence\": 3,\n      \"explanation\": \"It describes the equator's location in the world rather than making a value judgment or prescribing a norm. The metaphorical framing makes it slightly less clear-cut.\"\n    },\n    \"knowledge\": {\n      \"classification\": \"knowledge\",\n      \"confidence\": 4,\n      \"explanation\": \"It presents a descriptive observation, framed as a metaphor, without drawing a conclusion from premises through logic.\"\n    },\n    \"everyday\": {\n      \"classification\": \"abstract\",\n      \"confidence\": 3,\n      \"explanation\": \"The equator is an imaginary line on a global scale that cannot be directly observed through ordinary individual experience. People do encounter it on maps and globes, so there is some everyday familiarity.\"\n    }\n  },\n  \"commonsense\": 0,\n  \"commonsense_explanation\": \"This is a poetic metaphor rather than a practical piece of shared everyday knowledge. The underlying idea that the equator circles Earth's middle is widely known, but the statement itself is figurative description.\"\n}",
+                "refusal": null,
+                "reasoning": null
+              },
+              "finish_reason": "stop",
+              "native_finish_reason": "end_turn",
+              "logprobs": null
+            }
+          ],
+          "service_tier": "batch",
+          "usage": {
+            "prompt_tokens": 2368,
+            "completion_tokens": 657,
+            "total_tokens": 3025,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "provider": "Anthropic"
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "msg_011CfNNWaByzHcB25mDNLQ1B",
+      "custom_id": "f0772f113d7c042ec3670ab6f7a9fd6bde7d9a0848c903713b26139f633627b5",
+      "response": {
+        "status_code": 200,
+        "request_id": null,
+        "body": {
+          "model": "anthropic/claude-opus-5.5",
+          "id": "gen-batch-1790257774-5092d912a20e3024abcc",
+          "created": 1790258114,
+          "system_fingerprint": null,
+          "object": "chat.completion",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\"features\":{\"fact\":{\"classification\":\"fact\",\"confidence\":4,\"explanation\":\"That many chemical reactions are exothermic can be demonstrated through measurement, independent of anyone's opinion.\"},\"physical\":{\"classification\":\"physical\",\"confidence\":4,\"explanation\":\"The statement concerns chemistry and energy, which are objective features of the natural world.\"},\"literal language\":{\"classification\":\"literal language\",\"confidence\":4,\"explanation\":\"The statement is plain and means exactly what it says, with no metaphor or hyperbole.\"},\"positive\":{\"classification\":\"positive\",\"confidence\":4,\"explanation\":\"It describes an empirical regularity in science rather than a value judgment or norm.\"},\"knowledge\":{\"classification\":\"knowledge\",\"confidence\":3,\"explanation\":\"It states a general observation about the world rather than drawing a conclusion from premises. It could be seen as a scientific generalization, but it is presented as known fact.\"},\"everyday\":{\"classification\":\"abstract\",\"confidence\":2,\"explanation\":\"People encounter energy-releasing reactions such as fire or batteries, but the general concept of 'chemical reactions' releasing energy is a scientific abstraction learned through education. This is borderline, so my confidence is modest.\"}},\"commonsense\":1,\"commonsense_explanation\":\"Most people know from experience with fire, cooking, and fuels, plus basic schooling, that chemical reactions often release energy, making it widely shared common knowledge.\"}",
+                "refusal": null,
+                "reasoning": null
+              },
+              "finish_reason": "stop",
+              "native_finish_reason": "end_turn",
+              "logprobs": null
+            }
+          ],
+          "service_tier": "batch",
+          "usage": {
+            "prompt_tokens": 2358,
+            "completion_tokens": 476,
+            "total_tokens": 2834,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "provider": "Anthropic"
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "msg_011CfNNWXQZBEynCfAYbxfKW",
+      "custom_id": "5e61eb995ea22ca6a5a5c7adcfdb484bba6fb334fdd99f9730018eda1b04cf61",
+      "response": {
+        "status_code": 200,
+        "request_id": null,
+        "body": {
+          "model": "anthropic/claude-opus-5.5",
+          "id": "gen-batch-1790257774-338cf9428f77c63fa53a",
+          "created": 1790258114,
+          "system_fingerprint": null,
+          "object": "chat.completion",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\n  \"features\": {\n    \"fact\": {\n      \"classification\": \"opinion\",\n      \"confidence\": 3,\n      \"explanation\": \"The claim that one's actions eventually return to them is a belief about karmic justice that cannot be objectively demonstrated. Some might see it as a loose empirical claim about reciprocity, so confidence is not maximal.\"\n    },\n    \"physical\": {\n      \"classification\": \"social\",\n      \"confidence\": 4,\n      \"explanation\": \"The saying concerns human behavior, moral consequences, and social reciprocity rather than natural laws. It is clearly of human origin and meaning.\"\n    },\n    \"literal language\": {\n      \"classification\": \"figure of speech\",\n      \"confidence\": 4,\n      \"explanation\": \"It is a well-known aphorism that uses the image of something circling back as a metaphor for consequences. It is not meant literally about objects moving in circles.\"\n    },\n    \"positive\": {\n      \"classification\": \"normative\",\n      \"confidence\": 3,\n      \"explanation\": \"The saying expresses a moral belief and implicitly advises people to treat others well. It is phrased like a regularity, which leaves some ambiguity.\"\n    },\n    \"knowledge\": {\n      \"classification\": \"knowledge\",\n      \"confidence\": 3,\n      \"explanation\": \"It is presented as a general observation or belief about how the world works, not as a conclusion derived from explicit premises. It does carry an implied causal logic, so confidence is moderate.\"\n    },\n    \"everyday\": {\n      \"classification\": \"everyday\",\n      \"confidence\": 3,\n      \"explanation\": \"People commonly apply the saying to ordinary experiences of reciprocity, such as kindness being repaid or bad behavior backfiring. As a universal principle it is somewhat abstract, but its use is grounded in daily life.\"\n    },\n  },\n  \"commonsense\": 1,\n  \"commonsense_explanation\": \"This is a widely known folk saying that many people accept as practical wisdom about reciprocity and the consequences of one's actions, even though it is not strictly provable.\"\n}",
+                "refusal": null,
+                "reasoning": null
+              },
+              "finish_reason": "stop",
+              "native_finish_reason": "end_turn",
+              "logprobs": null
+            }
+          ],
+          "service_tier": "batch",
+          "usage": {
+            "prompt_tokens": 2354,
+            "completion_tokens": 662,
+            "total_tokens": 3016,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "provider": "Anthropic"
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "msg_011CfNNWXH7Vy5gjTJkYwmee",
+      "custom_id": "9fbfcedb6eb6cb9765bb30e2576695e487ace9677c276731fb4f52e1584c4248",
+      "response": {
+        "status_code": 200,
+        "request_id": null,
+        "body": {
+          "model": "anthropic/claude-opus-5.5",
+          "id": "gen-batch-1790257774-823ccc01e1117e7a2275",
+          "created": 1790258114,
+          "system_fingerprint": null,
+          "object": "chat.completion",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\"features\":{\"fact\":{\"classification\":\"fact\",\"confidence\":3,\"explanation\":\"Writing a list does arrange tasks into an explicit, ordered structure, which can be observed and demonstrated. Whether it is 'helpful' could be subjective, but the organizing function is fairly objective.\"},\"physical\":{\"classification\":\"social\",\"confidence\":3,\"explanation\":\"Lists and task management are human practices tied to how people structure their activities. They are not natural physical phenomena.\"},\"literal language\":{\"classification\":\"literal language\",\"confidence\":4,\"explanation\":\"The statement plainly means that making lists puts tasks in order, with no metaphor or exaggeration.\"},\"positive\":{\"classification\":\"positive\",\"confidence\":3,\"explanation\":\"It describes what list-writing does rather than prescribing that people should do it. A slight implied endorsement keeps confidence from being maximal.\"},\"knowledge\":{\"classification\":\"knowledge\",\"confidence\":4,\"explanation\":\"It is a simple observation about the effect of writing lists, not a conclusion derived from combining premises.\"},\"everyday\":{\"classification\":\"everyday\",\"confidence\":4,\"explanation\":\"Making to-do or shopping lists is a routine activity that most people experience directly.\"}},\"commonsense\":1,\"commonsense_explanation\":\"Most people would readily agree from ordinary experience that writing lists helps organize tasks, making this widely shared common sense.\"}",
+                "refusal": null,
+                "reasoning": null
+              },
+              "finish_reason": "stop",
+              "native_finish_reason": "end_turn",
+              "logprobs": null
+            }
+          ],
+          "service_tier": "batch",
+          "usage": {
+            "prompt_tokens": 2358,
+            "completion_tokens": 459,
+            "total_tokens": 2817,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "provider": "Anthropic"
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "msg_011CfNNWXHcLkLFEGaZqojLH",
+      "custom_id": "72afaaa46a99f1b81cee2caca849897a88a602317ba86c3df77df3d632c37bdf",
+      "response": {
+        "status_code": 200,
+        "request_id": null,
+        "body": {
+          "model": "anthropic/claude-opus-5.5",
+          "id": "gen-batch-1790257774-490b885d0b56aadaa6fd",
+          "created": 1790258114,
+          "system_fingerprint": null,
+          "object": "chat.completion",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\"features\":{\"fact\":{\"classification\":\"opinion\",\"confidence\":4,\"explanation\":\"Calling rainforests 'green cathedrals' that shelter 'ancient secrets' is a poetic, subjective characterization that cannot be objectively verified. The metaphorical framing makes this clearly an opinion.\"},\"physical\":{\"classification\":\"physical\",\"confidence\":2,\"explanation\":\"The subject, rainforests and their biodiversity, is a physical, biological entity. However, the cathedral imagery imposes a human, reverential perception, which lowers confidence.\"},\"literal language\":{\"classification\":\"figure of speech\",\"confidence\":4,\"explanation\":\"'Green cathedrals' is a metaphor, and 'sheltering Earth's ancient secrets' is personifying, poetic language. Neither is meant literally.\"},\"positive\":{\"classification\":\"normative\",\"confidence\":3,\"explanation\":\"The statement expresses a value-laden, reverential judgment about rainforests rather than describing an empirical regularity. It implies they are sacred or worthy of awe.\"},\"knowledge\":{\"classification\":\"knowledge\",\"confidence\":3,\"explanation\":\"It presents a characterization or observation about rainforests without combining premises to reach a conclusion. No logical inference is laid out.\"},\"everyday\":{\"classification\":\"abstract\",\"confidence\":2,\"explanation\":\"Most people do not encounter rainforests in daily life, and the notion of 'Earth's ancient secrets' is conceptual rather than directly experienced. Some people do visit or live near rainforests, hence moderate uncertainty.\"}},\"commonsense\":0,\"commonsense_explanation\":\"This is a poetic, metaphorical expression of admiration rather than a widely shared practical understanding about how the world works, so it is not an example of common sense.\"}",
+                "refusal": null,
+                "reasoning": null
+              },
+              "finish_reason": "stop",
+              "native_finish_reason": "end_turn",
+              "logprobs": null
+            }
+          ],
+          "service_tier": "batch",
+          "usage": {
+            "prompt_tokens": 2377,
+            "completion_tokens": 588,
+            "total_tokens": 2965,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "provider": "Anthropic"
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "msg_011CfNNWXSnLHFn3EJsr6vpd",
+      "custom_id": "6a4c13fbe922e729ac16b4c1bfd89066213c6e53f5ca24f53d23332300f36e52",
+      "response": {
+        "status_code": 200,
+        "request_id": null,
+        "body": {
+          "model": "anthropic/claude-opus-5.5",
+          "id": "gen-batch-1790257774-396c293c4d0ce913d349",
+          "created": 1790258114,
+          "system_fingerprint": null,
+          "object": "chat.completion",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\"features\":{\"fact\":{\"classification\":\"fact\",\"confidence\":3,\"explanation\":\"The statement makes a descriptive claim that people's opinions vary with their values, which could be empirically verified through surveys. It is about opinions but is not itself a subjective judgment, though the vague word 'significantly' adds slight uncertainty.\"},\"physical\":{\"classification\":\"social\",\"confidence\":4,\"explanation\":\"It concerns human opinions and values, which are intrinsically of human origin. It is not about the physiology of weight loss itself.\"},\"literal language\":{\"classification\":\"literal language\",\"confidence\":4,\"explanation\":\"The statement is plain and means exactly what it says. It contains no metaphor or hyperbole.\"},\"positive\":{\"classification\":\"positive\",\"confidence\":2,\"explanation\":\"It describes an empirical regularity about how opinions vary rather than prescribing what anyone should believe. However, its subject matter is values and beliefs, which makes the normative label somewhat plausible.\"},\"knowledge\":{\"classification\":\"knowledge\",\"confidence\":3,\"explanation\":\"It states an observation about the world rather than drawing a conclusion from premises. It does implicitly link values to opinions, but it is not presented as an argument.\"},\"everyday\":{\"classification\":\"everyday\",\"confidence\":3,\"explanation\":\"People commonly encounter differing views on dieting and weight loss in ordinary conversation and media. The general link to 'values' is slightly abstract, but it remains observable in daily life.\"}},\"commonsense\":1,\"commonsense_explanation\":\"Most people would readily agree that views on diets and weight loss vary with personal values such as ethics, health priorities, or convenience. This is widely recognized without specialized knowledge.\"}",
+                "refusal": null,
+                "reasoning": null
+              },
+              "finish_reason": "stop",
+              "native_finish_reason": "end_turn",
+              "logprobs": null
+            }
+          ],
+          "service_tier": "batch",
+          "usage": {
+            "prompt_tokens": 2367,
+            "completion_tokens": 559,
+            "total_tokens": 2926,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "provider": "Anthropic"
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "msg_011CfNNWXK6Rtyu9ov1sLHKZ",
+      "custom_id": "d582de39e0b9e143af5e0d4a949f497f4dd8a5b87b394d2cd68bc34e8d283ee7",
+      "response": {
+        "status_code": 200,
+        "request_id": null,
+        "body": {
+          "model": "anthropic/claude-opus-5.5",
+          "id": "gen-batch-1790257774-591a37ac8add8cdc28f4",
+          "created": 1790258114,
+          "system_fingerprint": null,
+          "object": "chat.completion",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\n  \"features\": {\n    \"fact\": {\n      \"classification\": \"fact\",\n      \"confidence\": 4,\n      \"explanation\": \"That mutations can produce beneficial adaptations or harmful defects is well established by empirical biological research. It can be demonstrated independently of opinion.\"\n    },\n    \"physical\": {\n      \"classification\": \"physical\",\n      \"confidence\": 4,\n      \"explanation\": \"The statement concerns biological processes of genetics and evolution, which are natural phenomena. Nothing about it is socially constructed.\"\n    },\n    \"literal language\": {\n      \"classification\": \"literal language\",\n      \"confidence\": 4,\n      \"explanation\": \"The statement uses plain scientific terms that mean exactly what they say. It contains no metaphor or hyperbole.\"\n    },\n    \"positive\": {\n      \"classification\": \"positive\",\n      \"confidence\": 3,\n      \"explanation\": \"It describes an empirical regularity in biology rather than a value judgment. The word 'defects' carries a slight evaluative tone, but it is used descriptively.\"\n    },\n    \"knowledge\": {\n      \"classification\": \"knowledge\",\n      \"confidence\": 3,\n      \"explanation\": \"It states an established observation about genetics rather than presenting a conclusion derived from explicit premises. Its underlying scientific basis involves inference, which lowers confidence slightly.\"\n    },\n    \"everyday\": {\n      \"classification\": \"abstract\",\n      \"confidence\": 4,\n      \"explanation\": \"Genetic mutations and evolutionary adaptation cannot be observed through ordinary personal experience. They are understood through scientific study over long timescales.\"\n    }\n  },\n  \"commonsense\": 0,\n  \"commonsense_explanation\": \"Although widely taught, this is scientific knowledge acquired through formal education rather than something people infer from everyday experience, so it is not typically considered common sense.\"\n}",
+                "refusal": null,
+                "reasoning": null
+              },
+              "finish_reason": "stop",
+              "native_finish_reason": "end_turn",
+              "logprobs": null
+            }
+          ],
+          "service_tier": "batch",
+          "usage": {
+            "prompt_tokens": 2369,
+            "completion_tokens": 602,
+            "total_tokens": 2971,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "provider": "Anthropic"
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "msg_011CfNNWXJMYR338u9EEyjx4",
+      "custom_id": "1532f372e000e212ce76bdd063446df70cbfc3315e78c11497363ac1943c7559",
+      "response": {
+        "status_code": 200,
+        "request_id": null,
+        "body": {
+          "model": "anthropic/claude-opus-5.5",
+          "id": "gen-batch-1790257774-e1f959276fbaaa726ca6",
+          "created": 1790258114,
+          "system_fingerprint": null,
+          "object": "chat.completion",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\"features\":{\"fact\":{\"classification\":\"fact\",\"confidence\":3,\"explanation\":\"Whether folktales encode indigenous knowledge (e.g., ecological, medicinal, historical) can be examined through anthropological and folkloristic research. Some interpretive judgment is involved, so confidence is not maximal.\"},\"physical\":{\"classification\":\"social\",\"confidence\":4,\"explanation\":\"Folktales and indigenous knowledge are cultural products of human societies. The statement is therefore clearly about socially constructed phenomena.\"},\"literal language\":{\"classification\":\"literal language\",\"confidence\":3,\"explanation\":\"The statement plainly asserts a relationship between folktales and knowledge. 'Reflect' is a common, mildly metaphorical verb, but it is conventional usage rather than a true figure of speech.\"},\"positive\":{\"classification\":\"positive\",\"confidence\":3,\"explanation\":\"It describes what folktales contain rather than prescribing what they should do or valuing them. The subject matter is cultural, but the claim itself is descriptive.\"},\"knowledge\":{\"classification\":\"knowledge\",\"confidence\":3,\"explanation\":\"It states a general observation about folktales without presenting premises leading to a conclusion.\"},\"everyday\":{\"classification\":\"abstract\",\"confidence\":3,\"explanation\":\"Recognizing that folktales across cultures encode indigenous knowledge is a generalization from anthropological study. It is not something one would arrive at through ordinary individual experience.\"}},\"commonsense\":0,\"commonsense_explanation\":\"This is more of an academic or anthropological generalization than something most people know or assume in everyday life, though many might find it plausible.\"}",
+                "refusal": null,
+                "reasoning": null
+              },
+              "finish_reason": "stop",
+              "native_finish_reason": "end_turn",
+              "logprobs": null
+            }
+          ],
+          "service_tier": "batch",
+          "usage": {
+            "prompt_tokens": 2362,
+            "completion_tokens": 538,
+            "total_tokens": 2900,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "provider": "Anthropic"
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "msg_011CfNNWXegrEeZCL6W6sp3V",
+      "custom_id": "02d8122d97fbecec9fbce756dd1fb887dffa65a0f0ce7b8a15fcf723abe22a21",
+      "response": {
+        "status_code": 200,
+        "request_id": null,
+        "body": {
+          "model": "anthropic/claude-opus-5.5",
+          "id": "gen-batch-1790257774-f881cf722b01f057d5fd",
+          "created": 1790258114,
+          "system_fingerprint": null,
+          "object": "chat.completion",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\n  \"features\": {\n    \"fact\": {\n      \"classification\": \"opinion\",\n      \"confidence\": 4,\n      \"explanation\": \"Whether perseverance matters more than talent or luck for success is a subjective value judgment that cannot be objectively proven. The vague, metaphorical framing makes it clearly an opinion.\"\n    },\n    \"physical\": {\n      \"classification\": \"social\",\n      \"confidence\": 4,\n      \"explanation\": \"Success, perseverance, and talent are human-defined concepts rooted in social values and perceptions. Nothing here refers to physical or natural laws.\"\n    },\n    \"literal language\": {\n      \"classification\": \"figure of speech\",\n      \"confidence\": 4,\n      \"explanation\": \"The phrase 'a road paved with perseverance' is a metaphor, and the statement as a whole reads like an aphorism.\"\n    },\n    \"positive\": {\n      \"classification\": \"normative\",\n      \"confidence\": 3,\n      \"explanation\": \"The statement expresses a value judgment that elevates perseverance as the key to success, implicitly encouraging that virtue. It is framed descriptively, but its function is prescriptive, so I am fairly but not fully confident.\"\n    },\n    \"knowledge\": {\n      \"classification\": \"knowledge\",\n      \"confidence\": 3,\n      \"explanation\": \"It asserts a belief about the world without presenting premises or a logical chain leading to a conclusion. However, the contrast with talent and luck hints at an implicit comparison, which lowers my confidence slightly.\"\n    },\n    \"everyday\": {\n      \"classification\": \"everyday\",\n      \"confidence\": 3,\n      \"explanation\": \"People regularly experience striving toward goals and can observe the role of effort in their own and others' achievements. Success is a somewhat abstract concept, though, which tempers my confidence.\"\n    }\n  },\n  \"commonsense\": 1,\n  \"commonsense_explanation\": \"The idea that hard work and persistence are key to success is a widely shared piece of folk wisdom that most people would readily accept, even if it is not universally true.\"\n}",
+                "refusal": null,
+                "reasoning": null
+              },
+              "finish_reason": "stop",
+              "native_finish_reason": "end_turn",
+              "logprobs": null
+            }
+          ],
+          "service_tier": "batch",
+          "usage": {
+            "prompt_tokens": 2368,
+            "completion_tokens": 663,
+            "total_tokens": 3031,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "provider": "Anthropic"
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "msg_011CfNNZ1djdPnoCUR3WhNzK",
+      "custom_id": "6433c5dbcaf75c4663512aa52e026d4244387f7a93534db2785e9e9a018ba79b",
+      "response": {
+        "status_code": 200,
+        "request_id": null,
+        "body": {
+          "model": "anthropic/claude-opus-5.5",
+          "id": "gen-batch-1790257774-edeed3eda7525b3511ee",
+          "created": 1790258114,
+          "system_fingerprint": null,
+          "object": "chat.completion",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\"features\":{\"fact\":{\"classification\":\"fact\",\"confidence\":4,\"explanation\":\"That matrix multiplication obeys defined rules (e.g., row-by-column products, non-commutativity) can be verified mathematically. It does not depend on anyone's opinion.\"},\"physical\":{\"classification\":\"physical\",\"confidence\":3,\"explanation\":\"Mathematics is explicitly listed under physical, and the rules of matrix multiplication are derived logically. Slight uncertainty remains because mathematical definitions are partly human conventions.\"},\"literal language\":{\"classification\":\"literal language\",\"confidence\":4,\"explanation\":\"The statement is plain and means exactly what it says, with no metaphor or hyperbole.\"},\"positive\":{\"classification\":\"positive\",\"confidence\":3,\"explanation\":\"It describes how a mathematical operation works, not a value judgment. The word 'rules' could suggest convention, but here it refers to mathematical regularity.\"},\"knowledge\":{\"classification\":\"knowledge\",\"confidence\":4,\"explanation\":\"It states a known property of mathematics rather than drawing a conclusion from premises.\"},\"everyday\":{\"classification\":\"abstract\",\"confidence\":4,\"explanation\":\"Matrix multiplication is an advanced mathematical concept learned through formal study, not ordinary daily experience.\"}},\"commonsense\":0,\"commonsense_explanation\":\"Knowing about matrix multiplication requires specialized mathematical education, so most people would not know it as common sense.\"}",
+                "refusal": null,
+                "reasoning": null
+              },
+              "finish_reason": "stop",
+              "native_finish_reason": "end_turn",
+              "logprobs": null
+            }
+          ],
+          "service_tier": "batch",
+          "usage": {
+            "prompt_tokens": 2366,
+            "completion_tokens": 481,
+            "total_tokens": 2847,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "provider": "Anthropic"
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "msg_011CfNNYnhrt6f5py7sQSgyD",
+      "custom_id": "752c4606e0a5d8810a520d07964063fe4cda3469f62deda1795199bab875f044",
+      "response": {
+        "status_code": 200,
+        "request_id": null,
+        "body": {
+          "model": "anthropic/claude-opus-5.5",
+          "id": "gen-batch-1790257774-77fc4bbb6644f25ca5e4",
+          "created": 1790258114,
+          "system_fingerprint": null,
+          "object": "chat.completion",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\"features\":{\"fact\":{\"classification\":\"opinion\",\"confidence\":3,\"explanation\":\"The claim is a broad generalization about social dynamics that relies on subjective notions like 'comfort' and 'scrutiny', so it cannot be objectively demonstrated. Some social psychology research supports it, which keeps confidence from being maximal.\"},\"physical\":{\"classification\":\"social\",\"confidence\":4,\"explanation\":\"The statement concerns human social behavior, norms, and reactions to conformity and deviation, which are intrinsically of human origin.\"},\"literal language\":{\"classification\":\"figure of speech\",\"confidence\":3,\"explanation\":\"It uses metaphorical verbs ('breeds', 'invites') in an aphoristic, parallel structure. The underlying meaning is fairly direct, though, so some literal reading is possible.\"},\"positive\":{\"classification\":\"normative\",\"confidence\":2,\"explanation\":\"It concerns social norms and the judgments society places on conformity versus deviation. However, it is framed as a descriptive regularity, which could make it positive, hence the low confidence.\"},\"knowledge\":{\"classification\":\"knowledge\",\"confidence\":3,\"explanation\":\"It states an observation about how society tends to work rather than deriving a conclusion from premises through explicit logic.\"},\"everyday\":{\"classification\":\"everyday\",\"confidence\":3,\"explanation\":\"People commonly experience the comfort of fitting in and the scrutiny of standing out in daily life, such as at school, work, or social gatherings. The societal-level generalization adds a slightly abstract flavor.\"}},\"commonsense\":1,\"commonsense_explanation\":\"Most people intuitively recognize that fitting in tends to be easier and standing out attracts attention or judgment, making this a widely shared piece of social wisdom.\"}",
+                "refusal": null,
+                "reasoning": null
+              },
+              "finish_reason": "stop",
+              "native_finish_reason": "end_turn",
+              "logprobs": null
+            }
+          ],
+          "service_tier": "batch",
+          "usage": {
+            "prompt_tokens": 2372,
+            "completion_tokens": 581,
+            "total_tokens": 2953,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "provider": "Anthropic"
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "msg_011CfNNXDHR76t481vD22p4q",
+      "custom_id": "22f377277efdb9d0fc9d4c292c44534ae55a4e30b04f38ba3de24f3cafde1b16",
+      "response": {
+        "status_code": 200,
+        "request_id": null,
+        "body": {
+          "model": "anthropic/claude-opus-5.5",
+          "id": "gen-batch-1790257774-19a1c03906e1b566376d",
+          "created": 1790258114,
+          "system_fingerprint": null,
+          "object": "chat.completion",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\n  \"features\": {\n    \"fact\": {\n      \"classification\": \"fact\",\n      \"confidence\": 4,\n      \"explanation\": \"That GIS can analyze spatial data is a demonstrable capability of the technology. The word 'effectively' adds a slight evaluative tone, but it is widely verifiable.\"\n    },\n    \"physical\": {\n      \"classification\": \"physical\",\n      \"confidence\": 3,\n      \"explanation\": \"The statement concerns a technological tool and its engineering capability to process spatial data, which fits the engineering and natural-rules sense of physical. However, GIS is a human-made system, which leaves some ambiguity.\"\n    },\n    \"literal language\": {\n      \"classification\": \"literal language\",\n      \"confidence\": 4,\n      \"explanation\": \"The statement is plain, technical language with no metaphor or hyperbole.\"\n    },\n    \"positive\": {\n      \"classification\": \"positive\",\n      \"confidence\": 3,\n      \"explanation\": \"It describes what a tool can do rather than prescribing what should be done. 'Effectively' is mildly evaluative, which slightly lowers confidence.\"\n    },\n    \"knowledge\": {\n      \"classification\": \"knowledge\",\n      \"confidence\": 4,\n      \"explanation\": \"It states an observation about a tool's capability rather than drawing a conclusion from premises.\"\n    },\n    \"everyday\": {\n      \"classification\": \"abstract\",\n      \"confidence\": 3,\n      \"explanation\": \"GIS and spatial data analysis are specialized technical domains that most people do not encounter directly in daily life. That said, people use GIS-based maps indirectly, which adds some uncertainty.\"\n    }\n  },\n  \"commonsense\": 0,\n  \"commonsense_explanation\": \"This is specialized technical knowledge about a particular technology rather than something most people know intuitively from ordinary experience.\"\n}",
+                "refusal": null,
+                "reasoning": null
+              },
+              "finish_reason": "stop",
+              "native_finish_reason": "end_turn",
+              "logprobs": null
+            }
+          ],
+          "service_tier": "batch",
+          "usage": {
+            "prompt_tokens": 2373,
+            "completion_tokens": 592,
+            "total_tokens": 2965,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "provider": "Anthropic"
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "msg_011CfNNWXR3YVQz5vuCvSH9S",
+      "custom_id": "34da9d228619d65eb5fb127e14220156afe26dc4c862f3be729d15c0ec8bf24e",
+      "response": {
+        "status_code": 200,
+        "request_id": null,
+        "body": {
+          "model": "anthropic/claude-opus-5.5",
+          "id": "gen-batch-1790257774-6680dc984935b126e30b",
+          "created": 1790258114,
+          "system_fingerprint": null,
+          "object": "chat.completion",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\n  \"features\": {\n    \"fact\": {\n      \"classification\": \"opinion\",\n      \"confidence\": 3,\n      \"explanation\": \"The statement rests on energy balance, which is testable, but the poetic framing that it is 'life's ledger, always speaking the truth' is an interpretive claim that cannot be objectively verified as stated. Its absolute 'always' also invites dispute, so it reads more as an opinion.\"\n    },\n    \"physical\": {\n      \"classification\": \"physical\",\n      \"confidence\": 3,\n      \"explanation\": \"Caloric balance concerns energy intake and expenditure, a biological and physical phenomenon governed by thermodynamics. The metaphorical wrapping adds some ambiguity but does not change the physical subject.\"\n    },\n    \"literal language\": {\n      \"classification\": \"figure of speech\",\n      \"confidence\": 4,\n      \"explanation\": \"Calling caloric balance 'life's ledger' and saying it is 'speaking the truth' is clearly metaphor and personification.\"\n    },\n    \"positive\": {\n      \"classification\": \"positive\",\n      \"confidence\": 2,\n      \"explanation\": \"The underlying claim describes an empirical regularity: energy balance determines weight change. However, the evaluative 'always speaking the truth' adds a judgment-like tone, lowering confidence.\"\n    },\n    \"knowledge\": {\n      \"classification\": \"knowledge\",\n      \"confidence\": 3,\n      \"explanation\": \"It asserts an observation about how the world works rather than drawing a conclusion from explicit premises.\"\n    },\n    \"everyday\": {\n      \"classification\": \"everyday\",\n      \"confidence\": 3,\n      \"explanation\": \"People routinely experience eating, activity, and weight change, and dieting makes caloric balance a common concern. The broad 'life's ledger' framing is somewhat abstract, but the core is familiar.\"\n    }\n  },\n  \"commonsense\": 1,\n  \"commonsense_explanation\": \"The idea that eating more than you burn leads to weight gain, and the reverse to weight loss, is widely held folk wisdom, even though it is expressed here in metaphor.\"\n}",
+                "refusal": null,
+                "reasoning": null
+              },
+              "finish_reason": "stop",
+              "native_finish_reason": "end_turn",
+              "logprobs": null
+            }
+          ],
+          "service_tier": "batch",
+          "usage": {
+            "prompt_tokens": 2367,
+            "completion_tokens": 687,
+            "total_tokens": 3054,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "provider": "Anthropic"
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "msg_011CfNNWX8Bp15DkP4t7N1kH",
+      "custom_id": "03d4c794559340ef5cbd9e1eb78905ba5c53c1eba45471403eaeb0daa87a6dc8",
+      "response": {
+        "status_code": 200,
+        "request_id": null,
+        "body": {
+          "model": "anthropic/claude-opus-5.5",
+          "id": "gen-batch-1790257774-d3341d5eb54654bc8535",
+          "created": 1790258114,
+          "system_fingerprint": null,
+          "object": "chat.completion",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "```json\n{\n  \"features\": {\n    \"fact\": {\n      \"classification\": \"fact\",\n      \"confidence\": 3,\n      \"explanation\": \"Whether figurative art depicts human forms can be checked against established art-historical definitions. The claim is a slight oversimplification, since figurative art covers any recognizable real-world subject, so confidence is not maximal.\"\n    },\n    \"physical\": {\n      \"classification\": \"social\",\n      \"confidence\": 4,\n      \"explanation\": \"Art categories like 'figurative art' are human-made classifications within a cultural practice.\"\n    },\n    \"literal language\": {\n      \"classification\": \"literal language\",\n      \"confidence\": 4,\n      \"explanation\": \"The statement plainly describes what a category of art depicts. It contains no metaphor or hyperbole.\"\n    },\n    \"positive\": {\n      \"classification\": \"positive\",\n      \"confidence\": 2,\n      \"explanation\": \"It describes what a type of art depicts rather than making a value judgment. However, it rests on a definitional convention, which introduces some ambiguity.\"\n    },\n    \"knowledge\": {\n      \"classification\": \"knowledge\",\n      \"confidence\": 4,\n      \"explanation\": \"It states a definitional observation without drawing a conclusion from premises.\"\n    },\n    \"everyday\": {\n      \"classification\": \"everyday\",\n      \"confidence\": 2,\n      \"explanation\": \"People commonly encounter paintings and sculptures of people in museums and public spaces. However, the term 'figurative art' is somewhat specialized vocabulary.\"\n    }\n  },\n  \"commonsense\": 0,\n  \"commonsense_explanation\": \"Knowing what 'figurative art' means relies on specialized art terminology rather than knowledge most people share. The statement is also imprecise, since figurative art depicts recognizable subjects generally, not only human forms.\"\n}\n```",
+                "refusal": null,
+                "reasoning": null,
+                "reasoning_details": [
+                  {
+                    "type": "reasoning.text",
+                    "signature": "CAQSvwkKEAgSGAI4AUIIdGhpbmtpbmcSDJdMtuWxcVOtDHeBmRoMCNULJnhZ81zc2pgdIjDxFs1u9LooDTjmMKqiiIRNUtC1IwUf10aGJE73Ryc20Ntf9dupEDYgQXGfPSFJzlgq3AiDjtHiUTF7dDmHzxfjqQTQzD1dt0UkKIcpkGRrGpd2Xx6DAPMxF1dEuW0xESfmBdJ1iTIiUXL4MaFWhaW0MeEFhN2H5bH0KpG6+uJcJmEcDjy4plpOlC8TDRABDFCwswcsz3wqZi4VRKh1RotO2KHow0qk/7wiNrsNtivJDy29G4bWi9UmU7ax9MyahvgIHB9/4dBi9ZVK8pf+kyrCsBGMlfciJDDSy6sPy32Nld+5dRN7OJ+P34zVdzre6X4WGprAB8LWcmonDR6UyQ18MPXSxdgeFbTCBuXhH9E6nCun7WODJ7iVB8nEyFTzRFsxPVB+H2wXhkiPAKYpze5UWVVYrkGo5en/Cn7hrOjV9fi0PM75R3L1mnB6T5NusuoYhBXqN0OLi1KoB0NPrlE3AvxzBLcf5LWt8imQkmA//icTR0uXJnyKR4NPRHhqEjqmGM/mI52W4BrLAFBjsPGmGBADLy1wopYTi5Bo13A4kNhjhWGtsiI03+EmMCTqJOSx9ZbHG6uJtysnFbACcCsdH8Nlpzn0Opi4gmrcddGnAhbR5GrIlv23sufr8vJbTaQ6M8KSR/q17YyzUMfwOHgqIaEH/l0j6xAP+n9MNEROeCorOcw6cDgOkGSk1GszRZdSAzP0gx756hvo2usH6yJ0n+bcPNAWTqxrjNvCk+g0UGtQW2z3QufPnGGaF64mOdiV90ekkSbgd4y8H+Q1fCyJs84M5y0Xny3LSD1WwujjADiS5Vt7OYyvkSzuKAG8Yb+uUZTL+3tEMXVhSKHcxRbw+4csvOlCMzHJMYJlWumlqlUUc3UThM28u5891kKeIgEguXJ0EfweGbUOgYyr80s5FnMkz5mQ1z2nf+hWathOGzu/P/s+41nNba1xpxBaLZMxwAlEXG4svjQbZ7grEbsTkaAFpIwlSi0VWGUHZ3qB3M3GqUx3wa+n13UTSTze5UUIPoa2/ItgXA3kuETmUJKTtz0JgFqaZS6sqzfYbeFRyqe4+HFR2xv2Mt8+VqJYRLpmOQ5c/7OrP6BsR21NADmMnpRtPguFE4erM9hiQG6ucHhW7L8H6RGRxETed/h0nXuff+/Q9dRY/r2O3FIqqV6m5la7dHAUzaK44x3jMbQ/e5ZddUGgDdnLQghhzYysjNqJ5dzensnknSTkkaDsndJqeTQJ5itj8QbSViFukEd2J43rhOD5cmXmFttsfxiEPeXP0A7yrtozJUahkgm2emzIksrK8k8wLkakagjoDMC6LUpvELfPXZ+gP3+Fhn4044s3cJ1AoZ9OeX7A4O9bErZTFlNP0r5bCO3YMmDTBHGI865RdCf+xipETAID6fGroi+KULlVpR/ZIsocLwh8G9Ua2K41Lxzdkc1NvSzYrLxtr/73lx+CdPsgoUewtBbBZiYkiCm1eQBvywEIfrabOm2xBc9q/0rNoKDT9ZCVW48wZ0Z67lmnYHdLo38dfEE5bI5RrBJBfM9StG6pFl9zu0AYAQ==",
+                    "format": "anthropic-claude-v1",
+                    "index": 0
+                  }
+                ]
+              },
+              "finish_reason": "stop",
+              "native_finish_reason": "end_turn",
+              "logprobs": null
+            }
+          ],
+          "service_tier": "batch",
+          "usage": {
+            "prompt_tokens": 2357,
+            "completion_tokens": 804,
+            "total_tokens": 3161,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 214,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "provider": "Anthropic"
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "msg_011CfNNWX9vTKAJbBmoeUp4z",
+      "custom_id": "ced69c23fd818c84684973ba2323ceaabafbf2a0d7a21df26a61269af676edc9",
+      "response": {
+        "status_code": 200,
+        "request_id": null,
+        "body": {
+          "model": "anthropic/claude-opus-5.5",
+          "id": "gen-batch-1790257774-0438bd7ed01b2429b10d",
+          "created": 1790258114,
+          "system_fingerprint": null,
+          "object": "chat.completion",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\n  \"features\": {\n    \"fact\": {\n      \"classification\": \"opinion\",\n      \"confidence\": 4,\n      \"explanation\": \"The claim that mathematics 'clarifies the chaos of the cosmic puzzle' is a subjective, poetic characterization that cannot be objectively demonstrated true or false.\"\n    },\n    \"physical\": {\n      \"classification\": \"physical\",\n      \"confidence\": 2,\n      \"explanation\": \"The statement concerns mathematics and its role in describing the universe, which relates to natural rules. However, it expresses a human perspective on that role, so the label is uncertain.\"\n    },\n    \"literal language\": {\n      \"classification\": \"figure of speech\",\n      \"confidence\": 4,\n      \"explanation\": \"Calling mathematics a 'lens' and the cosmos a 'puzzle' full of 'chaos' are clear metaphors rather than literal descriptions.\"\n    },\n    \"positive\": {\n      \"classification\": \"normative\",\n      \"confidence\": 3,\n      \"explanation\": \"The statement conveys a value-laden judgment about the importance and power of mathematics rather than describing an empirical regularity. It does, however, gesture at mathematics' real descriptive role, which leaves some doubt.\"\n    },\n    \"knowledge\": {\n      \"classification\": \"knowledge\",\n      \"confidence\": 3,\n      \"explanation\": \"It is a standalone assertion about mathematics' role without premises or a logical chain leading to a conclusion.\"\n    },\n    \"everyday\": {\n      \"classification\": \"abstract\",\n      \"confidence\": 4,\n      \"explanation\": \"The relationship between mathematics and the structure of the cosmos cannot be observed through ordinary individual experience.\"\n    }\n  },\n  \"commonsense\": 0,\n  \"commonsense_explanation\": \"This is a poetic, philosophical view of mathematics rather than a practical, widely shared everyday belief, so it is not common sense.\"\n}",
+                "refusal": null,
+                "reasoning": null
+              },
+              "finish_reason": "stop",
+              "native_finish_reason": "end_turn",
+              "logprobs": null
+            }
+          ],
+          "service_tier": "batch",
+          "usage": {
+            "prompt_tokens": 2374,
+            "completion_tokens": 619,
+            "total_tokens": 2993,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "provider": "Anthropic"
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "msg_011CfNNWXxYPAoxaYyEc7xG9",
+      "custom_id": "c494e5fe28dea0904d74f107e061dedd5650a168dc2e7f579194f017b62f211d",
+      "response": {
+        "status_code": 200,
+        "request_id": null,
+        "body": {
+          "model": "anthropic/claude-opus-5.5",
+          "id": "gen-batch-1790257774-4b178cf9b381ddfe41d3",
+          "created": 1790258114,
+          "system_fingerprint": null,
+          "object": "chat.completion",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\"features\":{\"fact\":{\"classification\":\"fact\",\"confidence\":4,\"explanation\":\"The statement describes a well-established geological process that can be verified through observation and measurement. It does not depend on anyone's personal view.\"},\"physical\":{\"classification\":\"physical\",\"confidence\":4,\"explanation\":\"Soil erosion by wind and water is a natural process described by earth science and physics. It is not a human social construct.\"},\"literal language\":{\"classification\":\"literal language\",\"confidence\":3,\"explanation\":\"The statement plainly defines erosion. 'Wear away' is a common idiomatic phrasal verb but is used in its ordinary literal sense of gradual removal.\"},\"positive\":{\"classification\":\"positive\",\"confidence\":4,\"explanation\":\"It describes an empirical natural regularity without any value judgment. It says nothing about what ought to be.\"},\"knowledge\":{\"classification\":\"knowledge\",\"confidence\":4,\"explanation\":\"It is a direct statement of an observation or definition about the world. It does not draw a conclusion from premises.\"},\"everyday\":{\"classification\":\"everyday\",\"confidence\":3,\"explanation\":\"People can readily see erosion in daily life, such as rain washing soil off slopes or wind blowing dust. However, the full scientific concept of erosion is somewhat textbook-like, so confidence is not maximal.\"}},\"commonsense\":1,\"commonsense_explanation\":\"Most people know from experience and basic schooling that wind and water gradually wear away soil. This makes the statement widely shared, intuitive knowledge.\"}",
+                "refusal": null,
+                "reasoning": null
+              },
+              "finish_reason": "stop",
+              "native_finish_reason": "end_turn",
+              "logprobs": null
+            }
+          ],
+          "service_tier": "batch",
+          "usage": {
+            "prompt_tokens": 2369,
+            "completion_tokens": 496,
+            "total_tokens": 2865,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "provider": "Anthropic"
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "msg_011CfNNWXMKqmAWEowDAnm9n",
+      "custom_id": "b920d7a7221f80ad92835809c04697bfecff7b961ad6dfe0f2480fe20f59d9bb",
+      "response": {
+        "status_code": 200,
+        "request_id": null,
+        "body": {
+          "model": "anthropic/claude-opus-5.5",
+          "id": "gen-batch-1790257774-b57356e3db395e2d7d8c",
+          "created": 1790258114,
+          "system_fingerprint": null,
+          "object": "chat.completion",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\n  \"features\": {\n    \"fact\": {\n      \"classification\": \"opinion\",\n      \"confidence\": 2,\n      \"explanation\": \"Whether encouragement inspires action is a general, loosely defined claim whose truth varies by person and context, so it reads more as a subjective belief than a verifiable fact. Confidence is modest because motivation research could partially test it.\"\n    },\n    \"physical\": {\n      \"classification\": \"social\",\n      \"confidence\": 4,\n      \"explanation\": \"Encouragement and inspiration are interpersonal, psychological phenomena rooted in human social interaction. This clearly falls in the social domain.\"\n    },\n    \"literal language\": {\n      \"classification\": \"literal language\",\n      \"confidence\": 3,\n      \"explanation\": \"The statement plainly says that encouraging someone leads them to act, without metaphor or exaggeration. Its aphoristic brevity gives slight room for a figure-of-speech reading.\"\n    },\n    \"positive\": {\n      \"classification\": \"positive\",\n      \"confidence\": 2,\n      \"explanation\": \"It describes a claimed causal regularity (encouragement leads to action) rather than prescribing what should be done. However, it carries an implicit value endorsement of encouragement, which lowers confidence.\"\n    },\n    \"knowledge\": {\n      \"classification\": \"knowledge\",\n      \"confidence\": 3,\n      \"explanation\": \"It is a simple observation about human behavior, not a conclusion derived by combining premises. It states a general belief directly.\"\n    },\n    \"everyday\": {\n      \"classification\": \"everyday\",\n      \"confidence\": 4,\n      \"explanation\": \"People routinely give and receive encouragement and see its effects in daily life at school, at work, and in relationships. This is directly experienced.\"\n    }\n  },\n  \"commonsense\": 1,\n  \"commonsense_explanation\": \"Most people broadly accept from everyday experience that encouragement tends to motivate others to act, making this a widely shared intuitive belief.\"\n}",
+                "refusal": null,
+                "reasoning": null
+              },
+              "finish_reason": "stop",
+              "native_finish_reason": "end_turn",
+              "logprobs": null
+            }
+          ],
+          "service_tier": "batch",
+          "usage": {
+            "prompt_tokens": 2356,
+            "completion_tokens": 633,
+            "total_tokens": 2989,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "provider": "Anthropic"
+        }
+      },
+      "error": null
+    }
+  ]
+}

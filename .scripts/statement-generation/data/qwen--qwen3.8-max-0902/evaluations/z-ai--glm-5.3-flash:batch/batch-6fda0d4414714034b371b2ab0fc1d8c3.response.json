@@ -4,15 +4,17 @@
   "endpoint": "/v1/chat/completions",
   "model": "z-ai/glm-5.3-flash-20260826",
   "completion_window": "24h",
-  "status": "in_progress",
+  "status": "expired",
   "created_at": 1790105953,
-  "finalized_at": null,
+  "finalized_at": 1790181710,
   "request_counts": {
     "total": 1320,
     "completed": 0,
-    "failed": 0
+    "failed": 1320
   },
   "usage": null,
   "results": null,
-  "error": null
+  "error": {
+    "message": "The provider ended this batch as \"expired\" without reporting a reason."
+  }
 }

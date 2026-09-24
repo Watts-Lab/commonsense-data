@@ -4,7 +4,7 @@
   "endpoint": "/v1/chat/completions",
   "model": "z-ai/glm-5.3-flash-20260826",
   "completion_window": "24h",
-  "status": "validating",
+  "status": "in_progress",
   "created_at": 1790186582,
   "finalized_at": null,
   "request_counts": {

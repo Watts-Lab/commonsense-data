@@ -1,0 +1,1507 @@
+{
+  "phase": "submitted",
+  "gen_model": "platform/published",
+  "judge_model": "z-ai/glm-5.3-flash:batch",
+  "api_model": "z-ai/glm-5.3-flash",
+  "records": [
+    {
+      "source_id": "70c872418a41d303c551f4e7f4acfed53e4c535eb6f3eeb5b939e96e313800e3:1",
+      "source_row": 13,
+      "statement": "Hot weather can cause dehydration.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "203439ccb13fbb872e8b9450b061b99be7be0886306b147347ed0388daec894a:1",
+      "source_row": 21,
+      "statement": "Less talk, more action.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "1f0b60e015061c56d5d924f125f3d75537ae393ad56c1549c146fd8ca6d35516:1",
+      "source_row": 23,
+      "statement": "There is no honor among thieves.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "7448e269d1300c689b3154b2dc68fed180f5665fb07115f678059530943bb189:1",
+      "source_row": 39,
+      "statement": "Governments create laws.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "94c1eda1cd3b5c04237f65707615a0a2603f21f5e825a85bfacb72ac73518a84:1",
+      "source_row": 51,
+      "statement": "Social media has a negative impact on mental health.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "0aeace0ab49e1c8db4f06a2ae74a6a240dce4eab3178eb3de913ac452fee18aa:1",
+      "source_row": 54,
+      "statement": "Kindness matters deeply.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "a5ed874f404265fe979a2d6c6bb4c02dcd64dea189e7b188a215f67bb333bdf2:1",
+      "source_row": 57,
+      "statement": "Dogs are loyal pets.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "4304cc61d9c854306038ebefe4794eae5f6bbf27a5f3a5b94ed087f2ca6c9556:1",
+      "source_row": 60,
+      "statement": "Children learn by example.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "351001532a1915d1709b764c3d7408979bb5a04b983a0c6ae45e885a6cc155ee:1",
+      "source_row": 66,
+      "statement": "Beggars can't be choosers.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "00ee9ba72bbb89629a287891c11c2c25074c7f16c6a441b348c5a020e3d35994:1",
+      "source_row": 72,
+      "statement": "Actions should match words.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "a608f59f54e084b77da6bf7bf8a43545c371f97ae58f93ed95e7ebfd9741d85f:1",
+      "source_row": 79,
+      "statement": "Every rose has its thorn.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "bc2fa871118aad82f96be4dc45a7e756a6dd763eb2c050a4fb390fc10636040c:1",
+      "source_row": 87,
+      "statement": "Metaphors create vivid imagery in language.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "41b75c337c1691e990f38d320a7ae79d5086960217002851c49fd2032e74951e:1",
+      "source_row": 88,
+      "statement": "Architecture shapes our built environment.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "2349f760a5f93adba54da9a9ab290f2f7127eacaa8fdce473e0f0b3eebe87590:1",
+      "source_row": 92,
+      "statement": "Blockchain ensures secure transactions.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "f8544f71ecad2e80c5327d66fce71a316a04d07c032b2912825a4130137d07f2:1",
+      "source_row": 99,
+      "statement": "Michelangelo painted the Sistine Chapel ceiling.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "1808acc507cccdbddf6d35f7e84430525e4dbfb8dbcf3c5de827ad3448555514:1",
+      "source_row": 118,
+      "statement": "Leonardo da Vinci painted the Mona Lisa.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "1698f4b9cd72e0efcdaa2b392e22ea60d5fd9a44ec6ce58f0882706eb7c7fcc0:1",
+      "source_row": 138,
+      "statement": "Chemical reactions often release energy.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "1ec82cc30004032148ddc4a265eed40b98306fdef154d40a44b9d9d3908cfbe9:1",
+      "source_row": 142,
+      "statement": "Grass feels soft underfoot.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "04d2734bfc43c6052c7b5dc697735bb32e9f5cde971cbe4ab632e2d03ee667f9:1",
+      "source_row": 155,
+      "statement": "Fact-checking ensures accuracy.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "ddb6358581c1a3bcbb5f78a440b4a9d65282e89ea9fe66d39e91994adc3c72b4:1",
+      "source_row": 157,
+      "statement": "Regular physical exams detect issues early.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "f9034fc76f3402f92a329d38c500b277308a97aff5ac31313d33c1923da73f1f:1",
+      "source_row": 160,
+      "statement": "Precision medicine tailors treatment to individuals.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "0b9f4b6cd802dd4409cdfd47b94164dda9408be08f830f789de44c8cc963e88c:1",
+      "source_row": 161,
+      "statement": "Shelves should be dusted regularly to maintain cleanliness.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "667fd5413406879769dbadc6430c32daff6b0129c6b799d92e8e1daa4d98ca34:1",
+      "source_row": 169,
+      "statement": "Beauty is skin deep.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "93008ba7c47ca42919310fe8983a63f23718c59c336c049b5d2c72e09ddb812d:1",
+      "source_row": 181,
+      "statement": "Ethical hacking safeguards systems.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "77f587ee09544392c30faf5dc94474652f2a89b7ecc5761423e93bdf287f407c:1",
+      "source_row": 199,
+      "statement": "Kindness spreads like wildfire.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "1a4a1f1ae1524dc03fd42cc9c16fdd7929eaa3ca7e5ef224b14b369c8ecacda9:1",
+      "source_row": 203,
+      "statement": "Humility cultivates respect.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "428230a4a5884f5a73130205bdd2c97a75f2bc409e8aad40ec28dd370d4603a7:1",
+      "source_row": 211,
+      "statement": "Gratitude fosters joy.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "2961348d618e1f3c4f5156d575e35aa751a784a1d5026d42a2f11a62361601f2:1",
+      "source_row": 249,
+      "statement": "Compliments boost self-esteem.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "3d8f8e59e2496ecefed3a374a2652968dd1285e1129c8ac801f083c906d9f2b8:1",
+      "source_row": 262,
+      "statement": "Infinity is the mirror reflecting mathematics' endless pursuit.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "0466fcdfb7eca04de6bf7bb330d55cede156c7005f0f0f616d69ff94a8f078dc:1",
+      "source_row": 265,
+      "statement": "Parabolas are nature's curves, arching through reality's unseen fabric.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "c6204009a44c5bd120370c5f08077011f8b208a613734de2fc45074d1d1ce2ee:1",
+      "source_row": 274,
+      "statement": "A belief system is a raft navigating the river of existence.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "ddad9df1b7a852fa48c6fcb5c8d15dfd58ee14e768503a5352dbf139744c049e:1",
+      "source_row": 276,
+      "statement": "A circle's circumference is calculated using its radius.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "ae1c834edfa43d904e2733605a5482d44b66bf34118a659467e44b1c17d15861:1",
+      "source_row": 280,
+      "statement": "A map's scale represents real-world distances proportionately.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "b62b3d5956370a3870393d1fbc15512d7b269b6254a6a69bd3d619ebef053af4:1",
+      "source_row": 283,
+      "statement": "A square has four sides of equal length.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "857c18f247b868b1d9551dd843606ab32f69320daa0a2c4b8c602bd4308d2275:1",
+      "source_row": 317,
+      "statement": "Bacteria reproduce rapidly under favorable conditions like warmth and moisture.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "32499d6e0df38021290c7b210b00b94bd68a1b1d0cba85737d00eb69f5aa22f4:1",
+      "source_row": 320,
+      "statement": "Beauty is the butterfly of perception, fluttering on fantasy’s colorful wings.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "0f5ea4750c887d43fe8701239c3f272c9609c170f4286f031c5cf96e2997d8e4:1",
+      "source_row": 323,
+      "statement": "Belief systems provide frameworks for understanding the world.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "e238717df0ac0f3997cb424fb48717f265fca289445c7b65249cf8d779a8c3e2:1",
+      "source_row": 324,
+      "statement": "Belief systems sculpt individual perceptions like water shaping rock over time.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "a3005610e6fbed3ab0268aa73e855fb11436f9a86f41e3c2536112a8c07e7bcb:1",
+      "source_row": 334,
+      "statement": "Body heat dissipates, mirroring the entropy of energy's restless voyage.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "428a10047b3c75d8853cb64fefc823dbd070e441d24e913a4f8b3e00cfb5d3d2:1",
+      "source_row": 343,
+      "statement": "Cardiovascular exercise enhances heart and lung function.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "34cb355d26ffc8a956fbe23e1b9bc1c473a5083a1a761df95a19fcf472a11c69:1",
+      "source_row": 345,
+      "statement": "Cells are the microscopic artisans, crafting the tapestry of life seamlessly.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "b9a07b959a5100558b8f252e5420acd09bb1109dfe8e581745f65c04c958e888:1",
+      "source_row": 353,
+      "statement": "Common beliefs often echo the whispers of society's silent architects.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "f65c29d9518c6635aa002583cdd22ee01fe182292b955c7686b4bc708b85844f:1",
+      "source_row": 364,
+      "statement": "Consistent time management improves productivity and balance.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "0acb7b92cfe4ab3af90c6efab1abb992a36a3f8bba4941bb0561623e6b853f11:1",
+      "source_row": 381,
+      "statement": "Cybersecurity protects digital information from potential threats and malicious actors.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "6957f803e4b6b2732327bcc1eb77f83a02e9b5f64cf61a6aeebee8995e9c8d80:1",
+      "source_row": 382,
+      "statement": "DNA contains the genetic information essential for life.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "dee3756576e1286157e0ca16def694b6fcf94d60fcd7d44c77f46347fda1471d:1",
+      "source_row": 383,
+      "statement": "DNA is the intricate script writing life's complex saga.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "7ff65114d62f04413f32b455c0ed91525947e7567f74cf8ea021c4591d7781b4:1",
+      "source_row": 399,
+      "statement": "Digital communication alters traditional social interaction and cultural constructs.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "5c7a49ab853f9fb99c6eae6cb359619aa1de7a5ffb9391821e4b9d60ee823f78:1",
+      "source_row": 403,
+      "statement": "Drinking water helps maintain proper hydration levels.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "f050a62cfbc44da1be7101f10ad5240d70d811de405083ca8e8b366da1c0b90f:1",
+      "source_row": 407,
+      "statement": "Earthquakes occur along fault lines due to tectonic plate movements.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "9766f33a6853555de83bff57a3b2a4f3a1620ba2931948ffc9cb6e2a4df3d055:1",
+      "source_row": 420,
+      "statement": "Emotions color our world, though logic holds the brush.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "6add50860ffce5585814ef8b70cb87107b6c0351280ff02dd735ac7f155af6c7:1",
+      "source_row": 429,
+      "statement": "Energy's journey is a never-ending saga, written in thermodynamic laws.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "ca128d568f557b005293814429bf1315efb85d34358065da7aedaa1495ee1de3:1",
+      "source_row": 447,
+      "statement": "Facts are the stepping stones crossing the river of illusion.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "e2701c117428e7c54469cb925c89c4b8426cf4d2e8141d05df046d2e9834920c:1",
+      "source_row": 450,
+      "statement": "Faith in religious principles may not be empirically demonstrable.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "532c153e094da9e3111dbf543bd009453353686ada6733de59d1379eeebf6e6b:1",
+      "source_row": 451,
+      "statement": "Faith is correlated with increased longevity similar to social support's effects.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "aeef4a7cce5a824a85cde7f21902a51cac4d57195993d12b693c1125ad791b4f:1",
+      "source_row": 460,
+      "statement": "Flexibility exercises improve joint range of motion.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "ee8f22907f54c0d2598d484fa09a704449faeed64f32eb5ccafd305b193f5ddb:1",
+      "source_row": 467,
+      "statement": "General references provide context or background information universally understood.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "a952f880d255c48d1f5d3a36c796413ab27411568d84455e26a6d821ce5f032c:1",
+      "source_row": 468,
+      "statement": "Genes carry hereditary information from parents to offspring.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "6cda2b555652e40501e0cce925589e864428f863aedbcb4d34d3ca476b236718:1",
+      "source_row": 469,
+      "statement": "Genetic codes are the cryptic blueprints scripting nature’s grand narrative.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "55c83d31b828633c62814d42d57ccc1111d12d806715592ee532eb78d59faa99:1",
+      "source_row": 474,
+      "statement": "Genetic inheritance follows Mendel's laws, predicting offspring trait distributions.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "e45917d9d3ed632944e93fb98e7cc70a7c172514dd7ac0fb32235645f143e478:1",
+      "source_row": 494,
+      "statement": "Gravity is the universe's invisible conductor, orchestrating celestial symphonies.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "563128a7b7eb51b30c09e707adc582248cc4c323bb85f2b8da2d17ef78ba2110:1",
+      "source_row": 497,
+      "statement": "Gravity pulls all objects towards the Earth's center.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "6e3dbeda4c0565e10dd316af2aacd90ba428c4d71ed61a5cdd69b807fdbc35d6:1",
+      "source_row": 500,
+      "statement": "Healthy eating is the secret potion, nourishing the body's inner garden.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "00db933a6a984a2d262386e70c22acd4d3dceb12dec964fb0d9f949a1e4e6549:1",
+      "source_row": 502,
+      "statement": "Heat is a form of energy transfer between systems.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "913c09f6b9f03a5a1fde685fc60a634ef3b6f2d89c94bc08e7472b210101601a:1",
+      "source_row": 508,
+      "statement": "Historical events shape future societal and political outcomes.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "5b0369ed7fda8897bc545980dbad9650c2d7a1d5a25cbf3c9bc17d9faee3d958:1",
+      "source_row": 516,
+      "statement": "Hope floats; it’s the buoy in life’s turbulent seas.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "9c13db8c952eb63fdeed693b07307af0c92ec2c35ffcb743fe45aebaab283886:1",
+      "source_row": 535,
+      "statement": "Judgments about intelligence often involve subjective criteria.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "e422cf4e09e8d04bf4745359567ce684d36d7b952a39c92841c6a0971efceb03:1",
+      "source_row": 550,
+      "statement": "Literal language conveys straightforward meaning without ambiguity.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "d1da3a5aa75f6675fe9ca270b75eb3799238bac40a990a7ac14ae92918ecc3a8:1",
+      "source_row": 560,
+      "statement": "Longitude lines run vertically, connecting the North and South Poles.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "958809ac48fa93909ee67828a82f257412dbf485325bf5fd67bdcc1658037de1:1",
+      "source_row": 562,
+      "statement": "Love is the glue binding humanity’s fractured hearts together.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "5ca63d254f3ae8a75850d7a392c532e3f28442192db582997a5dca9f3a25f150:1",
+      "source_row": 567,
+      "statement": "Magnetism causes attraction and repulsion between magnetic materials.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "d0e909e2e4adf20a41ee2efd892a7b1e31136639be981e728a137b1ecdbb8c30:1",
+      "source_row": 584,
+      "statement": "Mathematics provides tools for solving real-world problems.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "fae87bc725b9e04fe227448726a9afd5a38b313061f1f343622f56fe1476001d:1",
+      "source_row": 603,
+      "statement": "Monsoons bring seasonal heavy rains to regions like South Asia.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "2e6bafc36fc1c094b0a027318e8c5117aa9b5f65d3718676c35eb976413b845a:1",
+      "source_row": 615,
+      "statement": "Music is the heart's language, a universal melody sung across cultures.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "3b4bf06e3c92748e148a703822f3f94af8c4cb5a4f7e4cc45d9363eb47859bcb:1",
+      "source_row": 647,
+      "statement": "Opinions cannot be demonstrated as objectively true or false.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "25dde67c2ef9e33b97c0eea05078125710e72a52078c9cef72bf68a044bb93e0:1",
+      "source_row": 687,
+      "statement": "Prayer alters stress responses, resembling meditation's impact on the brain.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "e8b0cd8231e8deaa584fe8cd43f4a280c72d63770227c5b3223da973a0b56a4b:1",
+      "source_row": 690,
+      "statement": "Prayer is the bridge between doubt and divine assurance.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "4883f28e5787c2e8afb9fec75fc2c9c263b0ff372497f75e633fa6fa9dd95c60:1",
+      "source_row": 696,
+      "statement": "Probability assesses the likelihood of events occurring.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "75375568f6b8b349b1db8fb11a0b0a29bce0351db506be68d709645efc7350d4:1",
+      "source_row": 704,
+      "statement": "Proper posture decreases back pain and improves overall alignment.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "6f9b12f3ca7b1ffc3a6713e460d8f1653195e6e00163703fb376bb5b8860e1bd:1",
+      "source_row": 712,
+      "statement": "Rainforests are nature's green cathedrals, sheltering Earth's ancient secrets.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "76b3c5d8197af5b6abb3a18c6c3b94031c9d7c14bbc88e9d4c0bc08bc7b7ab71:1",
+      "source_row": 716,
+      "statement": "Reason sketches blueprints where reality’s possibilities unfold.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "dffbf7cd3bc43ca1a16ff5551d2a127de913c38f05943c61f8e6e5d76b09049a:1",
+      "source_row": 719,
+      "statement": "Reduced screen time encourages more active and healthy lifestyles.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "613f8dc07f06b89086d509534a19f2d00262073c4d2bdbd9a8ab0118b05bd503:1",
+      "source_row": 728,
+      "statement": "Religions propose ethical frameworks influencing societal norms.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "07b012e94c780288421a251baf8dc9ca5aa08a64199a60454bce300e0738b46e:1",
+      "source_row": 739,
+      "statement": "Religious symbols hold different meanings based on personal interpretation.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "3a33dde84d9f903107ae4d946f74a7b2e7e46f9305009d8c0d9be87d485c172b:1",
+      "source_row": 744,
+      "statement": "Renewable energy sources reduce reliance on fossil fuels, benefiting the environment.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "13841fb7c29c72baf581a4d987da6ac1968695ccbcc6200f67b778f47ef14596:1",
+      "source_row": 747,
+      "statement": "Rivers are Earth's veins, carving paths through continents tirelessly.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "26a7ca9c66c711174ebf23419b0091f7ded40c47cf8654e79092b7026768ddcf:1",
+      "source_row": 758,
+      "statement": "Scientific paradigms evolve, reflecting prevailing community beliefs.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "9374ee9227287fb93788fb4972b0c588efdd54d476df5dabd76068548422bbfe:1",
+      "source_row": 763,
+      "statement": "Self-awareness grows through introspection and understanding personal experiences.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "7c8562c07a45164b13841cf4120a2cd8047ad418d7bc75b041df9e051f6b72e8:1",
+      "source_row": 791,
+      "statement": "Sound travels faster in water than in air.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "8e48e3b51e27a7d213db6faa08613d92bd469a752dafda35361380b67ce62d99:1",
+      "source_row": 802,
+      "statement": "Strength training is the sculptor, chiseling the body of dreams.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "3f6a2519bdd6dfd3811447653cfb8ed04757bdac5cb699359b8d942bf4c59847:1",
+      "source_row": 805,
+      "statement": "Stretching is a sunrise for muscles, as daybreak is inevitable.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "967e115240b219b3e43f8b74bc6d44826c8bc3636b734cd66374ab9c4e59232c:1",
+      "source_row": 811,
+      "statement": "Technology is the silent architect, designing tomorrow’s realities today.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "b300129d3edff615fd2b4b301b16e450364ee1b6086cdcb59bf54964807285b4:1",
+      "source_row": 815,
+      "statement": "Technology transforms dreams into tangible forms through practical applications.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "643480a03722c6f2d88d1865e3322e79f8913e5cf50f5b8ad025900b0f7c0281:1",
+      "source_row": 816,
+      "statement": "Temperature affects the state of water, changing ice to liquid.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "cbb3b742037bd51e83e8b3a3595e383564c2c4d793cc869e82434cecac63460d:1",
+      "source_row": 817,
+      "statement": "Temperature is nature's thermometer, gauging the warmth of cosmic harmony.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "691bee0d70df932c30436f53727c91cf487ac3a11bc3fe91bd56188f0f716abc:1",
+      "source_row": 823,
+      "statement": "The Earth rotates, weaving day into night with unerring grace.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "6c324c1239ffe9c47a6420bd2d799f529964dc5127e4d1dd7da1b553a01098a2:1",
+      "source_row": 824,
+      "statement": "The Earth's magnetic field influences compass navigation.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "601165ebe197ecfa383a0b991b440147188b78d868f8f08ad4c6d9c682c67504:1",
+      "source_row": 832,
+      "statement": "The Himalayas are the highest mountain range in the world.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "545de378a55272732ce2f5ed13c006b480483df05cf4a9f2bf0768f15f73e524:1",
+      "source_row": 840,
+      "statement": "The brain is the control center orchestrating life's symphony.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "7f41e52da4c05aa9d8c1ca7a0c864ead22572e121359933faf6f026b29622ee3:1",
+      "source_row": 845,
+      "statement": "The formula E=mc² describes energy-mass equivalence.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "60e55ad264e0ac652180399b4b81e081885640fd24ddfb55410b48a19af59b44:1",
+      "source_row": 856,
+      "statement": "The immune system protects against infections and diseases.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "a99b46d7367bfe359585fdc69de20f028854f93874ae11c7c6a577f3185c4372:1",
+      "source_row": 859,
+      "statement": "The mind’s eye sees art not framed by reason but by reverie.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "fae85998380923f822e0ecbc501a617b4d559267327acb89eb684c718c5a1241:1",
+      "source_row": 894,
+      "statement": "Tradition whispers in the winds, weaving tales from belief's tapestry.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "64cad00c92c3b95f92508dec208fd8eae9aa938c6daf7f8636077ab1073ee6b4:1",
+      "source_row": 896,
+      "statement": "Triangles can be classified by side lengths or angle sizes.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "f809924356edd0d94fda865210eb1be544f8e440911aedaf698af1c4baccd17b:1",
+      "source_row": 914,
+      "statement": "Volcanoes are Earth's fiery whispers, speaking from deep within.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "37d200bd51871ae5ebf816ff6bc1fe79bb6eeb3dbeed8454dbd94743a514f17b:1",
+      "source_row": 915,
+      "statement": "Volcanoes often form along Earth's tectonic plate boundaries.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "e4895460dd0d13d052c74d9438e0da187b2b21aba6c11d6b3530648b14acce0c:1",
+      "source_row": 917,
+      "statement": "Washing hands removes germs and decreases illness risk.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "d5820f7455a1f9895b88a904efc5beced990fe8b5137159884c112ea3ca37cc4:1",
+      "source_row": 921,
+      "statement": "Waterfalls are the world's natural symphonies, singing timeless songs of gravity.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "4067b030e136394e705352b064207cbbf5e53790690908c82683f7fcd1171927:1",
+      "source_row": 924,
+      "statement": "Weather patterns influence daily human activities.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "a74c3669d1724c0b28f4f1f617f73f75fb12f9ae3b1e581a6178afe432310e91:1",
+      "source_row": 928,
+      "statement": "A closed mind is a locked door; openness allows new ideas to enter.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "7c9b06eebf145472373e3221dcbe1e329680cde19e42952c54667fac885f65b1:1",
+      "source_row": 946,
+      "statement": "Atmospheric conditions affect the visibility and clarity of objects over distances.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "fcabee5a9f7d9d9822a039bceac4a40de01c5ccc0ed97c593cacb299313945c1:1",
+      "source_row": 963,
+      "statement": "Cellular respiration in humans requires oxygen to produce energy.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "21b3030c68548afcbbd7865887bf5dee84bace1210ca37923f2fa0a4849c446b:1",
+      "source_row": 973,
+      "statement": "Cooking methods affect the flavor and texture of food, revealing culinary traditions.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "397d17d015af8eb9dceb63fe56b20b1c4a7a8380253f3d049238c7820f44795b:1",
+      "source_row": 981,
+      "statement": "Daily stretching can improve flexibility and reduce the risk of injuries.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "50e4ec2909e49965349660857e730842e33b66cad6b2df96fb6cc17788cd0c64:1",
+      "source_row": 991,
+      "statement": "Electric cars utilize regenerative braking to enhance energy efficiency.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "d3e8fd0bf3f3affe6714409a556a468d05585d9a040257fbd037b65b725b0b67:1",
+      "source_row": 992,
+      "statement": "Electric circuits need a complete path for current to flow.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "7405f8b468241d7e45fab53d3f51d974b12ee68554b49242d41d0895768841f1:1",
+      "source_row": 996,
+      "statement": "Electric vehicles rely on battery technology to function effectively.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "11c37ed788d06f8a2c31ea3298da5fb65595b4c53577805ef30a0242e504ec4b:1",
+      "source_row": 1005,
+      "statement": "Engineering projects require collaboration across multiple disciplines for success.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "fc29a616f7b9a2aab950383ff8fa534eb61684334335538abb32c1c018320d51:1",
+      "source_row": 1010,
+      "statement": "Evaporation occurs when liquid water turns into vapor due to heat exposure.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "e7cb3c5d6574159c37bae823c0ba84cf8ef86813f265e0687404fb1b7e9f4c74:1",
+      "source_row": 1027,
+      "statement": "Flowers bloom in spring, showcasing seasonal changes and environmental responses.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "ba47456d8bf5095c75af840769e67f43cfa2b83c38040cc4cb6e92db0713f0b9:1",
+      "source_row": 1029,
+      "statement": "Fluids exert pressure uniformly in all directions, demonstrated in physics by Pascal's principle.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "9591daea6e1cda739964198c89370e9e5edefd56ff5ed7fd24d00b0227db3550:1",
+      "source_row": 1034,
+      "statement": "Friction opposes motion, illustrating a measurable force in physical interactions.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "6c28359d62c489b9dcf7fb5d19cd603efbb4c9a02f1f25ed60bce2690ba1e00d:1",
+      "source_row": 1049,
+      "statement": "Historical records provide insights into past societies and their cultures.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "65e1a311acb9d714263e3fcd76b328858e25a743f2214c03548fd962b5599b0e:1",
+      "source_row": 1061,
+      "statement": "Hydrology studies the distribution and movement of water within the Earth's systems.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "cdc4563aa3ffcbfb9ed246bd6196d7076ca590fb43bb6d352f886c75a411a5a1:1",
+      "source_row": 1065,
+      "statement": "In engineering, precision is key; even small errors can lead to failure.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "17c21b1e0b3a883eb50e5fd94f12e0b185853e3375750953b9cbe43f7cf41ef1:1",
+      "source_row": 1066,
+      "statement": "In geometry, a triangle's angles always sum to 180 degrees.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "23522b2a6e53735a9890b67c34c22575aa5124eadb7ce3ee244c96e7caf632a3:1",
+      "source_row": 1083,
+      "statement": "Life cycles characterize living organisms through stages of development.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "0da9f1489ce6867c878fc3d4918a05f272cff7146d716e74c0f256ea59b4dbb7:1",
+      "source_row": 1092,
+      "statement": "Living organisms require oxygen to survive and function effectively.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "bdcbcd9f7fdfbed217edc1cde0d25d5f4066823679fef366db11f68b09b91d20:1",
+      "source_row": 1100,
+      "statement": "Mass is a measure of the amount of matter in an object.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "2bfa4d0807e52140147ad9fb6787880e4bdf2cd23657a388a22ff52d5276d0ac:1",
+      "source_row": 1101,
+      "statement": "Mathematical equations can calculate trajectories, predicting the motion of projectiles accurately.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "3bcdedb02f925115ae03bd1356bf27688a0481a819ce754d74db02a276696194:1",
+      "source_row": 1103,
+      "statement": "Mathematical proofs provide conclusive demonstrations of the validity of a theorem or statement.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "47cca853103366e0a37e0f13a3442dae231f5a564e202bc30e4f0f38fc1e69df:1",
+      "source_row": 1105,
+      "statement": "Mathematics allows us to calculate areas and volumes accurately.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "43b0f94000c45a82734f41d3301f32ef761e28cc165f0faa01330eadca251032:1",
+      "source_row": 1117,
+      "statement": "Matter exists in three states: solid, liquid, and gas.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "1cafe1cb9a6ca8d44f85cdb75c65fa23013abb9ac22787bc77a4ba039495fa50:1",
+      "source_row": 1118,
+      "statement": "Measurements can be taken using standard units like meters and kilograms.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "8188e82e0a25f1b5e8a02695065e5da357ee81a1248c43559d792790436f1ae1:1",
+      "source_row": 1121,
+      "statement": "Measuring weight and height are straightforward tasks using standard tools like scales.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "af855d538aadc085c6104cdf7b5e6d915a9136c423e9e79a67f125d1dbe91e32:1",
+      "source_row": 1123,
+      "statement": "Mechanical advantage enables machines to multiply forces in various applications.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "4eb876d765fb3444f2cd2a657467a1e8650c3d7e3ce2eb5e31b667864f56df0c:1",
+      "source_row": 1130,
+      "statement": "Natural habitats provide essential resources that sustain local wildlife and ecosystems.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "b05dd081d14fc42c87e4cbe9efa5b00a81588c973e251647a3ff130d594ab585:1",
+      "source_row": 1141,
+      "statement": "Objective truths exist independent of personal beliefs or opinions.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "bbfbe21daf1ed5962dbb800fc67371219dbebea787c10cf0230eb72597bdcb3b:1",
+      "source_row": 1162,
+      "statement": "Plants grow toward light sources, exhibiting a behavior called phototropism.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "b7ade08f63e21c31157a1b739137bf81e6bc445e8cefa27aa2bbad58e7b51210:1",
+      "source_row": 1166,
+      "statement": "Public attitudes toward renewable energy influence investment and development efforts.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "eb17cbd515144c758e5dd7335995b4def8febb7610f7593d8f90e6b6df24ec8f:1",
+      "source_row": 1167,
+      "statement": "Public spaces in cities are designed with accessibility to foster inclusiveness.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "ca5f0d37432fce19901cf891819634cd0f2a3af690195b28aaf7392b9471dcb3:1",
+      "source_row": 1168,
+      "statement": "Rain shadow effects occur when mountains block moisture-laden winds, creating dry areas.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "946a01c839a092ed02fc0590722faa009b7a9747063d41a7314ed5874d0700de:1",
+      "source_row": 1169,
+      "statement": "Rainfall patterns can vary significantly across different regions of the globe.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "acbc538b880409db952693eca2553bd6ac6d50e3904e4283c0c7c10c5937cd10:1",
+      "source_row": 1171,
+      "statement": "Regional climates can dictate agricultural practices and food production in various locations.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "13103d1d59189337fcf12531edbb2aa84d168479478dcf5773dd13eb5a03d988:1",
+      "source_row": 1175,
+      "statement": "Regular physical activity reduces the risk of chronic diseases like diabetes.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "d7591c4427b541e7c35073a97b6fb6854f4592ff6848c69dae9ca6838baa1945:1",
+      "source_row": 1176,
+      "statement": "Religious convictions often inform ethical frameworks and moral guidelines.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "eb3db47858ba6c82c0e2b1845078cf10f340cd048e1e169eb29b333ef16290f4:1",
+      "source_row": 1187,
+      "statement": "Social roles are often defined by cultural norms and expectations.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "1a0d747d2d683c4085bc8a216230210ad017cebcba87b443dda3cc084e46a741:1",
+      "source_row": 1189,
+      "statement": "Soil fertility influences crop yields, leading to variations in agricultural success.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "7102e0ada3a040897c5cc0622de146ed07ba5166589afc99485663af98e52e6e:1",
+      "source_row": 1192,
+      "statement": "Sound requires a medium, like air or water, to propagate effectively.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "5ec4aad0e33d4ad30076027f650ece2283d68acbde58e359175f5ec88894ba2e:1",
+      "source_row": 1194,
+      "statement": "Sound travels through air, reaching our ears as vibrations.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "035eaa67f7c47192b62f4c325dd3d77dd8bac607a524a15bcd096bd04c5aafaa:1",
+      "source_row": 1199,
+      "statement": "Strength training increases muscle mass, contributing to metabolic health.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "ed96fb101f5680c9f528d67df47019e4b45ec1bd8fcffc4b39e48c63db6eb7c3:1",
+      "source_row": 1201,
+      "statement": "Stretching enhances flexibility, promoting better movement and injury prevention.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "cc7d8867d4fd73904f72d3e7a2a9d16bafe06d4a542ebb7694368eea7a7ff9d2:1",
+      "source_row": 1209,
+      "statement": "Temperature affects the state of matter'solids, liquids, and gases.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "94ad9a5d08642ed036297d26721570d42218fca9d97bdf07c81803b6f1193f9e:1",
+      "source_row": 1210,
+      "statement": "Temperature differences cause air currents, creating weather patterns experienced daily.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "7fe4ba05efe14a62f60131e18845853cbe970d3d5db21f4b5303302dd3932151:1",
+      "source_row": 1214,
+      "statement": "The Earth's axial tilt affects seasonal temperature variations experienced by different regions.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "d6f4554cd4e145fe2565aa869add40cca6bdf7cb04b7e8e12015abdf5a98c0a3:1",
+      "source_row": 1223,
+      "statement": "The heart pumps blood, sustaining life through a complex system.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "f09e03e18a90b4b07710ba705bd6024fd6344cce08fb17ffc626836d5f41e0ca:1",
+      "source_row": 1230,
+      "statement": "The seasons impact agricultural practices by determining planting and harvesting timelines.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "07495c41fa4b7b370d3bdbe6625797e6f0e87e7c94e72f11959bee86245db4dc:1",
+      "source_row": 1236,
+      "statement": "Three sides define a triangle, demonstrating a fundamental concept in geometry.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "f1b04be89a29b3e45704396555f417534224cbde13470dab9249469321d41716:1",
+      "source_row": 1249,
+      "statement": "Two plus two equals four; logic dismisses subjective opinions on math.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "f21a9c89240d83d30ed35701fdfee943a02927fd843dfe7bec7aa8959361b0cf:1",
+      "source_row": 1252,
+      "statement": "Urban areas often exhibit heat islands due to human activities and infrastructure design.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "a3613954ea4c41ff022536bfc596058edf45ba3fbb88c59405188e86eec3fc95:1",
+      "source_row": 1256,
+      "statement": "Walking daily can improve overall fitness and support heart health.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "4b4f84351e6cdadb95dd3332c5cfb7cbd90a3a593b529b087360575ae1859746:1",
+      "source_row": 1257,
+      "statement": "Water boils at 100 degrees Celsius, a reliable empirical fact.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    },
+    {
+      "source_id": "20d959076c3dc1fc995815800e63aec218e7c8b5a83eac6b20a54d0c7b591634:1",
+      "source_row": 1263,
+      "statement": "Within ecosystems, organisms rely on each other for food, shelter, and survival.",
+      "design_point": "",
+      "gen_model": "platform/published"
+    }
+  ],
+  "schema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "features": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "fact": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "classification": {
+                "type": "string",
+                "enum": [
+                  "fact",
+                  "opinion"
+                ]
+              },
+              "confidence": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4
+              },
+              "explanation": {
+                "type": "string",
+                "description": "Explain in 1 to 2 sentences why you chose this label and your confidence in that classification."
+              }
+            },
+            "required": [
+              "classification",
+              "confidence",
+              "explanation"
+            ]
+          },
+          "physical": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "classification": {
+                "type": "string",
+                "enum": [
+                  "physical",
+                  "social"
+                ]
+              },
+              "confidence": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4
+              },
+              "explanation": {
+                "type": "string",
+                "description": "Explain in 1 to 2 sentences why you chose this label and your confidence in that classification."
+              }
+            },
+            "required": [
+              "classification",
+              "confidence",
+              "explanation"
+            ]
+          },
+          "literal language": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "classification": {
+                "type": "string",
+                "enum": [
+                  "literal language",
+                  "figure of speech"
+                ]
+              },
+              "confidence": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4
+              },
+              "explanation": {
+                "type": "string",
+                "description": "Explain in 1 to 2 sentences why you chose this label and your confidence in that classification."
+              }
+            },
+            "required": [
+              "classification",
+              "confidence",
+              "explanation"
+            ]
+          },
+          "positive": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "classification": {
+                "type": "string",
+                "enum": [
+                  "positive",
+                  "normative"
+                ]
+              },
+              "confidence": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4
+              },
+              "explanation": {
+                "type": "string",
+                "description": "Explain in 1 to 2 sentences why you chose this label and your confidence in that classification."
+              }
+            },
+            "required": [
+              "classification",
+              "confidence",
+              "explanation"
+            ]
+          },
+          "knowledge": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "classification": {
+                "type": "string",
+                "enum": [
+                  "knowledge",
+                  "reasoning"
+                ]
+              },
+              "confidence": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4
+              },
+              "explanation": {
+                "type": "string",
+                "description": "Explain in 1 to 2 sentences why you chose this label and your confidence in that classification."
+              }
+            },
+            "required": [
+              "classification",
+              "confidence",
+              "explanation"
+            ]
+          },
+          "everyday": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "classification": {
+                "type": "string",
+                "enum": [
+                  "everyday",
+                  "abstract"
+                ]
+              },
+              "confidence": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4
+              },
+              "explanation": {
+                "type": "string",
+                "description": "Explain in 1 to 2 sentences why you chose this label and your confidence in that classification."
+              }
+            },
+            "required": [
+              "classification",
+              "confidence",
+              "explanation"
+            ]
+          }
+        },
+        "required": [
+          "fact",
+          "physical",
+          "literal language",
+          "positive",
+          "knowledge",
+          "everyday"
+        ]
+      },
+      "commonsense": {
+        "type": "integer",
+        "enum": [
+          0,
+          1
+        ],
+        "description": "1 if the statement is an example of human common sense; 0 if it is not."
+      },
+      "commonsense_explanation": {
+        "type": "string",
+        "description": "A short explanation of the common-sense assessment."
+      }
+    },
+    "required": [
+      "features",
+      "commonsense",
+      "commonsense_explanation"
+    ]
+  },
+  "jsonl_file": "batch-fb2cda70448746af8262d85c708e6a27.jsonl",
+  "request_ids": {
+    "22760b8fb11355351230eae4b044abfce092e0693da4a084fb95bcc4e1b47c6c": "70c872418a41d303c551f4e7f4acfed53e4c535eb6f3eeb5b939e96e313800e3:1",
+    "9653a717478ef577c751b5229cd346558903794ee7c5cb53783bb66b77d553d0": "203439ccb13fbb872e8b9450b061b99be7be0886306b147347ed0388daec894a:1",
+    "9718463b9c016996dc2397ec481fac1c9802d901ce5f2ef4ee7e0e168310372c": "1f0b60e015061c56d5d924f125f3d75537ae393ad56c1549c146fd8ca6d35516:1",
+    "bcbfa4192161ef1d84af4c9e4206344dbd89d810e777eb417a145d6529b89f60": "7448e269d1300c689b3154b2dc68fed180f5665fb07115f678059530943bb189:1",
+    "7c6400f50b1dfa05b970e85a5af2ba147af0036a88e918bfc3e7341717bbba8f": "94c1eda1cd3b5c04237f65707615a0a2603f21f5e825a85bfacb72ac73518a84:1",
+    "02b70c2a87d2ffed5ee77a03d6679cc82430d35a4b717182d83945224cafc2df": "0aeace0ab49e1c8db4f06a2ae74a6a240dce4eab3178eb3de913ac452fee18aa:1",
+    "360fd2521ceebbe35477ba0e516106d2c916268b253737b98cc4979e35ee7e0f": "a5ed874f404265fe979a2d6c6bb4c02dcd64dea189e7b188a215f67bb333bdf2:1",
+    "a0603157be3d24046ca5f2e728cf45423662d99277414624238cdee01730a17c": "4304cc61d9c854306038ebefe4794eae5f6bbf27a5f3a5b94ed087f2ca6c9556:1",
+    "14a6ac52dc54dde1d6f5a19dc569abe2d3e4be5c8f36197941fec9a853a56976": "351001532a1915d1709b764c3d7408979bb5a04b983a0c6ae45e885a6cc155ee:1",
+    "d8bcea1a5cfd47a4d74ae050955c10059161f4175fa2e7788e40dce3137d6153": "00ee9ba72bbb89629a287891c11c2c25074c7f16c6a441b348c5a020e3d35994:1",
+    "06afbf070ff4c9e37dc54d5764773673de49ee95cd447d360d29826caaea012c": "a608f59f54e084b77da6bf7bf8a43545c371f97ae58f93ed95e7ebfd9741d85f:1",
+    "328c4b7c0f1e7dda2583e2d6f06d91f040f1bcd79ec29d12794dacd12a4529be": "bc2fa871118aad82f96be4dc45a7e756a6dd763eb2c050a4fb390fc10636040c:1",
+    "f8be7de2776234120f8e75487d9fddd49f76969a1b14c8feee2b98260bd4cb75": "41b75c337c1691e990f38d320a7ae79d5086960217002851c49fd2032e74951e:1",
+    "d8c2a3c0b98f4cb46ee23c09a95d35e21f1a69cad4598dd1518ee114bd73c5bd": "2349f760a5f93adba54da9a9ab290f2f7127eacaa8fdce473e0f0b3eebe87590:1",
+    "470504c68c2cbd2628ef40d60784369dfd4b4ce8e27ccc2d5d195640f4f84c85": "f8544f71ecad2e80c5327d66fce71a316a04d07c032b2912825a4130137d07f2:1",
+    "6eb8794181b4b9c1dd61e5532f245a52eb8b713a86e31e1350b67464b1cf303d": "1808acc507cccdbddf6d35f7e84430525e4dbfb8dbcf3c5de827ad3448555514:1",
+    "f0772f113d7c042ec3670ab6f7a9fd6bde7d9a0848c903713b26139f633627b5": "1698f4b9cd72e0efcdaa2b392e22ea60d5fd9a44ec6ce58f0882706eb7c7fcc0:1",
+    "9d222bb7736ff6c1df38d0f0022e524000167c45be10ea72811bbde3fd5088fc": "1ec82cc30004032148ddc4a265eed40b98306fdef154d40a44b9d9d3908cfbe9:1",
+    "ae072af2396fa83bdd6aff5d85dbc7415c28410d9e8c1170f422bd2320ac1d67": "04d2734bfc43c6052c7b5dc697735bb32e9f5cde971cbe4ab632e2d03ee667f9:1",
+    "318a3b1bfea67ea68fa359e32a4f86857e137622e698034057e172157b405b74": "ddb6358581c1a3bcbb5f78a440b4a9d65282e89ea9fe66d39e91994adc3c72b4:1",
+    "d3b36b45e7882d7024557c03a1be20e4184705da2201019829e93b6cfc2d311f": "f9034fc76f3402f92a329d38c500b277308a97aff5ac31313d33c1923da73f1f:1",
+    "e8648458fa91fc077dd6d7d6163b2f3510da9270d0f50577d753d25a07ee8ae4": "0b9f4b6cd802dd4409cdfd47b94164dda9408be08f830f789de44c8cc963e88c:1",
+    "492da364322fcf472c0d78cd90649800ae614967cc869114000d90a13f723c07": "667fd5413406879769dbadc6430c32daff6b0129c6b799d92e8e1daa4d98ca34:1",
+    "b9be389fd8acbca5f96bd53688c1f7f662e125c1ecc2973800cb8e7d5b0c5e86": "93008ba7c47ca42919310fe8983a63f23718c59c336c049b5d2c72e09ddb812d:1",
+    "ab4cb2e39bbe82e0ad8c64f24cac6f5d8268f5dd9bf5dce880495f1067afda8f": "77f587ee09544392c30faf5dc94474652f2a89b7ecc5761423e93bdf287f407c:1",
+    "a40bc803e77438bb9a610f2fb7b3dc9d00187ba6962774797df3202ae05a4e5d": "1a4a1f1ae1524dc03fd42cc9c16fdd7929eaa3ca7e5ef224b14b369c8ecacda9:1",
+    "a8a6797a55e47ba5c592ab2997e3e41644cb8032e53471373d792cf0b33fe04f": "428230a4a5884f5a73130205bdd2c97a75f2bc409e8aad40ec28dd370d4603a7:1",
+    "b3aed0a1bcca0ee994347afbda5bb4fdd4402f8ab461473a4d463062ca510713": "2961348d618e1f3c4f5156d575e35aa751a784a1d5026d42a2f11a62361601f2:1",
+    "fc5f89fc3ea65c9355476cc3e370a7c228b6e13c36b701b6acac97e6718809c0": "3d8f8e59e2496ecefed3a374a2652968dd1285e1129c8ac801f083c906d9f2b8:1",
+    "778941005bf9c60af361b4f662f9128f872819575c7b48ac12a3512ba805da56": "0466fcdfb7eca04de6bf7bb330d55cede156c7005f0f0f616d69ff94a8f078dc:1",
+    "ac209fb485fc19e79de34f4128b3c7c7b68f15b74ca3349445d5d292026c4849": "c6204009a44c5bd120370c5f08077011f8b208a613734de2fc45074d1d1ce2ee:1",
+    "6906b0ed24b8e92095ee7274c26f458f7f413f09a1907c76b99e1d391819a7a6": "ddad9df1b7a852fa48c6fcb5c8d15dfd58ee14e768503a5352dbf139744c049e:1",
+    "18f3a9b9b8d0454837ce015249de50b7faf9da4b166f9038ea2f9c6bcb3a1076": "ae1c834edfa43d904e2733605a5482d44b66bf34118a659467e44b1c17d15861:1",
+    "5e348bf38f9889b5816e795341ae1e754705b51e670109b05e2cbdd840d1e2e5": "b62b3d5956370a3870393d1fbc15512d7b269b6254a6a69bd3d619ebef053af4:1",
+    "f9136286983a3c82b3a1e5c01008c967904d497da2af08af97d94d5cde2df227": "857c18f247b868b1d9551dd843606ab32f69320daa0a2c4b8c602bd4308d2275:1",
+    "d4114ff2cb1bb17aba16a8baa630ec4612d0dfd8df859b4a0357c208e3070b72": "32499d6e0df38021290c7b210b00b94bd68a1b1d0cba85737d00eb69f5aa22f4:1",
+    "cee8950017bd0c6ea095eec004fe1fa8578667a20f408a6acf9a959c45f97759": "0f5ea4750c887d43fe8701239c3f272c9609c170f4286f031c5cf96e2997d8e4:1",
+    "e4c1f47080af5d259470dff332175277045bd7f286c42c5af768fb3c182e95c2": "e238717df0ac0f3997cb424fb48717f265fca289445c7b65249cf8d779a8c3e2:1",
+    "6d4d1149b696390a534b086e4dc5de3da5fbcc3b45dfa7d2141d5c9b16ef81d5": "a3005610e6fbed3ab0268aa73e855fb11436f9a86f41e3c2536112a8c07e7bcb:1",
+    "366f4daa4c20d20039e25a2a50aae403b414855b210b71050a47e203d9d6827e": "428a10047b3c75d8853cb64fefc823dbd070e441d24e913a4f8b3e00cfb5d3d2:1",
+    "8589b7a710116cf1f36237820f3faf69dc825635e3f9fd77906b10ddf34b06fd": "34cb355d26ffc8a956fbe23e1b9bc1c473a5083a1a761df95a19fcf472a11c69:1",
+    "2ff4f23d713472547cd9bd2c663985adf7e052a54b3904ba50da5a416bf5208b": "b9a07b959a5100558b8f252e5420acd09bb1109dfe8e581745f65c04c958e888:1",
+    "b4f1b4837a94dbc32dcf309f35f04bd59d47c6a655f846095629b22b76039862": "f65c29d9518c6635aa002583cdd22ee01fe182292b955c7686b4bc708b85844f:1",
+    "bebf965b8e54dc2a25765f646cc5856950f5c0362e1b23fdecc03f2471f4a426": "0acb7b92cfe4ab3af90c6efab1abb992a36a3f8bba4941bb0561623e6b853f11:1",
+    "cbc1fddc511698b3d764e253701192f9d6b4cebe6e67111ff6bb74f3872c86e5": "6957f803e4b6b2732327bcc1eb77f83a02e9b5f64cf61a6aeebee8995e9c8d80:1",
+    "7f76588f890c1f89c76ffb9494f9bf29ff68b38d7f41e7f53c4596d458488e1c": "dee3756576e1286157e0ca16def694b6fcf94d60fcd7d44c77f46347fda1471d:1",
+    "99dfcefacf92a50c4097aebfe7b8ecae00b5ce80d7a5e805ad8dc6823daaf7ee": "7ff65114d62f04413f32b455c0ed91525947e7567f74cf8ea021c4591d7781b4:1",
+    "8104cc28efc985a1de57549130c16a690e322793c3063062848179c21a1459e0": "5c7a49ab853f9fb99c6eae6cb359619aa1de7a5ffb9391821e4b9d60ee823f78:1",
+    "c3fa3d76f0918011c6f7aa102d89b0b561b6171188d42b7b36cc2cc27e9382c1": "f050a62cfbc44da1be7101f10ad5240d70d811de405083ca8e8b366da1c0b90f:1",
+    "ffc1c9bc895275784f5589a6891bb1479d1060b197c4b6357618e8da350108be": "9766f33a6853555de83bff57a3b2a4f3a1620ba2931948ffc9cb6e2a4df3d055:1",
+    "fb6d274459a35111855d7aca4a688d773dabcc7f51a1c9477b792a62609be724": "6add50860ffce5585814ef8b70cb87107b6c0351280ff02dd735ac7f155af6c7:1",
+    "035c64bb22bc76c5fa4c10891d0b1bdffaed589394e082bbe0cc0a9be5196ccf": "ca128d568f557b005293814429bf1315efb85d34358065da7aedaa1495ee1de3:1",
+    "e38993abd4c47d3003a234f84cf79fc77cb3cbb7542e42cd7165988a414219e1": "e2701c117428e7c54469cb925c89c4b8426cf4d2e8141d05df046d2e9834920c:1",
+    "1ed597d923fa9716c536a49a93d2b27d589653f643118c4d4ba88b5c4c6a0dc5": "532c153e094da9e3111dbf543bd009453353686ada6733de59d1379eeebf6e6b:1",
+    "2c82ed72da47e35a167a7f11e3b6fb3797c9bd56cb6114a2173cd23adaf1673c": "aeef4a7cce5a824a85cde7f21902a51cac4d57195993d12b693c1125ad791b4f:1",
+    "7f948510dfb1844ddccee503d7954343e433b09440e2f6afbe0025a0a4d8f6f1": "ee8f22907f54c0d2598d484fa09a704449faeed64f32eb5ccafd305b193f5ddb:1",
+    "d613a1cb53230ad6f04457e545cf39dee19973f898a45dca1f1a50b6476783e9": "a952f880d255c48d1f5d3a36c796413ab27411568d84455e26a6d821ce5f032c:1",
+    "ef4b737464e2b7689afabe769ad837dcbc220330853f5f95ff5eb3ae7aff4ced": "6cda2b555652e40501e0cce925589e864428f863aedbcb4d34d3ca476b236718:1",
+    "c06c7a8842f8a549b477366ca3919bf34f5290c4cf1b4999b46ee98bc9a17996": "55c83d31b828633c62814d42d57ccc1111d12d806715592ee532eb78d59faa99:1",
+    "da1b69f6834062c44dc49005e8ef16804863752c64d6d472330ab614f974af01": "e45917d9d3ed632944e93fb98e7cc70a7c172514dd7ac0fb32235645f143e478:1",
+    "35805a4a7e44d790e09d19a0c1c1e594c2b73e83df138e3a763c16baa80b5c9f": "563128a7b7eb51b30c09e707adc582248cc4c323bb85f2b8da2d17ef78ba2110:1",
+    "0e8828722112d3cb182a48da459ee198997c88c8fea76ed0c5360860f56b56d8": "6e3dbeda4c0565e10dd316af2aacd90ba428c4d71ed61a5cdd69b807fdbc35d6:1",
+    "6e415de4c953e4bb3baf981fd269996ad94dab4091c1762197331c52c903b284": "00db933a6a984a2d262386e70c22acd4d3dceb12dec964fb0d9f949a1e4e6549:1",
+    "d2ccead00b6cefd43db8440f04a836e3cf321543e63224b6194f55728732c8ec": "913c09f6b9f03a5a1fde685fc60a634ef3b6f2d89c94bc08e7472b210101601a:1",
+    "ff3be8fc23ea7d649b557e3e980c0cc5452956d7aa983fdde61b46bb78a79b24": "5b0369ed7fda8897bc545980dbad9650c2d7a1d5a25cbf3c9bc17d9faee3d958:1",
+    "7489771fbba0d6a00f0407688f0d80d524ec8b6b7250e5b07e3b8a70be1d107f": "9c13db8c952eb63fdeed693b07307af0c92ec2c35ffcb743fe45aebaab283886:1",
+    "62c7fcd50875209adf87f7f0b17b8601076476c8411e5009657377bdd8962b76": "e422cf4e09e8d04bf4745359567ce684d36d7b952a39c92841c6a0971efceb03:1",
+    "1c19a093b12e0bcfe23d9a49451d67ed65c10c5d7ac9a9ff9a0bfc2586348b23": "d1da3a5aa75f6675fe9ca270b75eb3799238bac40a990a7ac14ae92918ecc3a8:1",
+    "37c7c196c0d1df996167b8272933adfed41d80a36030e0ae6005e9f329d3c922": "958809ac48fa93909ee67828a82f257412dbf485325bf5fd67bdcc1658037de1:1",
+    "1c2b80d82f3ec1aff5d64a901bd06e399cce2ed88acd19d1f6ae3a485732a286": "5ca63d254f3ae8a75850d7a392c532e3f28442192db582997a5dca9f3a25f150:1",
+    "3eb754d1050d75d09f2cc749457e72c0563a27730b1bb5b21e8d3cf16e950f69": "d0e909e2e4adf20a41ee2efd892a7b1e31136639be981e728a137b1ecdbb8c30:1",
+    "2039ae4b54657b3379f2af3582d5f8597877aa156688abc1a40f6bed16c98570": "fae87bc725b9e04fe227448726a9afd5a38b313061f1f343622f56fe1476001d:1",
+    "da21274f5e58a9b41ff121432c37df8b26c282bf743309570cf96cd7d93e8a2e": "2e6bafc36fc1c094b0a027318e8c5117aa9b5f65d3718676c35eb976413b845a:1",
+    "384586ff5ab28074335fd2240b69953602695c393cce2772df72a7e0379aaf3e": "3b4bf06e3c92748e148a703822f3f94af8c4cb5a4f7e4cc45d9363eb47859bcb:1",
+    "7d3e513002344c49e52e4e424f867c5949fd7c790610d9a47797441fab2536c1": "25dde67c2ef9e33b97c0eea05078125710e72a52078c9cef72bf68a044bb93e0:1",
+    "32c5c76208bf72ed3df255561b374b18c953de4cd1e7e91a1ffeedbf8603b2be": "e8b0cd8231e8deaa584fe8cd43f4a280c72d63770227c5b3223da973a0b56a4b:1",
+    "72d128c5a4ffe124d1be2f7ee3bce48dd19f08cf7a5af7cf2cb655a6c20771c4": "4883f28e5787c2e8afb9fec75fc2c9c263b0ff372497f75e633fa6fa9dd95c60:1",
+    "bf0f417d7c913ab4a28e52d26569f46f107fb82fe0fc56b301be4e12dd5caff3": "75375568f6b8b349b1db8fb11a0b0a29bce0351db506be68d709645efc7350d4:1",
+    "72afaaa46a99f1b81cee2caca849897a88a602317ba86c3df77df3d632c37bdf": "6f9b12f3ca7b1ffc3a6713e460d8f1653195e6e00163703fb376bb5b8860e1bd:1",
+    "75a744605be4bd4231f4f0d57b9a41e635d416f6be5276d8c1819fc236817192": "76b3c5d8197af5b6abb3a18c6c3b94031c9d7c14bbc88e9d4c0bc08bc7b7ab71:1",
+    "6274a0be95193330b166ecee9e32b93d2d63debc8a24f2bbe8f549433d6ab83e": "dffbf7cd3bc43ca1a16ff5551d2a127de913c38f05943c61f8e6e5d76b09049a:1",
+    "e3598bba735835dfe0fbf54c3cb7f37a3b22c60a1f5e5799019fd0b374d6e2e0": "613f8dc07f06b89086d509534a19f2d00262073c4d2bdbd9a8ab0118b05bd503:1",
+    "2fa5b1007ae7fe2c7b8c4a7626cfc73036f4625716e176405ac7809e85b3ce13": "07b012e94c780288421a251baf8dc9ca5aa08a64199a60454bce300e0738b46e:1",
+    "57d7666ca2530b00b6adb658f2154b56f10de669f7e06bc82d0a4ac7a1f83f91": "3a33dde84d9f903107ae4d946f74a7b2e7e46f9305009d8c0d9be87d485c172b:1",
+    "06c3c4b0f8593c110f03eee324b5dfc4beac30d51990073d1f8a12e481b676de": "13841fb7c29c72baf581a4d987da6ac1968695ccbcc6200f67b778f47ef14596:1",
+    "d874f237a8a07c9b632c45ea948a2cc354194ee7395dfe5fe913efb5b54266f0": "26a7ca9c66c711174ebf23419b0091f7ded40c47cf8654e79092b7026768ddcf:1",
+    "46e24c2e2b881ed7779d4e2742914494357a75f1f7dcb6a50dc9be0247ae6301": "9374ee9227287fb93788fb4972b0c588efdd54d476df5dabd76068548422bbfe:1",
+    "3e9d527b650e7f8898ea9deda447c3de52363cbc605164079f9b43e11be5e4df": "7c8562c07a45164b13841cf4120a2cd8047ad418d7bc75b041df9e051f6b72e8:1",
+    "be772610d72362cf5ca5de0603576d87e95bb4d8c2ccb1dd9f6a0687c121eff3": "8e48e3b51e27a7d213db6faa08613d92bd469a752dafda35361380b67ce62d99:1",
+    "c123f7a799974a1771023c946797bf7edf307a36d70f867678e2bbc9479bea0e": "3f6a2519bdd6dfd3811447653cfb8ed04757bdac5cb699359b8d942bf4c59847:1",
+    "0681d9e609d2a0d52967be403ddb9a8e938ebdab54f9124ee4e4e4bcdacea041": "967e115240b219b3e43f8b74bc6d44826c8bc3636b734cd66374ab9c4e59232c:1",
+    "44f3580a0241a06bf56ca0d02a9a9fd6b324e287c76b9842d092bbadbbaf643e": "b300129d3edff615fd2b4b301b16e450364ee1b6086cdcb59bf54964807285b4:1",
+    "3c6243907966e762b4d5a176b9f67473a4c148fa1dd626ca96f1c71333ce778d": "643480a03722c6f2d88d1865e3322e79f8913e5cf50f5b8ad025900b0f7c0281:1",
+    "8ceee91d3e24e50125006717df22ceaf27fab7e5b04cfdea639150e357e35176": "cbb3b742037bd51e83e8b3a3595e383564c2c4d793cc869e82434cecac63460d:1",
+    "0cce5e664fd25676f618bd83794cfd617fd7c65a49f61ee5af56f49893d26dd2": "691bee0d70df932c30436f53727c91cf487ac3a11bc3fe91bd56188f0f716abc:1",
+    "3e2d431b743f5cbe098aa70c39e92e810bbfe70520076d3f63e72853d6f22a29": "6c324c1239ffe9c47a6420bd2d799f529964dc5127e4d1dd7da1b553a01098a2:1",
+    "32b03588f70004626ca34ce35ed6ab7c0715d0fb1cc20dfba24f800edceea299": "601165ebe197ecfa383a0b991b440147188b78d868f8f08ad4c6d9c682c67504:1",
+    "aaab12d90296dffe299e472d517b68b51716aabcdbe8c446392f8d7775ab1018": "545de378a55272732ce2f5ed13c006b480483df05cf4a9f2bf0768f15f73e524:1",
+    "5edab671a6862e10af0512789a69e06503281506394e919fc2e5f4df0152da09": "7f41e52da4c05aa9d8c1ca7a0c864ead22572e121359933faf6f026b29622ee3:1",
+    "d9f9bbcb35a04954500fe5e7b7b6dec4e83d13662486d3b28bf010eb6605da77": "60e55ad264e0ac652180399b4b81e081885640fd24ddfb55410b48a19af59b44:1",
+    "9110a1b3f330e332b5a08e916d8ba34b09a57327ad10265aeeba98a6628a8704": "a99b46d7367bfe359585fdc69de20f028854f93874ae11c7c6a577f3185c4372:1",
+    "c39d736a5f0eda25993c103c782fe8f16e624117a6602bf836f186b52df94dca": "fae85998380923f822e0ecbc501a617b4d559267327acb89eb684c718c5a1241:1",
+    "a64f183b1674b1f1f402ee6897716a6d7f8759eb9f6ce62ded6a66d5b6dad418": "64cad00c92c3b95f92508dec208fd8eae9aa938c6daf7f8636077ab1073ee6b4:1",
+    "8b0bc4a81ace0c22c9716510e2e28d2b66ba478899dce56bd8a107f975bb75d6": "f809924356edd0d94fda865210eb1be544f8e440911aedaf698af1c4baccd17b:1",
+    "ae1d3833ec651061870e5168d82533071e9fe2988025e827dfb9692ba7674f85": "37d200bd51871ae5ebf816ff6bc1fe79bb6eeb3dbeed8454dbd94743a514f17b:1",
+    "ea27f5c04f4a9c95a0971d74b78e49c945fcf865a84d3d0d49c22ec5e9ccf6df": "e4895460dd0d13d052c74d9438e0da187b2b21aba6c11d6b3530648b14acce0c:1",
+    "b7a99470c7446cca32a7eb72d2e26cab3f8281fcffb04a285c5194373e667172": "d5820f7455a1f9895b88a904efc5beced990fe8b5137159884c112ea3ca37cc4:1",
+    "21fc26c71bbb804908256757056676ffc4d80389bdf365e555e8bb11a5d79898": "4067b030e136394e705352b064207cbbf5e53790690908c82683f7fcd1171927:1",
+    "b746580f87e9220bf93d14b0004e49af0791123685691bfb0533a4e48a461ded": "a74c3669d1724c0b28f4f1f617f73f75fb12f9ae3b1e581a6178afe432310e91:1",
+    "520e706fdd00584e0bb28c0f99015ab1497a6dd6ff9344b31749f5a8bca627df": "7c9b06eebf145472373e3221dcbe1e329680cde19e42952c54667fac885f65b1:1",
+    "00369811326c2b913bca9491a6c4da156a6c36b48cb726043e0148464252fc7f": "fcabee5a9f7d9d9822a039bceac4a40de01c5ccc0ed97c593cacb299313945c1:1",
+    "10ab8601f2f192fa9265abb1eb5f4408b8747c23b34f245aa9d0965e59eb1087": "21b3030c68548afcbbd7865887bf5dee84bace1210ca37923f2fa0a4849c446b:1",
+    "18311820d8117d526ffae5af02a22d921f620d8904274e33d35625e051106943": "397d17d015af8eb9dceb63fe56b20b1c4a7a8380253f3d049238c7820f44795b:1",
+    "6a5e25b38f9d85398fcc197a12401717294e30b2ac11ade05fe0cb9ea671a45f": "50e4ec2909e49965349660857e730842e33b66cad6b2df96fb6cc17788cd0c64:1",
+    "88d774b9c26e63da446b057525606d35214b2e5a370b8873cae694d968afe142": "d3e8fd0bf3f3affe6714409a556a468d05585d9a040257fbd037b65b725b0b67:1",
+    "29e019cadac02a66eb41e55db34e66f09ef6a05583e8bd8b7dc40b286134c909": "7405f8b468241d7e45fab53d3f51d974b12ee68554b49242d41d0895768841f1:1",
+    "9ec413a308d69f66e7cd832efe6bd2fab49409858755926102e9683324056e02": "11c37ed788d06f8a2c31ea3298da5fb65595b4c53577805ef30a0242e504ec4b:1",
+    "de8bf19e9011aa848f8d41563a48ccbae14b5e1f7fcfd7e12cf1f97e9ad4f461": "fc29a616f7b9a2aab950383ff8fa534eb61684334335538abb32c1c018320d51:1",
+    "e233c3a39e6638a487d823fd2ec6cd0bb154f344b512be0b47258987e5587df7": "e7cb3c5d6574159c37bae823c0ba84cf8ef86813f265e0687404fb1b7e9f4c74:1",
+    "4742257d315cd3b7f82252f54145d16a2184e31a108de1ab495d279817eed2dc": "ba47456d8bf5095c75af840769e67f43cfa2b83c38040cc4cb6e92db0713f0b9:1",
+    "b80e4c423ae1247078eb573025841428ea5133ed65bc82e4eba0acb958a846e3": "9591daea6e1cda739964198c89370e9e5edefd56ff5ed7fd24d00b0227db3550:1",
+    "d20208bac1a7d01179794e4c4e5a5063cf8d73bb5ff0a7b9a1cfca119d8f9726": "6c28359d62c489b9dcf7fb5d19cd603efbb4c9a02f1f25ed60bce2690ba1e00d:1",
+    "23869b96ce2df411e34976d230b1068ee35e2e0ba6d8f9d740be836611363df5": "65e1a311acb9d714263e3fcd76b328858e25a743f2214c03548fd962b5599b0e:1",
+    "188d2648dc96336978bd87dcf18f32ee7600435300ea0498d21551889e51f757": "cdc4563aa3ffcbfb9ed246bd6196d7076ca590fb43bb6d352f886c75a411a5a1:1",
+    "a29c4c27a704f5c41da593291fd6ea513b48841d99450487382c79fd3a7e6e14": "17c21b1e0b3a883eb50e5fd94f12e0b185853e3375750953b9cbe43f7cf41ef1:1",
+    "341a58aa9a27b6bc01782c2e73876290adf3f34ce5dc325d4604d1ce9b40d11f": "23522b2a6e53735a9890b67c34c22575aa5124eadb7ce3ee244c96e7caf632a3:1",
+    "78cd030cf5600c7bc42108cbbf493eac188ee280ba5c6d4b389b87342164b001": "0da9f1489ce6867c878fc3d4918a05f272cff7146d716e74c0f256ea59b4dbb7:1",
+    "88fe597cf4dec11388755178d3703b8d2b16d1a0efcc895ce4f241ceb90167a8": "bdcbcd9f7fdfbed217edc1cde0d25d5f4066823679fef366db11f68b09b91d20:1",
+    "212a42f6d3193ece40b980a683247e56245854ffed9cc05940031cfa1e6e59e1": "2bfa4d0807e52140147ad9fb6787880e4bdf2cd23657a388a22ff52d5276d0ac:1",
+    "dff236f2df17c3a51ed85594856f76d1180f215e9221febcb593c745f8b6645e": "3bcdedb02f925115ae03bd1356bf27688a0481a819ce754d74db02a276696194:1",
+    "7f23f3d4e87dc926700587a502162fd2be024987ddc4a8b7da0dd3458a9a34e4": "47cca853103366e0a37e0f13a3442dae231f5a564e202bc30e4f0f38fc1e69df:1",
+    "63aaf1b259d681be375ce811882a8a4bdfa8956bcf40f86011f4754372428a06": "43b0f94000c45a82734f41d3301f32ef761e28cc165f0faa01330eadca251032:1",
+    "6df47786d2bab232b8a51e40b41b7531eb15268e86ee4722d7f05e38c921d264": "1cafe1cb9a6ca8d44f85cdb75c65fa23013abb9ac22787bc77a4ba039495fa50:1",
+    "e71514a64fadf6eca2ba4e7ac6fd24e20334b119cb1e4d07cac17067bb6145a8": "8188e82e0a25f1b5e8a02695065e5da357ee81a1248c43559d792790436f1ae1:1",
+    "e6b67908c8c39a7aecf3f476009c0a2d93c9b5bd97454fb673ac8952d9b3e097": "af855d538aadc085c6104cdf7b5e6d915a9136c423e9e79a67f125d1dbe91e32:1",
+    "309f51208f4d247bc1124fa99f05d2554e30f091d5faf494eec3a7fb7ed085f0": "4eb876d765fb3444f2cd2a657467a1e8650c3d7e3ce2eb5e31b667864f56df0c:1",
+    "dd85ab42fa87e5856324a7a9f244e2f8ab19915c01bde6b5a662a4bf21edd7cd": "b05dd081d14fc42c87e4cbe9efa5b00a81588c973e251647a3ff130d594ab585:1",
+    "6f2f477ff660a4ff730b39ce9e166cf5724187892e946266f36c9d9145d649de": "bbfbe21daf1ed5962dbb800fc67371219dbebea787c10cf0230eb72597bdcb3b:1",
+    "f7521b9c9a90ecae721b15e504474208538a1826fbf0101545577a9cb6d84e14": "b7ade08f63e21c31157a1b739137bf81e6bc445e8cefa27aa2bbad58e7b51210:1",
+    "dc0d82c847bbfe73daf63f1f32b942fc3b53f97c43ab761100a88eb476ba100e": "eb17cbd515144c758e5dd7335995b4def8febb7610f7593d8f90e6b6df24ec8f:1",
+    "4339b36e7e53e7efb082098fb0d99252cb5ecfd94ccf0d436b13b06e689fbf43": "ca5f0d37432fce19901cf891819634cd0f2a3af690195b28aaf7392b9471dcb3:1",
+    "326d1bd5bd47d0685aeedd1c16d73a5fa956c301a44bf086f560e7d4b386d19a": "946a01c839a092ed02fc0590722faa009b7a9747063d41a7314ed5874d0700de:1",
+    "7b3f11a40d9794471f96be1be6e5413bd93c65b91f883dd52f282ec64867ecd3": "acbc538b880409db952693eca2553bd6ac6d50e3904e4283c0c7c10c5937cd10:1",
+    "43944c1e792c0ac8321bc7e16706c6e3062b560834f1f63bcf30c6e6c3270e97": "13103d1d59189337fcf12531edbb2aa84d168479478dcf5773dd13eb5a03d988:1",
+    "8d86dcce7759fd0b12917a45cb6553bc9a9a3512043c884e0c28119d2686fbda": "d7591c4427b541e7c35073a97b6fb6854f4592ff6848c69dae9ca6838baa1945:1",
+    "24b913c28a44860af31db0cbb71c3949c0c5cbd7051d917ef2f61d4e2b1547d4": "eb3db47858ba6c82c0e2b1845078cf10f340cd048e1e169eb29b333ef16290f4:1",
+    "d6b4639b2928975fb583c8095485da664cb42347ef7beae0fa8692f4b0c254f9": "1a0d747d2d683c4085bc8a216230210ad017cebcba87b443dda3cc084e46a741:1",
+    "b5c0cb714d0debd7a8d53147679ccc9340c79b9c0694c033557853cc483c540c": "7102e0ada3a040897c5cc0622de146ed07ba5166589afc99485663af98e52e6e:1",
+    "1ac59f374b32bd96914c6604bcb2600ace1cbdaffb128854a1e4e667079a28c4": "5ec4aad0e33d4ad30076027f650ece2283d68acbde58e359175f5ec88894ba2e:1",
+    "e341f7dcd88d93e859eef3790c27f3e2fe8536562ec3341dd90d62dc80c6cffb": "035eaa67f7c47192b62f4c325dd3d77dd8bac607a524a15bcd096bd04c5aafaa:1",
+    "987b1f9322341ee4bd27a4faf83de2de42123c85600eff90fb4ca76b1fb26947": "ed96fb101f5680c9f528d67df47019e4b45ec1bd8fcffc4b39e48c63db6eb7c3:1",
+    "bc5cf1a65fb29ac5225acee264abda5b2cd4afc1d410beeb25e8d74df9e5ede0": "cc7d8867d4fd73904f72d3e7a2a9d16bafe06d4a542ebb7694368eea7a7ff9d2:1",
+    "ce9493a5c0beb0459948d92fcbe3a09f4b3a1a06a1fdb6e0728581f07d69deb4": "94ad9a5d08642ed036297d26721570d42218fca9d97bdf07c81803b6f1193f9e:1",
+    "195d801f6b9c0f451ea92b838d2b7af8331258328c888d3bd3fe03cb0bbd808f": "7fe4ba05efe14a62f60131e18845853cbe970d3d5db21f4b5303302dd3932151:1",
+    "3ad79bf443e672a6a59ea1fe4191f5c4c214f21c12f05ebdb71dac097ce98b54": "d6f4554cd4e145fe2565aa869add40cca6bdf7cb04b7e8e12015abdf5a98c0a3:1",
+    "371662c80597163bcb292740da055a9ba7c95264ce2a40f7a97c4e33b5b796b3": "f09e03e18a90b4b07710ba705bd6024fd6344cce08fb17ffc626836d5f41e0ca:1",
+    "2d4b98602f45578a62c5d2113d6b775f35923f4ba344f90adefa02fe9feddf3e": "07495c41fa4b7b370d3bdbe6625797e6f0e87e7c94e72f11959bee86245db4dc:1",
+    "639d0aba9e57cd0d15c680541a41f307687bf030f10b41f41fbc983ca1fe18b7": "f1b04be89a29b3e45704396555f417534224cbde13470dab9249469321d41716:1",
+    "aec8637afd953763a87b9c291f9aa53235ae5d064ae9d680a1fffbab583ebb54": "f21a9c89240d83d30ed35701fdfee943a02927fd843dfe7bec7aa8959361b0cf:1",
+    "85d43883b685e0a2fe876cdeb79be1d8c88b355b400b16505c8a68196a53e54b": "a3613954ea4c41ff022536bfc596058edf45ba3fbb88c59405188e86eec3fc95:1",
+    "55d7e673d2d6e579ce7ebcc8fee526a798c28ae05b6f7d90a459b6d37f5c7882": "4b4f84351e6cdadb95dd3332c5cfb7cbd90a3a593b529b087360575ae1859746:1",
+    "e5d7e956a965836a25a0ac2085926db9fc0b8539f70ab831618510cc4dc70bd8": "20d959076c3dc1fc995815800e63aec218e7c8b5a83eac6b20a54d0c7b591634:1"
+  },
+  "batch_id": "batch-1790257552-t22zKjFRgrfl33YmoLo1"
+}

@@ -1,0 +1,20 @@
+{
+  "id": "batch-1790257570-9cMdAvPcrNLurxFOzLF9",
+  "object": "batch",
+  "endpoint": "/v1/chat/completions",
+  "model": "google/gemini-3.8-flash-20260902",
+  "completion_window": "24h",
+  "status": "failed",
+  "created_at": 1790257570,
+  "finalized_at": 1790257577,
+  "request_counts": {
+    "total": 1265,
+    "completed": 0,
+    "failed": 1265
+  },
+  "usage": null,
+  "results": null,
+  "error": {
+    "message": "The service account on your Google Vertex key cannot inspect or provision gs://or-batch-rlvr-platform-global. For the primary auto-provisioned path, grant roles/storage.admin on its GCP project. For a configured bucket, grant storage.buckets.get and project-level storage.buckets.list in addition to object access."
+  }
+}

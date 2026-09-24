@@ -1,5 +1,5 @@
 {
-  "phase": "submitted",
+  "phase": "terminal",
   "gen_model": "qwen/qwen3.8-max-0902",
   "judge_model": "z-ai/glm-5.3-flash:batch",
   "api_model": "z-ai/glm-5.3-flash",

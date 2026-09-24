@@ -1,0 +1,1266 @@
+statementId,statement,statementSource,fact,physical,literal language,positive,knowledge,everyday
+8860,Fish rots from the head down.,GPT,1,1,1,1,1,1
+8861,Bread always falls butter side down.,GPT,1,1,1,1,1,1
+8862,Strawberries are sweet.,GPT,1,1,1,1,1,1
+8863,Birds fly south for the winter.,GPT,1,1,1,1,1,1
+8864,Bananas are high in potassium.,GPT,1,1,1,1,1,1
+8865,Mountains are larger than hills.,GPT,1,1,1,1,1,1
+8866,Plants grow towards light.,GPT,1,1,1,1,1,1
+8867,The heart pumps blood through the body.,GPT,1,1,1,1,1,1
+8868,Recycling conserves resources.,GPT,1,1,1,1,1,1
+8869,Forests are dense with trees.,GPT,1,1,1,1,1,1
+8870,Plastic pollution is a global concern.,GPT,1,1,1,1,1,1
+8871,Hot things can burn you.,GPT,1,1,1,1,1,1
+8872,Hot weather can cause dehydration.,GPT,1,1,1,1,1,1
+8873,Electricity can be dangerous.,GPT,1,1,1,1,1,1
+8874,Humans need water to survive.,GPT,1,1,1,1,1,1
+8875,The world is your oyster.,GPT,0,0,1,0,1,0
+8876,A problem shared is a problem halved.,GPT,0,0,1,0,1,0
+8877,Love is blind.,GPT,0,0,1,0,1,0
+8878,Promise is a debt.,GPT,0,0,1,0,1,0
+8879,Content is king.,GPT,0,0,1,0,1,1
+8880,"Less talk, more action.",GPT,0,0,1,0,1,0
+8881,Foresight prevents mistakes.,GPT,0,0,1,0,1,0
+8882,There is no honor among thieves.,GPT,0,0,1,0,1,0
+8883,Respect for elders is a common value.,GPT,0,0,1,0,1,0
+8884,Dreams are worth chasing.,GPT,0,0,1,0,1,0
+8885,What goes around comes around,GPT,0,0,1,0,1,0
+8886,Discrimination is unjust.,GPT,0,0,1,0,1,0
+8887,Kind words have the power to build bridges.,GPT,0,0,1,0,1,0
+8888,Trust is hard-earned.,GPT,0,0,1,0,1,0
+8889,Art can be a form of self-expression.,GPT,0,0,1,0,1,0
+8890,Shaking hands is a common greeting.,GPT,1,0,1,0,1,1
+8891,Santa Claus brings presents to children on Christmas.,GPT,1,0,1,0,1,1
+8892,Classical music helps with concentration.,GPT,1,0,1,0,1,1
+8893,People celebrate birthdays.,GPT,1,0,1,0,1,1
+8894,It's common to send holiday cards around December.,GPT,1,0,1,0,1,1
+8895,Regular savings lead to financial stability.,GPT,1,0,1,0,1,1
+8896,Graduating college increases job prospects.,GPT,1,0,1,0,1,1
+8897,Crying helps to release emotions.,GPT,1,0,1,0,1,1
+8898,Governments create laws.,GPT,1,0,1,0,1,1
+8899,Students study for exams.,GPT,1,0,1,0,1,1
+8900,Tea is enjoyed by many people.,GPT,1,0,1,0,1,1
+8901,Cheating is frowned upon.,GPT,1,0,1,0,1,1
+8902,Wait for your turn when in a queue.,GPT,1,0,1,0,1,1
+8903,Being organized helps efficiency.,GPT,1,0,1,0,1,1
+8904,Religious beliefs vary among cultures.,GPT,1,0,1,0,1,1
+8905,The more the merrier.,GPT,0,0,1,0,1,1
+8906,Relationships are about compatibility and intricate aims.,GPT,0,0,1,0,1,1
+8907,Trust your instincts.,GPT,0,0,1,0,1,1
+8908,Reading makes you smarter.,GPT,0,0,1,0,1,1
+8909,Prioritizing family is essential.,GPT,0,0,1,0,1,1
+8910,Social media has a negative impact on mental health.,GPT,1,1,1,0,1,1
+8911,The truth hurts.,GPT,0,0,1,0,1,1
+8912,Voting is a civic duty.,GPT,0,0,1,0,1,1
+8913,Kindness matters deeply.,GPT,0,0,1,0,1,1
+8914,People often nostalgic about their childhood.,GPT,0,0,1,0,1,1
+8915,Music can improve mood.,GPT,0,1,1,0,1,1
+8916,Dogs are loyal pets.,GPT,0,0,1,0,1,1
+8917,Showing gratitude is good manners.,GPT,0,0,1,0,1,1
+8918,Cheating is dishonest.,GPT,0,0,1,0,1,1
+8919,Children learn by example.,GPT,0,0,1,0,1,1
+8920,Hunger is the best sauce.,GPT,0,0,1,0,0,1
+8921,Kindness costs nothing.,GPT,0,0,1,0,0,1
+8922,Courtesy costs nothing but buys everything.,GPT,0,0,1,0,0,1
+8923,A positive attitude attracts positive outcomes.,GPT,0,0,1,0,0,1
+8924,A poor workman blames his tools.,GPT,0,0,1,0,0,1
+8925,Beggars can't be choosers.,GPT,0,0,1,0,0,1
+8926,A poor workman blames his tools.,GPT,0,0,1,0,0,1
+8927,Helping others is a noble act.,GPT,0,0,1,0,0,1
+8928,Perseverance pays off.,GPT,0,0,1,0,0,1
+8929,Kindness begets kindness.,GPT,0,0,1,0,0,1
+8930,Friendship enriches life.,GPT,0,0,1,0,0,1
+8931,Actions should match words.,GPT,0,0,1,0,0,1
+8932,Pets often bring joy to their owners.,GPT,0,0,1,0,0,1
+8933,A smile often indicates friendliness.,GPT,0,0,1,0,0,1
+8934,Compliments can boost a person's confidence.,GPT,0,0,1,0,0,1
+8935,Time heals all wounds.,GPT,0,1,1,0,1,0
+8936,A rising tide lifts all boats.,GPT,0,1,1,0,1,0
+8937,Societal progress relies on equitable distribution of resources.,GPT,0,1,1,0,1,0
+8938,Every rose has its thorn.,GPT,0,1,1,0,1,0
+8939,Mathematics reveals universal truths.,GPT,0,1,1,0,1,0
+8940,Digital transformation reshapes industries.,GPT,0,1,1,0,1,0
+8941,Bridges connect communities and ideas.,GPT,0,1,1,0,1,0
+8942,The pen is mightier than the sword.,GPT,0,1,1,0,1,0
+8943,The squeaky wheel gets the grease.,GPT,0,1,1,0,1,0
+8944,Precision in language ensures clarity.,GPT,0,1,1,0,1,0
+8945,Artificial intelligence transforms industries.,GPT,0,1,1,0,1,0
+8946,Metaphors create vivid imagery in language.,GPT,0,1,1,0,1,0
+8947,Architecture shapes our built environment.,GPT,0,1,1,0,1,0
+8948,Berlin Wall falling symbolized new freedoms.,GPT,0,1,1,0,1,0
+8949,Sculpture can memorialize history.,GPT,0,1,1,0,1,0
+8950,Figurative art represents human forms.,GPT,1,1,1,0,1,1
+8951,Blockchain ensures secure transactions.,GPT,1,1,1,0,1,1
+8952,Efficient algorithms optimize performance.,GPT,1,1,1,0,1,1
+8953,Stars fill the night sky.,GPT,1,1,1,0,1,1
+8954,Grammar rules structure languages.,GPT,1,1,1,0,1,1
+8955,Artificial intelligence personalizes user experiences.,GPT,1,1,1,0,1,1
+8956,Many faiths include anointing rituals.,GPT,1,1,1,0,1,1
+8957,Nikola Tesla contributed significantly to electricity and magnetism.,GPT,1,1,1,0,1,1
+8958,Michelangelo painted the Sistine Chapel ceiling.,GPT,1,1,1,0,1,1
+8959,Soft lighting creates a calming ambiance.,GPT,1,1,1,0,1,1
+8960,Technology drives modern communication.,GPT,1,1,1,0,1,1
+8961,Social dancing combines exercise and socialization.,GPT,1,1,1,0,1,1
+8962,Regular check-ups are important.,GPT,1,1,1,0,1,1
+8963,Electricity powers modern technology.,GPT,1,1,1,0,1,1
+8964,Dictionaries are useful for word meanings.,GPT,1,1,1,0,1,1
+8965,The mountains stood as silent guardians.,GPT,0,1,1,0,1,1
+8966,A watched pot never boils.,GPT,0,1,1,0,1,1
+8967,Fresh sheets promise restful sleep.,GPT,0,1,1,0,1,1
+8968,Journaling clears the mind.,GPT,0,1,1,0,1,1
+8969,Painting captures moments in time.,GPT,0,1,1,0,1,1
+8970,"Clean space, clear mind.",GPT,0,1,1,0,1,1
+8971,Stop and smell the roses.,GPT,0,1,1,0,1,1
+8972,Scenic drives relax the mind.,GPT,0,1,1,0,1,1
+8973,Spending time outdoors lifts the spirits.,GPT,0,1,1,0,1,1
+8974,Tidy spaces enhance focus.,GPT,0,1,1,0,1,1
+8975,Digital innovations transform businesses.,GPT,0,1,1,0,1,1
+8976,Photographers capture visual stories.,GPT,0,1,1,0,1,1
+8977,Leonardo da Vinci painted the Mona Lisa.,GPT,0,1,1,0,1,1
+8978,Fair weather friends are unreliable.,GPT,0,1,1,0,1,1
+8979,Well-known landmarks foster tourism.,GPT,0,1,1,0,1,1
+8980,Curiosity killed the cat.,GPT,0,0,1,0,0,0
+8981,Understanding precedes ethical action.,GPT,0,0,1,0,0,0
+8982,Manners maketh man.,GPT,0,0,1,0,0,0
+8983,"Finders keepers, losers weepers.",GPT,0,0,1,0,0,0
+8984,Fortune favors the bold.,GPT,0,0,1,0,0,0
+8985,"No pain, no gain.",GPT,0,0,1,0,0,0
+8986,Absence makes the heart grow fonder.,GPT,0,0,1,0,0,0
+8987,Analysis of facts informs strategy.,GPT,0,0,1,0,0,0
+8988,Knowledge dispels ignorance.,GPT,0,0,1,0,0,0
+8989,Validation enhances self-worth.,GPT,0,0,1,0,0,0
+8990,Grasping at straws means making a desperate attempt.,GPT,0,0,1,0,0,0
+8991,Good manners open doors.,GPT,0,0,1,0,0,0
+8992,Uplifting others builds morale.,GPT,0,0,1,0,0,0
+8993,Educated guesses help make predictions.,GPT,0,0,1,0,0,0
+8994,Leading by example fosters trust.,GPT,0,0,1,0,0,0
+8995,Participating in marathons challenges and motivates.,GPT,0,1,1,0,1,1
+8996,Cycling keeps you young.,GPT,0,1,1,0,1,1
+8997,Chemical reactions often release energy.,GPT,1,1,1,1,1,1
+8998,Earth has varied climates.,GPT,1,1,1,1,1,1
+8999,"In right-angled triangles, a^2 + b^2 = c^2.",GPT,1,1,1,1,1,1
+9000,The Cartesian plane maps geometric locations,GPT,1,1,1,1,1,1
+9001,Grass feels soft underfoot.,GPT,1,1,1,1,1,1
+9002,The Manhattan Project created nuclear weapons.,GPT,1,1,1,1,1,1
+9003,Trees produce oxygen.,GPT,1,1,1,1,1,1
+9004,Lightning precedes thunder.,GPT,1,1,1,1,1,1
+9005,E=mc^2 is Einstein's theory of relativity.,GPT,1,1,1,1,1,1
+9006,Taking vitamins supports health.,GPT,1,1,1,1,1,1
+9007,Pi (π) is approximately 3.14.,GPT,1,1,1,1,1,1
+9008,Colosseums symbolize ancient civilizations.,GPT,1,1,1,1,1,1
+9009,Advances in medicine extend human life.,GPT,1,1,1,1,1,1
+9010,Nanotechnology has applications in medicine.,GPT,1,1,1,1,1,1
+9011,Nature tends to restore balance.,GPT,1,1,1,1,1,1
+9012,Algorithmic logic drives computations.,GPT,1,1,1,0,1,1
+9013,Gothic cathedrals were architecturally innovative.,GPT,1,1,1,0,1,1
+9014,Fact-checking ensures accuracy.,GPT,1,1,1,0,1,1
+9015,Sleep restores mental clarity.,GPT,1,1,1,0,1,1
+9016,Regular physical exams detect issues early.,GPT,1,1,1,0,1,1
+9017,Safety protocols prevent accidents.,GPT,1,1,1,0,1,1
+9018,Iron clothes for a polished appearance.,GPT,1,1,1,0,1,1
+9019,Precision medicine tailors treatment to individuals.,GPT,1,1,1,0,1,1
+9020,Shelves should be dusted regularly to maintain cleanliness.,GPT,1,1,1,0,1,1
+9021,Practicing tai chi promotes balance.,GPT,1,1,1,0,1,1
+9022,Critical analysis refines models.,GPT,1,1,1,0,1,1
+9023,The Gutenberg Bible marked a printing milestone.,GPT,1,1,1,0,1,1
+9024,Structured analyses refine processes.,GPT,1,1,1,0,1,1
+9025,Graphic novels tell extended stories.,GPT,1,1,1,0,1,1
+9026,Puzzles stimulate the brain.,GPT,1,1,1,0,1,1
+9027,Handwritten letters feel personal.,GPT,0,1,1,0,1,1
+9028,Beauty is skin deep.,GPT,0,1,1,0,1,1
+9029,Stargazing can be awe-inspiring.,GPT,0,1,1,0,1,1
+9030,A hearty breakfast fuels your day.,GPT,0,1,1,0,1,1
+9031,Trees whisper soothing sounds.,GPT,0,1,1,0,1,1
+9032,Plays explore complex narratives.,GPT,0,1,1,0,1,1
+9033,Gardens can be therapeutic.,GPT,0,1,1,0,1,1
+9034,Online learning platforms democratize education.,GPT,0,1,1,0,1,1
+9035,Cycling keeps you young.,GPT,0,1,1,0,1,1
+9036,Evening walks help to unwind.,GPT,0,1,1,0,1,1
+9037,Portraits capture a person's likeness.,GPT,0,1,1,0,1,1
+9038,Calligraphy turns writing into art.,GPT,0,1,1,0,1,1
+9039,The Industrial Revolution reshaped societies.,GPT,0,1,1,0,1,1
+9040,Ethical hacking safeguards systems.,GPT,0,1,1,0,1,1
+9041,Shamanic journeys often involve trance states.,GPT,0,1,1,0,1,1
+9042,Clear logic disentangles problems.,GPT,0,0,1,0,1,0
+9043,Legal systems uphold social order.,GPT,0,0,1,0,1,0
+9044,Unity is strength.,GPT,0,0,1,0,1,0
+9045,Logical fallacies weaken arguments.,GPT,0,0,1,0,1,0
+9046,Hypotheses must be testable.,GPT,0,0,1,0,1,0
+9047,Thorough analysis prevents missteps.,GPT,0,0,1,0,1,0
+9048,The Enlightenment era promoted reason.,GPT,0,0,1,0,1,0
+9049,Patience is a virtue.,GPT,0,0,1,0,1,0
+9050,Rational exploration seeks truth.,GPT,0,0,1,0,1,0
+9051,Socratic questioning promotes deep understanding.,GPT,0,0,1,0,1,0
+9052,Knowledge builds wisdom.,GPT,0,0,1,0,1,0
+9053,Open-mindedness encourages learning.,GPT,0,0,1,0,1,0
+9054,It takes two to tango.,GPT,0,0,1,0,1,0
+9055,Social equity promotes fairness.,GPT,0,0,1,0,1,0
+9056,Civil rights movements championed equality.,GPT,0,0,1,0,1,0
+9057,A clear goal sets the path.,GPT,0,0,1,0,0,0
+9058,Kindness spreads like wildfire.,GPT,0,0,1,0,0,0
+9059,Good deeds spread goodwill.,GPT,0,0,1,0,0,0
+9060,Objective critique refines practices.,GPT,0,0,1,0,0,0
+9061,Ignorance is bliss.,GPT,0,0,1,0,0,0
+9062,Humility cultivates respect.,GPT,0,0,1,0,0,0
+9063,Apologizing can restore harmony.,GPT,0,0,1,0,0,0
+9064,Offering forgiveness heals hurts.,GPT,0,0,1,0,0,0
+9065,Encouragement inspires action.,GPT,0,0,1,0,0,0
+9066,Spill the beans means reveal a secret.,GPT,0,0,1,0,0,0
+9067,"Waste not, want not.",GPT,0,0,1,0,0,0
+9068,Humility precedes honor.,GPT,0,0,1,0,0,0
+9069,He who hesitates is lost.,GPT,0,0,1,0,0,0
+9070,Gratitude fosters joy.,GPT,0,0,1,0,0,0
+9071,Actions speak louder than words.,GPT,0,0,1,0,0,0
+9072,Cultural sagas recount historical events.,GPT,1,0,1,0,1,1
+9073,Monastic orders follow strict rules.,GPT,1,0,1,0,1,1
+9074,Logical steps enhance procedures.,GPT,1,0,1,0,1,1
+9075,Shintoism involves purification rituals.,GPT,1,0,1,0,1,1
+9076,Mindfulness improves focus.,GPT,1,0,1,0,1,1
+9077,Practicing instruments prepares for performances.,GPT,1,0,1,0,1,1
+9078,Structured frameworks guide learning.,GPT,1,0,1,0,1,1
+9079,Structured preparations ensure readiness.,GPT,1,0,1,0,1,1
+9080,Proof by contradiction validates theorems.,GPT,1,0,1,0,1,1
+9081,Writing lists organizes tasks.,GPT,1,0,1,0,1,1
+9082,Synagogues are places of Jewish worship.,GPT,1,0,1,0,1,1
+9083,Judaism observes the Sabbath weekly.,GPT,1,0,1,0,1,1
+9084,Methodologies standardize procedures.,GPT,1,0,1,0,1,1
+9085,Ramadan is a holy month in Islam.,GPT,1,0,1,0,1,1
+9086,Tipping in restaurants is customary.,GPT,1,0,1,0,1,1
+9087,Sharing meals creates bonds.,GPT,0,0,1,0,1,1
+9088,Handwritten notes show thoughtfulness.,GPT,0,0,1,0,1,1
+9089,Read books to expand knowledge.,GPT,0,0,1,0,1,1
+9090,Folktales reflect indigenous knowledge.,GPT,0,0,1,0,1,1
+9091,Objective criteria ensure fairness.,GPT,0,0,1,0,1,1
+9092,"Shintoism focuses on kami, or spiritual beings.",GPT,0,0,1,0,1,1
+9093,A smile is contagious.,GPT,0,0,1,0,1,1
+9094,History repeats itself.,GPT,0,0,1,0,1,1
+9095,Dogs are loyal animals.,GPT,0,0,1,0,1,1
+9096,Sharing is caring.,GPT,0,0,1,0,1,1
+9097,AI ethics address bias concerns.,GPT,0,0,1,0,1,1
+9098,Novels can offer social commentary.,GPT,0,0,1,0,1,1
+9099,Clear logic explains phenomena.,GPT,0,0,1,0,1,1
+9100,Team sports build camaraderie.,GPT,0,0,1,0,1,1
+9101,Many cultures practice ancestor worship.,GPT,0,0,1,0,1,1
+9102,Hosting dinner parties fosters relationships.,GPT,0,0,1,0,0,1
+9103,Adhering to deadlines shows responsibility.,GPT,0,0,1,0,0,1
+9104,Sharing spreads joy.,GPT,0,0,1,0,0,1
+9105,Saying good morning builds rapport.,GPT,0,0,1,0,0,1
+9106,Compliments uplift spirits.,GPT,0,0,1,0,0,1
+9107,Kind gestures build strong bonds.,GPT,0,0,1,0,0,1
+9108,Compliments boost self-esteem.,GPT,0,0,1,0,0,1
+9109,Offering comfort eases pain.,GPT,0,0,1,0,0,1
+9110,Encouragement fuels motivation.,GPT,0,0,1,0,0,1
+9111,Greetings establish rapport in conversations.,GPT,0,0,1,0,0,1
+9112,Comforting words ease difficult emotions.,GPT,0,0,1,0,0,1
+9113,Using please shows respect.,GPT,0,0,1,0,0,1
+9114,A warm smile invites friendliness.,GPT,0,0,1,0,0,1
+9115,Lending an ear shows empathy.,GPT,0,0,1,0,0,1
+9116,Timely responses are respectful.,GPT,0,0,1,0,0,1
+9117,Algebra is the language translating reality into abstract whispers.,GPT,0,1,1,0,1,0
+9118,Calculus bridges finite points with infinite horizons in nature's canvas.,GPT,1,1,1,1,1,0
+9119,"Geometry shapes the universe's unseen architecture, forging reality.",GPT,1,1,1,1,1,0
+9120,"Gravity is the universe's anchor, grounding cosmic seas of stars.",GPT,1,1,1,1,1,0
+9121,Infinity is the mirror reflecting mathematics' endless pursuit.,GPT,0,1,1,0,1,0
+9122,Logic guides us through the intricate maze of understanding.,GPT,0,0,1,0,1,0
+9123,"Mathematics spins webs of logic, catching fleeting truths of existence.",GPT,0,1,1,0,1,0
+9124,"Parabolas are nature's curves, arching through reality's unseen fabric.",GPT,1,1,1,1,1,0
+9125,"Pi is the endless melody, singing circles' infinite symphony.",GPT,0,1,1,0,1,1
+9126,"Prime numbers are the universe's silent sentinels, guarding mystery.",GPT,0,1,1,0,1,0
+9127,"Religion offers a compass, pointing to heavens unseen by the naked eye.",GPT,0,1,1,0,1,0
+9128,Statistics paint patterns on the canvas of improbable events.,GPT,0,1,1,0,1,0
+9129,"The triangle's sum is an eternal truth, defying dimensions.",GPT,0,1,1,1,1,0
+9130,*Mathematics is the compass navigating the ocean of the unknown.*,GPT,0,1,1,0,1,0
+9131,"3D printing is the creator’s tool, crafting objects from imagination.",GPT,0,1,1,0,1,1
+9132,A balanced diet is the compass navigating wellness’s expansive ocean.,GPT,0,1,1,0,1,1
+9133,A belief system is a raft navigating the river of existence.,GPT,0,0,1,0,1,0
+9134,A car engine converts fuel into mechanical energy for movement.,GPT,1,1,1,1,1,1
+9135,A circle's circumference is calculated using its radius.,GPT,1,1,1,1,1,1
+9136,A compass needle points towards the magnetic north pole.,GPT,1,1,1,1,1,1
+9137,A function maps inputs to specific outputs.,GPT,1,1,1,1,1,1
+9138,A hypothesis is a proposed explanation tested through empirical observation.,GPT,1,0,1,0,1,0
+9139,A map's scale represents real-world distances proportionately.,GPT,1,1,1,1,1,1
+9140,"A parabola is a symmetrical curve, graphically represented by a quadratic equation.",GPT,1,1,1,1,1,1
+9141,A society's art mirrors its collective hopes and fears.,GPT,0,0,1,0,1,0
+9142,A square has four sides of equal length.,GPT,1,1,1,1,1,1
+9143,A stop sign means drivers must halt before proceeding.,GPT,1,1,1,0,1,1
+9144,A theorem provides a proven statement within a mathematical framework.,GPT,1,1,1,0,1,0
+9145,A tree's age can be determined by counting its rings.,GPT,1,1,1,1,1,1
+9146,A triangle’s interior angles sum to 180 degrees.,GPT,1,1,1,1,1,1
+9147,A year is approximately 365.25 days due to Earth's orbit.,GPT,1,1,1,1,1,1
+9148,Adequate rest is crucial for muscle recovery and growth.,GPT,1,1,1,1,1,1
+9149,Adequate rest is the silent ally in fitness’s unyielding marathon.,GPT,0,1,1,0,1,1
+9150,"Aerodynamics is the wind's tutor, teaching machines the art of flight.",GPT,0,1,1,0,1,0
+9151,Air feels thick with unspoken truths hanging like storm clouds.,GPT,0,1,1,0,1,0
+9152,Algebra involves solving equations and understanding functions.,GPT,1,1,1,1,1,1
+9153,Algebra uses symbols to solve equations representing relationships.,GPT,1,1,1,1,1,1
+9154,Algebra whispers secrets only the careful listener will decipher.,GPT,0,1,1,0,1,0
+9155,Altruism in religious doctrines parallels evolutionary biology's kin selection.,GPT,0,0,1,0,1,0
+9156,Ambition is the fire fueling humanity’s relentless quest for progress.,GPT,0,0,1,0,1,0
+9157,An odd number is not divisible evenly by two.,GPT,1,1,1,1,1,1
+9158,Ancient myths reflect archetypes resembling evolutionary psychological patterns.,GPT,0,0,1,0,1,1
+9159,"Antarctica is the coldest continent, located at the southernmost part of Earth.",GPT,1,1,1,1,1,1
+9160,Area calculations require understanding dimension relationships in geometric figures.,GPT,1,1,1,1,1,1
+9161,Arithmetic is the skeleton holding up the flesh of comprehension.,GPT,1,1,1,0,1,0
+9162,Art can challenge norms and inspire social change.,GPT,0,0,1,0,1,0
+9163,"Art challenges societal norms, sparking conversations and reflections.",GPT,0,0,1,0,1,0
+9164,Art conveys cultural stories through visual and emotional expressions.,GPT,0,0,1,0,1,0
+9165,Art movements often reflect shifts in cultural attitudes.,GPT,0,0,1,0,1,0
+9166,Art shapes and reflects societal values and norms.,GPT,0,0,1,0,1,0
+9167,"Artificial intelligence automates tasks, enhancing efficiency in various industries.",GPT,1,1,1,0,1,1
+9168,"Artificial intelligence mimics human reasoning, expanding technological frontiers.",GPT,1,1,1,0,1,0
+9169,"Artistic expression weaves a tapestry of hopes and histories, inviting reflection.",GPT,0,0,1,0,1,0
+9170,"Artistic styles vary across cultures, reflecting diverse values.",GPT,0,0,1,0,1,0
+9171,Atoms are the fundamental building blocks of matter.,GPT,1,1,1,1,1,1
+9172,Augmented reality overlays digital information onto physical perceptions.,GPT,1,1,1,1,1,1
+9173,Authenticity is the light breaking through conformity's shadow.,GPT,0,0,1,0,1,0
+9174,Axioms are self-evident truths forming the foundation of mathematical systems.,GPT,1,1,1,1,1,0
+9175,Axioms are the seeds from which mathematical forests grow.,GPT,1,1,1,1,1,0
+9176,Bacteria reproduce rapidly under favorable conditions like warmth and moisture.,GPT,1,1,1,1,1,1
+9177,Balance is the tightrope walker on the wire of health.,GPT,0,1,1,0,1,1
+9178,"Beauty is in the eye of the beholder, elusive to measurement.",GPT,0,0,0,0,1,0
+9179,"Beauty is the butterfly of perception, fluttering on fantasy’s colorful wings.",GPT,0,0,1,0,1,0
+9180,Belief systems anchor the soul amidst life's turbulent currents.,GPT,0,0,1,0,1,0
+9181,"Belief systems are societal blueprints, mapping spiritual landscapes.",GPT,0,0,1,0,1,0
+9182,Belief systems provide frameworks for understanding the world.,GPT,0,0,1,0,1,0
+9183,Belief systems sculpt individual perceptions like water shaping rock over time.,GPT,0,1,1,0,1,0
+9184,"Belief systems, like mathematics, strive to decode life’s grand equations.",GPT,0,0,1,0,1,0
+9185,Beliefs about history often mix facts with collective narratives.,GPT,0,0,1,0,1,0
+9186,Beliefs are the shadows cast by the mind's light.,GPT,0,0,1,0,1,0
+9187,Beliefs can shape responses to life's uncertainties and trials.,GPT,0,0,1,0,1,0
+9188,Beliefs often color perceptions of historical events.,GPT,0,0,1,0,1,0
+9189,"Beliefs shape the paintings of cultural reality, vivid yet unseen.",GPT,0,0,1,0,1,0
+9190,Biological processes underpin life through cellular interactions.,GPT,1,1,1,1,1,1
+9191,Biometrics unlock the unique map of personal identity.,GPT,1,1,1,0,1,1
+9192,Blood pressure measures force of blood against artery walls.,GPT,1,1,1,1,1,1
+9193,"Body heat dissipates, mirroring the entropy of energy's restless voyage.",GPT,1,1,1,1,1,1
+9194,Body weight is gravity's silent partner in the health dance.,GPT,0,1,1,1,1,1
+9195,Bones provide structure and support for the human body.,GPT,1,1,1,1,1,1
+9196,"Brainwaves are the symphony of thought, conducted by neural maestros.",GPT,0,1,1,0,1,0
+9197,"Breath is the rhythm of life, sustaining humanity's unending melody.",GPT,0,1,1,0,1,0
+9198,Calculus bridges the finite with the infinite beyond mere ocular gaze.,GPT,0,1,1,1,1,0
+9199,Calculus reveals the hidden dance between finiteness and infinity.,GPT,1,1,1,1,1,0
+9200,Calculus studies rates of change and accumulation.,GPT,1,1,1,1,1,1
+9201,"Caloric balance is life's ledger, always speaking the truth.",GPT,0,1,1,0,1,0
+9202,Cardiovascular exercise enhances heart and lung function.,GPT,1,1,1,1,1,1
+9203,Cardiovascular exercise pumps vitality through a body's circulatory highways.,GPT,1,1,1,1,1,1
+9204,"Cells are the microscopic artisans, crafting the tapestry of life seamlessly.",GPT,0,1,1,1,1,1
+9205,"Chemical bonds are nature's glue, holding reality together.",GPT,1,1,1,1,1,1
+9206,Chemical reactions occur at specific rates influenced by temperature.,GPT,1,1,1,1,1,1
+9207,"Chemistry connects us, binding individual molecules into life's shared experience.",GPT,0,1,1,1,1,0
+9208,Climate change is a widely discussed and debated global issue.,GPT,1,1,1,1,1,1
+9209,"Climate models reflect anthropocentric views, not purely objective equations.",GPT,1,1,1,1,1,1
+9210,Coding languages are architects scripting the blueprint of digital realities.,GPT,1,1,1,0,1,0
+9211,Cognitive dissonance is the mind's storm clashing belief and evidence.,GPT,0,0,1,0,1,0
+9212,Common beliefs often echo the whispers of society's silent architects.,GPT,0,0,1,0,1,0
+9213,Communication is the dance of words between people.,GPT,0,0,1,0,1,0
+9214,"Communication is the lifeblood of society, flowing through conversations and connections.",GPT,0,0,1,0,1,0
+9215,Community values are the silent architects shaping society's edifice.,GPT,0,0,1,0,1,0
+9216,"Computers are the wizards, transforming data spells into visible wonders.",GPT,0,1,1,0,1,0
+9217,Computers perform calculations with incredible speed and accuracy.,GPT,1,1,1,0,1,1
+9218,Consciousness is the vibrant dance of neurons in cognitive harmony.,GPT,0,1,1,0,1,0
+9219,Consistency is the heartbeat of sustained health and vigor.,GPT,0,1,1,0,1,0
+9220,Consistency is the steadfast lighthouse on health's often stormy seas.,GPT,0,1,1,0,1,0
+9221,Consistent exercise can help in weight management.,GPT,1,1,1,0,1,1
+9222,Consistent exercise can prevent chronic health conditions.,GPT,1,1,1,1,1,1
+9223,Consistent time management improves productivity and balance.,GPT,1,1,1,0,1,1
+9224,Continental drift explains the gradual movement of Earth's continents.,GPT,1,1,1,1,1,1
+9225,Continents drift upon Earth's surface like leaves on a pond.,GPT,1,1,1,1,1,1
+9226,Continents form massive landmasses surrounded by Earth's oceans.,GPT,1,1,1,1,1,1
+9227,Conventional wisdom paints the world with broad skepticism and inspiration.,GPT,0,0,1,0,1,0
+9228,Courage is the storm roaring in the silence of fear's hold.,GPT,0,0,0,0,0,0
+9229,"Critical thinking evaluates arguments, discerning truth from opinion.",GPT,0,0,1,0,1,0
+9230,Cultural heritage deeply impacts artistic methods and themes.,GPT,0,0,1,0,1,0
+9231,Cultural myths convey deeper truths through allegories and parables.,GPT,0,0,1,0,1,0
+9232,Cultural narratives inform the significance attached to geographic landmarks.,GPT,0,1,1,0,1,0
+9233,Cultural narratives shape the stories told through the arts.,GPT,0,0,1,0,1,0
+9234,Cultural traditions guide behavior within societies.,GPT,1,0,1,0,1,1
+9235,Cultural values create the symphony of societal harmony and discord.,GPT,0,0,1,0,1,0
+9236,Culture influences how people interpret and appreciate the arts.,GPT,0,0,1,0,1,1
+9237,Culture is the river shaping the landscapes of human identity.,GPT,0,0,1,0,1,0
+9238,"Culture writes the script, but each generation improvises the performance.",GPT,0,0,1,0,0,0
+9239,"Customs are the fingerprints of cultures, unique and defining.",GPT,0,0,1,0,1,0
+9240,Cybersecurity protects digital information from potential threats and malicious actors.,GPT,1,1,1,0,1,1
+9241,DNA contains the genetic information essential for life.,GPT,1,1,1,1,1,1
+9242,DNA is the intricate script writing life's complex saga.,GPT,0,1,1,1,1,0
+9243,"DNA testing reveals ancestral connections, linking personal histories.",GPT,1,1,1,1,1,1
+9244,DNA writes the poetry of life with an invisible pen.,GPT,0,1,1,1,1,0
+9245,"Data interpretation often mirrors researchers' inherent biases, not objectivity.",GPT,0,0,1,0,1,0
+9246,"Data is the new gold, mined for insights rather than wealth.",GPT,0,0,1,0,1,0
+9247,Day and night are caused by Earth's rotation.,GPT,1,1,1,1,1,1
+9248,"Demographic shifts are the invisible tide, shaping economies without asking permission.",GPT,0,1,1,0,1,0
+9249,"Desert sunsets are nature's fiery breath, painting silence across vast expanses.",GPT,0,1,1,1,1,1
+9250,"Deserts are nature's blank canvases, awaiting time's brushstrokes.",GPT,0,1,1,1,1,0
+9251,Deserts have low precipitation and high temperature variations daily.,GPT,1,1,1,1,1,1
+9252,Deserts typically have arid climates with very little precipitation.,GPT,1,1,1,1,1,1
+9253,Diet and exercise impact health and well-being.,GPT,1,1,1,1,1,1
+9254,Diet is the ship steering through the fog of temptation.,GPT,0,1,1,0,1,0
+9255,Dietary habits affect physical health and energy levels.,GPT,1,1,1,1,1,1
+9256,Differentiation finds the rate of change of a quantity.,GPT,1,1,1,1,1,1
+9257,"Digestion is the alchemy, transforming food into life's sustaining fuel.",GPT,1,1,1,1,1,1
+9258,Digital communication alters traditional social interaction and cultural constructs.,GPT,1,1,1,0,1,1
+9259,Digital interfaces bridge human experiences with technological advancements.,GPT,1,1,1,0,1,1
+9260,Diplomacy is the art of weaving peace from threads of discord.,GPT,0,0,0,0,1,0
+9261,Direct statements convey clear and precise meanings.,GPT,0,0,1,0,1,1
+9262,Drinking water helps maintain proper hydration levels.,GPT,1,1,1,1,1,1
+9263,"Drones are the eyes in the sky, surveying the world with ease.",GPT,1,1,1,1,1,0
+9264,E=mc^2 describes how mass and energy are interchangeable.,GPT,1,1,1,1,1,1
+9265,Earth's poles experience extreme cold and long periods without sunlight.,GPT,1,1,1,1,1,1
+9266,Earthquakes occur along fault lines due to tectonic plate movements.,GPT,1,1,1,1,1,1
+9267,"Economic laws work unbidden, like wind shaping the contours of supply and demand.",GPT,0,1,1,0,1,0
+9268,"Economics is society’s dynamic equation, with laws independent of individual preferences.",GPT,0,0,1,0,1,0
+9269,"Economics is society’s invisible hand, shaping human interaction and commerce.",GPT,0,0,1,0,1,0
+9270,Economies fluctuate based on supply and demand dynamics.,GPT,1,1,1,0,1,1
+9271,Ecosystems sustain life through diverse biological interactions among organisms.,GPT,1,1,1,1,1,1
+9272,Education enhances knowledge and cognitive skills.,GPT,1,0,1,0,1,1
+9273,"Electricity flows from high to low potential, following Ohm's law.",GPT,1,1,1,1,1,1
+9274,"Electricity flows through conductive materials, powering devices.",GPT,1,1,1,1,1,1
+9275,"Electricity hums invisibly, powering the buzzing hive of human activity.",GPT,0,1,1,0,1,1
+9276,"Electricity hums invisibly, powering the machinery of modern civilization.",GPT,0,1,1,0,1,1
+9277,"Electricity powers homes and businesses, enabling modern conveniences.",GPT,1,1,1,0,1,1
+9278,Electricity powers household appliances and devices.,GPT,1,1,1,1,1,1
+9279,"Emotions color our world, though logic holds the brush.",GPT,0,0,1,0,1,0
+9280,Emotions paint reality's canvas with colors of subjective truth.,GPT,0,0,1,0,1,0
+9281,"Empathy is humanity's bridge, spanning the chasm between logic and emotion.",GPT,0,0,1,0,1,0
+9282,Empathy is the currency of meaningful human connections.,GPT,0,0,1,0,1,0
+9283,Empirical evidence demonstrates scientific laws governing nature.,GPT,1,1,1,1,1,1
+9284,"Endorphins are nature’s euphoria, elevating mood after physical exertion’s symphony.",GPT,0,1,1,0,1,1
+9285,Energy cannot be created or destroyed; it transforms.,GPT,1,1,1,1,1,0
+9286,"Energy flows in nature’s constant dance, an eternal exchange.",GPT,0,1,1,1,1,1
+9287,Energy flows like rivers merging into the sea of existence.,GPT,0,1,1,1,1,0
+9288,"Energy's journey is a never-ending saga, written in thermodynamic laws.",GPT,0,1,1,1,1,0
+9289,"Engineers are architects of reality, transforming dreams into tangible forms.",GPT,0,1,1,0,1,0
+9290,Entropy erases order with time's invisible hand on life's chalkboard.,GPT,0,1,1,1,1,0
+9291,Entropy in a closed system tends to increase over time.,GPT,1,1,1,1,1,1
+9292,"Entropy is nature’s arrow, pointing towards chaos and disorder.",GPT,1,1,1,1,1,0
+9293,"Entropy is the universe's clock, ticking towards equilibrium.",GPT,1,1,1,1,1,0
+9294,Environmental impact assessments often mirror subjective societal values.,GPT,0,0,1,0,1,1
+9295,Equations are the poetry of the universe's intricate symphony.,GPT,0,1,1,1,1,0
+9296,"Erosion shapes landscapes, altering geographical features over time.",GPT,1,1,1,1,1,1
+9297,"Every equation is a poem, beautifully distilling complexity into elegant simplicity.",GPT,0,1,1,0,1,0
+9298,Every raindrop navigates the sky with unseen precision.,GPT,1,1,1,1,1,0
+9299,Evolution dances to nature's intricate and relentless choreography.,GPT,0,1,1,0,1,0
+9300,Evolution explains the diversity of life on Earth.,GPT,1,1,1,1,1,1
+9301,Evolution paints time's canvas with life's vibrant brushstrokes.,GPT,0,1,1,0,1,0
+9302,"Exercise gives the body wings, a hyperbole of newfound freedom.",GPT,0,1,1,0,1,0
+9303,Exercise improves cardiovascular health and boosts mood.,GPT,1,1,1,1,1,1
+9304,Exercise is the engine driving the car of vitality.,GPT,0,1,1,1,1,0
+9305,Exercise is the golden key unlocking wellness's timeless treasure.,GPT,0,1,1,0,1,1
+9306,Facts are the stepping stones crossing the river of illusion.,GPT,0,0,1,0,1,0
+9307,Faith can illuminate paths no scientist's lamp has found.,GPT,0,0,1,0,1,0
+9308,Faith can pivot the axis of human behavior dramatically.,GPT,0,0,1,0,1,0
+9309,Faith in religious principles may not be empirically demonstrable.,GPT,0,0,1,0,1,0
+9310,Faith is correlated with increased longevity similar to social support's effects.,GPT,1,0,1,0,1,1
+9311,Faith provides comfort and meaning in times of uncertainty.,GPT,0,0,1,0,1,0
+9312,"Faith, like gravity, can anchor one’s life amidst chaos.",GPT,0,0,1,0,1,0
+9313,Faiths across cultures form the latticework intertwining human experiences and cosmic laws.,GPT,0,0,1,0,1,0
+9314,Fiber is the broom sweeping the digestive tract's winding hallway.,GPT,1,1,1,1,1,0
+9315,"Fiber sweeps the cellular garden, ensuring paths of well-being are clear.",GPT,1,1,1,0,1,0
+9316,Film and cinema explore cultural themes and human experiences.,GPT,0,0,1,0,1,1
+9317,"Fitness is the currency, paying dividends in enhanced quality of life.",GPT,0,1,1,0,1,1
+9318,"Fitness is the mountain, challenging, yet conquerable over time.",GPT,0,1,1,0,1,0
+9319,Flexibility exercises improve joint range of motion.,GPT,1,1,1,1,1,1
+9320,"Flexibility is the bamboo in the wind, bending without breaking.",GPT,1,1,1,1,1,0
+9321,Flossing teeth helps prevent gum disease and tooth decay.,GPT,1,1,1,1,1,1
+9322,Force is calculated by multiplying mass and acceleration; F=ma.,GPT,1,1,1,1,1,1
+9323,"Forests are Earth's lungs, inhaling carbon and exhaling life.",GPT,1,1,1,1,1,1
+9324,Friction is a force resisting the motion of objects.,GPT,1,1,1,1,1,0
+9325,"Friction is the hidden actor, quietly influencing motion’s stage.",GPT,0,1,1,1,1,0
+9326,General references provide context or background information universally understood.,GPT,1,0,1,0,1,1
+9327,Genes carry hereditary information from parents to offspring.,GPT,1,1,1,1,1,1
+9328,Genetic codes are the cryptic blueprints scripting nature’s grand narrative.,GPT,0,1,1,0,1,0
+9329,Genetic codes are the universe's whisperings captured in molecular script.,GPT,0,1,1,1,1,0
+9330,"Genetic engineering rewrites the storybook of life, one gene at a time.",GPT,0,1,1,1,1,0
+9331,Genetic information in DNA determines hereditary traits.,GPT,1,1,1,1,1,1
+9332,Genetic information is encoded in DNA molecules.,GPT,1,1,1,1,1,1
+9333,"Genetic inheritance follows Mendel's laws, predicting offspring trait distributions.",GPT,1,1,1,1,1,1
+9334,Genetic mutations can result in evolutionary adaptations or defects.,GPT,1,1,1,1,1,1
+9335,Genetic variance writes the unique poetry of human existence.,GPT,0,1,1,1,1,0
+9336,Geographical boundaries are humanity's lines in nature's sands.,GPT,0,1,1,1,1,0
+9337,Geographical boundaries often define cultural identities.,GPT,1,1,1,0,1,0
+9338,Geographical features impact climate and human activity.,GPT,1,1,1,1,1,1
+9339,Geographical patterns influence cultural practices and settlement locations.,GPT,1,1,1,0,1,1
+9340,Geometric theorems illustrate relationships between shapes using logical principles.,GPT,1,1,1,1,1,1
+9341,"Geometry analyzes shapes, sizes, and dimensions of figures in space.",GPT,1,1,1,1,1,1
+9342,Geometry is the silent designer of nature's elegant structures.,GPT,0,1,1,1,1,0
+9343,"Geometry sketches infinity with a single, graceful theorem.",GPT,1,1,1,1,1,0
+9344,"Geometry studies the properties and relations of points, lines, and shapes.",GPT,1,1,1,1,1,0
+9345,"Glaciers are large masses of moving ice, found in polar regions.",GPT,1,1,1,1,1,1
+9346,Glaciers carve out U-shaped valleys as they move.,GPT,1,1,1,1,1,1
+9347,Good posture is the silent guardian of physical harmony.,GPT,0,1,1,0,1,1
+9348,Gravity consistently affects the movement of all physical bodies.,GPT,1,1,1,1,1,1
+9349,Gravity influences every object on Earth uniformly.,GPT,1,1,1,1,1,1
+9350,Gravity is the invisible thread stitching the fabric of reality.,GPT,1,1,1,1,1,0
+9351,"Gravity is the orchestra conductor, ensuring celestial bodies don’t miss a beat.",GPT,1,1,1,1,1,1
+9352,Gravity is the silent hand guiding every falling leaf.,GPT,0,1,1,1,1,0
+9353,"Gravity is the universe's invisible conductor, orchestrating celestial symphonies.",GPT,1,1,1,1,1,0
+9354,Gravity keeps us grounded on Earth and affects how we move.,GPT,1,1,1,1,1,1
+9355,Gravity never takes a day off; it holds the world together.,GPT,0,1,1,1,1,0
+9356,Gravity pulls all objects towards the Earth's center.,GPT,1,1,1,1,1,1
+9357,Gravity's pull is the silent conductor orchestrating life's dance.,GPT,0,1,1,1,1,0
+9358,Healthy eating habits contribute to longevity and vitality.,GPT,1,1,1,1,1,1
+9359,"Healthy eating is the secret potion, nourishing the body's inner garden.",GPT,0,1,1,1,1,1
+9360,Hearts often sing songs that logic cannot compose.,GPT,0,0,0,0,1,0
+9361,Heat is a form of energy transfer between systems.,GPT,1,1,1,1,1,1
+9362,"Heat is the dance of molecules, invisible yet undeniable.",GPT,1,1,1,1,1,1
+9363,Heaven's promises can be a lighthouse in earthly darkness.,GPT,0,0,1,0,1,0
+9364,Hierarchies are the scaffolding upon which societies build stability and structure.,GPT,0,0,1,0,1,0
+9365,High fiber intake promotes digestive health and regularity.,GPT,1,1,1,1,1,1
+9366,Historical events create a tapestry of interconnected human actions.,GPT,0,0,1,0,1,0
+9367,Historical events shape future societal and political outcomes.,GPT,1,0,1,0,1,0
+9368,Historical events weave the fabric of societal progress and regression.,GPT,0,0,1,0,1,0
+9369,Historical narratives blend facts with cultural interpretations.,GPT,0,0,1,0,1,0
+9370,History can be colored by personal and cultural views.,GPT,0,0,1,0,1,0
+9371,History is a tapestry woven with threads of chaos and order.,GPT,0,0,1,0,1,0
+9372,"History is a teacher, but memory is often a forgetful student.",GPT,0,0,0,0,1,0
+9373,"History is the earth's diary, filled with triumphs and tragedies.",GPT,0,0,1,0,1,0
+9374,Honesty often strengthens trust in relationships.,GPT,0,0,1,0,0,0
+9375,Hope floats; it’s the buoy in life’s turbulent seas.,GPT,0,0,1,0,1,0
+9376,"Human societies evolve, shedding outdated norms as behaviors change.",GPT,0,0,1,0,0,1
+9377,"Humans are social animals, thriving in the web of collective consciousness.",GPT,0,0,1,0,1,0
+9378,Humans require oxygen to breathe and sustain life.,GPT,1,1,1,1,1,1
+9379,Hydration is essential for optimal bodily functions.,GPT,1,1,1,1,1,1
+9380,Hydration is the oil that lubricates life's bodily engines.,GPT,1,1,1,1,1,1
+9381,Hydration is the river sustaining the desert of exertion.,GPT,1,1,1,1,1,0
+9382,"Hydration is the secret river, fueling life's vibrant quest.",GPT,0,1,1,1,1,1
+9383,Hydrological cycles distribute water through Earth's ecosystems.,GPT,1,1,1,1,1,1
+9384,Hypotheses in history are the scientist's needles stitching patterns in time’s fabric.,GPT,0,1,1,0,1,0
+9385,Ideologies are the mosaics pieced together from humanity’s scattered dreams.,GPT,0,0,1,0,1,0
+9386,Individual preferences can clash with societal expectations.,GPT,0,0,1,0,1,1
+9387,Infinity is a mathematical concept that teases the limits of comprehension.,GPT,1,1,1,0,1,0
+9388,"Infinity is the abyss, inviting philosophers to ponder its depths endlessly.",GPT,0,1,1,0,1,0
+9389,Infinity is the enigmatic horizon mathematicians endlessly chase.,GPT,0,1,1,1,1,0
+9390,Information technology redefines personal privacy and shared cultural norms.,GPT,0,0,1,0,1,0
+9391,"Island paradises are Earth's secret gardens, where dreams mingle with reality.",GPT,0,1,1,0,1,0
+9392,"Islands are Earth's lonely sentinels, standing guard over endless oceans.",GPT,0,1,1,1,1,1
+9393,Judgment is the lens shading how society views its own reflection.,GPT,0,0,1,0,1,0
+9394,Judgments about intelligence often involve subjective criteria.,GPT,0,0,1,0,1,0
+9395,Judgments reflect personal values and societal standards.,GPT,0,0,1,0,1,0
+9396,"Justice is the compass, though its needle swings in subjective winds.",GPT,0,0,0,0,1,0
+9397,Kindness is the unseen thread weaving humanity together.,GPT,0,0,1,0,1,0
+9398,Language conveys thoughts and ideas in human interactions.,GPT,0,0,1,0,1,1
+9399,Language facilitates communication and understanding among people.,GPT,1,0,1,0,1,1
+9400,Language is the glue binding the bricks of human interaction and understanding.,GPT,0,1,1,0,1,0
+9401,Laws of physics describe motion and energy interactions.,GPT,1,1,1,1,1,1
+9402,"Laws of physics dictate the universe's symphony, from atoms to galaxies.",GPT,1,1,1,1,1,0
+9403,"Life is a river flowing, guided by nature's unseen hand.",GPT,0,1,1,0,1,0
+9404,"Light travels at a cosmic speed limit, illuminating human curiosity.",GPT,0,1,1,0,1,0
+9405,"Light travels at a speed of 299,792 kilometers per second.",GPT,1,1,1,1,1,1
+9406,Lighting conditions affect visibility and can influence mood.,GPT,1,1,1,0,1,1
+9407,"Like gravity, belief pulls us to deeper understandings and connections.",GPT,0,0,1,0,1,0
+9408,Limiting sugar intake can prevent weight gain and diabetes.,GPT,1,1,1,1,1,1
+9409,Literal language conveys straightforward meaning without ambiguity.,GPT,0,0,1,0,1,1
+9410,Logic assembles the jigsaw puzzle of reason to reveal truth.,GPT,0,0,1,0,1,0
+9411,Logic helps derive conclusions through reasoned analysis.,GPT,0,0,1,0,1,0
+9412,Logic helps organize thoughts and analyze situations objectively.,GPT,0,0,1,0,1,0
+9413,Logic is the heartbeat of mathematical structures and proofs.,GPT,1,0,1,0,1,0
+9414,Logic is the lighthouse in the stormy sea of confusion.,GPT,0,0,1,0,1,0
+9415,Logic is the map charting the vast seas of knowledge.,GPT,0,0,1,0,1,0
+9416,Logic is the staircase ascending to the summit of understanding.,GPT,0,0,1,0,1,0
+9417,"Logic paves the way towards understanding, beyond personal viewpoints.",GPT,0,0,1,0,1,0
+9418,Logical conclusions are the architects designing the scaffolding of truth.,GPT,0,0,1,0,1,0
+9419,"Longitude lines run vertically, connecting the North and South Poles.",GPT,1,1,1,1,1,1
+9420,Longitude measures how far a point is east or west of the Prime Meridian.,GPT,1,1,1,1,1,1
+9421,Love is the glue binding humanity’s fractured hearts together.,GPT,0,0,1,0,1,0
+9422,"Lungs are the bellows, fueling the fire of metabolic processes.",GPT,1,1,1,1,1,1
+9423,"Magnetic fields influence charged particles, creating observable forces in nature.",GPT,1,1,1,1,1,1
+9424,"Magnetism attracts and repels, an unseen force shaping reality's boundaries.",GPT,1,1,1,1,1,0
+9425,Magnetism attracts metals like iron towards magnets.,GPT,1,1,1,1,1,1
+9426,Magnetism causes attraction and repulsion between magnetic materials.,GPT,1,1,1,1,1,1
+9427,Magnetism is the invisible dance attracting iron particles in mysterious patterns.,GPT,1,1,1,1,1,1
+9428,Many find solace in religious practices amid life's uncertainties.,GPT,0,0,1,0,1,0
+9429,Many people find purpose through their religious faith.,GPT,0,0,1,0,1,0
+9430,Math is the silent navigator charting the path to discovery.,GPT,0,1,1,0,1,0
+9431,Mathematical constants express defined magnitudes within equations.,GPT,1,1,1,1,1,1
+9432,"Mathematical models provide frameworks, not facts, shaping subjective interpretations.",GPT,1,0,1,0,1,0
+9433,"Mathematical proofs are the fortress walls, guarding the castle of truth.",GPT,0,0,1,0,1,0
+9434,Mathematical theorems reveal truths beyond individual experience.,GPT,0,0,1,0,1,0
+9435,"Mathematics deciphers the universe's secret code, unlocking endless mysteries.",GPT,1,1,1,0,1,0
+9436,"Mathematics decodes the universe's cryptic messages, revealing hidden patterns.",GPT,1,1,1,0,1,1
+9437,Mathematics describes relationships between numbers through logical expressions.,GPT,1,1,1,1,1,0
+9438,Mathematics is the architect of reality's unseen foundations.,GPT,0,1,1,0,1,0
+9439,Mathematics is the compass revealing hidden truths within cosmic labyrinths.,GPT,0,1,1,0,1,0
+9440,Mathematics is the lens clarifying the chaos of the cosmic puzzle.,GPT,0,1,1,0,1,0
+9441,Mathematics is used daily for calculating budgets and expenses.,GPT,1,1,1,0,1,1
+9442,Mathematics provides a framework for understanding logical structures.,GPT,1,1,1,1,1,0
+9443,Mathematics provides tools for solving real-world problems.,GPT,1,1,1,0,1,1
+9444,Mathematics reveals patterns and structures in the natural world.,GPT,1,1,1,1,1,0
+9445,Mathematics solves quadratic equations using the quadratic formula.,GPT,1,1,1,1,1,1
+9446,"Mathematics unveils patterns beyond our sensory grasp, like hidden stars at dawn.",GPT,1,1,1,0,1,0
+9447,"Mathematics unveils universal truths, transcending individual experiences.",GPT,0,0,1,0,1,0
+9448,Mathematics whispers truths beyond the reach of human tongues.,GPT,0,1,1,0,1,0
+9449,"Mathematics whispers universal truths, translating existence's hidden grammar into comprehension.",GPT,0,1,1,0,1,0
+9450,Mathematics: the philosopher's chisel sculpting the marble of cosmic order.,GPT,0,1,1,0,1,0
+9451,Matrix multiplication follows specific arithmetic rules.,GPT,1,1,1,1,1,1
+9452,"Matter is composed of atoms, each consisting of protons, neutrons, and electrons.",GPT,1,1,1,1,1,1
+9453,Matter's state changes depend on temperature and pressure conditions.,GPT,1,1,1,1,1,1
+9454,Meditative practices compare positively to neural rhythms observed during rest.,GPT,1,1,1,0,1,1
+9455,"Memory is the scrapbook of the mind, preserving snapshots of our past.",GPT,0,0,1,0,1,0
+9456,"Metabolism is the fire burning within, fueling life's every action.",GPT,1,1,1,1,1,0
+9457,Mindful eating practices promote healthier relationships with food.,GPT,1,1,1,0,1,1
+9458,Mindfulness increases self-awareness and reduces stress levels.,GPT,1,0,1,0,1,1
+9459,"Minds dance in the ballroom of thought, choreographed by reason.",GPT,0,0,1,0,1,0
+9460,Moderate caffeine intake can enhance physical endurance temporarily.,GPT,1,1,1,1,1,1
+9461,Moderation is the gentle sunlight nurturing the garden of well-being.,GPT,0,1,1,0,1,0
+9462,Monsoons bring seasonal heavy rains to regions like South Asia.,GPT,1,1,1,1,1,1
+9463,Motion is life's unceasing dialogue with the fabric of space-time.,GPT,0,1,1,1,1,0
+9464,Mount Everest is the highest mountain peak globally.,GPT,1,1,1,1,1,1
+9465,"Mountains are Earth's ancient storytellers, whispering tales of eons past.",GPT,0,1,1,0,1,0
+9466,"Mountains are nature's steadfast sentinels, watching over human endeavors.",GPT,0,1,1,0,1,0
+9467,"Mountaintops echo eternity, whispering the secrets of ancient stones.",GPT,0,1,1,0,1,0
+9468,Mountaintops offer panoramic views of surrounding landscapes and regions.,GPT,1,1,1,1,1,1
+9469,"Muscles are nature's levers, powering the machinery of daily movement.",GPT,1,1,1,1,1,1
+9470,"Muscles strengthen through resistance, like iron sharpening steel's edge.",GPT,1,1,1,1,1,1
+9471,Museum exhibits reflect cultural history and artistic evolution.,GPT,0,0,1,0,1,1
+9472,Music evokes emotions and connects across cultural boundaries.,GPT,0,0,1,0,1,1
+9473,"Music evokes emotions, resonating differently with individuals.",GPT,0,0,1,0,1,1
+9474,"Music is the heart's language, a universal melody sung across cultures.",GPT,0,0,1,0,1,0
+9475,Music is the heartbeat synchronizing the rhythm of global cultures.,GPT,0,1,1,0,1,0
+9476,"Nanotechnology is the wizard’s wand, building vast worlds from minuscule particles.",GPT,0,1,1,1,1,0
+9477,Nasal breathing during prayer affects physiology akin to controlled breathing's effects.,GPT,1,1,1,1,1,1
+9478,Natural selection sculpts life's diversity with meticulous precision.,GPT,0,1,1,1,1,0
+9479,"Nature follows its own script, often unknowable and infinite.",GPT,0,0,1,0,1,0
+9480,Newton's second law states force equals mass times acceleration.,GPT,1,1,1,1,1,1
+9481,Newton's third law: every action has an equal and opposite reaction.,GPT,1,0,1,0,1,0
+9482,Norms are the choreography directing the dance of communal life.,GPT,0,0,1,0,1,0
+9483,Numbers analyze quantities as fundamental elements of computation.,GPT,1,1,1,1,1,1
+9484,Numbers and operations form the base of arithmetic principles.,GPT,1,1,1,0,1,1
+9485,Numbers are the keys unlocking the universe’s hidden symphony.,GPT,0,1,1,0,1,1
+9486,Numbers map the uncharted wilderness of human reason's realm.,GPT,0,0,1,0,1,0
+9487,Numbers pitch an invisible symphony in the theater of nature.,GPT,0,1,1,0,1,1
+9488,"Numbers tell tales timelessly, independent of who’s turning the page.",GPT,0,1,1,0,1,0
+9489,Numbers weave patterns into the fabric of mathematical reality.,GPT,1,1,1,1,1,0
+9490,Nutrition is the compass guiding life's journey toward wellness.,GPT,0,1,1,0,1,1
+9491,Nutrition is the kaleidoscope coloring health’s evolving landscape.,GPT,0,1,1,0,1,1
+9492,"Nutritional advice often reflects societal views, not definitive truths.",GPT,0,0,1,0,1,1
+9493,Objects in motion stay in motion unless acted upon by force.,GPT,1,1,1,1,0,0
+9494,Observation reveals patterns in everyday life activities.,GPT,1,1,1,0,1,1
+9495,Observed phenomena can be subjectively interpreted or empirically measured.,GPT,1,1,1,1,1,1
+9496,"Oceans are Earth's eternal mirror, reflecting the sky's boundless dreams.",GPT,0,1,1,1,1,0
+9497,"Oceans are the planet's lungs, breathing life into coastal horizons.",GPT,0,1,1,1,1,1
+9498,"Omega-3s are the body’s lubricant, vital as oil in machinery.",GPT,1,1,1,1,1,1
+9499,Opinions are subjective and vary among individuals.,GPT,0,0,1,0,1,0
+9500,Opinions are the castles built on the shifting sands of thought.,GPT,0,0,1,0,1,0
+9501,"Opinions are the fog clouding judgment, revealing distinct individual truths.",GPT,0,0,1,0,1,0
+9502,Opinions are the kaleidoscope lenses tinting reality with personal hues.,GPT,0,1,1,0,1,0
+9503,Opinions are the shimmering mirage; reality's oasis often lies beyond sight.,GPT,0,0,1,0,1,0
+9504,"Opinions are the weather; they change, yet shape life's everyday climate.",GPT,0,1,1,0,1,0
+9505,"Opinions are the wind, sometimes a gentle breeze, sometimes a storm.",GPT,0,1,1,0,1,0
+9506,Opinions cannot be demonstrated as objectively true or false.,GPT,0,0,1,0,1,0
+9507,Opinions differ based on personal experiences and biases.,GPT,0,0,1,0,1,0
+9508,Opinions on art are subjective and culturally influenced.,GPT,0,0,1,0,1,1
+9509,"Opinions reflect personal beliefs, not objectively provable truths.",GPT,0,0,1,0,1,0
+9510,Past events are echoes influencing today's shared reality.,GPT,0,0,1,0,1,0
+9511,"Past events are echoes, resonating through the corridors of time.",GPT,0,1,1,0,1,0
+9512,Patience is the conductor orchestrating health's symphony in steady tempo.,GPT,0,1,1,0,0,0
+9513,"Patience is the gardener, cultivating the seeds of fitness.",GPT,0,0,1,0,0,0
+9514,Patience is the secret ingredient in the recipe of health.,GPT,0,0,1,0,1,0
+9515,Peer pressure can influence decision-making and behaviors.,GPT,0,0,1,0,0,1
+9516,Peer support can enhance motivation and goal achievement.,GPT,0,0,1,0,0,1
+9517,"People need food, water, and shelter to survive.",GPT,1,1,1,1,1,1
+9518,People value honesty in personal and professional relationships.,GPT,0,0,1,0,1,1
+9519,"Perception colors reality, blending personal biases with objective facts.",GPT,0,0,1,0,1,0
+9520,"Perception is a prism, refracting individual realities from a singular light.",GPT,0,1,1,0,1,0
+9521,Perception is the sieve filtering reality through personal biases.,GPT,0,0,1,0,1,0
+9522,Perceptions are the kaleidoscope through which belief refracts reality.,GPT,0,0,1,0,1,0
+9523,Perceptions color how people view and react to the world.,GPT,0,0,1,0,1,0
+9524,"Perceptions paint reality’s fitness journey, blending effort with imagined outcomes.",GPT,0,1,1,0,0,0
+9525,Personal preferences guide choices in everyday life.,GPT,0,0,1,0,1,1
+9526,Perspectives are the prisms refracting the light of human experience.,GPT,0,1,1,0,1,0
+9527,Philosophical reflections offer deeper meaning to daily experiences.,GPT,0,0,1,0,1,0
+9528,Philosophy explores existential questions using reasoned arguments.,GPT,0,0,1,0,1,0
+9529,Philosophy explores life's questions through reasoned thought.,GPT,0,0,1,0,1,0
+9530,Philosophy is the telescope revealing distant truths beyond individual horizons.,GPT,0,1,1,0,1,0
+9531,"Philosophy navigates life's complexities, offering maps in uncharted waters.",GPT,0,0,1,0,1,0
+9532,Photosynthesis converts sunlight into glucose and oxygen.,GPT,1,1,1,1,1,1
+9533,Photosynthesis in plants produces oxygen as a byproduct.,GPT,1,1,1,1,1,1
+9534,"Photosynthesis is nature's alchemy, turning light into life's breath.",GPT,1,1,1,1,1,1
+9535,Photosynthesis is the green engine powering Earth’s vibrant tapestry of life.,GPT,1,1,1,1,1,1
+9536,Photosynthesis transforms sunlight into life's enduring banquet.,GPT,1,1,1,1,1,1
+9537,"Physical laws govern the universe consistently, providing measurable predictions.",GPT,1,1,1,1,1,1
+9538,Physics explains natural phenomena with consistent principles.,GPT,1,1,1,1,1,1
+9539,"Physics is the universe's clockwork, ticking in harmony with cosmic rhythms.",GPT,1,1,1,1,1,0
+9540,Physics principles are foundational to engineering and technological advancements.,GPT,1,1,1,1,1,0
+9541,"Plains are Earth’s fertile canvases, painted with crops and wandering herds.",GPT,0,1,1,1,1,0
+9542,"Plants breathe sunlight, weaving energy into the fabric of existence.",GPT,1,1,1,1,1,1
+9543,Plants convert sunlight into energy through photosynthesis.,GPT,1,1,1,1,1,1
+9544,"Plants need sunlight, water, and nutrients to grow.",GPT,1,1,1,1,1,1
+9545,Politics is the theater where power and ambition often play their parts.,GPT,0,0,1,0,1,0
+9546,"Prayer alters stress responses, resembling meditation's impact on the brain.",GPT,1,0,1,0,1,1
+9547,Prayer can reduce stress and promote a sense of calm.,GPT,1,0,1,0,1,1
+9548,Prayer in religious practice often seeks divine guidance or comfort.,GPT,0,0,1,0,1,0
+9549,Prayer is the bridge between doubt and divine assurance.,GPT,0,0,1,0,1,0
+9550,"Preferences are life's spice, enhancing the flavor of individual experience.",GPT,0,0,1,0,0,0
+9551,Preferences determine lifestyle choices and habits.,GPT,1,0,1,0,0,1
+9552,"Preferences shape life's symphony, each note a reflection of personal canvas.",GPT,0,0,1,0,0,0
+9553,"Prejudice reflects societal biases, not empirical realities.",GPT,0,0,1,0,0,0
+9554,Prejudices are the shadows lurking in the corridors of societal progress.,GPT,0,0,1,0,1,0
+9555,Probability assesses the likelihood of events occurring.,GPT,1,1,1,1,1,1
+9556,Probability dances with fate in the casino of life.,GPT,0,0,1,0,1,0
+9557,Probability is the crystal ball predicting the patterns hidden in chaos.,GPT,0,1,1,0,1,0
+9558,Probability is the dice roll of the universe's grand game.,GPT,0,1,1,0,1,0
+9559,Probability measures event likelihoods within a defined sample space.,GPT,1,1,1,1,1,1
+9560,"Probability tosses life's dice, weaving patterns from uncertainty's tangled threads.",GPT,0,1,1,0,0,0
+9561,Proper hygiene helps reduce the spread of infectious diseases.,GPT,1,1,1,0,1,1
+9562,Proper nutrition fuels workouts and aids recovery.,GPT,1,1,1,0,1,1
+9563,Proper posture decreases back pain and improves overall alignment.,GPT,1,1,1,0,1,1
+9564,Public art installations stimulate cultural discourse and community engagement.,GPT,0,0,1,0,1,1
+9565,Quality sleep rejuvenates the body and mind.,GPT,1,1,1,0,1,1
+9566,Quantum computing promises transformative advances in information processing capabilities.,GPT,1,1,1,0,1,1
+9567,Quantum entanglement weaves particles into an inseparable cosmic tapestry.,GPT,1,1,1,1,1,1
+9568,"Quantum mechanics dances with chaos, revealing patterns beneath reality's calm facade.",GPT,0,1,1,0,1,0
+9569,"Quantum mechanics is the unruly child, defying classic expectations.",GPT,0,0,1,0,1,0
+9570,Quantum mechanics weaves reality with threads of probability and uncertainty.,GPT,1,1,1,0,1,0
+9571,"Rainforests are nature's green cathedrals, sheltering Earth's ancient secrets.",GPT,0,1,1,1,1,1
+9572,Rainforests like the Amazon are often rich in biodiversity and have dense canopies.,GPT,1,1,1,1,1,1
+9573,Rational numbers are expressed as fractions of integers.,GPT,1,1,1,1,1,1
+9574,Reality's truth is often a mosaic pieced together from subjective shards.,GPT,0,0,1,0,1,0
+9575,Reason sketches blueprints where reality’s possibilities unfold.,GPT,0,1,1,0,0,0
+9576,"Recovery is the gentle whisper, mending muscles after a battle well fought.",GPT,0,1,0,0,0,0
+9577,Recycling reduces waste and conserves natural resources.,GPT,1,1,1,1,1,1
+9578,Reduced screen time encourages more active and healthy lifestyles.,GPT,1,1,1,0,1,1
+9579,Regular check-ups aid in early detection of health issues.,GPT,1,1,1,1,1,1
+9580,"Regular exercise is the elixir of youth, defying time's relentless march.",GPT,0,1,1,0,1,0
+9581,"Relativity bends the fabric of spacetime, weaving dimensions into reality.",GPT,1,1,1,1,1,0
+9582,Relativity bends time like a weaver shaping threads in the cosmic loom.,GPT,1,1,1,1,1,0
+9583,"Religion builds cathedrals in the heart, housing unseen faith.",GPT,0,0,1,0,1,0
+9584,Religion often encodes moral laws etched in cosmic stone.,GPT,0,1,1,0,1,0
+9585,Religion often mirrors the unseen laws governing the universe.,GPT,0,0,1,0,1,0
+9586,Religion shapes society as gravitational forces shape galaxies.,GPT,0,1,1,0,1,0
+9587,Religions propose ethical frameworks influencing societal norms.,GPT,0,0,1,0,1,0
+9588,Religious art and music express spiritual beliefs and emotions.,GPT,0,0,1,0,1,1
+9589,Religious beliefs guide moral and ethical decisions.,GPT,0,0,1,0,1,0
+9590,Religious communities foster shared values and group identity.,GPT,0,0,1,0,1,0
+9591,Religious congregations enhance social cohesion similarly to group survival mechanisms.,GPT,1,0,1,0,1,0
+9592,Religious doctrines provide frameworks within the vastness of existential chaos.,GPT,0,0,1,0,1,0
+9593,Religious faith often interprets natural laws beyond empirical comprehension.,GPT,0,0,1,0,1,0
+9594,Religious fasting aligns with biological benefits seen in caloric restriction.,GPT,1,1,1,1,1,1
+9595,Religious music evokes neural responses similar to those in other auditory stimuli.,GPT,1,1,1,0,1,1
+9596,"Religious rituals are the clockwork of transcendence, marking time with sacred precision.",GPT,0,0,1,0,1,0
+9597,Religious symbolism conveys complex ideas beyond literal interpretations.,GPT,0,0,1,0,1,0
+9598,Religious symbols hold different meanings based on personal interpretation.,GPT,1,0,1,0,1,0
+9599,Religious symbols translate the universe’s mysteries into tangible narratives.,GPT,0,1,1,0,1,0
+9600,Religious teachings often address life's existential questions.,GPT,0,0,1,0,1,0
+9601,"Renewable energy is the earth’s whisper, a gentle beckoning toward sustainability.",GPT,0,1,1,0,1,1
+9602,"Renewable energy is the future’s promise, powering dreams sustainably.",GPT,0,1,1,0,1,1
+9603,"Renewable energy sources reduce reliance on fossil fuels, benefiting the environment.",GPT,1,1,1,1,1,1
+9604,Ritual harmony is akin to rhythmic biological processes in living organisms.,GPT,1,1,1,0,1,0
+9605,Rituals play a significant role in religious observance and tradition.,GPT,1,0,1,0,1,1
+9606,"Rivers are Earth's veins, carving paths through continents tirelessly.",GPT,1,1,1,1,1,0
+9607,Rivers carve valleys and shape human settlements over time.,GPT,1,1,1,1,1,0
+9608,"Robotics redefines traditional labor, challenging economic and societal landscapes.",GPT,1,1,1,0,1,0
+9609,"Robots are the tireless workers, building futures with mechanical precision.",GPT,0,1,1,0,1,0
+9610,Rules are the guardrails keeping society on the highway of coexistence.,GPT,0,0,1,0,1,0
+9611,Sacred texts are central to the teachings of many religions.,GPT,1,0,1,0,1,1
+9612,Satellites are the eyes watching over Earth from their celestial perch.,GPT,1,1,1,1,1,1
+9613,Science builds bridges across the chasms of mystery.,GPT,0,0,1,0,1,0
+9614,"Science deciphers the universe's whisper, a poem written in starlight.",GPT,0,1,1,0,1,1
+9615,Scientific facts prove validity independent of personal opinion.,GPT,0,0,1,0,1,1
+9616,"Scientific journals may echo prevailing beliefs, blurring objectivity.",GPT,0,0,1,0,1,0
+9617,"Scientific paradigms evolve, reflecting prevailing community beliefs.",GPT,0,0,1,0,1,0
+9618,Scientific theories are the maps drawn from the wellspring of collective inquiry.,GPT,0,0,1,0,1,0
+9619,Seasonal changes occur due to the Earth's axial tilt.,GPT,1,1,1,1,1,1
+9620,Sedentary lifestyles can lead to health issues like obesity.,GPT,1,1,1,1,1,1
+9621,Self-awareness blooms like a rare flower in the garden of perception.,GPT,0,0,1,0,1,0
+9622,Self-awareness grows through introspection and understanding personal experiences.,GPT,0,0,1,0,1,0
+9623,"Set theory studies collections of distinct objects, called sets.",GPT,1,1,1,1,1,1
+9624,Shopping decisions are often influenced by marketing and advertising.,GPT,0,0,1,0,1,1
+9625,Sleep impacts energy levels and cognitive function.,GPT,1,1,1,0,1,1
+9626,"Sleep is the body's repair shop, restoring energy and mending daily wear.",GPT,1,1,1,0,1,1
+9627,"Sleep is the magic spell, rejuvenating the body from daily duels.",GPT,0,1,1,0,1,1
+9628,"Sleep is the silent muse, inspiring vitality each morning.",GPT,0,1,1,0,1,0
+9629,Sleep quality affects focus and memory retention.,GPT,1,1,1,0,1,1
+9630,Sleep rejuvenates like water to a parched landscape.,GPT,0,1,1,0,1,1
+9631,"Smart devices integrate seamlessly into daily lives, influencing human behaviors.",GPT,1,1,1,0,1,1
+9632,"Smartphones are the pocket portals, connecting people to infinite possibilities.",GPT,0,1,1,0,1,0
+9633,Smoking cessation improves lung health and overall fitness.,GPT,1,1,1,1,1,1
+9634,Social constructs are the scaffolds shaping reality's complex architecture.,GPT,0,1,1,0,1,0
+9635,Social constructs are the script humanity writes and follows instinctively.,GPT,0,0,1,0,1,0
+9636,Social conventions are the ancient rivers carving paths in humanity’s desert.,GPT,0,1,1,0,1,0
+9637,Social expectations are the cliffs daring individuals to leap into acceptance.,GPT,0,0,1,0,0,0
+9638,Social media impacts daily communication and information sharing.,GPT,1,1,1,0,1,1
+9639,Social media is the modern agora where ideas clash and converge.,GPT,0,0,1,0,1,0
+9640,Social norms are invisible scripts directing the play of daily life.,GPT,0,0,1,0,1,0
+9641,Social norms are the silent conductors orchestrating the cadence of cultural rhythm.,GPT,0,0,1,0,1,0
+9642,Social norms guide behavior within community settings.,GPT,1,0,1,0,1,1
+9643,Social norms influence daily choices and interactions.,GPT,0,0,1,0,1,1
+9644,Social norms influence how history is recorded and presented.,GPT,0,0,1,0,1,0
+9645,Social norms orchestrate society’s waltz of values and conduct.,GPT,0,0,1,0,1,0
+9646,Social rules maintain order and predictability in communities.,GPT,1,0,1,0,1,0
+9647,"Social stratification forms the layers of societal geology, shaped by cumulative behaviors.",GPT,1,1,1,0,1,0
+9648,"Societies evolve, shedding old beliefs like snakes shedding their skin.",GPT,0,0,1,0,0,0
+9649,Society's values paint the backdrop of human experience's stage.,GPT,0,0,1,0,1,0
+9650,Sound travels faster in water than in air.,GPT,1,1,1,1,1,1
+9651,Spiritual awakening is a personal journey often defined by subjective experience.,GPT,0,0,1,0,1,0
+9652,Spiritual awakenings parallel psychological states observable through consciousness studies.,GPT,0,0,1,0,1,1
+9653,Spiritual traditions describe existential laws as stars illuminate night skies.,GPT,0,1,1,0,1,0
+9654,Spirituality is the magnet pulling humanity towards existential contemplation.,GPT,0,0,1,0,1,0
+9655,Statistical data is the canvas where probabilities paint the future.,GPT,1,1,1,1,1,0
+9656,Statistical models paint pictures with the palette of numbers.,GPT,1,1,1,0,1,0
+9657,Statistics analyzes numerical data to draw conclusions.,GPT,1,1,1,1,1,1
+9658,"Strength is not just muscle, but the fortress of resilience.",GPT,0,1,1,0,1,0
+9660,"Strength training builds the body’s castle, brick by irreplaceable brick.",GPT,0,1,1,0,1,1
+9661,Strength training increases muscle mass and metabolic rate.,GPT,1,1,1,1,1,1
+9662,"Strength training is the sculptor, chiseling the body of dreams.",GPT,0,1,1,0,1,0
+9663,"Stretching awakens sleeping muscles, a gentle morning breeze of renewal.",GPT,0,1,1,0,1,1
+9664,Stretching improves flexibility and reduces injury risk.,GPT,1,1,1,1,1,1
+9665,"Stretching is a sunrise for muscles, as daybreak is inevitable.",GPT,0,1,1,0,1,0
+9666,Sunlight exposure helps the body produce vitamin D.,GPT,1,1,1,1,1,1
+9667,Symbols in religious art echo psychological interpretations of visual perception.,GPT,0,1,1,0,1,1
+9668,Symmetry in equations mirrors the balance in nature's design.,GPT,1,1,1,1,1,0
+9669,Technological advances redefine societal norms and daily life.,GPT,0,0,1,0,1,0
+9670,Technology impacts how we communicate and access information.,GPT,1,1,1,0,1,1
+9671,"Technology is the silent architect, designing tomorrow’s realities today.",GPT,0,1,1,0,1,0
+9672,"Technology is the sorcerer's apprentice, weaving magic from circuits and codes.",GPT,0,0,1,0,1,0
+9673,Technology is the wizard molding tomorrow's realm from yesterday's dreams.,GPT,0,0,1,0,1,0
+9674,Technology shapes human perception through algorithms and tailored experiences.,GPT,1,1,1,0,1,0
+9675,Technology transforms dreams into tangible forms through practical applications.,GPT,0,1,1,0,1,0
+9676,"Temperature affects the state of water, changing ice to liquid.",GPT,1,1,1,1,1,1
+9677,"Temperature is nature's thermometer, gauging the warmth of cosmic harmony.",GPT,0,1,1,1,1,1
+9678,The Amazon Rainforest is home to vast biodiversity.,GPT,1,1,1,1,1,1
+9679,The Amazon River is the largest by discharge volume in the world.,GPT,1,1,1,1,1,1
+9680,The Andes Mountains are the longest continental mountain range.,GPT,1,1,1,1,1,1
+9681,The Earth orbits the Sun once every 365.25 days.,GPT,1,1,1,1,1,1
+9682,"The Earth orbits the Sun, creating seasonal changes.",GPT,1,1,1,1,1,1
+9683,"The Earth rotates, weaving day into night with unerring grace.",GPT,1,1,1,1,1,0
+9684,The Earth's magnetic field influences compass navigation.,GPT,1,1,1,1,1,1
+9685,The Equator divides Earth into Northern and Southern Hemispheres.,GPT,1,1,1,1,1,1
+9686,"The Fibonacci sequence echoes nature’s hidden, recurring symmetries.",GPT,1,1,1,1,1,1
+9687,The Fibonacci sequence in nature mirrors the universe's intrinsic harmony.,GPT,1,1,1,1,1,1
+9688,The Grand Canyon was carved by erosion from the Colorado River.,GPT,1,1,1,1,1,1
+9689,The Great Barrier Reef is located off Australia's northeast coast.,GPT,1,1,1,1,1,1
+9690,The Great Barrier Reef is the world's largest coral reef system.,GPT,1,1,1,1,1,1
+9691,The Great Depression was a pivotal event in 20th-century history.,GPT,0,1,1,0,1,1
+9692,The Himalayas are the highest mountain range in the world.,GPT,1,1,1,1,1,1
+9693,The Himalayas divide the Indian subcontinent from the Tibetan Plateau.,GPT,1,1,1,1,1,1
+9694,The Industrial Revolution transformed economies and societies globally.,GPT,0,1,1,0,1,1
+9695,The Law of Gravity governs planetary and cosmic motions measurably.,GPT,1,1,1,1,1,0
+9696,"The North Star is a celestial compass, guiding wanderers through nocturnal wilderness.",GPT,1,1,1,1,1,0
+9697,The Pacific Ocean is the world's largest and deepest ocean.,GPT,1,1,1,1,1,1
+9698,The Pythagorean theorem relates to right-angled triangles.,GPT,1,1,1,1,1,1
+9699,The Sahara Desert is the largest hot desert on Earth.,GPT,1,1,1,1,1,1
+9700,The brain is the control center orchestrating life's symphony.,GPT,0,1,1,0,1,0
+9701,The brain’s synapses are the bridges connecting thought and action.,GPT,1,1,1,0,1,1
+9702,"The cloud is the library, storing humanity’s collective knowledge in virtual shelves.",GPT,0,1,1,0,1,0
+9703,"The equator is Earth's belt, cinching the waist of the globe.",GPT,1,1,1,1,1,1
+9704,"The essence of religion is subjective, transcending empirical logic.",GPT,0,0,1,0,1,0
+9705,The formula E=mc² describes energy-mass equivalence.,GPT,1,1,1,1,1,1
+9706,The fundamental forces govern interactions between particles in the universe.,GPT,1,1,1,1,1,1
+9707,The fundamental theorem of calculus unites differentiation and integration seamlessly.,GPT,1,1,1,1,1,0
+9708,The heart is a compass guiding the journey of human emotion.,GPT,0,0,1,0,1,0
+9709,The heart often believes what the mind cannot prove.,GPT,0,0,0,0,1,0
+9710,The heart pumps blood through the circulatory system continuously.,GPT,1,1,1,1,1,1
+9711,"The heart pumps blood, delivering oxygen and nutrients.",GPT,1,1,1,1,1,1
+9712,The human body is approximately 60% water.,GPT,1,1,1,1,1,1
+9713,The human body needs water for optimal daily functioning.,GPT,1,1,1,1,1,1
+9714,"The human mind is a universe, vast and intricately wired.",GPT,0,0,1,0,1,0
+9715,"The immune system is a vigilant guardian, ever-watchful against invading threats.",GPT,0,1,1,0,1,0
+9716,The immune system protects against infections and diseases.,GPT,1,1,1,1,1,1
+9717,The laws of physics are the poetry written in the stars.,GPT,0,1,1,1,1,0
+9718,"The laws of thermodynamics are nature's unwavering commandments, obeyed by all.",GPT,0,1,1,0,1,0
+9719,The mind’s eye sees art not framed by reason but by reverie.,GPT,0,0,0,0,1,0
+9720,"The past is a mirror, reflecting lessons not always heeded.",GPT,0,0,1,0,1,0
+9721,The past whispers through the echoes of ancient stones and ruins.,GPT,0,1,1,0,1,0
+9722,"The periodic table is Earth's palette, mixing elements into vibrant creations.",GPT,1,1,1,1,1,1
+9723,The periodic table is the alphabet of elemental interactions.,GPT,1,1,1,1,1,1
+9724,The periodic table organizes elements according to atomic number.,GPT,1,1,1,1,1,1
+9725,"The poles are Earth's icy crowns, reigning over winter's kingdom.",GPT,1,1,1,1,1,1
+9726,"The road to health is paved with sweat, not shortcuts.",GPT,0,1,1,0,1,1
+9727,The rules of mathematics are the constants in society’s variable equation of values.,GPT,0,1,1,0,1,0
+9728,"The skin is nature's shield, guarding the temple of being.",GPT,0,1,1,0,1,0
+9729,The speed of light in a vacuum remains constant.,GPT,1,1,1,1,1,1
+9730,The square root of sixteen is four in arithmetic operations.,GPT,1,1,1,1,1,1
+9731,"The sun is a mighty forger, crafting life’s energy on its fiery anvil.",GPT,0,1,1,0,1,0
+9732,The sun rises in the east every morning.,GPT,1,1,1,1,1,1
+9733,The sunset appears red due to atmospheric scattering.,GPT,1,1,1,1,1,1
+9734,The sunset often paints the sky with breathtaking colors and hues.,GPT,1,1,1,1,1,1
+9735,"The tundra is Earth's quiet guardian, frozen in time's embrace.",GPT,0,1,1,1,1,1
+9736,The universe breathes in patterns math unfolds in shimmering silks.,GPT,0,1,1,1,1,0
+9737,The universe dances to the rhythm of quantum uncertainty.,GPT,1,1,1,1,1,0
+9738,The universe's equation; an enigma bounded only by our evolving comprehension.,GPT,0,1,1,0,1,0
+9739,Theater reflects societal issues through dramatic cultural storytelling.,GPT,0,0,1,0,1,1
+9740,Theorems are often derived through abstract mathematical reasoning.,GPT,1,1,1,0,1,1
+9741,Theorems discover patterns invisible to any unaided mortal eye.,GPT,1,1,1,1,1,0
+9742,Theoretical physics often bends subjective interpretations to fit models.,GPT,0,1,1,0,1,0
+9743,"Thermodynamics decrees energy’s restless journey, defining life’s perpetual motion.",GPT,1,1,1,1,1,0
+9744,Thermodynamics principles dictate energy transfer and conversion.,GPT,1,1,1,1,1,1
+9745,Thought experiments can expand understanding beyond empirical evidence.,GPT,0,0,1,0,1,0
+9746,"Thought navigates the labyrinth of existence, mapping unseen corridors.",GPT,0,0,1,0,1,0
+9747,Time is the canvas upon which nature paints its masterpiece.,GPT,0,1,1,0,1,0
+9748,"Time is the philosopher’s shadow, always present, yet elusively intangible.",GPT,0,1,1,0,1,0
+9749,Time sculpts mountains and memories without asking permission.,GPT,0,1,1,0,1,0
+9750,"Time walks forward, leaving footprints of change upon history.",GPT,0,1,1,0,1,0
+9751,"Time, like gravity, moves forward regardless of cultural clocks or personal calendars.",GPT,0,1,1,0,1,1
+9752,"Time’s relentless march shapes all, carving both rock and resolve.",GPT,0,0,1,0,1,0
+9753,Topology is the canvas upon which mathematicians sketch dimensions beyond sight.,GPT,1,1,1,1,1,0
+9754,"Tradition whispers in the winds, weaving tales from belief's tapestry.",GPT,0,0,1,0,1,0
+9755,"Tradition whispers wisdom across generations, shaping human destiny.",GPT,0,0,1,0,1,0
+9756,Triangles can be classified by side lengths or angle sizes.,GPT,1,1,1,1,1,1
+9757,Trust is the fragile bridge we build between hearts.,GPT,0,0,1,0,1,0
+9758,"Trust is the fragile glass, clear yet breakable under life's weight.",GPT,0,0,1,0,1,0
+9759,Truth is the impossible mountain summited only by the worthy mind.,GPT,0,0,0,0,1,0
+9760,Truth is the treasure unearthed by the intrepid archaeologist of reason.,GPT,0,0,0,0,1,0
+9761,Truth isn't a mirror; it's an ocean vast and unswayed by views.,GPT,0,0,0,0,1,0
+9762,Using sunscreen protects skin from harmful UV radiation.,GPT,1,1,1,1,1,1
+9763,Vaccination helps build immunity against specific diseases.,GPT,1,1,1,1,1,1
+9764,Vaccines build immunity by exposing the body to pathogens.,GPT,1,1,1,1,1,1
+9765,"Valleys are Earth's embraces, cradling life amidst towering peaks.",GPT,0,1,1,1,1,0
+9766,Values are the stars guiding the ship of societal conscience.,GPT,0,0,1,0,1,0
+9767,Values guide decision-making and ethical choices.,GPT,0,0,1,0,1,0
+9768,Values illuminate paths like stars guiding moral compasses on dark nights.,GPT,0,0,1,0,1,0
+9769,Values influence how societies interact with their environments.,GPT,0,0,1,0,1,0
+9770,Values light the path on the unpredictable roads of life.,GPT,0,0,1,0,1,0
+9771,Values shape our perception of the reality painted by facts.,GPT,0,0,1,0,1,0
+9772,"Virtual reality is the dreamscape, blurring the lines between fiction and reality.",GPT,0,1,1,0,1,0
+9773,Volcanic eruptions create new landmasses and islands over time.,GPT,1,1,1,1,1,1
+9774,"Volcanoes are Earth's fiery whispers, speaking from deep within.",GPT,0,1,1,1,1,1
+9775,Volcanoes often form along Earth's tectonic plate boundaries.,GPT,1,1,1,1,1,1
+9776,Walking is the bridge connecting mind and body harmony.,GPT,0,1,1,0,1,1
+9777,Washing hands removes germs and decreases illness risk.,GPT,1,1,1,1,1,1
+9778,Water boils at 100 degrees Celsius under normal pressure.,GPT,1,1,1,1,1,1
+9779,"Water is nature’s universal solvent, dissolving life's mysteries drop by drop.",GPT,0,1,1,1,1,1
+9780,Water's boiling point is consistent under standard conditions.,GPT,1,1,1,1,1,1
+9781,"Waterfalls are the world's natural symphonies, singing timeless songs of gravity.",GPT,0,1,1,0,1,1
+9782,Wave frequency can be calculated by dividing the wave speed by its wavelength.,GPT,1,1,1,1,1,1
+9783,Wearing a seatbelt increases safety in vehicle collisions.,GPT,1,1,1,1,1,1
+9784,Weather patterns influence daily human activities.,GPT,1,1,1,1,1,1
+9785,Work-life balance impacts personal happiness and job satisfaction.,GPT,0,0,1,0,1,1
+9786,A balanced diet is the key; it opens doors to wellness and vitality.,GPT,1,1,1,0,1,1
+9787,A chain is only as strong as its weakest link in society.,GPT,0,0,1,0,1,0
+9788,A closed mind is a locked door; openness allows new ideas to enter.,GPT,0,0,0,0,1,0
+9789,A good plan today is better than a perfect plan tomorrow.,GPT,0,0,0,0,1,0
+9790,A journey of a thousand miles begins with a single step of belief.,GPT,0,0,0,0,1,0
+9791,A penny saved is a penny earned; wisdom often lies in financial prudence.,GPT,0,0,0,0,0,0
+9792,A rolling stone gathers no moss; movement often breeds opportunity and change.,GPT,0,1,0,0,0,0
+9793,"A rose by any other name would smell as sweet, illustrating subjective values.",GPT,0,1,0,0,0,0
+9794,A square peg in a round hole highlights the struggle for conformity.,GPT,0,0,1,0,1,0
+9795,A stitch in time saves nine; prevention is worth more than repair.,GPT,0,0,0,0,0,0
+9796,Absolute truths are as rare as untouched wilderness; they often remain hidden.,GPT,0,0,1,0,1,0
+9797,Actions speak louder than words; behavior exhibits our true values.,GPT,0,0,1,0,0,0
+9798,Algorithmic trading utilizes mathematics and technology for investment strategies.,GPT,1,0,1,0,1,0
+9799,"All living organisms are composed of cells, the basic units of life.",GPT,1,1,1,1,1,1
+9800,An algorithm is a step-by-step procedure for solving a problem.,GPT,1,1,1,0,1,1
+9801,An apple a day keeps the doctor away; preventive care fosters health and wellness.,GPT,0,1,1,0,1,0
+9802,An ounce of prevention is worth a pound of cure in health matters.,GPT,0,0,1,0,0,0
+9803,"Archimedes' principle explains buoyancy, demonstrating how objects behave when submerged in fluids.",GPT,1,1,1,1,1,1
+9804,Art can evoke emotions and stimulate thought in its audience.,GPT,0,0,1,0,1,0
+9805,"Artistic expression is subjective, revealing deeper truths about humanity.",GPT,0,0,1,0,1,0
+9806,Atmospheric conditions affect the visibility and clarity of objects over distances.,GPT,1,1,1,1,1,1
+9807,Atoms unite to form molecules; chemical bonds illustrate connections in the natural world.,GPT,1,1,1,1,1,1
+9808,"Basic arithmetic involves adding, subtracting, multiplying, and dividing whole numbers accurately.",GPT,1,1,1,0,1,1
+9809,"Beauty is only skin deep; it fades, but character endures.",GPT,0,1,0,0,1,0
+9810,Beauty is subjective; it's often in the eye of the beholder.,GPT,0,0,1,0,1,0
+9811,Behind every map lies a story waiting to be uncovered.,GPT,0,1,1,0,1,0
+9812,Beliefs often shape how we view the world around us.,GPT,0,0,1,0,1,0
+9813,Biological classifications help organize knowledge about species and their relationships accurately.,GPT,1,1,1,1,1,1
+9814,Biospheres are influenced by energy flow and nutrient cycling within ecosystems.,GPT,1,1,1,1,1,1
+9815,Birds fly south for winter; it's a survival instinct shaped by evolutionary adaptation.,GPT,1,1,1,1,1,1
+9816,"Birds migrate seasonally, adapting to changes in climate and food availability.",GPT,1,1,1,1,1,1
+9817,Birds of a feather flock together; shared values shape group dynamics and relationships.,GPT,0,0,1,0,1,0
+9818,Buildings must adhere to engineering codes for safety and functionality.,GPT,1,1,1,0,1,1
+9819,"By studying fossils, scientists can reconstruct past climates and ecosystems.",GPT,1,1,1,1,1,1
+9820,Caloric intake versus expenditure influences weight management and overall health.,GPT,1,1,1,1,1,1
+9821,Calories consumed must balance calories burned for effective weight management.,GPT,1,1,1,1,1,1
+9822,"Cells divide through processes like mitosis and meiosis, essential for growth.",GPT,1,1,1,1,1,1
+9823,Cellular respiration in humans requires oxygen to produce energy.,GPT,1,1,1,1,1,1
+9824,Chemical reactions can be classified based on their types and energy changes.,GPT,1,1,1,1,1,1
+9825,Circumference is calculated using the formula C=2πr for circles.,GPT,1,1,1,1,1,1
+9826,Cities can grow and develop based on economic opportunities and resources.,GPT,0,1,1,0,1,1
+9827,Cleaning your hands reduces the spread of germs and illnesses effectively.,GPT,1,1,1,1,1,1
+9828,Climate change impacts are assessed using scientific models to predict outcomes.,GPT,1,1,1,1,1,1
+9829,"Climate zones are classified based on temperature, precipitation, and vegetation characteristics.",GPT,1,1,1,1,1,1
+9830,"Code is the language of technology, shaping our digital interactions.",GPT,1,1,1,0,1,0
+9831,Coming together creates strength; unity fosters resilience in diverse communities.,GPT,0,0,1,0,1,0
+9832,"Consensus can create reality, but unchallenged norms may limit progress.",GPT,0,0,1,0,0,0
+9833,"Cooking methods affect the flavor and texture of food, revealing culinary traditions.",GPT,1,1,1,1,1,1
+9834,Craftsmanship standards dictate quality expectations in industries and trades alike.,GPT,0,0,1,0,1,1
+9835,Critical thinking fosters clearer understanding and better problem-solving skills.,GPT,0,0,1,0,1,1
+9836,"Cultural engagement promotes creativity, allowing the arts to flourish across communities.",GPT,0,0,1,0,1,0
+9837,"Cultural festivals celebrate shared heritage, showcasing diversity within communities.",GPT,0,0,1,0,1,1
+9838,Cultural identity evolves based on shared history and collective memory.,GPT,0,0,1,0,1,0
+9839,Cultural signifiers may lose meaning over time as contexts change.,GPT,0,0,1,0,1,0
+9840,Cumulative knowledge leads to advancements in technology and scientific discoveries.,GPT,1,1,1,0,1,0
+9841,Daily stretching can improve flexibility and reduce the risk of injuries.,GPT,1,1,1,0,1,1
+9842,Dance like nobody's watching; authenticity shines brighter without judgment.,GPT,0,0,1,0,0,0
+9843,Data analysis tools help interpret large datasets in meaningful ways.,GPT,1,1,1,1,1,1
+9844,Data encryption technology ensures information security in digital communications.,GPT,1,1,1,1,1,1
+9845,"Data is a compass guiding decisions, directing businesses towards success.",GPT,0,0,1,0,1,0
+9846,Demonstrable facts serve as a basis for establishing objective truths.,GPT,1,0,1,0,1,0
+9847,Diet rich in fruits and vegetables supports overall health and wellness.,GPT,1,1,1,1,1,1
+9848,Dietary recommendations may reflect evolving scientific understandings of nutrition.,GPT,1,1,1,0,1,1
+9849,Ecological studies measure biodiversity to assess environmental health.,GPT,1,1,1,1,1,1
+9850,"Efficient energy transfer occurs through conduction, convection, and radiation.",GPT,1,1,1,1,1,1
+9851,Electric cars utilize regenerative braking to enhance energy efficiency.,GPT,1,1,1,1,1,1
+9852,Electric circuits need a complete path for current to flow.,GPT,1,1,1,1,1,1
+9853,"Electric circuits operate under laws of voltage, current, and resistance.",GPT,1,1,1,1,1,1
+9854,Electric devices perform efficiently due to principles of electronics guiding their design.,GPT,1,1,1,1,1,1
+9855,Electric fields influence the behavior of charged particles in motion.,GPT,1,1,1,1,1,1
+9856,Electric vehicles rely on battery technology to function effectively.,GPT,1,1,1,1,1,1
+9857,"Electricity flows through conductors, demonstrating principles of physics and engineering.",GPT,1,1,1,1,1,1
+9858,"Electricity powers our world, illuminating lives and fueling advancements daily.",GPT,0,1,1,0,1,1
+9859,Electrons are negatively charged particles that orbit an atom's nucleus.,GPT,1,1,1,1,1,1
+9860,Emergency protocols are established to ensure safety during critical situations.,GPT,1,0,1,0,1,1
+9861,Empirical data drives conclusions about trends observed in social behavior.,GPT,1,1,1,0,0,0
+9862,Engaging in regular physical activity can enhance overall fitness levels.,GPT,1,1,1,1,1,1
+9863,"Engineering bridges gaps, connecting communities through practical solutions.",GPT,0,1,1,0,1,0
+9864,Engineering design processes involve identifying problems and creating solutions.,GPT,1,1,1,0,1,1
+9865,Engineering projects require collaboration across multiple disciplines for success.,GPT,1,1,1,0,1,0
+9866,"Engineering solves practical problems, allowing for technological advancements in society.",GPT,1,1,1,0,1,0
+9867,Engineers design structures based on principles of physics and material science.,GPT,1,1,1,1,1,1
+9868,Engineers design structures to withstand forces like gravity and wind.,GPT,1,1,1,1,1,1
+9869,Ethical considerations surround medical technologies and their implications for society.,GPT,0,0,1,0,1,1
+9870,Evaporation occurs when liquid water turns into vapor due to heat exposure.,GPT,1,1,1,1,1,1
+9871,"Every action has an equal and opposite reaction, as stated in physics.",GPT,1,1,1,0,1,0
+9872,Every child needs a village; community support fosters growth and development universally.,GPT,0,0,1,0,0,0
+9873,"Every cloud has a silver lining, often hiding hope amid despair.",GPT,0,0,1,0,1,0
+9874,Every ecosystem comprises interconnected relationships that sustain life and diversity.,GPT,1,1,1,1,1,1
+9875,"Every equation tells a story, revealing relationships hidden in plain sight.",GPT,0,1,1,0,1,0
+9876,"Every machine operates based on principles of physics, maximizing efficiency in design.",GPT,1,1,1,1,1,1
+9877,Every polynomial function can be expressed in a standard form using coefficients.,GPT,1,1,1,1,1,1
+9878,Every road we travel leaves footprints in the sands of time.,GPT,0,1,1,0,1,0
+9879,Every rose has its thorn; beauty can accompany challenges and discomfort.,GPT,0,1,1,0,1,0
+9880,Every story has two sides; perspectives shape narratives in complex ways.,GPT,0,0,1,0,1,0
+9881,Every tradition has roots; customs build the framework for community connections.,GPT,0,0,1,0,1,0
+9882,"Exercise boosts mood by releasing endorphins, promoting mental well-being.",GPT,1,1,1,0,1,1
+9883,Field experiments assess real-world applicability of scientific theories.,GPT,1,1,1,0,1,1
+9884,Fitness fads come and go; the core principles remain grounded in science.,GPT,0,0,1,0,1,1
+9885,Floodplains are important areas for agriculture due to nutrient-rich soil deposited by rivers.,GPT,1,1,1,1,1,1
+9886,Flora and fauna adaptations reflect evolutionary changes to meet environmental challenges.,GPT,1,1,1,1,1,1
+9887,"Flowers bloom in spring, showcasing seasonal changes and environmental responses.",GPT,1,1,1,1,1,1
+9888,Fluid dynamics studies how liquids and gases behave under various forces and conditions.,GPT,1,1,1,1,1,1
+9889,"Fluids exert pressure uniformly in all directions, demonstrated in physics by Pascal's principle.",GPT,1,1,1,1,1,1
+9890,Foreshadowing in literature refers to hints about future events in a storyline.,GPT,1,0,1,0,1,0
+9891,Fossils found in sedimentary rock layers provide insight into Earth's historical life forms.,GPT,1,1,1,1,1,1
+9892,Frequency measures how often a wave oscillates per unit of time.,GPT,1,1,1,1,1,1
+9893,Friction causes heat generation when objects slide against each other.,GPT,1,1,1,1,1,1
+9894,"Friction opposes motion, illustrating a measurable force in physical interactions.",GPT,1,1,1,1,1,0
+9895,Geographic information systems (GIS) can be used to analyze spatial data effectively.,GPT,1,1,1,1,1,1
+9896,Geographical barriers can lead to speciation as populations evolve in isolation.,GPT,1,1,1,1,1,1
+9897,Geographical coordinates can pinpoint locations accurately on Earth's surface.,GPT,1,1,1,1,1,1
+9898,"Geometry involves understanding shapes, angles, and the measurements associated with them.",GPT,1,1,1,1,1,0
+9899,"Good fences make good neighbors, establishing boundaries for peaceful coexistence.",GPT,0,0,1,0,0,0
+9900,Gravity affects the trajectory of thrown objects and projectiles.,GPT,1,1,1,1,1,1
+9901,Gravity causes objects to fall toward the Earth when dropped.,GPT,1,1,1,1,1,1
+9902,Gravity pulls us down; it's a force no one can escape.,GPT,0,1,1,1,1,0
+9903,Growth often comes amid challenges; overcoming adversity strengthens character and resolve.,GPT,0,0,1,0,0,0
+9904,Growth often requires discomfort; stepping outside comfort zones reveals insights.,GPT,0,0,1,0,0,0
+9905,Health recommendations are based on aggregated data and research findings.,GPT,1,1,1,1,1,1
+9906,Heart rate during exercise indicates intensity and guides training effectiveness.,GPT,1,1,1,0,1,1
+9907,Heart rate monitors help track physical exertion during workouts.,GPT,1,1,1,1,1,1
+9908,Historical milestones mark pivotal moments that influence societal development.,GPT,0,0,1,0,1,0
+9909,Historical records provide insights into past societies and their cultures.,GPT,1,0,1,0,1,0
+9910,Homeostasis is a biological principle that maintains stability within living organisms internally.,GPT,1,1,1,1,1,1
+9911,Human DNA contains the instructions necessary for all bodily functions and traits.,GPT,1,1,1,1,1,1
+9912,Human bodies need protein to repair and build muscle tissue.,GPT,1,1,1,1,1,1
+9913,Human communication involves both verbal and nonverbal elements to convey messages effectively.,GPT,1,0,1,0,1,1
+9914,Human immunology requires knowledge of body responses to various pathogens.,GPT,1,1,1,1,1,1
+9915,Human perception of temperature varies depending on individual sensitivity.,GPT,1,1,1,1,1,1
+9916,Humans breathe in oxygen and exhale carbon dioxide during respiration.,GPT,1,1,1,1,1,1
+9917,"Hurricanes form over warm ocean waters, illustrating meteorological patterns and climatic conditions.",GPT,1,1,1,1,1,1
+9918,"Hydration influences cognitive functions, impacting concentration and memory.",GPT,1,1,1,0,1,1
+9919,Hydraulic systems operate based on principles of fluid mechanics.,GPT,1,1,1,1,1,1
+9920,"Hydrogen and oxygen combine to form water, a necessary compound for life.",GPT,1,1,1,1,1,1
+9921,Hydrology studies the distribution and movement of water within the Earth's systems.,GPT,1,1,1,1,1,1
+9922,Hypotheses are born from curiosity; experimentation leads to innovation and discovery.,GPT,0,0,1,0,1,0
+9923,"In a world of chaos, mathematics offers clarity and certainty.",GPT,0,0,1,0,1,0
+9924,"In business, customer satisfaction influences company practices and success rates.",GPT,0,0,1,0,1,1
+9925,"In engineering, precision is key; even small errors can lead to failure.",GPT,1,1,1,0,1,0
+9926,"In geometry, a triangle's angles always sum to 180 degrees.",GPT,1,1,1,1,1,1
+9927,"In life, adversity often breeds strength, forging resilience through tough experiences.",GPT,0,0,1,0,0,0
+9928,"In society, conformity often breeds comfort, while deviation invites scrutiny.",GPT,0,0,1,0,0,0
+9929,"In the garden of life, the seeds we plant shape future growth.",GPT,1,1,1,1,1,0
+9930,"In the gym, every drop of sweat is a step toward success.",GPT,0,1,1,0,1,1
+9931,"In the math of life, variables can change outcomes unexpectedly.",GPT,1,1,1,0,1,1
+9932,"In the world of science, hypotheses must be tested for validation.",GPT,1,0,1,0,1,0
+9933,Innovation drives advancements in technology that reshape our daily experiences.,GPT,0,0,1,0,1,0
+9934,Judgments about right and wrong often reflect societal conventions.,GPT,0,0,1,0,1,0
+9935,Knowledge allows us to form logical conclusions based on evidence.,GPT,0,0,1,0,1,0
+9936,Knowledge without application is like a tree without roots.,GPT,0,0,0,0,1,0
+9937,"Knowledge, when shared, breeds understanding; it fosters community and strengthens bonds.",GPT,0,0,1,0,0,0
+9938,Land usage patterns change based on geographic and economic factors influencing development.,GPT,1,1,1,1,1,1
+9939,Landforms like valleys and hills shape local ecosystems and climate variations.,GPT,1,1,1,1,1,1
+9940,"Landscapes tell tales, revealing histories etched in the very earth we tread.",GPT,0,1,1,1,1,0
+9941,Language serves as a tool for clear communication and understanding.,GPT,0,0,1,0,1,0
+9942,Laws are established societal rules intended to maintain order and promote justice.,GPT,1,0,1,0,1,0
+9943,Life cycles characterize living organisms through stages of development.,GPT,1,1,1,1,1,1
+9944,Life is like a puzzle; each experience is a crucial piece.,GPT,0,0,1,0,1,0
+9945,Life without challenges resembles a flat line; growth stems from overcoming obstacles.,GPT,0,0,1,0,1,0
+9946,Life's complexities are woven from threads of choices and experiences.,GPT,0,0,1,0,1,0
+9947,"Light travels in waves, illustrating its dual nature as both particle and wave.",GPT,1,1,1,1,1,1
+9948,"Like a clock, life follows rhythms governed by the laws of time.",GPT,1,1,1,0,1,0
+9949,"Like a pendulum, life swings between highs and lows, shaping our experiences.",GPT,0,0,1,0,1,0
+9950,"Like a story without a plot, randomness lacks order and purpose.",GPT,0,0,1,0,1,0
+9951,"Like waves in the ocean, our emotions ebb and flow through life.",GPT,0,1,1,0,1,1
+9952,Living organisms require oxygen to survive and function effectively.,GPT,1,1,1,1,1,1
+9953,"Local geography impacts weather patterns, affecting agriculture and resource distribution.",GPT,1,1,1,1,1,1
+9954,Logic is the key that unlocks the door to deeper understanding.,GPT,0,0,1,0,1,0
+9955,"Love can be a double-edged sword, both uplifting and devastating.",GPT,0,0,1,0,1,0
+9956,Lunar phases can influence ocean tides due to gravitational interactions with Earth.,GPT,1,1,1,1,1,1
+9957,Machines can perform tasks more efficiently than humans in specific contexts.,GPT,1,1,1,0,1,1
+9958,"Magnetic fields are generated around electric currents, a principle observed in physics.",GPT,1,1,1,1,1,1
+9959,"Mass and energy are related by Einstein's equation, E=mc^2.",GPT,1,1,1,1,1,1
+9960,Mass is a measure of the amount of matter in an object.,GPT,1,1,1,1,1,1
+9961,"Mathematical equations can calculate trajectories, predicting the motion of projectiles accurately.",GPT,1,1,1,1,1,1
+9962,Mathematical equations describe relationships between variables in logical terms.,GPT,1,1,1,1,1,1
+9963,Mathematical proofs provide conclusive demonstrations of the validity of a theorem or statement.,GPT,1,1,1,1,1,0
+9964,Mathematical reasoning underpins many logical deductions made in various fields.,GPT,1,1,1,0,1,0
+9965,Mathematics allows us to calculate areas and volumes accurately.,GPT,1,1,1,1,1,1
+9966,"Mathematics can model complex systems, providing insights into their behavior.",GPT,1,1,1,1,1,0
+9967,Mathematics can model population changes based on birth and death rates empirically.,GPT,1,1,1,1,1,1
+9968,Mathematics can predict future trends based on historical data analysis.,GPT,1,1,1,1,1,0
+9969,Mathematics can predict outcomes in real-world scenarios through modeling.,GPT,1,1,1,0,1,1
+9970,Mathematics enables financial budgeting by providing tools to analyze income and expenses methodically.,GPT,1,1,1,0,1,0
+9971,Mathematics enables the modeling of population dynamics in ecology through equations.,GPT,1,1,1,1,1,1
+9972,Mathematics is the bridge connecting abstract thoughts to tangible realities.,GPT,0,1,1,0,1,0
+9973,Mathematics is used to solve real-world problems through logical reasoning.,GPT,1,1,1,0,1,1
+9974,Mathematics offers tools for analyzing data and making predictions.,GPT,1,1,1,0,1,1
+9975,Mathematics serves as the foundation for coding computer algorithms effectively and accurately.,GPT,1,1,1,0,1,0
+9976,"Matrices can represent systems of equations, providing solutions through linear algebra methods.",GPT,1,1,1,1,1,1
+9977,"Matter exists in three states: solid, liquid, and gas.",GPT,1,1,1,1,1,1
+9978,Measurements can be taken using standard units like meters and kilograms.,GPT,1,1,1,1,1,1
+9979,Measurements must be precise to ensure reliable data in scientific research.,GPT,1,1,1,1,1,1
+9980,Measuring blood pressure provides insight into cardiovascular health and efficiency.,GPT,1,1,1,1,1,1
+9981,Measuring weight and height are straightforward tasks using standard tools like scales.,GPT,1,1,1,1,1,1
+9982,Mechanical advantage allows simple machines to make work easier and more efficient.,GPT,1,1,1,0,1,1
+9983,Mechanical advantage enables machines to multiply forces in various applications.,GPT,1,1,1,1,1,1
+9984,"Mountain ranges affect climate, resulting in varied weather patterns on either side.",GPT,1,1,1,1,1,1
+9985,Mountains are formed through geological processes over millions of years.,GPT,1,1,1,1,1,1
+9986,"Mountains stand tall, but even the mightiest crumble over time.",GPT,0,1,0,0,0,0
+9987,Muscles need protein to recover and grow after exercise sessions.,GPT,1,1,1,1,1,1
+9988,"Music is a universal language, speaking to hearts across cultural divides.",GPT,0,0,1,0,1,0
+9989,Natural barriers such as mountains can limit the spread of species between habitats.,GPT,1,1,1,1,1,1
+9990,Natural habitats provide essential resources that sustain local wildlife and ecosystems.,GPT,1,1,1,1,1,1
+9991,"Natural resources are unevenly distributed, influencing regional development and economics.",GPT,1,1,1,1,1,1
+9992,Natural selection allows species to adapt to their environments over time.,GPT,1,1,1,1,1,1
+9993,"Natural selection drives evolution, shaping species over vast time scales.",GPT,1,1,1,1,1,0
+9994,"Nature operates under laws, offering objective truths grounded in science.",GPT,0,0,1,0,1,0
+9995,Nature thrives on balance; ecosystems flourish when every organism plays its part harmoniously.,GPT,0,1,1,0,1,0
+9996,Nature's complexity reveals intricate designs that inspire awe and curiosity.,GPT,0,1,1,1,1,0
+9997,Numbers don't lie; they reveal truths obscured by personal biases.,GPT,0,0,1,0,1,0
+9998,Numbers represent quantities that can be manipulated according to established mathematical rules.,GPT,1,1,1,0,1,1
+9999,Nutrition plays a crucial role in overall health and energy levels.,GPT,1,1,1,1,1,1
+10000,Objective measurements can determine temperature using thermometers accurately in degrees.,GPT,1,1,1,1,1,1
+10001,Objective truths exist independent of personal beliefs or opinions.,GPT,0,0,1,0,1,0
+10002,Objects in motion tend to stay in motion unless acted upon by a force.,GPT,1,1,1,1,1,0
+10003,"Ocean currents impact weather patterns globally, illustrating the interconnectedness of systems.",GPT,1,1,1,1,1,1
+10004,Opinions about weight loss methods can differ significantly based on values.,GPT,0,1,1,0,1,1
+10005,Opinions are like fingerprints: unique to each person and situation.,GPT,0,0,1,0,1,0
+10006,Opinions on beauty can be as varied as flowers in spring.,GPT,0,1,1,0,1,0
+10007,"Opinions on fitness regimens differ greatly, rendering choices highly subjective.",GPT,0,0,1,0,1,1
+10008,"Opinions on supplements can differ wildly, lacking consistent scientific support.",GPT,0,0,1,0,1,1
+10009,"Organisms interact with their environments, reflecting principles of ecology.",GPT,1,1,1,1,1,1
+10010,"Oxygen is essential for combustion, supporting life and energy production.",GPT,1,1,1,1,1,1
+10011,"Patterns of erosion can be observed along shorelines, affecting coastal landscapes.",GPT,1,1,1,1,1,1
+10012,"People often wear masks, presenting curated versions of themselves to society.",GPT,0,0,1,0,0,0
+10013,Perceptions of beauty evolve over time as societal values shift.,GPT,0,0,1,0,1,0
+10014,Perceptions of time can differ widely across various cultures.,GPT,1,0,1,0,1,1
+10015,Personal development is often viewed as necessary for career advancement.,GPT,0,0,1,0,1,0
+10016,Personal fitness routines should cater to individual needs for optimal results.,GPT,0,1,1,0,1,1
+10017,Personal health is often dictated by lifestyle choices and habits.,GPT,1,1,1,0,1,1
+10018,Philosophical discussions challenge our views on ethics and morality.,GPT,0,0,1,0,1,0
+10019,Philosophical inquiry encourages deep thinking about existence and knowledge.,GPT,0,0,1,0,1,0
+10020,Photons are particles of light that exhibit wave-particle duality in physics.,GPT,1,1,1,1,1,1
+10021,Photosynthesis allows plants to convert sunlight into energy for growth.,GPT,1,1,1,1,1,1
+10022,"Plants grow toward light sources, exhibiting a behavior called phototropism.",GPT,1,1,1,1,1,1
+10023,"Pollution can significantly affect air quality, impacting human health and the environment.",GPT,1,1,1,1,1,1
+10024,Population density affects resource availability in urban planning and development.,GPT,1,1,1,1,1,1
+10025,Preferences can dictate choices in various aspects of daily life.,GPT,0,0,1,0,0,1
+10026,Public attitudes toward renewable energy influence investment and development efforts.,GPT,0,1,1,0,1,1
+10027,Public spaces in cities are designed with accessibility to foster inclusiveness.,GPT,1,1,1,0,1,0
+10028,"Rain shadow effects occur when mountains block moisture-laden winds, creating dry areas.",GPT,1,1,1,1,1,1
+10029,Rainfall patterns can vary significantly across different regions of the globe.,GPT,1,1,1,1,1,1
+10030,"Recycling reduces waste, reflecting a societal value toward sustainability and environmental conservation.",GPT,1,1,1,0,1,1
+10031,Regional climates can dictate agricultural practices and food production in various locations.,GPT,1,1,1,1,1,1
+10032,Regular health check-ups can detect issues before they become serious.,GPT,1,1,1,1,1,1
+10033,Regular maintenance of machinery ensures optimal performance and longevity.,GPT,1,1,1,0,1,1
+10034,Regular physical activity enhances mood through the release of endorphins.,GPT,1,1,1,1,1,1
+10035,Regular physical activity reduces the risk of chronic diseases like diabetes.,GPT,1,1,1,1,1,1
+10036,Religious convictions often inform ethical frameworks and moral guidelines.,GPT,0,0,1,0,1,0
+10037,Research methods must adhere to established standards for validity and reliability.,GPT,1,1,1,1,1,1
+10038,Rules within societies regulate interactions and shape community dynamics.,GPT,1,0,1,0,1,1
+10039,Safety standards dictate the manufacturing processes of consumer products.,GPT,1,1,1,0,1,1
+10040,"Schedules dictate daily routines, helping people organize their time efficiently.",GPT,1,1,1,0,1,1
+10041,"Science builds on truths, transforming hypotheses into universally accepted laws.",GPT,0,0,1,0,1,0
+10042,Scientific discoveries rely on logical deduction and rigorous experimentation.,GPT,1,1,1,0,1,0
+10043,Scientific methods rely on empirical observations to draw conclusions.,GPT,1,1,1,1,1,0
+10044,Shared stories create a sense of belonging in diverse communities.,GPT,0,0,1,0,0,0
+10045,"Sleep is vital for recovery, affecting mental and physical performance.",GPT,1,1,1,0,1,1
+10046,Social norms dictate appropriate dress codes for various occasions and settings.,GPT,1,0,1,0,1,1
+10047,Social roles are often defined by cultural norms and expectations.,GPT,1,0,1,0,1,1
+10048,Soil erosion occurs when wind or water wear away the land's surface.,GPT,1,1,1,1,1,1
+10049,"Soil fertility influences crop yields, leading to variations in agricultural success.",GPT,1,1,1,1,1,1
+10050,Solar energy can be harnessed to power homes and businesses.,GPT,1,1,1,1,1,1
+10051,"Solar panels convert sunlight into energy, demonstrating technological applications of scientific principles.",GPT,1,1,1,1,1,1
+10052,"Sound requires a medium, like air or water, to propagate effectively.",GPT,1,1,1,1,1,1
+10053,Sound travels faster in water — a measurable fact defined by physics.,GPT,1,1,1,1,1,1
+10054,"Sound travels through air, reaching our ears as vibrations.",GPT,1,1,1,1,1,1
+10055,Sound waves travel faster in solids than in liquids or gases.,GPT,1,1,1,1,1,1
+10056,Standardized tests measure educational outcomes and inform instructional decisions.,GPT,1,0,1,0,1,1
+10057,"Statistical averages provide insight, revealing patterns hidden in data.",GPT,1,1,1,1,1,0
+10058,Still waters run deep; quietness often conceals complex thoughts and emotions.,GPT,0,1,1,0,1,0
+10059,"Strength training increases muscle mass, contributing to metabolic health.",GPT,1,1,1,1,1,1
+10060,Stress and strain determine how materials respond to forces in engineering.,GPT,1,1,1,1,1,1
+10061,"Stretching enhances flexibility, promoting better movement and injury prevention.",GPT,1,1,1,1,1,1
+10062,"Success is a road paved with perseverance, not merely talent or luck.",GPT,0,0,0,0,1,0
+10063,"Success requires both strategy and sacrifice, like planting seeds for future harvests.",GPT,0,0,1,0,1,0
+10064,Taste in food illustrates how culture shapes preferences and experiences.,GPT,1,1,1,0,1,1
+10065,Team collaboration enhances problem-solving capabilities in various professional environments.,GPT,0,0,1,0,1,1
+10066,Technology is a tool; it's how we use it that matters.,GPT,0,0,1,0,1,0
+10067,"Technology transforms society, enhancing communication and access to information effectively.",GPT,0,1,1,0,1,0
+10068,Tectonic activity shapes mountain ranges and interacts with human settlement patterns.,GPT,1,1,1,1,1,1
+10069,"Temperature affects the state of matter'solids, liquids, and gases.",GPT,1,1,1,1,1,1
+10070,"Temperature differences cause air currents, creating weather patterns experienced daily.",GPT,1,1,1,1,1,1
+10071,The Earth is divided into continents and surrounded by ocean bodies.,GPT,1,1,1,1,1,1
+10072,The Earth revolves around the sun in an elliptical orbit.,GPT,1,1,1,1,1,1
+10073,"The Earth rotates on its axis, leading to day and night cycles.",GPT,1,1,1,1,1,1
+10074,The Earth's axial tilt affects seasonal temperature variations experienced by different regions.,GPT,1,1,1,1,1,1
+10075,"The Earth's crust is divided into tectonic plates, which can shift and cause earthquakes.",GPT,1,1,1,1,1,1
+10076,The Pythagorean theorem defines the relationship between sides of a right triangle.,GPT,1,1,1,1,1,1
+10077,"The Richter scale measures the intensity of earthquakes, quantifying seismic activity.",GPT,1,1,1,1,1,1
+10078,The concept of angular momentum helps describe rotational motion in physics.,GPT,1,1,1,1,1,1
+10079,"The cycle of seasons impacts agriculture, affecting food production and consumption patterns.",GPT,1,1,1,1,1,1
+10080,"The early bird catches the worm, emphasizing timeliness in success.",GPT,0,1,1,0,0,0
+10081,The formula for the area of a rectangle is length multiplied by width.,GPT,1,1,1,1,1,1
+10082,The heart grows fonder with distance; absence reveals the depth of true connection.,GPT,0,0,0,0,0,0
+10083,"The heart pumps blood, sustaining life through a complex system.",GPT,1,1,1,1,1,1
+10084,The human body needs a balanced diet for optimal health.,GPT,1,1,1,1,1,1
+10085,"The internet connects people globally, shrinking distances through technology's reach.",GPT,1,1,1,0,1,0
+10086,The pen is mightier than the sword; words can change the world.,GPT,0,0,0,0,0,0
+10087,The principle of supply and demand guides economic interactions in markets.,GPT,1,0,1,0,1,1
+10088,The principles of thermodynamics govern energy transfer in physical systems.,GPT,1,1,1,1,1,1
+10089,The proof is in the pudding; outcomes reveal the validity of claims.,GPT,0,0,1,0,0,0
+10090,The seasons impact agricultural practices by determining planting and harvesting timelines.,GPT,1,1,1,1,1,1
+10091,"The speed of light is approximately 299,792 kilometers per second.",GPT,1,1,1,1,1,1
+10092,The square root of nine is three; truth in mathematics is unwavering.,GPT,1,1,1,1,1,0
+10093,"The structure of DNA carries genetic information, crucial for inheritance in living organisms.",GPT,1,1,1,1,1,1
+10094,The sun rises in the east and sets in the west.,GPT,1,1,1,1,1,1
+10095,Thoughts are like seeds; nurture them well and watch growth flourish.,GPT,0,0,1,0,1,0
+10096,"Three sides define a triangle, demonstrating a fundamental concept in geometry.",GPT,1,1,1,1,1,1
+10097,Time can be measured consistently using tools like clocks and calendars.,GPT,1,1,1,0,1,1
+10098,"Time heals wounds, providing perspective on past events we once endured.",GPT,0,0,1,0,1,0
+10099,"Time is a river, continuously flowing, never to return.",GPT,0,1,0,0,1,0
+10100,"Time is a valuable resource, often wasted and never reclaimed.",GPT,0,1,1,0,1,0
+10101,Time is money; investing it wisely can yield valuable returns.,GPT,0,0,1,0,1,0
+10102,"Timing affects performance in many activities, underscoring how coordination influences outcomes.",GPT,1,1,1,0,1,1
+10103,Traditions are socially constructed practices passed down through generations in cultures.,GPT,1,0,1,0,1,0
+10104,Transportation networks such as roads and railways connect cities and towns across regions.,GPT,1,1,1,1,1,1
+10105,Transportation systems are critical for connecting locations and facilitating economic development.,GPT,1,1,1,1,1,0
+10106,"Travel routes are affected by geographic features, influencing pedestrian and vehicle navigation.",GPT,1,1,1,1,1,1
+10107,"Truth can be a slippery slope, often obscured by personal bias.",GPT,0,0,1,0,1,0
+10108,Two heads are better than one in problem-solving situations.,GPT,0,0,1,0,1,0
+10109,Two plus two equals four; logic dismisses subjective opinions on math.,GPT,0,0,1,0,1,0
+10110,Understanding different viewpoints fosters empathy and enriches human experiences.,GPT,0,0,1,0,1,0
+10111,Understanding requires empathy; navigating differences fosters stronger connections in society.,GPT,0,0,1,0,0,0
+10112,Urban areas often exhibit heat islands due to human activities and infrastructure design.,GPT,1,1,1,1,1,1
+10113,"Urban heat islands increase localized temperatures, affecting city climates and energy consumption.",GPT,1,1,1,1,1,1
+10114,Variables in experiments should be controlled to determine their effects accurately.,GPT,1,1,1,1,1,1
+10115,Variation in temperature changes the state of matter we observe.,GPT,1,1,1,1,1,1
+10116,Walking daily can improve overall fitness and support heart health.,GPT,1,1,1,1,1,1
+10117,"Water boils at 100 degrees Celsius, a reliable empirical fact.",GPT,1,1,1,1,1,1
+10118,Water is essential for hydration and maintaining bodily functions.,GPT,1,1,1,1,1,1
+10119,"Water vapor in the atmosphere can condense to form clouds, leading to precipitation.",GPT,1,1,1,1,1,1
+10120,Waves in the ocean are caused by wind energy acting on water surfaces.,GPT,1,1,1,1,1,1
+10121,"Weathering processes break down rocks, influencing landscape formation over time.",GPT,1,1,1,1,1,1
+10122,What nourishes one may poison another; preferences inform dietary habits.,GPT,0,1,1,0,0,1
+10123,"Within ecosystems, organisms rely on each other for food, shelter, and survival.",GPT,1,1,1,1,1,1
+10124,"Without data, decisions are like ships without anchors, adrift in confusion.",GPT,0,0,1,0,1,0
+10125,"Yoga enhances flexibility, balance, and can reduce stress effectively.",GPT,1,1,1,0,1,1
