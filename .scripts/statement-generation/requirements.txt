@@ -7,3 +7,4 @@ python-dotenv
 PyYAML>=6.0,<7
 requests
 tqdm
+typesafe-sdk>=0.7,<1

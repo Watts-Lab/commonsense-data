@@ -298,6 +298,16 @@ def main():
 
         run_batch(args, records, output, sys.modules[__name__])
         return
+    failures = run_sync(args, records, output)
+    if failures:
+        raise SystemExit(1)
+
+
+def run_sync(args, records, output):
+    """Judge pending records one request at a time; returns the failure messages.
+
+    Uses args.gen, args.judge, args.workers, args.limit and args.response_mode.
+    """
     completed = load_completed(output, args.gen, args.judge)
     pending = [row for row in records if row["source_id"] not in completed]
     print(f"Generator: {args.gen}; judge: {args.judge}")
@@ -306,7 +316,7 @@ def main():
     )
     if not pending:
         print("No judge queries needed.")
-        return
+        return []
     if args.limit is not None:
         pending = pending[:args.limit]
         print(f"This run is limited to {len(pending)} pending rows.")
@@ -350,7 +360,7 @@ def main():
     print(usage_tracker.summary())
     if failures:
         print("Failed evaluations:\n" + "\n".join(failures))
-        raise SystemExit(1)
+    return failures
 
 
 if __name__ == "__main__":
