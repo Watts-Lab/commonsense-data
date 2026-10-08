@@ -7,17 +7,21 @@ Design Point Coverage page. Reads the snapshot and judge results written by
     existing/published/statements.csv                    statement + stored labels
     existing/published/evaluations/<judge>/statements.csv one judge's answers
 
-A judge "agrees" with a statement when it rates it common sense AND gives all
-six features the stored label — the same test the Coverage page applies to
-generated statements, so the two pages' numbers mean the same thing.
+A statement passes ("Majority") when, for every feature, at least half of the
+judges who rated it give the stored label (statement_coverage.feature_majority,
+the same rule the Coverage page applies to generated statements, so the two
+pages' numbers mean the same thing). No single judge has to agree on all six,
+and common sense isn't required. A judge "agrees" with a statement when it
+gives all six features the stored label; that's shown per judge but isn't the
+rule.
 
 A model run directly and through the batch API ("<model>" and
 "<model>:batch" folders) counts as one judge; judge_published.py never rates a
 statement in both, and if both hold one anyway the first folder's answer is kept.
 
-Rows are grouped by the stored labels' design point. "Any judge" counts
-statements at least one judge agrees with; "Common sense" counts statements
-at least one judge rated commonsense = 1.
+Rows are grouped by the stored labels' design point. "Majority" counts
+statements that pass; "Common sense" counts statements at least one judge
+rated commonsense = 1 (for information; it doesn't affect passing).
 """
 import itertools
 import os
@@ -25,7 +29,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from statement_coverage import FEAT_KEYS, STATEMENT_GEN_DIR, _judge_value
+from statement_coverage import FEAT_KEYS, STATEMENT_GEN_DIR, _judge_value, at_least_half, feature_majority
 
 AUDIT_DIR = Path(os.environ.get("STATEMENT_AUDIT_DIR", STATEMENT_GEN_DIR / "existing" / "published"))
 
@@ -72,7 +76,7 @@ def _load_judgments(statements: pd.DataFrame) -> tuple[list[str], dict]:
                     for key in FEAT_KEYS
                 },
                 "matches": matches,
-                "agrees": commonsense == 1 and all(matches.values()),
+                "agrees": all(matches.values()),
             })
     return judges, by_row
 
@@ -107,7 +111,8 @@ def get_audit() -> dict:
             "n_agree": sum(j["agrees"] for j in judgments),
             "n_commonsense": sum(j["commonsense"] for j in judgments),
         }
-        entry["any_judge"] = entry["n_agree"] >= 1
+        entry["feature_majority"] = feature_majority(judgments, entry["labels"])
+        entry["majority"] = all(entry["feature_majority"].values())
         entry["commonsense"] = entry["n_commonsense"] >= 1
         entries_by_combo.setdefault(combo, []).append(entry)
 
@@ -124,12 +129,12 @@ def get_audit() -> dict:
             **dict(zip(FEAT_KEYS, combo)),
             "published": len(entries),
             "judges": per_judge,
-            "any_judge": sum(e["any_judge"] for e in entries),
+            "majority": sum(e["majority"] for e in entries),
             "commonsense": sum(e["commonsense"] for e in entries),
             "rated": sum(1 for e in entries if e["n_judges"]),
         })
 
-    # How often each judge (and at least one of the judges) matches the stored labels
+    # How often each judge, and at least half of the judges, match the stored labels
     all_entries = [e for es in entries_by_combo.values() for e in es]
     agreement = []
     for judge_model in judges:
@@ -139,20 +144,16 @@ def get_audit() -> dict:
             "judge": judge_model, "n": n,
             "commonsense": _pct(sum(j["commonsense"] for j in rated), n),
             "features": {key: _pct(sum(j["matches"][key] for j in rated), n) for key in FEAT_KEYS},
-            "all_features": _pct(sum(all(j["matches"].values()) for j in rated), n),
-            "full": _pct(sum(j["agrees"] for j in rated), n),
+            "all_features": _pct(sum(j["agrees"] for j in rated), n),
         })
-    if len(judges) > 1:
-        voted = [e for e in all_entries if e["n_judges"]]
-        n = len(voted)
-        agreement.append({
-            "judge": "Any judge", "n": n,
-            "commonsense": _pct(sum(e["commonsense"] for e in voted), n),
-            "features": {key: _pct(sum(any(j["matches"][key] for j in e["judges"]) for e in voted), n)
-                         for key in FEAT_KEYS},
-            "all_features": _pct(sum(any(all(j["matches"].values()) for j in e["judges"]) for e in voted), n),
-            "full": _pct(sum(e["any_judge"] for e in voted), n),
-        })
+    voted = [e for e in all_entries if e["n_judges"]]
+    n = len(voted)
+    agreement.append({
+        "judge": "Majority of judges", "n": n,
+        "commonsense": _pct(sum(at_least_half(e["n_commonsense"], e["n_judges"]) for e in voted), n),
+        "features": {key: _pct(sum(e["feature_majority"][key] for e in voted), n) for key in FEAT_KEYS},
+        "all_features": _pct(sum(e["majority"] for e in voted), n),
+    })
 
     _cache = {"feature_keys": FEAT_KEYS, "judges": judges, "rows": rows, "agreement": agreement,
               "n_statements": len(statements), "by_combo": entries_by_combo}
@@ -166,10 +167,10 @@ def get_audit_statements(combo: tuple, metric: str) -> list:
     entries = get_audit()["by_combo"].get(combo, [])
     if metric == "published":
         for e in entries:
-            e["qualifies"] = (not e["n_judges"]) or bool(e["n_agree"])
-    elif metric == "any_judge":
+            e["qualifies"] = (not e["n_judges"]) or e["majority"]
+    elif metric == "majority":
         for e in entries:
-            e["qualifies"] = e["any_judge"]
+            e["qualifies"] = e["majority"]
     elif metric == "commonsense":
         for e in entries:
             e["qualifies"] = e["commonsense"]
@@ -179,8 +180,9 @@ def get_audit_statements(combo: tuple, metric: str) -> list:
             e["qualifies"] = any(j["judge_model"] == judge_model and j["agrees"] for j in e["judges"])
     else:
         raise ValueError(f"Unknown metric: {metric!r}")
-    # Qualifying first (most-agreed-with first among them), so the statements
-    # to keep and to question are at opposite ends.
+    # Qualifying first (most features with a majority first among them), so the
+    # statements to keep and to question are at opposite ends.
     return sorted(entries, key=lambda e: (
-        not e["qualifies"], -e["n_agree"], e["n_judges"] - e["n_commonsense"], e["statementId"],
+        not e["qualifies"], -sum(e["feature_majority"].values()), -e["n_agree"],
+        e["n_judges"] - e["n_commonsense"], e["statementId"],
     ))

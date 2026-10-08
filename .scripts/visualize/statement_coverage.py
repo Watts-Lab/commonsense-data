@@ -15,9 +15,13 @@ app's own answers.csv INNER-joined to crt_rme_demo.csv, statements needing
 statement_properties.csv snapshot) so the number matches the Design Points
 panel itself, snapshot staleness and all.
 
-A generated statement "qualifies" (counts toward "New") for its design point if
-at least one judge model rated it commonsense=1 AND agreed with the generator
-on all six features. The "New" count is shown as qualifying / rated, where
+A generated statement "qualifies" (counts toward "New") for its design point
+when, for every one of the six features, at least half of the judges who rated
+it give the generator's label (feature_majority below). No single judge has to
+agree on all six features, and no judge has to rate it common sense. Every
+rating of the statement text counts, so a text several generators submitted is
+judged on all its submissions' ratings together (a judge model that rated two
+submissions counts twice). The "New" count is shown as qualifying / rated, where
 "rated" is every generated statement with at least one judge rating at all
 (agreeing or not) — so a design point with few qualifying statements but many
 attempted ones is distinguishable from one nobody has tried judging yet.
@@ -74,6 +78,29 @@ def _judge_value(classification, key):
     if c == POLE_ZERO[key]:
         return 0
     return None
+
+
+def at_least_half(agree: int, total: int) -> bool:
+    """The vote threshold for the qualification rule; use > for a strict majority."""
+    return total > 0 and 2 * agree >= total
+
+
+def feature_votes(judges: list, labels: dict) -> dict:
+    """Per feature, [judges who give it labels[key], judges who rated it]. A
+    judge whose answer maps to neither label counts toward the total only."""
+    return {
+        key: [sum(_judge_value(j["features"][key]["classification"], key) == labels[key] for j in judges), len(judges)]
+        for key in FEAT_KEYS
+    }
+
+
+def feature_majority(judges: list, labels: dict) -> dict:
+    """Per feature, whether at least half of the judges give it labels[key].
+
+    The qualification rule shared by the Design Point Coverage and Published
+    Statement Audit pages: a statement qualifies when every feature passes.
+    """
+    return {key: at_least_half(*votes) for key, votes in feature_votes(judges, labels).items()}
 
 
 def _existing_by_combo() -> dict:
@@ -168,9 +195,6 @@ def _generated_by_combo() -> dict:
                 if grow["statement"] != jrow["statement"]:
                     continue  # source row was edited since this evaluation ran
                 commonsense = int(jrow.get("commonsense", 0))
-                features_agree = all(
-                    _judge_value(jrow[f"{key}_classification"], key) == int(grow[key]) for key in FEAT_KEYS
-                )
                 judge_attempts.setdefault(src_row, []).append({
                     "judge_model": jrow["judge_model"],
                     "commonsense": commonsense,
@@ -183,7 +207,10 @@ def _generated_by_combo() -> dict:
                         }
                         for key in FEAT_KEYS
                     },
-                    "agrees": commonsense == 1 and features_agree,
+                    # Agrees on all six features; for display only, the rule is per feature
+                    "agrees": all(
+                        _judge_value(jrow[f"{key}_classification"], key) == int(grow[key]) for key in FEAT_KEYS
+                    ),
                 })
 
         for src_row, judges in judge_attempts.items():
@@ -201,7 +228,6 @@ def _generated_by_combo() -> dict:
                     for key in FEAT_KEYS
                 },
                 "judges": judges,
-                "qualifies": any(j["agrees"] for j in judges),
             }
             bucket = by_combo.setdefault(combo, {})
             existing_entry = bucket.get(statement_text)
@@ -214,9 +240,14 @@ def _generated_by_combo() -> dict:
                 # that could show the same judge model twice under a single generator.
                 existing_entry["generations"].append(generation)
 
-    for bucket in by_combo.values():
+    for combo, bucket in by_combo.items():
+        labels = dict(zip(FEAT_KEYS, combo))
         for entry in bucket.values():
-            entry["qualifies"] = any(g["qualifies"] for g in entry["generations"])
+            judges = [j for g in entry["generations"] for j in g["judges"]]
+            entry["feature_votes"] = feature_votes(judges, labels)
+            entry["feature_majority"] = feature_majority(judges, labels)
+            entry["qualifies"] = all(entry["feature_majority"].values())
+            entry["commonsense_votes"] = [sum(j["commonsense"] == 1 for j in judges), len(judges)]
     return by_combo
 
 
@@ -265,9 +296,11 @@ def get_statements_for_combo(combo: tuple, metric: str) -> list:
         return data["calculated_by_combo"].get(combo, [])
     if metric == "supplementable":
         entries = list(data["generated"].get(combo, {}).values())
-        # Qualifying first (most agreeing judges first among them); non-qualifying after.
+        # Qualifying first, then by features with a majority, then by judges who
+        # agree on all six.
         entries.sort(key=lambda e: (
             not e["qualifies"],
+            -sum(e["feature_majority"].values()),
             -sum(j["agrees"] for g in e["generations"] for j in g["judges"]),
         ))
         return entries

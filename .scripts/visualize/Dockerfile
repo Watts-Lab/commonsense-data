@@ -23,7 +23,7 @@ RUN pip install --no-cache-dir \
       "PyYAML==6.0.2"
 
 # App code + generated data (paths are relative to the repo-root build context)
-COPY .scripts/visualize/server.py .scripts/visualize/utils.py .scripts/visualize/statement_coverage.py .scripts/visualize/statement_audit.py ./
+COPY .scripts/visualize/server.py .scripts/visualize/utils.py .scripts/visualize/statement_coverage.py .scripts/visualize/statement_audit.py .scripts/visualize/typesafe_audit.py ./
 COPY .scripts/visualize/index.html ./index.html
 COPY .scripts/visualize/static ./static
 COPY .scripts/visualize/data ./data

@@ -261,6 +261,7 @@
       <div class="toolbar-left">
         <a class="toolbar-btn" href="statement_generation" style="text-decoration:none">&larr; Back to Design Point Coverage</a>
       </div>
+      <a class="toolbar-btn" href="typesafe_audit" style="margin-left:auto;text-decoration:none">TypeSafe judgments &rarr;</a>
     </div>
     <div class="scores-wrap">
       <div class="chart-card">
@@ -270,7 +271,7 @@
       </div>
       <div class="chart-card">
         <div class="chart-title">Published Statement Audit</div>
-        <p class="sg-caption">LLM judges rated each published statement with the same prompt used for generated statements, without seeing its stored labels. A judge agrees when it rates the statement as common sense and gives all six features the stored label. Rows are the design points of the stored labels; click a row to list its statements. Hover or click on the ? button for definitions; click a property header to filter by it, again to switch to its opposite, and once more to clear.</p>
+        <p class="sg-caption">LLM judges rated each published statement with the same prompt used for generated statements, without seeing its stored labels. A statement passes when, for every feature, at least half of the judges who rated it give the stored label; no single judge has to agree on all six, and common sense is not required. Rows are the design points of the stored labels; click a row to list its statements. Hover or click on the ? button for definitions; click a property header to filter by it, again to switch to its opposite, and once more to clear.</p>
         <div class="sg-table-wrap">
           <table id="auTable">
             <thead><tr id="auHead"></tr></thead>
@@ -285,6 +286,59 @@
           <table class="sg-statement-table">
             <thead><tr id="auDetailHead"></tr></thead>
             <tbody id="auDetailBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TypeSafe Judgments panel ──────────────────────────── -->
+  <div id="panelTsAudit" class="panel hidden">
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <a class="toolbar-btn" href="statement_audit" style="text-decoration:none">&larr; Back to Published Statement Audit</a>
+      </div>
+      <select id="tsModelSelect" class="select hidden" style="margin-left:auto" aria-label="TypeSafe model"></select>
+    </div>
+    <div class="scores-wrap">
+      <div class="chart-card">
+        <div class="chart-title">TypeSafe Judgments of Published Statements</div>
+        <p class="sg-caption" id="tsIntro">Loading…</p>
+        <div id="tsAgreement"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Common Sense</div>
+        <p class="sg-caption" id="tsCsCaption"></p>
+        <div class="ts-chart-box ts-chart-box--wide"><canvas id="tsCsChart" role="img" aria-label="Histogram of Jev's probability that each statement is common sense, stacked by the LLM judges' verdicts"></canvas></div>
+      </div>
+      <div class="ts-filter-row">
+        <label class="toolbar-label" for="tsRefSelect">Compare Jev with</label>
+        <select id="tsRefSelect" class="select"></select>
+        <span class="ts-filter-note">Applies to everything below.</span>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Probability Distributions</div>
+        <p class="sg-caption" id="tsDistCaption"></p>
+        <div id="tsDistGrid" class="ts-dist-grid"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Agreement by Confidence</div>
+        <p class="sg-caption" id="tsConfCaption"></p>
+        <div id="tsConfidence"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Statements</div>
+        <p class="sg-caption" id="tsTableCaption"></p>
+        <div class="ts-table-controls">
+          <input type="search" id="tsSearch" class="stmt-search-input" placeholder="Search statements…" autocomplete="off" aria-label="Search statements">
+          <select id="tsShow" class="select" aria-label="Show"></select>
+          <select id="tsSort" class="select" aria-label="Sort"></select>
+          <span id="tsCount" class="ts-count"></span>
+        </div>
+        <div class="sg-table-wrap">
+          <table id="tsTable">
+            <thead><tr id="tsHead"></tr></thead>
+            <tbody id="tsBody"><tr class="sg-empty-row"><td colspan="9">Loading…</td></tr></tbody>
           </table>
         </div>
       </div>

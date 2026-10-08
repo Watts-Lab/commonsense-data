@@ -22,6 +22,7 @@ sys.path.insert(0, BASE_DIR)
 from utils import individual_commonsensicality, statement_commonsensicality
 import statement_coverage
 import statement_audit
+import typesafe_audit
 
 DATA_DIR = os.environ.get("DATA_DIR", os.path.join(BASE_DIR, "data"))
 # Default to the in-repo location for local dev; override with STATEMENTS_PATH
@@ -1055,6 +1056,20 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 self._send_error_json(400, str(exc))
                 return
             self._send_json(json.dumps({"statements": statements, "metric": metric}, ensure_ascii=False).encode("utf-8"))
+        elif parsed.path == "/api/typesafe-audit":
+            try:
+                data = typesafe_audit.get_audit(params.get("model", [""])[0])
+            except ValueError as exc:
+                self._send_error_json(400, str(exc))
+                return
+            self._send_json(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+        elif parsed.path == "/api/typesafe-audit-statement":
+            try:
+                row = int(params["row"][0])
+            except (KeyError, ValueError):
+                self._send_error_json(400, "Missing or invalid row")
+                return
+            self._send_json(json.dumps(typesafe_audit.get_statement(row), ensure_ascii=False).encode("utf-8"))
         elif parsed.path == "/" or parsed.path.startswith("/static/"):
             http.server.SimpleHTTPRequestHandler.do_GET(self)
         else:
