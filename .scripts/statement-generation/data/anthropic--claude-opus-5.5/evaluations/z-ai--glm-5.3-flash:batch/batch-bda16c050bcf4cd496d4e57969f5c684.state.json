@@ -1,5 +1,5 @@
 {
-  "phase": "submitted",
+  "phase": "collected",
   "gen_model": "anthropic/claude-opus-5.5",
   "judge_model": "z-ai/glm-5.3-flash:batch",
   "api_model": "z-ai/glm-5.3-flash",
@@ -1423,5 +1423,136 @@
     "ca089d6d672b77246f935645d386e8512f3e6eff4ca59854f4b86f31b5b7e69b": "25ac37f2509b16644d9b458b6c18e4589025f8d2d1b6259dfaa5d2621c429331:1",
     "b99f069f531788e1f73824e7dffc6bb890dd4a8799e8f4827308d0e2c874e7fc": "7598dadbc85afe1ddd490b7c0d3cdcde9899fd44b23d967bc35ec6c362b804aa:1"
   },
-  "batch_id": "batch-1790169233-cnhsIUOEDPUHVjZtzKJC"
+  "batch_id": "batch-1790169233-cnhsIUOEDPUHVjZtzKJC",
+  "failures": [
+    {
+      "source_id": "deef80b57d714ddc5863425f46ac94104e7c82b36dcc15745e34a4e3d8387614:1",
+      "error": "Additional properties are not allowed ('/newthought ignored' was unexpected)"
+    },
+    {
+      "source_id": "126ab8d1b3749c26ae2e75eccb13819391f12517cd3d1b20023c646b897826e5:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "7598dadbc85afe1ddd490b7c0d3cdcde9899fd44b23d967bc35ec6c362b804aa:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "0d511bef09ad383775801a5468f0289d8ecfa830a6fe734c438d4db2de437a9d:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "9f888333232b2acc978a37b7996d8ded52f800b66f4a58d356a68c46c21592ae:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "802971317b1da1e50b9c3c91eebf4db623976b6dccb62f18476d6777cd8b2ddc:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "28030c8bba141141b50dd966b2d198bf3fbb83aa634518245aee17deb7796fb7:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "fb611e491d2d927ef124d6ffe85405c9cbacabbc7bcbc608e0e022dd533d46cd:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "6621d11a8794cdf48532b7fc9065fccea091c7d0eb2f742dc93d2600828a2560:1",
+      "error": "Additional properties are not allowed (',' was unexpected)"
+    },
+    {
+      "source_id": "69867dc2ca6aa87b2b578b41b36474b899f2f86740527098911ba284f6501d0f:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "64226a5b7d0d98939cd091428e2026fea9ae50210151f23ca8a59482da3bee66:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "a4bba58d36a4dcd970d703588475db9c405dac2eb4479b437939366a28698d55:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "ea3957c55063c9e028cf0e6e7ec9cfc7963dc9b3f714116b24c3fe9641582748:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "4899ea9b17211dbb3ef21c7ae3eec9faa7ee9c97c6ad8d630dbb1d580c1205e2:1",
+      "error": "None is not of type 'object'"
+    },
+    {
+      "source_id": "aaa17e28d8cb4c194ecd46a664391f5b5fdb4147f92c3bbf6b934094629d941d:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "8acf3047f03231e4c0967d91b152d2d51667b419ab4a32bd46f4974686427502:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "e8978a550ec24b66c9aa1726ad7f873a0d90688242d81b3d4457f0d0f6976d1c:1",
+      "error": "Additional properties are not allowed ('' was unexpected)"
+    },
+    {
+      "source_id": "87b7950f10d4198edcb728c83cbb34deea9b2e0f35926f9074870e767f7e33f4:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "64b70eed710c8077b8b54d180f358af695cceb8f2c9340dc3ed04ed17d683541:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "d754667223b953d2741f5332c29fca8667dfbfe8eb961efc41e193e7df9426e3:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "eb23fdc5933a0a3980c292935fc7662638fb176a62f27885dae2860461b4f6bb:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "ef7de94606339592d3e522cb215cf0630cdba2f4c0735d06e1f5e6f5d8fac3cd:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "a04702d9742ce10cde2817329ec5cca2bab1ebadc0f5abb462c9abe421665680:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "53202fd12bf3a3a5caaae4e05a040e715e2b2a1ceda22154ef9d92a80ad0b2f5:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "6c2a40b2f9653158e47465db6493e62274a28b2a91e397bb563edd971ad10251:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "4bd0ac5e627e890030abbacda93b1c1d7185b9f2105d2a3e8eb6c074ae59e947:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "121bf7835218f0777e834e33f7a635ad2fae213acae34f33241a047c3927cb6b:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "47ded2610951a4f9312881f5618105aa65cb95ef427cc6790aabc7f0df170a20:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "ecfa7d32bb90c2f6ab9e652b6b68fe4beeea287983d2708a8ea63dcf199ab443:1",
+      "error": "Additional properties are not allowed ('' was unexpected)"
+    },
+    {
+      "source_id": "c6a078bd4f2bc2b64147018418ceff9078ba759465a8383dc25cfd6814c5df64:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "6ae58a22ac4189ad6cc38fcd5b67f7095ea82c7ff1d8a9648fe07efb8af45076:1",
+      "error": "Judge response truncated or refused"
+    },
+    {
+      "source_id": "f5dce2521872caafc2ee3491d0fcfb3eebaa263bc08c8de9b91a6a3e3ae1f303:1",
+      "error": "{'type': 'provider_error', 'message': 'Internal server error', 'param': None}"
+    }
+  ],
+  "deleted": true
 }

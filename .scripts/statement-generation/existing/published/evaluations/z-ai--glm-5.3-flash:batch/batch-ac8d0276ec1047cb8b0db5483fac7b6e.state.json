@@ -10977,5 +10977,6 @@
       "source_id": "a3005610e6fbed3ab0268aa73e855fb11436f9a86f41e3c2536112a8c07e7bcb:1",
       "error": "{'type': 'provider_error', 'message': 'Internal server error', 'param': None}"
     }
-  ]
+  ],
+  "deleted": true
 }

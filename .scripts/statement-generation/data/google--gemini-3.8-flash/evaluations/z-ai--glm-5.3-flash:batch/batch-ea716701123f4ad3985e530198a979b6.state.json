@@ -1,5 +1,5 @@
 {
-  "phase": "submitted",
+  "phase": "collected",
   "gen_model": "google/gemini-3.8-flash",
   "judge_model": "z-ai/glm-5.3-flash:batch",
   "api_model": "z-ai/glm-5.3-flash",
@@ -10447,5 +10447,700 @@
     "9a2bcaafb58253275e703c0363412ca2d5fb0293b3baedd33646d5b1c867b31b": "204c1ac0a4556bd2656cf341ba92d3a8c018012d6af9e1447505e6284a1d42b0:1",
     "e05f62314371960ab89e765c187f37358c90b27e43851930779fdb512e26ae03": "c3f8f818f35cd0ca343ba694b4415869a66c332e6613a43466ddb1b73ee27f21:1"
   },
-  "batch_id": "batch-1790105989-rtYU8Z6GuWKObDmyPekn"
+  "batch_id": "batch-1790105989-rtYU8Z6GuWKObDmyPekn",
+  "failures": [
+    {
+      "source_id": "3b878abb1379396aaf2702fe50aedc754f99fc7db9f8d91ffe9b33c4912d1562:1",
+      "error": "Additional properties are not allowed ('.istributions' was unexpected)"
+    },
+    {
+      "source_id": "3f16796a342e65e92704284839546e281117529e76de1133757281e6bd33a467:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "9007672e7a161cd964a1c796975ee1b48c30249f09ee0873d130c8a8afc362c2:1",
+      "error": "Additional properties are not allowed ('' was unexpected)"
+    },
+    {
+      "source_id": "5a60340fe7aed8b58d7ddc0dd44991e1155f0fac486621cf9ad91bdd4c90a3fe:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "df430c18bc20841bc17e58c85fcd3cdb5caf0b073e4264fa6a57bd8b931b1423:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "e2a1a8f5ed6938e87ad1230d4d2d83fcd538b66165110c9ff8f87f7efe648455:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "9c3cb7f128c2b79118078e10d19ab7b51d882d3203e356a3ffb6d56cd8d67fbd:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "1cb6ca7bd499de39c1cb0a257476b87b20cc2028a20d8d8f73a7bc1db77c8863:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "652f7f292da1aa14b00f2fa4f9803cc860cdae377d8787dfecd1178c8eefb934:1",
+      "error": "Additional properties are not allowed ('' was unexpected)"
+    },
+    {
+      "source_id": "e67aa6f4d66eacf5ffb2a6236c8078c93a4ee6f266ce1d0793c901c499421eea:1",
+      "error": "Additional properties are not allowed ('.concat(' was unexpected)"
+    },
+    {
+      "source_id": "888b64eaaae60d959f6b0eae919a2b5fe3d8a0bb8dcee7a8f2550195294dc677:1",
+      "error": "Additional properties are not allowed ('' was unexpected)"
+    },
+    {
+      "source_id": "dbef15be66da6272aea013c6743c46ec97273b7d019e30e530183ecc88851579:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "073af2f0cfc53b4bbc6029175a8365ff21730080b6a4a477f0429ed21b9c47b5:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "6fc34792d6fbc472a5f50d08285cade3d2bc060b11cdcd1a1d751dcbf164e45f:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "c3a12d43c56a338d5f1d0cca80b70bf13f04772a06f51903850e44ad7c1acd07:1",
+      "error": "'features' is a required property"
+    },
+    {
+      "source_id": "b719bda1e3a0c051c31081f91e474a6a4599cc3852098af81b88028d9b733ffc:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "0c1570a1d0788bb42be8cc3ab43d1ce60eed69b0cc1dea8df3062506dd58b573:1",
+      "error": "Judge response truncated or refused"
+    },
+    {
+      "source_id": "095974d997c73e001987d536871937cd45b40ded8d6e2173765130626635c44e:1",
+      "error": ""
+    },
+    {
+      "source_id": "c262b41640987828a850251f0e91bb4ef5d12e003302d489a91636b1c144d2d8:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "be560e4fa5ab9e3d418447e63e5b0322cd52d897f245b1a8703d7c8090876689:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "9116b1903c3a40792cda6c0f15460222f3e2ae6f0630106af56f5aa03ebf1d7d:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "c21b9ebaeb5e461e24fa76cac4f86300c94e28c28fbe0e332552cb7c14029493:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "3c72c69a4d9fc30af92cf3eb216616b883e782b3e4ac72e0bcb6aff926618694:1",
+      "error": "'classification' is a required property"
+    },
+    {
+      "source_id": "80fa98481e6f884b9ed476013699212b4acae8bc19873460e4bdfb9a0e887e88:1",
+      "error": "Additional properties are not allowed ('/json' was unexpected)"
+    },
+    {
+      "source_id": "5a68af67895234fa93119a4fc7cd701527b7b3babbb0d16d4cf79efe2482e002:1",
+      "error": "'features' is a required property"
+    },
+    {
+      "source_id": "b95ecfed6c3d11dd53deb28ec4e85a60f98df931e7acaf61607c32eb128dbfea:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "9f634e713cfdcf7eee0d7c3db8bb6b515ffe7efd9f9f109d7aea2f11cfd3e037:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "3e7aa2a4496c7a4440aafe9b2b902929aabab195c531cf80f4d401b934396a34:1",
+      "error": "Additional properties are not allowed (': null' was unexpected)"
+    },
+    {
+      "source_id": "5bd336720b1172eead90b5e4018b293e7228133f6976ed9a7d8f5ae076858652:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "e613f99f93f8c8039967f3a5de5a8a68a9d08bb838d2b363b5199853611e490d:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "503a71d630aa6dd93c34d7f99ebcd6503ddf96ae254a2250ff78a1cdfbf97a22:1",
+      "error": "'features' is a required property"
+    },
+    {
+      "source_id": "d838261a845d90b0b63a71b28a3dbe6299c24da2519e7d3fa84238e4caf3a0ec:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "9d7ac5cd8217a5a92868427ac86d5607798ed0ec9144916b1499419e75d3a3a6:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "ff8a0cb72465c13e4f024ce7458f3d0280d7df8b700bd917cb59f6e1b392a39f:1",
+      "error": "Judge response truncated or refused"
+    },
+    {
+      "source_id": "9acac68a62468bfaa0fbb8e466f08e4cd7b10fd88fbf4a3986797ffcdca8d9c9:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "f54717748996c33a2bf3d828f22be0f07344152d74840853ede59417158280c2:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "125ee598c190a1ceb3b3f722c475e1e5beaf31e30f5417321f0110089ed9cce7:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "9ce0cd86255c23b7fb734e3e34dc078449fcf1efadf84a08426e22a10b3f3bd4:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "da62628e5f9848ec84dfe991739e10f091066607cb186d3994082a0558402975:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "42f0a1dda87c74949a34a1897898c9b8866656ed12f9df380a395c75fb0a3281:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "3b901162fa28ada332f55e338972c66cfb9b7e6a87bbeac8dc09b4e3a12b2b16:1",
+      "error": "Additional properties are not allowed ('/n  \"features\": {\"/n    \"fact\": {\"classification\": \"fact\", \"confidence\": 3, \"explanation\": \"The underlying claim about gravity binding planets to the sun is scientifically testable, though the metaphorical phrasing makes it less a literal factual assertion than a figurative way of describing a fact.\"},\\n    \"physical\": {\"classification\": \"physical\", \"confidence\": 4, \"explanation\": \"The statement concerns gravity and planetary motion, which are objective features of the world described by physics.\"},\\n    \"literal language\": {\"classification\": \"figure of speech\", \"confidence\": 4, \"explanation\": \"Gravity is not literally a chain; \\'invisible chain binding\\' is a metaphor.\"},\\n    \"positive\": {\"classification\": \"positive\", \"confidence\": 4, \"explanation\": \"The statement describes an empirical regularity (gravitational attraction), not a value judgment or norm.\"},\\n    \"knowledge\": {\"classification\": \"knowledge\", \"confidence\": 3, \"explanation\": \"It expresses an observation about gravity\\'s role in planetary orbits rather than deriving a conclusion through explicit logical steps, though a metaphorical understanding could be seen as light reasoning.\"},\\n    \"everyday\": {\"classification\": \"abstract\", \"confidence\": 3, \"explanation\": \"Planetary orbits and gravity binding planets to the sun cannot be observed through ordinary individual experience; they are astronomical regularities known via science.\"}\\n  },\\n  \"commonsense\": 1,\\n  \"commonsense_explanation\": \"This reflects common general knowledge that educated people broadly share: gravity keeps planets in orbit around the sun, expressed through a familiar metaphor.\"\\n}' was unexpected)"
+    },
+    {
+      "source_id": "60d246c2c25a6b17fe75abaa6b0f7f5ad2bacc5b4edd8085e832de93a7a4bdf4:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "819c37c77ecb8ae4f2e9c48c0fca9eac31f903510b52ca828ce9a13b29a0a4c0:1",
+      "error": "Additional properties are not allowed (',' was unexpected)"
+    },
+    {
+      "source_id": "cfffc9c7c73546359d9a2916feefb6283a2a2ac1d74c3fbce442f74512df5223:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "0fa8a4f52bacd425d2b754e5be5de94411c2c0d16d58648c86d4241569ebb05c:1",
+      "error": "Additional properties are not allowed ('/practica/datasets/statement-classification/labels' was unexpected)"
+    },
+    {
+      "source_id": "6d8113fc35b75e78ef94adc3183db7810d986b2c907ffe55612dae1fba095d04:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "5b4e3677526d7a146ead26c0b433bdcc04dc756af8befa8500ea57494cb726a8:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "e8df2c31c89ce8a4e1a25db5afcca0347b605979343bc15a713e4a248245ac8f:1",
+      "error": "Additional properties are not allowed ('' was unexpected)"
+    },
+    {
+      "source_id": "80e151224e95869b465c368be77bd674819df1161bcaaadcc2a67286321d11ab:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "b44f58ae3f66a5d9884c8b51263cd43f01f70977d0b4564b15f20cb6543a8dc1:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "1b208b96a804bcf059a471464c9ec89e8ee32298b6846f05f3ef9b749a13b23c:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "36ad8d92f6389aac61466693451ad678ac074c82abb03a9726413ea6945fc9eb:1",
+      "error": "Additional properties are not allowed (', ' was unexpected)"
+    },
+    {
+      "source_id": "1173a9ce4d8912c9d217b562c497dd45208e8e741904c27f5d7063bbc6a5faf5:1",
+      "error": "Additional properties are not allowed ('/tikz faked' was unexpected)"
+    },
+    {
+      "source_id": "694e2f16535544a970add57fd3847ae63c3c2045f9da5f0851978960ef3a03b7:1",
+      "error": "'features' is a required property"
+    },
+    {
+      "source_id": "adb6b7aef39de91fddc35c6b3ff702e2be0076f5dbaf7d4ce8b06bae0bc438db:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "5289c130a40636afe417444f5c40d2ab4d728bdccb456ac1b5c71ef054b5f2bd:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "11436ee0da45c4e6c2cf0c62d1ab5424a5dac83eeb356a0ff328e4072a2b4bf5:1",
+      "error": "'features' is a required property"
+    },
+    {
+      "source_id": "cade02ec183d586f9800750492a84bcfa3649bf8030eb1465699737f22e0f0d9:1",
+      "error": "Additional properties are not allowed ('' was unexpected)"
+    },
+    {
+      "source_id": "4d1c0aec99c35ee197367919de8f5beacd7806826f5a797964bd925f337c0739:1",
+      "error": "Additional properties are not allowed ('' was unexpected)"
+    },
+    {
+      "source_id": "950e70b9b607486a5f76ddbfaf51b2f3f1ef0fb53027cd94d2bf1e3bb6240e97:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "d42146af4376514099121da87da2e1bbde869ce3dc4b7fae08580c64aa781501:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "55206cd8d0429821e1e7aff84c5177a5b982baa281780b62e247405156cd26a4:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "3dde343f8f2e44dc83aa347281ef32624a5973d10c78ba4e12c15ad14b06ebc7:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "be9fd474811df10100c85c7e87327b5d3b8962c8e4c4d4db16f57610f386b73b:1",
+      "error": "Additional properties are not allowed ('everyday_abstract' was unexpected)"
+    },
+    {
+      "source_id": "9d2bf5b281fcc9a7105a0f46df04d5e2d1163d66dada5d32a2140cd648bc6717:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "2d54dfc624d0c13c7fb0e2ea8a203ef229847bb46713880c011a45d6788cdd6a:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "18cb9d252fc79b1b885c9c01631bee138bfb6cca884eba0d38b07027f09aa639:1",
+      "error": "Additional properties are not allowed ('.' was unexpected)"
+    },
+    {
+      "source_id": "59a777851fdededd6047b7d692d48cce64ccf8aaae0136476caeb605d94f714d:1",
+      "error": "Additional properties are not allowed ('useful' was unexpected)"
+    },
+    {
+      "source_id": "ead38c1ae02d9d92fdb33a7634b8182c2c50d63100a3064b867caa2f03225f0b:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "8f47084f0f2b95e7f79379b756bc26eea15638c860a45660f39626f6db32c80f:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "35a32e83c671f20a79cbfa03aea9196987cd30ab38efc027ac68b76215964b4b:1",
+      "error": "'features' is a required property"
+    },
+    {
+      "source_id": "1fd65aed81fcab4723b51f0d9018ba6e81cd4c3da0c8a6e939f7ca28f666c9e4:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "3c87f596881c9b71e04956482a3b7083e201066fabf50ba6d49202504e7ed528:1",
+      "error": "Additional properties are not allowed ('everyday0', 'fact0', 'knowledge0', 'literal language0', 'physical0', 'positive0' were unexpected)"
+    },
+    {
+      "source_id": "645618d5e2360f57c1dd8098752132077e5a398c1d2c2d38e51f28f13c68cd13:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "852132151c19d109082139a419dbeb2b4a1b11e2f628383e6d70a24506c38136:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "d8ef489fdd445227fa64fc0c0a4df70f9a8d66393bf2a6e3d932f4a44ddcabae:1",
+      "error": "'features' is a required property"
+    },
+    {
+      "source_id": "03f2324c75d846e8526705b84aa41518c16589d98945048647985bc6d5e661e4:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "5c690a338b7b7b11db11a02c54a610e40a73f0864154d1328075da002ee1a218:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "c149a79549dc001c0025afc1dae06c3c1ecdde0395d1c9bf6b10e5e9cb2e982d:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "edeb2ab9a6864d37f091ee5049747814a675ae002892e30edfc3cfcbc14cfe5d:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "546926e9e2d976b2cbc5f29dd628100c15928aa30c755c1db6029d9ea6ad68ac:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "495bcf334436a900e8a135b9a4f937a9ec8af31ed442c26b75151e15167f629a:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "0739d85b3ee9d8b393ada33fc56b1f8d746ee3c57efab9fefeb07919546f6231:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "7076fe1cb032ce6b4f51d2e9632d8ec63228d1a519aee09956ed26496744611f:1",
+      "error": "Additional properties are not allowed ('classification', 'confidence', 'explanation' were unexpected)"
+    },
+    {
+      "source_id": "f681aa34adaac4bdd9872c9d3868a0ede598ad338de643a2b5c291d689f3ee9c:1",
+      "error": "'features' is a required property"
+    },
+    {
+      "source_id": "c46b62adc3c77a1b283be8555903ad9e940ef985c1161ae4116f5676b1db3a17:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "95d7319804c37410666a2b1afa23c77c3e10eb57086f4319c8abaeac3f1ff559:1",
+      "error": "Additional properties are not allowed ('' was unexpected)"
+    },
+    {
+      "source_id": "d13bfd27915ee516d677d00c6cd0e0f0bc10d9803bdd6bf04de110891bbf2543:1",
+      "error": "Additional properties are not allowed (':)' was unexpected)"
+    },
+    {
+      "source_id": "ce240f1887916391c0c4cda5798926cdbcb3fa4b74ae22ff8bf604b2240bfb73:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "458a7e4a21e3e4b430ea8fb354fcb1f0e358d56a4a40d0dd33dc8da1112e8550:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "0a521351446e58f9c76551f7830be7a8b8cd991f1c83accad9d9e37c082a7cf5:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "6c8d56e30fc02655087de987063f20f601e3adbe08c56080f109360edc266a1e:1",
+      "error": "Judge response truncated or refused"
+    },
+    {
+      "source_id": "873cfec3e87c06ba07102aa4a27f97d87ff0e1d9f7e5f721caacb84b35dbced3:1",
+      "error": "'features' is a required property"
+    },
+    {
+      "source_id": "5bc3fa88fa95736a9f9017168ff409cfdc526cea566a105e45bb5fba8c264380:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "dd3cd5f7ea49e6b32976a485fa5d086e71374185f44aaca06d604c506f51d810:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "5dc5a0f072b76da601197063e1c2a487b7eca4fc5ef3befea06e5ce69f169060:1",
+      "error": "Additional properties are not allowed (',' was unexpected)"
+    },
+    {
+      "source_id": "ac9cf0f82f8dfd7b14c5b353ff138f41fdec9f9bc36736b207ecb207c570b5e6:1",
+      "error": "Additional properties are not allowed ('', 'everyday', 'fact', 'knowledge', 'literal language', 'physical', 'positive' were unexpected)"
+    },
+    {
+      "source_id": "3e5fea3507d73ca91a8b7e4a88f4421830deb6eb99cfe37bbe88863e0512c5e0:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "abcf6b76421b1924a2e7a37f86d9ded90251045cdb6513e27835f127793bb979:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "7e885024acbec0a06499c38c8d4ed1d74504c32bd8f3d074009d5eaec40c2bce:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "95bd2bd2be197c366bdcb457f515a19b3a10d9691a53cc843e3d5ea9de942c15:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "823a9e55f718ed7a3016d6341bbe064a0bdcb805f596b3fa830608faeb8bbacb:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "3fd383c367d68b122bbbadf4ddc79607d3c3a32b36ea20c9b9f4da2fa7ae7395:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "0420b2bbfb42019c0306ab3feb74a03c3a8e74fd5bb59ef22658d1af8a613650:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "cc9b323e11ec1e7fad7369dc9dd9f3f406f3b9b4c73b1b8d58e49550539d0d1b:1",
+      "error": "Additional properties are not allowed ('' was unexpected)"
+    },
+    {
+      "source_id": "f3d5a6c71de8b20ab8b38cfda3fb4d2e25f7cf18e26bd9df8d68c09a72a35c16:1",
+      "error": "Additional properties are not allowed ('' was unexpected)"
+    },
+    {
+      "source_id": "e4684df4ea334d037a53930272038e90e268a0c0eea32f95df2f0cd2cde43942:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "f174570f8fa37c8033d6819481eed0e1eb200cb528a17a6b8d6cff8aced69e3b:1",
+      "error": "Additional properties are not allowed ('literal language (placeholder)' was unexpected)"
+    },
+    {
+      "source_id": "94a2cfc35cc6c48023b448c16220813a0df6d41a72f49176b8c096f3e7d09a2a:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "25f326a61110c1ff6ea9b3e2735db61f5e4c02cb1fc033538ad072d9c4590116:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "8d20109188dff1e0503f6ff0571cfad0601f4b7abb8e436765cc7768247f33d6:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "cae7ed4a3479df35b01f76929a44412e7249576b183859ee881bf3307ef92bc1:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "3eb0e94e65418f9c98ade34fa2bafbae4294776e02df60d56f6bd1b848a892af:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "b5c2df2ec2fd95f0ec2b270f7b800660741118b050673460e2c9628afa157ae6:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "16809e2cc61710379ca68710a87001d13448f13e4ebfcf522151aa45c031dbfb:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "2ed8d21ae48ee41fced68f261a9596c086cb530da9587594295c343c25ad83c8:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "484914724aac2a3caa0cb15ea89fd0b7b1c4441980e2345ff96648603b884715:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "7ab7b15265eecbfd11cd5c1398f52e22538d130937207e64f9ef9445055141c5:1",
+      "error": "Additional properties are not allowed ('' was unexpected)"
+    },
+    {
+      "source_id": "37eaeeb1387d742bb30bd44bb9a33853620553ff176a7a9b0182ad3f2c490ee2:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "d7a5d96e2636d11642c7ba7e49a910fad16b4425001dff35cfb8945db3f87f59:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "13202c86994d9712b48de4b31cdc24f3a9923e3cf1cc19046340c64ad42bfd4b:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "8e51038646dcf7c9844ce3d034e4fa4917315f8741d0ef2fe8f85e6784a59081:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "11641da0e2032afc734f370a9592e693d4194d207e929e88bcf5e7d2853cabc5:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "9e847fd85bf451c4f74763cf1e0f8d25c545d8b15ad37f42c3da1f0847db214f:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "68c195fe8ec6a9c9338e1684e6db8daa99e22074c7a6ec74583e6ca67562eb19:1",
+      "error": "Additional properties are not allowed ('/事例', '字義的な言語', '常識', '常識的説明', '日常的', '物理的', '知識', '規範的' were unexpected)"
+    },
+    {
+      "source_id": "cd17972e07fd4c081514396a4e6f9f8bc1491f81f2dc01822b9982a2e758e720:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "ef3aa97f29e5f367bb6381d3a0016a5116997b4aca7d099496bf5aba0a0e5bf6:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "7e8acc8ab45eb21cdd1e61f9ca948ff6a6f46af5d2e6e0cafe63ea6f13c31809:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "d36a8cafba99ddf7b270ab66958f008e29a52ac19be26cf755ee4e652fd9939f:1",
+      "error": "Additional properties are not allowed ('' was unexpected)"
+    },
+    {
+      "source_id": "cda776e8961f18134aef22352da38cedad37b2a4ab7a3248ae38257772d195fc:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "3958af7ef5812df3f1e38e2205b9844654396106fe623b035c7a630a9859b5a5:1",
+      "error": "'features' is a required property"
+    },
+    {
+      "source_id": "324123e5b090039081542d9cd07772a59387de3e5aecd08b852bae194486d910:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "77bd18f7b8583fcb25292594bb649740d95c978c6e92c2ed4f0111b3ebc7ae20:1",
+      "error": "Additional properties are not allowed ('' was unexpected)"
+    },
+    {
+      "source_id": "aa9182eb7fe0035370f7a32492aec94370d9f6ba52282fe124586dead4e29c8a:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "d2e8568885214039fa07737d3b42a9e57f9420b080dd1013b92e8d323699df24:1",
+      "error": "Additional properties are not allowed ('' was unexpected)"
+    },
+    {
+      "source_id": "87a0628c286ffdc15731592393675ab3ba762b137bb3a445a0c03f323b634954:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "cc4287ac46161f1cc5b9df70baedd08fd1511dae44641dfd8e0130e3d5d72ffb:1",
+      "error": "Additional properties are not allowed ('errors', 'prefix', 'result' were unexpected)"
+    },
+    {
+      "source_id": "039c2d15c147d46caf551c2e8ca95da135848c1df7191fcb4adf4d50b0299381:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "5574611e6d409d01065c6e06187d723604a2011cde3667b747fdf26ecb637820:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "33b2bb87a6ef2120a88eedcabe9b6e547aacd59da274e08606252d18a139ba88:1",
+      "error": "Additional properties are not allowed ('/react/features' was unexpected)"
+    },
+    {
+      "source_id": "a3f2cb5cd8b07707862f7935cbea1ee9a9a281d5ace711705841db401642124a:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "954921923b6a75d3172ed4e5ee6223697e62cb0407d477c9fd3821421da97040:1",
+      "error": "Additional properties are not allowed (',' was unexpected)"
+    },
+    {
+      "source_id": "b2c33bb901531322514c1cdec0ecec9bff330064d40816d22f336aa214c3550a:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "6d506a8b4fdba2bf9d9b699e3a3cb290e278325b1fa8414e79867047344f0b6d:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "be7e429b8b97ec9cda7898f06a42951ffe916d6cb93af7f5542714f811c05336:1",
+      "error": "'features' is a required property"
+    },
+    {
+      "source_id": "2fdc3c12c3b15a7b78709615d0f927b13693304a9387404d9124d8afe93a9707:1",
+      "error": "'features' is a required property"
+    },
+    {
+      "source_id": "56c7f4d0c273cdc64c4ca27e32094c7331b97d69cfe0a54895b9b9c3a84e1d2e:1",
+      "error": "Additional properties are not allowed ('type' was unexpected)"
+    },
+    {
+      "source_id": "708153bf7d4df0560d6c6b8af334fe60de792a3c1af0c498d922fa852f86f2a1:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "99517cf97a2f3103e8fa4943b7aa02ae5248e8eda4551302352108008e2ffa12:1",
+      "error": "Additional properties are not allowed ('' was unexpected)"
+    },
+    {
+      "source_id": "4d348fa26458a8dffae973d972f3847ec12dbf0c94bfa3cf269dfbfcd83edf3a:1",
+      "error": "'classification' is a required property"
+    },
+    {
+      "source_id": "ef0d577e8bd73385ba6b9c85a1f633c62e7b26f87c1d710c72dc933466127e24:1",
+      "error": "Additional properties are not allowed ('.' was unexpected)"
+    },
+    {
+      "source_id": "2369e5ebacc1a0a6b767748f69302181a95543612fe08df8c91354ffb0acd390:1",
+      "error": "Additional properties are not allowed ('] features' was unexpected)"
+    },
+    {
+      "source_id": "a6ee64f44dd301300b61afde2b22b602c4456d33435a0f4d438e58e475098764:1",
+      "error": "Additional properties are not allowed ('' was unexpected)"
+    },
+    {
+      "source_id": "dd823e7e95319206cd9cec4f8edfda855d33891a66140ba02535a7bfbf45f3e4:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "b4f44619ba28cd0f25af585183e1c405b465d4bb97e1567ef4dd9e0681cec719:1",
+      "error": "'features' is a required property"
+    },
+    {
+      "source_id": "20f9c703b920cc282c00bc17e37b9e07e0e5cdc3dc443faf64c390196ebeb23a:1",
+      "error": "Additional properties are not allowed ('.', '_', '__', '___', '____', '_____', '______', '_______', '________', '_________', '__________', '___________', '____________', '_____________', '______________', '_______________', '________________', '_________________', 'comment', 'unused' were unexpected)"
+    },
+    {
+      "source_id": "ca2377558374291835920fde9098b59355b520e9753ddcb5bb84ccf57ecc10aa:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "b02a7bcd2973e7a363a1ed841c1fafe656994c003fa4721bbda0adfbeb912d64:1",
+      "error": "Additional properties are not allowed ('>features' was unexpected)"
+    },
+    {
+      "source_id": "cc35626b23bd0c4e5a9aae8adc33bb339b6152b6aed577126715b7ce134702ae:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "419331cee762ff563e154f642c039e96d79bff52bc81747d83bd8b3774237518:1",
+      "error": "Additional properties are not allowed ('.compressed' was unexpected)"
+    },
+    {
+      "source_id": "2c384a3015a1b093319fc7151261e360d0194ee265a6b6e6ff96f09499f2e24c:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "68e400a624c2d35b7572aeb27a47d3030007b03e0e9eef1fb4002d2780fc538d:1",
+      "error": "Additional properties are not allowed ('additionalProperties', 'type' were unexpected)"
+    },
+    {
+      "source_id": "e18922c51d6dcdb6a4abb0d4128990e57b94c629d796ab73e94108c065dd77fb:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "85a21a8b9841b18d6e2f520985bb7f00e74d15464bfdf20bb0d7565824d6bf06:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "9fd6b8283b8b9de13b38abef072350aff36e08df375fc04ba50df39e88bd1133:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "02a59859d5a8600884a341b23718304042f777001474030f915d6ecc61a18646:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "9a4de0104bc80c34dbc14a343048b970a32a3e13ef2fa35fa505cb1475c24bce:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "63a47148e84c35f46a05991d0d30cc3b0bcdb0b30090862ac23eefb95b2280b4:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "6153ef7a85e2f669dbfe8aee16ae109640f3c524b39d738debb29ef6e07096de:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "c55cb3265bfaeb01d9fa340573cba47e2969e7fdc861d7c15d9100c502f5ffa4:1",
+      "error": "'commonsense' is a required property"
+    },
+    {
+      "source_id": "28cb875da53e76f6e7fead6435765bf4ec83d1b482ffcf2732c32e7371e2b90f:1",
+      "error": "{'type': 'provider_error', 'message': 'Internal server error', 'param': None}"
+    },
+    {
+      "source_id": "9326645a562166d19d619fc72b66cb652862633e5e8d129af93675d1cc6aeb91:1",
+      "error": "{'type': 'provider_error', 'message': 'Internal server error', 'param': None}"
+    },
+    {
+      "source_id": "6d373dfa14e275923c029ebf8f292c89fe10dd6151421ad63967c879841b81db:1",
+      "error": "{'type': 'provider_error', 'message': 'Internal server error', 'param': None}"
+    }
+  ],
+  "deleted": true
 }

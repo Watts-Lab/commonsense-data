@@ -1,5 +1,5 @@
 {
-  "phase": "submitted",
+  "phase": "terminal",
   "gen_model": "platform/published",
   "judge_model": "z-ai/glm-5.3-flash:batch",
   "api_model": "z-ai/glm-5.3-flash",
@@ -1503,5 +1503,6 @@
     "55d7e673d2d6e579ce7ebcc8fee526a798c28ae05b6f7d90a459b6d37f5c7882": "4b4f84351e6cdadb95dd3332c5cfb7cbd90a3a593b529b087360575ae1859746:1",
     "e5d7e956a965836a25a0ac2085926db9fc0b8539f70ab831618510cc4dc70bd8": "20d959076c3dc1fc995815800e63aec218e7c8b5a83eac6b20a54d0c7b591634:1"
   },
-  "batch_id": "batch-1790257552-t22zKjFRgrfl33YmoLo1"
+  "batch_id": "batch-1790257552-t22zKjFRgrfl33YmoLo1",
+  "deleted": true
 }

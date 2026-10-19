@@ -11057,5 +11057,6 @@
       "source_id": "5fedb3dd646a0cc23637780ad0c54b9e10eb6b0b44f894918addf5aac2ca9bff:1",
       "error": "{'type': 'provider_error', 'message': 'Internal server error', 'param': None}"
     }
-  ]
+  ],
+  "deleted": true
 }

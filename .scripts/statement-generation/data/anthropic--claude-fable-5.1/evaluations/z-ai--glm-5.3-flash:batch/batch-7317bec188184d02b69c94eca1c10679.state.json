@@ -1,5 +1,5 @@
 {
-  "phase": "submitted",
+  "phase": "collected",
   "gen_model": "anthropic/claude-fable-5.1",
   "judge_model": "z-ai/glm-5.3-flash:batch",
   "api_model": "z-ai/glm-5.3-flash",
@@ -295,5 +295,7 @@
     "c85f6a83f9647193bedafffe48dbe66fdbc35c10bc77a5f94388ea529df2d65b": "b0a37ebea1c40676599450408641cb216e19e5d938764112813c688a1b1072d5:1",
     "483ece9fc158da3741976856303ffd3937b2c098cae5df2247b598a82cd71c86": "50f935130f4d9f13502eda310ae936b848c8d541d41191d1fff0b4ac48d6d54c:1"
   },
-  "batch_id": "batch-1789484187-eBR2TW5R56NT0OIjLkHJ"
+  "batch_id": "batch-1789484187-eBR2TW5R56NT0OIjLkHJ",
+  "failures": [],
+  "deleted": true
 }
