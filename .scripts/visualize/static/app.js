@@ -2016,10 +2016,13 @@ async function populateSelects() {
 async function openUserDetail(userRow, opts = {}) {
   const countryLabel = userRow.country ? ` · ${userRow.country}` : "";
   modalUserId.textContent = userRow.sessionId + countryLabel;
+  // Excluded users (grayed-out rows) have no scores to show
   modalUserScores.textContent =
-    `Consensus: ${fmtPct(userRow.consensus)} · ` +
-    `Awareness: ${fmtPct(userRow.awareness)} · ` +
-    `Commonsensicality: ${fmtPct(userRow.commonsensicality)}`;
+    userRow.commonsensicality == null
+      ? "Not scored: fewer than 5 qualifying statements"
+      : `Consensus: ${fmtPct(userRow.consensus)} · ` +
+        `Awareness: ${fmtPct(userRow.awareness)} · ` +
+        `Commonsensicality: ${fmtPct(userRow.commonsensicality)}`;
   modalBody.innerHTML =
     '<tr><td colspan="5" class="empty-row">Loading…</td></tr>';
   modalExplanation.classList.add("hidden");
@@ -2059,25 +2062,29 @@ async function openUserDetail(userRow, opts = {}) {
 
   const qualifyingNote =
     N_total > N || data.disqualified
-      ? `In calculating the commonsensicality score, we require that every eligible statement was rated at least 10 times in the reference group (<strong>${esc(refLabel)}</strong>). Only <strong>${N}</strong> out of <strong>${N_total}</strong> statements qualify.` +
+      ? `In calculating the commonsensicality score, we require that every eligible statement was rated at least 10 times in the reference group (<strong>${esc(refLabel)}</strong>), counting ratings from all dates (the date filter does not apply to the reference group). Only <strong>${N}</strong> out of <strong>${N_total}</strong> statements qualify.` +
         (data.disqualified
           ? ` Since fewer than 5 statements qualify (minimum required), <strong>this user is excluded from the commonsensicality calculation</strong>.`
           : ` The calculation below is based on these <strong>${N}</strong> statements.`)
       : null;
 
   modalExplanation.innerHTML =
-    `<p class="expl-context">The calculation of this user's commonsensicality score is based on the fact that the user, who is in the <strong>${esc(targetLabel)}</strong> group, is being measured relative to the <strong>${esc(refLabel)}</strong> group.</p>` +
+    // A disqualified user has no score: say so instead of explaining one
+    (data.disqualified
+      ? `<p class="expl-context">This user, who is in the <strong>${esc(targetLabel)}</strong> group, has no commonsensicality score relative to the <strong>${esc(refLabel)}</strong> group.</p>`
+      : `<p class="expl-context">The calculation of this user's commonsensicality score is based on the fact that the user, who is in the <strong>${esc(targetLabel)}</strong> group, is being measured relative to the <strong>${esc(refLabel)}</strong> group.</p>`) +
     `<ul class="expl-list">` +
     `<li>This user has rated a total of <strong>${N_total}</strong> statement${N_total !== 1 ? "s" : ""}. See the table below.` +
     (qualifyingNote ? `<br><br>${qualifyingNote}` : "") +
     `</li>` +
+    (data.disqualified ? "" :
     `<li>For each statement, we determine the majority opinion in the reference group (<strong>${esc(refLabel)}</strong>) via the <em>Ref. avg. agree</em> column: if ≥ 50%, the majority agrees; otherwise, the majority disagrees.</li>` +
     `<li>Of all <strong>${N}</strong> statements:` +
     `<ul>` +
     `<li>There ${A === 1 ? "is" : "are"} <strong>${A}</strong> statement${A !== 1 ? "s" : ""} for which the user's opinion (<em>I agree</em>) matches the majority opinion (<em>Ref. avg. agree</em>). Thus, the <strong>consensus</strong> score is <strong>${fp(consFrac)}</strong> (= ${A}/${N}).</li>` +
     `<li>There ${B === 1 ? "is" : "are"} <strong>${B}</strong> statement${B !== 1 ? "s" : ""} for which the user's prediction of the majority opinion (<em>Others agree</em>) matches the majority opinion (<em>Ref. avg. agree</em>). Thus, the <strong>awareness</strong> score is <strong>${fp(awareFrac)}</strong> (= ${B}/${N}).</li>` +
     `</ul></li>` +
-    `<li>The <strong>commonsensicality</strong> score is the geometric mean of consensus and awareness: √(${fp(consFrac)} × ${fp(awareFrac)}) = <strong>${fp(commsFrac)}</strong>.</li>` +
+    `<li>The <strong>commonsensicality</strong> score is the geometric mean of consensus and awareness: √(${fp(consFrac)} × ${fp(awareFrac)}) = <strong>${fp(commsFrac)}</strong>.</li>`) +
     `</ul>`;
   modalExplanation.classList.remove("hidden");
 
@@ -2394,7 +2401,8 @@ function _positionTooltip(tooltip, clientX, clientY) {
 async function loadHomeMap() {
   if (_homeCountryData) { await renderWorldMap(_homeCountryData); return; }
   try {
-    const countries = await fetch(`${API}/countries`).then(r => r.json());
+    // Counts within the global date filter (the dropdowns keep all-time counts)
+    const countries = await fetch(`${API}/countries${dateParams().replace(/^&/, "?")}`).then(r => r.json());
     const data = {}, insuff = {};
     for (const { country, n_users } of countries) {
       if (n_users >= 10) data[country] = n_users;
@@ -2667,7 +2675,7 @@ async function loadScores(target, reference) {
     noteEl.textContent =
       `Note: Only ${fmtNum(data.n_users)} of ${fmtNum(data.raw_n_users)} users in the target group (${tLabel}) are shown. ` +
       `To qualify, a user in the target group (${tLabel}) must have rated at least 5 statements. ` +
-      `In addition, each statement must have received at least 10 ratings from the reference group (${rLabel}).`;
+      `In addition, each statement must have received at least 10 ratings from the reference group (${rLabel}), counting ratings from all dates (the date filter does not apply to the reference group).`;
     noteEl.classList.remove("hidden");
   } else {
     noteEl.classList.add("hidden");
@@ -4552,12 +4560,23 @@ async function loadGroupCompare() {
       : "";
   const cmpIndivFootnote =
     cmpIndivNoteA || cmpIndivNoteB
-      ? `<br><span class="cmp-filter-note">Not all users are shown — each must have rated ≥5 statements with ≥10 ratings in their own group.</span>`
+      ? `<br><span class="cmp-filter-note">Not all users are shown — each must have rated ≥5 statements with ≥10 ratings in their own group (counting all dates; the date filter does not apply to the reference group).</span>`
       : "";
+  // Each group is scored against its own majority; "All countries" contains
+  // the other group whenever it is compared with a single country.
+  const cmpOverlap =
+    (groupA === "all") !== (groupB === "all")
+      ? ` <strong>All countries</strong> includes every participant in <strong>${esc(groupA === "all" ? labelB : labelA)}</strong>, so the two groups overlap.`
+      : "";
+  const cmpRefNote =
+    `<br><span class="cmp-filter-note">Each group's individuals are scored against that group's own majority` +
+    (groupA === "all" || groupB === "all" ? " (for All countries, the pooled majority of all participants)" : "") +
+    `.${cmpOverlap}</span>`;
   document.getElementById("compareIndivSub").innerHTML =
     `<span style="color:${CMP_COLOR_A.replace("0.65", "1")}">■</span> <strong>${esc(labelA)}</strong>: ${fmtNum(ia.length)}${cmpIndivNoteA} individuals, mean ${cmpMean(iaS)} &nbsp;·&nbsp; ` +
     `<span style="color:${CMP_COLOR_B.replace("0.65", "1")}">■</span> <strong>${esc(labelB)}</strong>: ${fmtNum(ib.length)}${cmpIndivNoteB} individuals, mean ${cmpMean(ibS)}` +
-    cmpIndivFootnote;
+    cmpIndivFootnote +
+    cmpRefNote;
   const dIndiv = cohenD(iaS, ibS);
   document.getElementById("compareIndivEffect").innerHTML =
     dIndiv !== null
@@ -4580,7 +4599,8 @@ async function loadGroupCompare() {
     sbS = scores(sb);
   document.getElementById("compareStmtSub").innerHTML =
     `<span style="color:${CMP_COLOR_A.replace("0.65", "1")}">■</span> <strong>${esc(labelA)}</strong>: ${fmtNum(sa.length)} statements, mean ${cmpMean(saS)} &nbsp;·&nbsp; ` +
-    `<span style="color:${CMP_COLOR_B.replace("0.65", "1")}">■</span> <strong>${esc(labelB)}</strong>: ${fmtNum(sb.length)} statements, mean ${cmpMean(sbS)}`;
+    `<span style="color:${CMP_COLOR_B.replace("0.65", "1")}">■</span> <strong>${esc(labelB)}</strong>: ${fmtNum(sb.length)} statements, mean ${cmpMean(sbS)}` +
+    `<br><span class="cmp-filter-note">Each statement is scored within each group, from that group's ratings and majority.</span>`;
   document.getElementById("compareStmtEffect").innerHTML = "";
   if (compareStmtChartInst) compareStmtChartInst.destroy();
   compareStmtChartInst = makeCompareHistChart(
@@ -4605,7 +4625,8 @@ async function loadGroupCompare() {
     `${fmtNum(paired.length)} statements common to both groups` +
     (r !== null
       ? ` &nbsp;·&nbsp; Pearson <em>r</em> = <strong>${r.toFixed(3)}</strong>`
-      : "");
+      : "") +
+    `<br><span class="cmp-filter-note">Dashed line: y = x (equal scores). Equal scores do not mean the same view: a statement can score high in both groups while one majority agrees and the other disagrees. Click a dot to see each group's majority.</span>`;
   if (compareScatterChartInst) compareScatterChartInst.destroy();
   compareScatterChartInst = paired.length
     ? makeScatterChart("compareScatterChart", paired, labelA, labelB, (point) =>

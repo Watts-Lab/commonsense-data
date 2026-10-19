@@ -98,6 +98,56 @@ def _filter_date(df: pd.DataFrame, date_from: str, date_to: str) -> pd.DataFrame
     return result
 
 
+# ── Score histogram (Individual Scores, Statement Scores) ──────────────────
+
+
+def _score_histogram(scores: pd.Series, n_bins: int = 20) -> tuple[list, list]:
+    """Counts of 0-1 scores in n_bins equal bins, computed the way app.js
+    filters table rows when a bar is clicked: on the 4-dp values sent to the
+    client, with half-open [lo, hi) bins (the last one closed) and the same
+    rounded edges. np.histogram on the unrounded floats used slightly
+    different edges (0.6000000000000001 rather than 0.6), so a score lying on
+    an edge, such as 9/15 = 0.6, was counted in the bar below the one whose
+    list showed it."""
+    edges = [round(i / n_bins, 4) for i in range(n_bins + 1)]
+    values = np.round(scores.to_numpy(dtype=float), 4)
+    counts = []
+    for i in range(n_bins):
+        lo, hi = edges[i], edges[i + 1]
+        upper = values <= hi if i == n_bins - 1 else values < hi
+        counts.append(int(((values >= lo) & upper).sum()))
+    return counts, edges
+
+
+# ── Participants per country (Home map, dropdowns) ─────────────────────────
+_countries_cache: dict = {}
+
+
+def get_countries(date_from: str = "", date_to: str = "") -> bytes:
+    """Participants per country, most first. Without dates this is the
+    startup list of every participant, which the dropdowns use so their
+    options don't depend on the date filter. With dates it counts the
+    participants who rated at least one statement in the window, like n_users
+    in /api/country-summary, so the Home map follows the global date filter."""
+    if not date_from and not date_to:
+        return COUNTRIES_JSON
+    key = (date_from, date_to)
+    if key in _countries_cache:
+        return _countries_cache[key]
+    m = _filter_date(merged, date_from, date_to)
+    rows = (
+        m.groupby("country_reside")["sessionId"]
+        .nunique()
+        .sort_values(ascending=False)
+        .reset_index()
+        .rename(columns={"country_reside": "country", "sessionId": "n_users"})
+        .to_dict(orient="records")
+    )
+    encoded = json.dumps(rows, ensure_ascii=False).encode("utf-8")
+    _countries_cache[key] = encoded
+    return encoded
+
+
 # ── Per-country statement aggregation (cached) ─────────────────────────────
 _cache: dict = {}
 
@@ -207,9 +257,7 @@ def get_scores(target: str, reference: str, date_from: str = "", date_to: str = 
         ts = ts.apply(lambda col: col.dt.strftime("%Y-%m-%d"))
         scores = scores.join(ts, how="left")
 
-    counts, bin_edges = np.histogram(
-        scores["commonsensicality"].to_numpy(dtype=float), bins=20, range=(0.0, 1.0)
-    )
+    counts, bin_edges = _score_histogram(scores["commonsensicality"])
 
     float_cols = ["consensus", "awareness", "commonsensicality"]
     rows_df = scores.reset_index().sort_values("commonsensicality", ascending=False)
@@ -275,10 +323,7 @@ def get_scores(target: str, reference: str, date_from: str = "", date_to: str = 
     payload = {
         "n_users": len(rows),
         "raw_n_users": raw_n_users,
-        "histogram": {
-            "counts": counts.tolist(),
-            "bin_edges": [round(float(e), 4) for e in bin_edges],
-        },
+        "histogram": {"counts": counts, "bin_edges": bin_edges},
         "users": rows,
         "users_excluded": users_excluded,
         "country_avg": country_avg,
@@ -368,9 +413,7 @@ def get_statement_scores(country: str, date_from: str = "", date_to: str = "") -
 
     n_users = int(subset["sessionId"].nunique())
 
-    counts, bin_edges = np.histogram(
-        scores["commonsensicality"].to_numpy(dtype=float), bins=20, range=(0.0, 1.0)
-    )
+    counts, bin_edges = _score_histogram(scores["commonsensicality"])
 
     float_cols = [
         "I_agree_mean",
@@ -412,10 +455,7 @@ def get_statement_scores(country: str, date_from: str = "", date_to: str = "") -
     payload = {
         "n_statements": len(rows),
         "n_users": n_users,
-        "histogram": {
-            "counts": counts.tolist(),
-            "bin_edges": [round(float(e), 4) for e in bin_edges],
-        },
+        "histogram": {"counts": counts, "bin_edges": bin_edges},
         "rows": rows,
         "rows_excluded": rows_excluded,
     }
@@ -693,7 +733,7 @@ def get_country_cell(stmt_id: int, country: str, date_from: str = "", date_to: s
 # ── User detail (no cache — lightweight per-user query) ───────────────────
 
 
-def get_user_detail(user_id: str, reference: str, target: str, date_from: str = "", date_to: str = "") -> bytes:
+def get_user_detail(user_id: str, reference: str, date_from: str = "", date_to: str = "") -> bytes:
     MIN_RATINGS = 10
 
     m = _filter_date(merged, date_from, date_to)
@@ -709,18 +749,13 @@ def get_user_detail(user_id: str, reference: str, target: str, date_from: str = 
     stmt_ids = user_ratings["statementId"].unique()
 
     # ── Compute A, B, N using the exact same filtering as individual_commonsensicality
-    target_group = (
-        m if target == "all" else m[m["country_reside"] == target]
-    )
+    # The reference group ignores the date filter, matching get_scores().
     ref_group = (
-        m if reference == "all" else m[m["country_reside"] == reference]
+        merged if reference == "all" else merged[merged["country_reside"] == reference]
     )
 
-    target_counts = target_group["statementId"].value_counts()
     ref_counts = ref_group["statementId"].value_counts()
-    valid_target = target_counts[target_counts >= MIN_RATINGS].index
-    valid_ref = ref_counts[ref_counts >= MIN_RATINGS].index
-    common_stmts = set(valid_target) & set(valid_ref)
+    common_stmts = set(ref_counts[ref_counts >= MIN_RATINGS].index)
 
     ref_avg = (
         ref_group[ref_group["statementId"].isin(common_stmts)]
@@ -801,8 +836,10 @@ def get_group_compare(group_a: str, group_b: str, date_from: str = "", date_to: 
         raw_n = int(data["sessionId"].nunique()) if not data.empty else 0
         if data.empty:
             return [], 0
+        # The reference group ignores the date filter, matching get_scores().
+        ref = merged if g == "all" else merged[merged["country_reside"] == g]
         try:
-            df = individual_commonsensicality(data, data)[
+            df = individual_commonsensicality(data, ref)[
                 ["consensus", "awareness", "commonsensicality"]
             ]
             df = df.round(4)
@@ -978,7 +1015,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         date_to = params.get("date_to", [""])[0]
 
         if parsed.path == "/api/countries":
-            self._send_json(COUNTRIES_JSON)
+            self._send_json(get_countries(date_from, date_to))
         elif parsed.path == "/api/country-summary":
             country = params.get("country", [""])[0]
             self._send_json(get_country_summary(country, date_from, date_to))
@@ -1002,8 +1039,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         elif parsed.path == "/api/user-detail":
             user_id = params.get("userId", [""])[0]
             reference = params.get("reference", ["all"])[0]
-            target = params.get("target", ["all"])[0]
-            self._send_json(get_user_detail(user_id, reference, target, date_from, date_to))
+            self._send_json(get_user_detail(user_id, reference, date_from, date_to))
         elif parsed.path == "/api/group-compare":
             group_a = params.get("groupA", ["all"])[0]
             group_b = params.get("groupB", ["all"])[0]
