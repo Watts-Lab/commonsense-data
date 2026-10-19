@@ -96,6 +96,7 @@ let _worldMapGeo = null; // cached GeoJSON paths
 let _homeMapLoaded = false;
 let _homeCountryData = null; // {data: {country: n}, insuff: {country: n}}
 let _selectedHomeCountry = null; // currently selected server country name
+let _homeMapMode = "count"; // "count" (participants, log bins) | "continent"; toggled in home.js
 
 // Statement Scores
 let stmtScoresAllRows = [],
@@ -616,6 +617,8 @@ function switchToTab(tab, pushUrl) {
   document.getElementById("panelStmtAudit").classList.toggle("hidden", tab !== "stmtAudit");
   document.getElementById("panelTsAudit").classList.toggle("hidden", tab !== "tsAudit");
   if (tab === "home" && !_homeMapLoaded) { _homeMapLoaded = true; loadHomeMap(); }
+  // home.js loads after this file, so it is undefined on the first call
+  if (tab === "home" && typeof loadHomeSummary === "function") loadHomeSummary();
   if (tab === "scores" && !scoresLoaded) { scoresLoaded = true; loadScores("all", "all"); }
   if (tab === "dp" && !dpPanelLoaded) { dpPanelLoaded = true; loadDesignPoints("all"); }
   if (tab === "countries" && !countryMatrixLoaded) { countryMatrixLoaded = true; loadCountryMatrix(); }
@@ -2415,6 +2418,22 @@ async function loadHomeMap() {
   }
 }
 
+// Participant-count shading for the Home map: one blue ramp over log-spaced
+// bins (countries below the 10-participant threshold stay grey).
+const MAP_COUNT_BINS = [
+  { min: 10,   color: "#9ec5f4" },
+  { min: 30,   color: "#6da7ec" },
+  { min: 100,  color: "#3987e5" },
+  { min: 300,  color: "#256abf" },
+  { min: 1000, color: "#184f95" },
+  { min: 3000, color: "#0d366b" },
+];
+function _mapCountColor(n) {
+  let color = MAP_COUNT_BINS[0].color;
+  for (const b of MAP_COUNT_BINS) if (n >= b.min) color = b.color;
+  return color;
+}
+
 // Olympic-ring-inspired continent colors (pastel via rgba)
 const CONTINENT_COLORS = {
   "Africa":        "rgba(244,195,0,0.75)",    // gold/yellow
@@ -2476,9 +2495,10 @@ async function renderWorldMap({ data, insuff } = {}) {
     return p;
   }
 
+  const byCount = _homeMapMode === "count";
   // Grey (non-qualifying) layer — drawn first, behind qualifying paths
   for (const { c, ins } of nonQualifying) {
-    const path = _mkPath(c.d, "#CBD5E1", "default");
+    const path = _mkPath(c.d, byCount ? "#E2E8F0" : "#CBD5E1", "default");
     path.addEventListener("mousemove", (e) => {
       tooltip.hidden = false;
       const name = ins ? ins.serverName : c.name;
@@ -2493,7 +2513,7 @@ async function renderWorldMap({ data, insuff } = {}) {
 
   // Colored (qualifying) layer — drawn on top so clicks always land here
   for (const { c, entry } of qualifying) {
-    const color = CONTINENT_COLORS[c.continent] || "#CBD5E1";
+    const color = byCount ? _mapCountColor(entry.n) : (CONTINENT_COLORS[c.continent] || "#CBD5E1");
     const path = _mkPath(c.d, color, "pointer");
     pathByServerName[entry.serverName] = path;
     fillByServerName[entry.serverName] = color;
@@ -2521,14 +2541,32 @@ async function renderWorldMap({ data, insuff } = {}) {
 
   if (countEl) countEl.textContent = `${fmtNum(Object.keys(lookup).length)} countries`;
 
-  // Render continent legend
+  // Keep the selected country outlined when the map is redrawn (mode toggle)
+  if (_selectedHomeCountry && pathByServerName[_selectedHomeCountry]) {
+    pathByServerName[_selectedHomeCountry].setAttribute("stroke", "#1E293B");
+    pathByServerName[_selectedHomeCountry].setAttribute("stroke-width", "1.5");
+  }
+
+  // Render legend: participant bins, or continents
   const legend = document.getElementById("worldMapLegend");
   if (legend) {
     legend.innerHTML = "";
-    for (const [cont, color] of Object.entries(CONTINENT_COLORS)) {
+    const items = byCount
+      ? MAP_COUNT_BINS.map((b, i) => {
+          const next = MAP_COUNT_BINS[i + 1];
+          return [b.color, next ? `${fmtNum(b.min)}–${fmtNum(next.min - 1)}` : `${fmtNum(b.min)}+`];
+        })
+      : Object.entries(CONTINENT_COLORS).map(([cont, color]) => [color, cont]);
+    if (byCount) {
+      const lab = document.createElement("span");
+      lab.className = "world-map-legend-item";
+      lab.textContent = "Participants:";
+      legend.appendChild(lab);
+    }
+    for (const [color, label] of items) {
       const item = document.createElement("span");
       item.className = "world-map-legend-item";
-      item.innerHTML = `<span class="world-map-legend-swatch" style="background:${color}"></span>${cont}`;
+      item.innerHTML = `<span class="world-map-legend-swatch" style="background:${color}"></span>${label}`;
       legend.appendChild(item);
     }
   }
@@ -3834,7 +3872,10 @@ function handleGlobalDateChange() {
 
   // Reload the current active panel
   const activeTab = document.querySelector(".tab-btn.active")?.dataset.tab;
-  if (!activeTab) { _homeMapLoaded = true; loadHomeMap(); } // home panel
+  if (!activeTab) { // home panel
+    _homeMapLoaded = true; loadHomeMap();
+    if (typeof loadHomeSummary === "function") loadHomeSummary();
+  }
   else if (activeTab === "scores") { scoresLoaded = true; loadScores(targetSelect.value, referenceSelect.value); }
   else if (activeTab === "dp") { dpPanelLoaded = true; loadDesignPoints(dpCountrySelect.value); }
   else if (activeTab === "countries") { countryMatrixLoaded = true; loadCountryMatrix(); }

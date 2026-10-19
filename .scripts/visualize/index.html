@@ -6,6 +6,7 @@
   <title>Commonsense Survey Explorer</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
   <link rel="stylesheet" href="static/style.css" />
+  <link rel="stylesheet" href="static/home.css" />
 </head>
 <body>
 
@@ -31,21 +32,188 @@
   </nav>
 
   <!-- ── Home / Landing page ──────────────────────────────── -->
+  <!-- Static copy lives here; static/home.js fills every live number (data-h
+       fields and the ids below) from /api/home-summary and draws the charts.
+       The world map and country card keep their original ids (app.js). -->
   <div id="panelHome" class="panel">
-    <div class="scores-wrap">
-      <div class="chart-card" id="worldMapCard">
-        <div class="chart-title">Countries Represented</div>
-        <div class="chart-sub">Countries with at least 10 participants are highlighted. Click a country for details.</div>
-        <div id="worldMapContainer" class="world-map-container">
-          <svg id="worldMapSvg" viewBox="0 0 960 484" preserveAspectRatio="xMidYMid meet"></svg>
-          <div id="worldMapTooltip" class="world-map-tooltip" hidden></div>
+    <div class="home-scroll" id="homeScroll">
+
+      <!-- Hero -->
+      <header class="hs-hero" id="hs-top">
+        <div class="hs-hero-inner">
+          <div class="hs-hero-text">
+            <div class="hs-eyebrow">Commonsense Survey Explorer · University of Pennsylvania</div>
+            <h1 class="hs-h1">How common is <em>common sense</em>?</h1>
+            <p class="hs-lede">People around the world tell us whether they agree with short statements, and whether they think <strong>most other people</strong> would. From those two answers we measure how widely a belief is shared, and whether people know it is.</p>
+            <div class="hs-counters">
+              <div class="hs-counter"><span class="hs-counter-num" data-h="totals.participants">—</span><span class="hs-counter-label">participants</span></div>
+              <div class="hs-counter"><span class="hs-counter-num" data-h="totals.ratings">—</span><span class="hs-counter-label">ratings</span></div>
+              <div class="hs-counter"><span class="hs-counter-num" data-h="totals.statements_scored">—</span><span class="hs-counter-label">statements scored</span></div>
+              <div class="hs-counter"><span class="hs-counter-num" data-h="totals.countries_10">—</span><span class="hs-counter-label">countries with 10+ people</span></div>
+            </div>
+            <div class="hs-cta-row">
+              <a class="hs-btn hs-btn-primary" href="#hs-survey" data-scroll>How it works ↓</a>
+              <a class="hs-btn hs-btn-ghost" href="statement_scores" data-tab-link="stmtScores">Browse the statements →</a>
+            </div>
+            <div class="hs-stamp" id="hsStamp">Loading live data…</div>
+          </div>
+          <div class="hs-ticker" id="hsTicker" aria-roledescription="carousel" aria-label="Statements from the data">
+            <div class="hs-ticker-head">
+              <span class="hs-ticker-kicker">From the data</span>
+              <span class="hs-ticker-tag" id="hsTickerTag"></span>
+            </div>
+            <blockquote class="hs-quote hs-ticker-quote" id="hsTickerQuote">&nbsp;</blockquote>
+            <div class="hs-ticker-bars" id="hsTickerBars"></div>
+            <div class="hs-ticker-foot">
+              <span id="hsTickerMeta"></span>
+              <span class="hs-ticker-nav">
+                <button type="button" class="hs-ticker-btn" id="hsTickerPrev" aria-label="Previous statement">‹</button>
+                <button type="button" class="hs-ticker-btn" id="hsTickerNext" aria-label="Next statement">›</button>
+              </span>
+            </div>
+          </div>
         </div>
-        <div class="world-map-footer">
-          <div id="worldMapLegend" class="world-map-legend"></div>
-          <span id="worldMapCount" class="world-map-count"></span>
+      </header>
+
+      <!-- Section nav (sticky) -->
+      <nav class="hs-subnav" aria-label="Sections on this page">
+        <a href="#hs-survey" data-scroll>The survey</a>
+        <a href="#hs-where" data-scroll>Who took part</a>
+        <a href="#hs-measure" data-scroll>The scores</a>
+        <a href="#hs-dp" data-scroll>Design points</a>
+      </nav>
+
+      <!-- 01 The survey -->
+      <section class="hs-section" id="hs-survey">
+        <div class="hs-inner">
+          <div class="hs-kicker">01 · The survey</div>
+          <h2 class="hs-h2">Two questions, every statement</h2>
+          <p class="hs-intro">Each participant rates about <strong data-h="totals.median_ratings_per_participant">15</strong> statements and answers the same two questions about each one. Try one.</p>
+          <div class="hs-survey-grid">
+            <div class="hs-demo" id="hsDemo">
+              <div class="hs-skeleton" style="height:260px"></div>
+            </div>
+            <ol class="hs-flow" aria-label="The four parts of the survey">
+              <li class="hs-flow-step is-key">
+                <span class="hs-flow-num">1</span>
+                <span><strong>Rate statements</strong><span class="hs-flow-sub">The two questions, with a short reason for each answer</span></span>
+              </li>
+              <li class="hs-flow-step">
+                <span class="hs-flow-num">2</span>
+                <span><strong>Six reasoning puzzles</strong><span class="hs-flow-sub">Cognitive Reflection Test</span></span>
+              </li>
+              <li class="hs-flow-step">
+                <span class="hs-flow-num">3</span>
+                <span><strong>Ten “read the eyes” items</strong><span class="hs-flow-sub">Reading the Mind in the Eyes Test</span></span>
+              </li>
+              <li class="hs-flow-step">
+                <span class="hs-flow-num">4</span>
+                <span><strong>A few questions about you</strong><span class="hs-flow-sub">Country, age, education and more</span></span>
+              </li>
+            </ol>
+          </div>
         </div>
-      </div>
-      <div id="homeCountryCard" class="chart-card hcc hidden"></div>
+      </section>
+
+      <!-- 02 Who took part (world map) -->
+      <section class="hs-section hs-section-alt" id="hs-where">
+        <div class="hs-inner">
+          <div class="hs-kicker">02 · Who took part</div>
+          <h2 class="hs-h2">Participants from <span data-h="totals.countries">—</span> countries</h2>
+          <p class="hs-intro">Countries with at least 10 participants are shaded. Click one to see its numbers and open its scores.</p>
+          <div class="hs-where-grid">
+            <div class="chart-card hs-map-card" id="worldMapCard">
+              <div class="hs-map-toolbar">
+                <span class="hs-seg-label" id="hsMapModeLabel">Shade by</span>
+                <div class="hs-seg" role="group" aria-labelledby="hsMapModeLabel">
+                  <button type="button" class="hs-seg-btn" data-map-mode="count" aria-pressed="true">Participants</button>
+                  <button type="button" class="hs-seg-btn" data-map-mode="continent" aria-pressed="false">Continent</button>
+                </div>
+              </div>
+              <div id="worldMapContainer" class="world-map-container">
+                <svg id="worldMapSvg" viewBox="0 0 960 484" preserveAspectRatio="xMidYMid meet" role="img" aria-label="World map of participants by country"></svg>
+                <div id="worldMapTooltip" class="world-map-tooltip" hidden></div>
+              </div>
+              <div class="world-map-footer">
+                <div id="worldMapLegend" class="world-map-legend"></div>
+                <span id="worldMapCount" class="world-map-count"></span>
+              </div>
+            </div>
+            <div class="hs-card hs-composition">
+              <h3 class="hs-h3">Share of participants</h3>
+              <div id="hsComposition" class="hs-barlist"><div class="hs-skeleton" style="height:260px"></div></div>
+              <p class="hs-card-note" id="hsCompositionNote"></p>
+            </div>
+          </div>
+          <div id="homeCountryCard" class="chart-card hcc hidden"></div>
+        </div>
+      </section>
+
+      <!-- 03 The scores -->
+      <section class="hs-section" id="hs-measure">
+        <div class="hs-inner">
+          <div class="hs-kicker">03 · The scores</div>
+          <h2 class="hs-h2">A score for every statement, and for every person</h2>
+          <p class="hs-intro">We count something as common sense when people <strong>agree</strong> about it and <strong>know</strong> that others agree. Both scores run from 0 to 100%, and both need both parts to be high.</p>
+          <div class="hs-grid-2">
+            <a class="hs-score-card" href="statement_scores" data-tab-link="stmtScores">
+              <span class="hs-score-kicker">Statement Scores</span>
+              <span class="hs-score-q">How commonsensical is a statement?</span>
+              <span class="hs-score-text">High when nearly everyone gives the same answer and expects others to give it too.</span>
+              <span class="hs-ladder" id="hsLadder"></span>
+              <span class="hs-score-foot"><span id="hsStmtFoot"></span><span class="hs-score-go">Open Statement Scores →</span></span>
+            </a>
+            <a class="hs-score-card" href="individual_scores" data-tab-link="scores">
+              <span class="hs-score-kicker">Individual Scores</span>
+              <span class="hs-score-q">How commonsensical is a person?</span>
+              <span class="hs-score-text">High when someone's own answers side with the majority and they can tell what the majority thinks.</span>
+              <span class="hs-mini-hist" id="hsIndivHist"></span>
+              <span class="hs-score-foot"><span id="hsIndivFoot"></span><span class="hs-score-go">Open Individual Scores →</span></span>
+            </a>
+          </div>
+          <p class="hs-more">Compare two countries in <a href="group_comparison" data-tab-link="compare">Group Comparison</a>, or see each statement country by country in <a href="countries" data-tab-link="countries">Countries</a>.</p>
+        </div>
+      </section>
+
+      <!-- 04 Design points -->
+      <section class="hs-section hs-section-alt" id="hs-dp">
+        <div class="hs-inner">
+          <div class="hs-kicker">04 · Design points</div>
+          <h2 class="hs-h2">What kinds of knowledge are common sense?</h2>
+          <p class="hs-intro">Every statement is tagged with six features, which gives 2<sup>6</sup> = 64 kinds of statement, or <strong>design points</strong>. Comparing scores across them shows which kinds of knowledge people share most, and so what human common sense is made of.</p>
+          <div class="hs-card hs-features">
+            <div class="hs-feat-head" aria-hidden="true">
+              <span>Feature</span>
+              <span class="hs-feat-axis" id="hsFeatAxis"></span>
+              <span>Gap</span>
+            </div>
+            <div id="hsFeatures"><div class="hs-skeleton" style="height:320px"></div></div>
+            <p class="hs-card-note">Average statement score on each side of a feature. Features overlap, and are also tied to where and when statements were collected, so read each gap as a description, not a cause.</p>
+          </div>
+          <div class="hs-reveals" id="hsReveals"></div>
+          <div class="hs-grid-2 hs-corners" id="hsCorners"></div>
+          <p class="hs-more"><a class="hs-btn hs-btn-primary" href="design_points" data-tab-link="dp">Explore all 64 design points →</a></p>
+        </div>
+      </section>
+
+      <!-- About -->
+      <footer class="hs-footer" id="hs-about">
+        <div class="hs-inner hs-footer-grid">
+          <div>
+            <h2 class="hs-footer-h">About</h2>
+            <p>The Commonsense project is run by the <a href="https://css.seas.upenn.edu/" target="_blank" rel="noopener">Computational Social Science Lab</a> at the University of Pennsylvania.</p>
+            <p><a class="hs-btn hs-btn-primary" href="https://commonsense.seas.upenn.edu/" target="_blank" rel="noopener">Take the survey</a></p>
+            <p class="hs-footer-note" id="hsDataNote"></p>
+          </div>
+          <div>
+            <h2 class="hs-footer-h">Read more</h2>
+            <p>Whiting, M. E., &amp; Watts, D. J. (2024). <a href="https://doi.org/10.1073/pnas.2309535121" target="_blank" rel="noopener">A framework for quantifying individual and collective common sense</a>. <em>PNAS</em>, 121(4), e2309535121.</p>
+            <p>Nguyen, T. D., Watts, D. J., &amp; Whiting, M. E. (2026). <a href="https://doi.org/10.1093/pnasnexus/pgag029" target="_blank" rel="noopener">A large-scale evaluation of commonsense knowledge in humans and large language models</a>. <em>PNAS Nexus</em>, 5(3), pgag029.</p>
+          </div>
+        </div>
+      </footer>
+
+      <div id="hsTip" class="hs-tip" role="tooltip" hidden></div>
     </div>
   </div>
 
@@ -531,5 +699,6 @@
   <div id="propHelpPopup" class="prop-help-popup" role="tooltip"></div>
   <div id="flagPopup" class="flag-popup" role="tooltip"></div>
   <script src="static/app.js"></script>
+  <script src="static/home.js"></script>
 </body>
 </html>

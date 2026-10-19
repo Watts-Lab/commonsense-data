@@ -979,6 +979,175 @@ def get_statement_meta(stmt_id: str) -> bytes | None:
     return json.dumps(meta, ensure_ascii=False).encode("utf-8")
 
 
+# ── Home / landing-page summary (cached) ───────────────────────────────────
+# Everything the Home page shows besides the map, in one request. Scores are
+# read back from get_scores(), get_statement_scores() and get_design_points()
+# rather than recomputed, so the Home numbers always match the Individual
+# Scores, Statement Scores and Design Points panels (and the first visit warms
+# those caches).
+_home_cache: dict = {}
+
+# Example statements on the Home page prefer at least this many ratings, so
+# their percentages are stable.
+_HOME_EXAMPLE_MIN_RATINGS = (100, 30, 10)
+_HOME_EXAMPLES_PER_LIST = 8
+# Scores at which the Statement Scores card shows an example statement
+_HOME_SCALE_TARGETS = (0.95, 0.75, 0.5, 0.25, 0.05)
+
+
+def _round_or_none(x, nd: int = 4):
+    return None if x is None or pd.isna(x) else round(float(x), nd)
+
+
+def _home_stmt(row) -> dict:
+    return {
+        "id": int(row["statementId"]),
+        "text": row["statement"],
+        "n": int(row["n_ratings"]),
+        "p": round(float(row["I_agree_mean"]), 4),
+        "q": round(float(row["others_agree_mean"]), 4),
+        "m": round(float(row["commonsensicality"]), 4),
+    }
+
+
+def get_home_summary(date_from: str = "", date_to: str = "") -> bytes:
+    key = (date_from, date_to)
+    if key in _home_cache:
+        return _home_cache[key]
+
+    m = _filter_date(merged, date_from, date_to)
+    indiv = json.loads(get_scores("all", "all", date_from, date_to))
+    stmt = json.loads(get_statement_scores("all", date_from, date_to))
+    dps = json.loads(get_design_points("all", date_from, date_to))
+
+    # ── Totals and who took part ──
+    per_country = m.groupby("country_reside")["sessionId"].nunique().sort_values(ascending=False)
+    has_ts = "createdAt" in m.columns and len(m) > 0
+    totals = {
+        "participants": int(m["sessionId"].nunique()),
+        "ratings": int(len(m)),
+        "statements_rated": int(m["statementId"].nunique()),
+        "statements_scored": int(stmt["n_statements"]),
+        "countries": int(len(per_country)),
+        "countries_10": int((per_country >= 10).sum()),
+        "median_ratings_per_participant": (
+            float(m.groupby("sessionId").size().median()) if len(m) else 0.0
+        ),
+        "first_date": m["createdAt"].min().strftime("%Y-%m-%d") if has_ts else None,
+        "last_date": m["createdAt"].max().strftime("%Y-%m-%d") if has_ts else None,
+    }
+    top = per_country.head(8)
+    composition = [{"country": c, "n": int(n)} for c, n in top.items()]
+    if len(per_country) > len(top):
+        composition.append({"country": "Other", "n": int(per_country.iloc[len(top):].sum())})
+
+    # ── Individual scores ──
+    cs = np.array([u["commonsensicality"] for u in indiv["users"]], dtype=float)
+    individual = {"n": int(len(cs)), "histogram": indiv["histogram"]}
+    if len(cs):
+        q1, med, q3 = np.quantile(cs, [0.25, 0.5, 0.75])
+        individual.update(median=round(float(med), 4), q1=round(float(q1), 4), q3=round(float(q3), 4))
+
+    # ── Statement scores ──
+    df = pd.DataFrame(stmt["rows"])
+    statement = {"n": int(len(df))}
+    examples = {}
+    scale = []
+    if len(df):
+        q1, med, q3 = np.quantile(df["commonsensicality"].to_numpy(dtype=float), [0.25, 0.5, 0.75])
+        statement.update(median=round(float(med), 4), q1=round(float(q1), 4), q3=round(float(q3), 4))
+
+        for n_min in _HOME_EXAMPLE_MIN_RATINGS:
+            pool = df[df["n_ratings"] >= n_min]
+            if len(pool) >= 60:
+                break
+        k = _HOME_EXAMPLES_PER_LIST
+        agree, disagree = pool[pool["I_agree_mean"] >= 0.5], pool[pool["I_agree_mean"] < 0.5]
+        lists = {
+            # Highest scores with an agreeing / a disagreeing majority
+            "universal": agree.nlargest(k, "commonsensicality"),
+            "rejected": disagree.nlargest(k, "commonsensicality"),
+            # Closest to a 50/50 split
+            "divisive": pool.nsmallest(k, "consensus"),
+            # Lowest awareness: the majority agrees but few expect it, or
+            # disagrees while most expect agreement
+            "underestimated": agree.nsmallest(k, "awareness"),
+            "overestimated": disagree.nsmallest(k, "awareness"),
+        }
+        examples = {name: [_home_stmt(r) for _, r in rows.iterrows()] for name, rows in lists.items()}
+        examples["min_ratings"] = int(n_min)
+
+        # One short example statement near each target score: the most-rated
+        # one within 5 points of it (else the closest), so examples are
+        # familiar core statements
+        short = pool[pool["statement"].str.len() <= 60]
+        short = short if len(short) >= len(_HOME_SCALE_TARGETS) else pool
+        used = set()
+        for target in _HOME_SCALE_TARGETS:
+            cand = short[~short["statementId"].isin(used)]
+            if not len(cand):
+                break
+            dist = (cand["commonsensicality"] - target).abs()
+            near = cand[dist <= 0.05]
+            row = near.loc[near["n_ratings"].idxmax()] if len(near) else cand.loc[dist.idxmin()]
+            used.add(row["statementId"])
+            scale.append(_home_stmt(row))
+
+    # ── Statement features: mean score on each side of each feature ──
+    properties = []
+    for col in PROP_COLS:
+        side = {}
+        for val in (1, 0):
+            vals = df.loc[df[col] == val, "commonsensicality"] if len(df) else pd.Series(dtype=float)
+            n = int(len(vals))
+            mean = float(vals.mean()) if n else None
+            lo = hi = None
+            if n >= 2:
+                margin = _t_crit(n - 1) * float(vals.std()) / np.sqrt(n)
+                lo, hi = mean - margin, mean + margin
+            side[val] = {"n": n, "mean": _round_or_none(mean), "lo": _round_or_none(lo), "hi": _round_or_none(hi)}
+        properties.append({"key": col, "v1": side[1], "v0": side[0]})
+
+    # ── The two opposite corners of the design space, with example statements:
+    # all six features on their concrete side (fact, physical, literal,
+    # positive, knowledge, everyday) and all six on the other side ──
+    ranked = dps["rows"]  # design points with >= 5 statements, sorted by mean
+    all_dps = ranked + dps["rows_excluded"]
+
+    def _corner(val):
+        row = next((r for r in all_dps if all(r[c] == val for c in PROP_COLS)), None)
+        if row is None or not row["n"]:
+            return None
+        mask = pd.Series(True, index=df.index)
+        for col in PROP_COLS:
+            mask &= df[col] == val
+        ex = df[mask].sort_values("n_ratings", ascending=False).head(3)
+        rank = next((i for i, r in enumerate(ranked, start=1) if r is row), None)
+        return {
+            "n": row["n"], "mean": row["mean"], "ci_lo": row["ci_lo"], "ci_hi": row["ci_hi"],
+            "rank": rank,
+            "examples": [_home_stmt(r) for _, r in ex.iterrows()],
+        }
+
+    design_points = {"n_ranked": len(ranked), "concrete": _corner(1), "abstract": _corner(0)}
+
+    payload = {
+        "date_from": date_from,
+        "date_to": date_to,
+        "totals": totals,
+        "composition": composition,
+        "individual": individual,
+        "statement": statement,
+        "examples": examples,
+        "scale": scale,
+        "properties": properties,
+        "design_points": design_points,
+    }
+    encoded = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+    _home_cache[key] = encoded
+    return encoded
+
+
 # ── HTTP handler ───────────────────────────────────────────────────────────
 class Handler(http.server.SimpleHTTPRequestHandler):
     def _send_json(self, body: bytes):
@@ -1016,6 +1185,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
         if parsed.path == "/api/countries":
             self._send_json(get_countries(date_from, date_to))
+        elif parsed.path == "/api/home-summary":
+            self._send_json(get_home_summary(date_from, date_to))
         elif parsed.path == "/api/country-summary":
             country = params.get("country", [""])[0]
             self._send_json(get_country_summary(country, date_from, date_to))
@@ -1127,6 +1298,19 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 # ── Entry point ────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     os.chdir(BASE_DIR)
+    # Precompute the Home page (the landing page every visitor opens), which
+    # also warms the all-time Individual and Statement Scores caches.
+    # A failure here must not stop the server; the page retries on first visit.
+    import time
+    _t0 = time.perf_counter()
+    try:
+        get_home_summary()
+        print(f"Home summary ready ({time.perf_counter() - _t0:.1f}s).")
+    except Exception:
+        import traceback
+
+        traceback.print_exc()
+        print("Home summary warm-up failed; it will be computed on first request.")
     httpd = http.server.HTTPServer(("", PORT), Handler)
     print(f"Open http://localhost:{PORT}")
     try:

@@ -295,6 +295,7 @@ All endpoints are served under `/api/` and respond with JSON.
 | Endpoint | Parameters | Description |
 |----------|-----------|-------------|
 | `GET /api/countries` | — | Sorted list of countries with participant counts |
+| `GET /api/home-summary` | — | Everything the Home page shows besides the map: totals, share of participants by country, score medians and the participant histogram, example statements, feature gaps and the two opposite design points. Read back from the scores, statement-scores and design-points endpoints; precomputed for all dates at startup |
 | `GET /api/statement-scores` | `country` | Statement-level commonsensicality scores |
 | `GET /api/scores` | `target`, `reference` | Individual commonsensicality scores |
 | `GET /api/design-points` | `country` | Scores aggregated by the 64 property combinations |
