@@ -100,10 +100,10 @@
 .intro-step-num {
   width: 24px; height: 24px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-size: var(--fs-1); font-weight: 700; color: #fff;
+  font-size: var(--fs-1); font-weight: 700; color: var(--c-on-fill);
   background: var(--in-navy);
 }
-.intro-step-num.is-agree { background: var(--c-agree-ink); }  /* white text needs the ink step */
+.intro-step-num.is-agree { background: var(--c-agree-ink); }  /* --c-on-fill text needs the ink step */
 .intro-step-num.is-expect { background: var(--c-expect-ink); }
 .intro-step-name { font-weight: 700; color: var(--in-ink); line-height: 1.35; }
 .intro-step-text { color: var(--in-body); }
@@ -129,9 +129,9 @@
 .intro-ex-kicker { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: var(--fs-1); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--in-muted); }
 .intro-tag {
   font-size: var(--fs-1); font-weight: 600; letter-spacing: 0; text-transform: none;
-  color: var(--in-navy); background: #E0ECFB; border-radius: 20px; padding: 1px 9px; white-space: nowrap;
+  color: var(--in-navy); background: var(--c-agree-bg); border-radius: 20px; padding: 1px 9px; white-space: nowrap;
 }
-.intro-tag.is-whatif { color: #7C4A03; background: #FEF3C7; }
+.intro-tag.is-whatif { color: var(--c-warn-ink); background: var(--c-warn-bg); }
 .intro-ex-meta { font-size: var(--fs-2); color: var(--in-muted); margin-bottom: 8px; }
 .intro-ex-foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 10px; font-size: var(--fs-2); color: var(--in-muted); }
 .intro-hint { color: var(--in-muted); }
@@ -214,11 +214,12 @@ blockquote.intro-quote::after { content: "\201D"; }
   padding: 1px 9px 1px 7px; cursor: pointer; min-width: 4.4em; justify-content: center;
   transition: background 0.15s, color 0.15s, box-shadow 0.15s;
 }
-.intro-pill.is-match { color: var(--in-good); background: var(--c-good-bg); border-color: #BEE2BE; }
-.intro-pill.is-miss { color: var(--in-bad); background: var(--c-bad-bg); border-color: #F1C2C2; }
-.intro-pill.is-flipped { box-shadow: 0 0 0 2px #FCD34D; }
+.intro-pill.is-match { color: var(--in-good); background: var(--c-good-bg); border-color: var(--c-good-line); }
+.intro-pill.is-miss { color: var(--in-bad); background: var(--c-bad-bg); border-color: var(--c-bad-line); }
+.intro-pill.is-flipped { box-shadow: 0 0 0 2px var(--c-warn-ring); }
 .intro-pill.is-off { color: var(--in-faint); background: transparent; border-color: var(--in-line); cursor: default; }
 .intro-pill:not(.is-off):hover { filter: brightness(0.97); }
+:root[data-theme="dark"] .intro-pill:not(.is-off):hover { filter: brightness(1.18); }
 
 /* ── Calculation rows (shared) ── */
 .intro-calc {
@@ -265,10 +266,11 @@ blockquote.intro-quote::after { content: "\201D"; }
    the majority line, as in the two bars on Home */
 .intro-range {
   --fill: var(--in-navy);
+  --in-mid: color-mix(in srgb, var(--c-ink) 45%, transparent);  /* the 50% tick */
   -webkit-appearance: none; appearance: none;
   width: 100%; height: 8px; margin: 6px 0; border-radius: 4px; cursor: pointer;
   background:
-    linear-gradient(to right, transparent calc(50% - 0.5px), rgba(28, 25, 20, 0.45) calc(50% - 0.5px), rgba(28, 25, 20, 0.45) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
+    linear-gradient(to right, transparent calc(50% - 0.5px), var(--in-mid) calc(50% - 0.5px), var(--in-mid) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
     linear-gradient(to right, var(--fill) 0, var(--fill) var(--pct, 50%), var(--in-line) var(--pct, 50%), var(--in-line) 100%);
 }
 .intro-range.is-agree { --fill: var(--in-agree); }
@@ -302,7 +304,7 @@ blockquote.intro-quote::after { content: "\201D"; }
   border: 0; padding: 3px 10px; cursor: pointer; white-space: nowrap;
 }
 .intro-seg-btn + .intro-seg-btn { border-left: 1px solid var(--in-line); }
-.intro-seg-btn[aria-pressed="true"] { background: var(--in-navy); color: #fff; }
+.intro-seg-btn[aria-pressed="true"] { background: var(--in-navy); color: var(--c-on-fill); }
 .intro-seg-btn:not([aria-pressed="true"]):hover { background: var(--in-bg-alt); color: var(--in-text); }
 .intro-feat-gloss { font-size: var(--fs-1); color: var(--in-muted); margin-top: 2px; }
 .intro-dp-result {
@@ -329,7 +331,7 @@ blockquote.intro-quote::after { content: "\201D"; }
   padding: 3px 11px; cursor: pointer; white-space: nowrap;
 }
 .intro-chip:hover { background: var(--in-bg-alt); }
-.intro-chip[aria-pressed="true"] { background: var(--in-navy); border-color: var(--in-navy); color: #fff; }
+.intro-chip[aria-pressed="true"] { background: var(--in-navy); border-color: var(--in-navy); color: var(--c-on-fill); }
 .intro-compact .intro-lede { margin-bottom: 10px; }
 /* Group Comparison: the card spans both columns, steps side by side */
 #panelCompare .intro { flex-shrink: 0; }

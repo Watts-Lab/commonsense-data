@@ -28,8 +28,9 @@ const HS = {
 const HS_REDUCED =
   window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-const HS_AGREE = UI.agree;   // share who agree (UI in app.js)
-const HS_EXPECT = UI.expect; // share who think most others agree
+// Tokens, not resolved colours, so the bars follow a theme change
+const HS_AGREE = "var(--c-agree)";   // share who agree
+const HS_EXPECT = "var(--c-expect)"; // share who think most others agree
 
 // The kinds of example statement /api/home-summary returns (its "examples"),
 // used to vary the hero card and the survey demo. They are not shown as labels.
@@ -166,9 +167,11 @@ function hsMajoritySentence(p) {
     : `The majority of people (${hsMajPct(1 - p)}) disagree with this statement.`;
 }
 
-// Score pill colour: one blue ramp, light (low) to dark (high). Its text is
-// white on the two darkest steps and ink on the rest, so it clears 4.5:1.
-const HS_SCORE_STOPS = ["#cde2fb", "#9ec5f4", "#6da7ec", "#3987e5", "#256abf", "#184f95"];
+// Score pill colour: one blue ramp (--c-ramp-0 … 5 in style.css), light (low)
+// to deep (high) on the light theme and dim to bright on the dark one. Its
+// text is --c-ramp-ink-hi on the two strongest steps and --c-ramp-ink-lo on
+// the rest, so it clears 4.5:1 in both themes.
+const HS_SCORE_STOPS = [0, 1, 2, 3, 4, 5].map((i) => `var(--c-ramp-${i})`);
 function hsScoreStep(m) {
   return Math.min(HS_SCORE_STOPS.length - 1, Math.max(0, Math.floor(m * HS_SCORE_STOPS.length)));
 }
@@ -176,7 +179,7 @@ function hsScoreColor(m) {
   return HS_SCORE_STOPS[hsScoreStep(m)];
 }
 function hsScoreInk(m) {
-  return hsScoreStep(m) >= 4 ? "#fff" : UI.ink;
+  return hsScoreStep(m) >= 4 ? "var(--c-ramp-ink-hi)" : "var(--c-ramp-ink-lo)";
 }
 
 // ── Loading ─────────────────────────────────────────────────────────────────

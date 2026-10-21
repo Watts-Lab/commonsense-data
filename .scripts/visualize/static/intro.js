@@ -103,8 +103,9 @@ function inDualBar(label, v, color) {
   );
 }
 
-const IN_AGREE = UI.agree;
-const IN_EXPECT = UI.expect;
+// Tokens, not resolved colours, so the bars follow a theme change
+const IN_AGREE = "var(--c-agree)";
+const IN_EXPECT = "var(--c-expect)";
 
 // ── Collapse / expand (remembered per panel in this browser) ──────────────
 

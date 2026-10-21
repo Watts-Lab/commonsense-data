@@ -21,6 +21,14 @@
   --hs-expect: var(--c-expect);
   --hs-good: var(--c-good);
   --hs-bad: var(--c-bad);
+  /* The hero is the dark chrome of the top bar on the light theme; on the
+     dark one, a warm band a little lighter than the page */
+  --hs-hero: var(--c-chrome);
+  --hs-hero-2: var(--c-chrome-2);
+}
+:root[data-theme="dark"] :is(#panelHome, #panelLlm) {
+  --hs-hero: #29231D;
+  --hs-hero-2: #120F0C;
 }
 
 .home-scroll {
@@ -40,7 +48,7 @@
 .hs-hero {
   background:
     radial-gradient(circle at 1px 1px, rgba(255,255,255,0.07) 1px, transparent 0) 0 0 / 22px 22px,
-    linear-gradient(160deg, var(--hs-navy) 0%, var(--hs-navy-2) 100%);
+    linear-gradient(160deg, var(--hs-hero) 0%, var(--hs-hero-2) 100%);
   color: #fff;
   padding: 60px max(20px, 6vw) 68px;
 }
@@ -77,7 +85,7 @@
   transition: background 0.15s, border-color 0.15s;
 }
 .home-scroll a.hs-btn { text-decoration: none; }
-.hs-btn-primary { background: var(--hs-accent); color: #fff !important; }
+.hs-btn-primary { background: var(--hs-accent); color: var(--c-on-fill) !important; }
 .hs-btn-primary:hover { background: var(--c-accent-ink); }
 .hs-btn-ghost { background: transparent; color: #fff !important; border-color: rgba(255,255,255,0.4); }
 .hs-btn-ghost:hover { background: rgba(255,255,255,0.08); border-color: #fff; }
@@ -101,6 +109,7 @@
   background: var(--c-surface); color: var(--hs-text);
   border-radius: var(--r-lg); padding: 22px 24px 18px;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+  border: 1px solid transparent;
   width: min(440px, 100%); height: 350px; justify-self: end;
   display: flex; flex-direction: column;
 }
@@ -140,7 +149,7 @@ blockquote.hs-quote::after { content: "”"; }
   position: sticky; top: 0; z-index: 20;
   display: flex; gap: 4px; justify-content: center;
   padding: 8px 16px;
-  background: rgba(251, 248, 241, 0.9); /* --c-bg */
+  background: color-mix(in srgb, var(--hs-bg) 90%, transparent);
   backdrop-filter: saturate(1.2) blur(8px);
   border-bottom: 1px solid var(--hs-line);
   overflow-x: auto; scrollbar-width: none;
@@ -152,11 +161,11 @@ blockquote.hs-quote::after { content: "”"; }
   transition: background 0.15s, color 0.15s;
 }
 .home-scroll .hs-subnav a:hover { background: var(--hs-bg-alt); color: var(--hs-text); }
-.home-scroll .hs-subnav a.active { background: var(--hs-navy); color: #fff; }
+.home-scroll .hs-subnav a.active { background: var(--hs-navy); color: var(--c-on-fill); }
 
 /* ── Sections ── */
 .hs-section { padding: 68px max(20px, 6vw); scroll-margin-top: 44px; }
-.hs-section-alt { background: var(--hs-bg-alt); }
+.hs-section-alt { background: var(--c-section-alt); }
 .hs-kicker { font-size: var(--fs-1); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--hs-accent); margin-bottom: 8px; }
 .hs-h2 { font-size: clamp(1.45rem, 2.6vw, 2rem); line-height: 1.15; font-weight: 700; letter-spacing: -0.015em; color: var(--hs-ink); margin-bottom: 10px; }
 .hs-h3 { font-size: var(--fs-4); font-weight: 700; color: var(--hs-ink); margin-bottom: 8px; }
@@ -217,7 +226,7 @@ blockquote.hs-quote::after { content: "”"; }
 .hs-q { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 12px; align-items: start; margin-bottom: 16px; }
 .hs-q-num {
   width: 30px; height: 30px; border-radius: 50%;
-  background: var(--hs-navy); color: #fff;
+  background: var(--hs-navy); color: var(--c-on-fill);
   display: grid; place-items: center; font-weight: 700; font-size: var(--fs-2);
 }
 .hs-q-text { font-size: var(--fs-4); font-weight: 600; color: var(--hs-ink); margin: 3px 0 8px; }
@@ -229,7 +238,7 @@ blockquote.hs-quote::after { content: "”"; }
   cursor: pointer; transition: border-color 0.12s, background 0.12s, color 0.12s;
 }
 .hs-choice-btn:hover:not(:disabled) { border-color: var(--hs-navy); }
-.hs-choice-btn[aria-pressed="true"] { background: var(--hs-navy); border-color: var(--hs-navy); color: #fff; }
+.hs-choice-btn[aria-pressed="true"] { background: var(--hs-navy); border-color: var(--hs-navy); color: var(--c-on-fill); }
 .hs-choice-btn:disabled { cursor: default; }
 .hs-choice-btn:disabled:not([aria-pressed="true"]) { opacity: 0.45; }
 .hs-demo-reveal { animation: hs-pop 0.35s ease; }
@@ -255,7 +264,7 @@ blockquote.hs-quote::after { content: "”"; }
 .hs-seg-btn { font: inherit; font-size: var(--fs-2); font-weight: 600; min-height: var(--tap); padding: 6px 14px; border: none; background: transparent; color: var(--hs-muted); cursor: pointer; }
 .hs-seg-btn + .hs-seg-btn { border-left: 1px solid var(--c-line-2); }
 .hs-seg-btn:hover { background: var(--hs-bg-alt); color: var(--hs-text); }
-.hs-seg-btn[aria-pressed="true"] { background: var(--hs-navy); color: #fff; }
+.hs-seg-btn[aria-pressed="true"] { background: var(--hs-navy); color: var(--c-on-fill); }
 .hs-composition { margin: 0; display: flex; flex-direction: column; }
 .hs-barlist { display: flex; flex-direction: column; justify-content: space-between; gap: 9px; flex: 1 1 auto; min-height: 0; }
 .hs-bl-row { display: grid; grid-template-columns: minmax(7em, 10em) minmax(0, 1fr) 3em; gap: 10px; align-items: center; font-size: var(--fs-2); }
@@ -319,7 +328,7 @@ blockquote.hs-quote::after { content: "”"; }
 .hs-feat-link { position: absolute; top: 50%; height: 4px; margin-top: -2px; background: var(--c-line-2); border-radius: 2px; }
 .hs-fdot {
   position: absolute; top: 50%; width: 16px; height: 16px; margin: -8px 0 0 -8px;
-  border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px rgba(28, 25, 20, 0.12);
+  border-radius: 50%; border: 2px solid var(--c-surface); box-shadow: 0 0 0 1px color-mix(in srgb, var(--c-ink) 12%, transparent);
   cursor: default;
 }
 .hs-fdot.k1 { background: var(--hs-agree); }
@@ -353,8 +362,8 @@ blockquote.hs-quote::after { content: "”"; }
 .hs-corner-score { font-size: var(--fs-8); font-weight: 700; color: var(--hs-ink); letter-spacing: -0.02em; line-height: 1; }
 .hs-chips { display: flex; flex-wrap: wrap; gap: 5px; }
 .hs-chip { font-size: var(--fs-1); font-weight: 600; padding: 2px 9px; border-radius: 20px; }
-.hs-chip.k1 { background: #E0ECFB; color: var(--c-agree-ink); }
-.hs-chip.k0 { background: #FDE7DC; color: var(--c-expect-ink); }
+.hs-chip.k1 { background: var(--c-agree-bg); color: var(--c-agree-ink); }
+.hs-chip.k0 { background: var(--c-expect-bg); color: var(--c-expect-ink); }
 .hs-corner-meta { font-size: var(--fs-2); color: var(--hs-muted); }
 .hs-corner-ex { list-style: none; display: grid; gap: 6px; }
 .hs-corner-ex li { display: flex; justify-content: space-between; gap: 12px; font-size: var(--fs-3); background: var(--hs-bg); border-radius: var(--r-sm); padding: 8px 12px; }
@@ -398,7 +407,7 @@ blockquote.hs-quote::after { content: "”"; }
 @media (max-width: 640px) { .hs-explore-grid { grid-template-columns: minmax(0, 1fr); } }
 
 /* ── Footer ── */
-.hs-footer { background: var(--hs-navy-2); border-top: 1px solid rgba(255,255,255,0.06); color: rgba(255,255,255,0.8); padding: 48px max(20px, 6vw) 56px; font-size: var(--fs-2); scroll-margin-top: 44px; }
+.hs-footer { background: var(--c-chrome-2); border-top: 1px solid rgba(255,255,255,0.06); color: rgba(255,255,255,0.8); padding: 48px max(20px, 6vw) 56px; font-size: var(--fs-2); scroll-margin-top: 44px; }
 .hs-footer-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 48px; }
 .hs-footer-h { font-size: var(--fs-2); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #fff; margin-bottom: 12px; }
 .hs-footer p { margin-bottom: 10px; }
@@ -409,7 +418,7 @@ blockquote.hs-quote::after { content: "”"; }
 /* Tooltip */
 .hs-tip {
   position: fixed; z-index: 9999; pointer-events: none;
-  background: var(--c-tooltip); color: #fff;
+  background: var(--c-tooltip); color: #fff; border: 1px solid var(--c-tooltip-line);
   font-size: var(--fs-2); line-height: 1.45; padding: 8px 12px; border-radius: var(--r-md);
   box-shadow: var(--shadow-3); max-width: 280px;
 }
@@ -453,3 +462,7 @@ blockquote.hs-quote::after { content: "”"; }
   .hs-ticker-quote.is-long { font-size: var(--fs-4); -webkit-line-clamp: 5; }
   .hs-ticker-quote.is-longer { font-size: var(--fs-3); }
 }
+
+/* On the dark theme the hero's card sits on a dark band, so it takes a
+   hairline as well as its shadow */
+:root[data-theme="dark"] .hs-ticker { border-color: var(--c-line); }

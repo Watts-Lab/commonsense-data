@@ -29,8 +29,9 @@
 // models orange, proprietary models striped (llmModelCls()). All 44 models
 // are one set: every rank, count and average is over all of them.
 
-const LLM_HUMAN = UI.agree;    // people (the app's blue; UI in app.js)
-const LLM_MODEL = UI.expect;   // models
+// Tokens, not resolved colours, so the charts follow a theme change
+const LLM_HUMAN = "var(--c-agree)";    // people (the app's blue)
+const LLM_MODEL = "var(--c-expect)";   // models
 const LLM_VIEWS = ["overview", "individual", "population"];
 const LLM_PROP_SHORT = { literal_language: ["Literal", "Figurative"] }; // as the other filters word it
 // The paper's examples: the models in its SI histogram of P(yes), and the
@@ -1497,22 +1498,24 @@ function llmIndCh3(m, md, fresh) {
 // curves every 10 points (as the paper's Fig. 2B draws them at 25, 50 and
 // 75%), this model's own level curve in orange, and every model as a dot.
 // The axes start at 30%, below every model, so the dots spread out. The
-// shading is a small canvas drawn once; pointing at the chart shows the
+// shading runs from the card (--llm-lvl-lo) to people's blue (--llm-lvl-hi):
+// a small canvas, drawn once, holds only how far along that ramp each point
+// is (as its alpha), and masks a rect filled with the blue, so the colours
+// stay tokens and follow a theme change. Pointing at the chart shows the
 // score of that pair (llmLvlProbe).
 const LLM_LVL = { S: 320, L: 58, T: 12, R: 44, B: 48, LO: 0.3 };
-let _llmLvlBg = null;
+let _llmLvlBg = null, _llmLvlMasks = 0;
 function llmLvlBg() {
   if (_llmLvlBg) return _llmLvlBg;
   const N = 120, LO = LLM_LVL.LO, cv = document.createElement("canvas");
   cv.width = cv.height = N;
   const ctx = cv.getContext("2d"), img = ctx.createImageData(N, N);
-  const lo = [255, 253, 249], hi = [140, 175, 224];   // the card surface to people's blue
   for (let j = 0; j < N; j++) {
     for (let i = 0; i < N; i++) {
       const xv = LO + (1 - LO) * ((i + 0.5) / N), yv = LO + (1 - LO) * (1 - (j + 0.5) / N);
       const t = (Math.sqrt(xv * yv) - LO) / (1 - LO), k = 4 * (j * N + i);
-      for (let ch = 0; ch < 3; ch++) img.data[k + ch] = Math.round(lo[ch] + (hi[ch] - lo[ch]) * t);
-      img.data[k + 3] = 255;
+      img.data[k] = img.data[k + 1] = img.data[k + 2] = 255;
+      img.data[k + 3] = Math.round(255 * t);
     }
   }
   ctx.putImageData(img, 0, 0);
@@ -1562,7 +1565,10 @@ function llmLvlSvg(m) {
   const px = x(inside(m.consensus)), py = y(inside(m.awareness)), left = px > L + S * 0.5;
   return (
     `<svg class="llm-lvl-svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="${esc(`${m.name} at consensus ${fmtPct(m.consensus)} and awareness ${fmtPct(m.awareness)}, on the curve of commonsensicality ${fmtPct(M)}`)}" data-lvl="${L},${T},${S},${LO}">` +
-    `<image href="${llmLvlBg()}" x="${L}" y="${T}" width="${S}" height="${S}" preserveAspectRatio="none"/>` +
+    `<defs><mask id="llmLvlMask${++_llmLvlMasks}" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="${L}" y="${T}" width="${S}" height="${S}">` +
+    `<image href="${llmLvlBg()}" x="${L}" y="${T}" width="${S}" height="${S}" preserveAspectRatio="none"/></mask></defs>` +
+    `<rect x="${L}" y="${T}" width="${S}" height="${S}" class="llm-lvl-bg"/>` +
+    `<rect x="${L}" y="${T}" width="${S}" height="${S}" class="llm-lvl-shade" mask="url(#llmLvlMask${_llmLvlMasks})"/>` +
     `<rect x="${L}" y="${T}" width="${S}" height="${S}" class="llm-lvl-frame"/>` +
     ticks.map((t) => `<text x="${x(t)}" y="${T + S + 18}" text-anchor="middle" class="llm-lvl-tick">${Math.round(t * 100)}%</text>` +
       `<text x="${L - 7}" y="${y(t) + 4}" text-anchor="end" class="llm-lvl-tick">${Math.round(t * 100)}%</text>`).join("") +

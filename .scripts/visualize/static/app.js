@@ -20,13 +20,17 @@ const { API, MOUNT_PATH } = (() => {
 
 // ── Shared chart styling ───────────────────────────────────────────────────
 // Canvas charts can't use CSS variables, so UI reads the colour tokens from
-// style.css once, and CHART_FONT turns its type scale into pixel sizes. Every
-// chart (Chart.js or a plugin drawing on its canvas) uses these, so chart text
-// is the page's font, never smaller than --fs-1, and in the page's greys.
-const UI = (() => {
+// style.css (for the current theme), and CHART_FONT turns its type scale into
+// pixel sizes. Every chart (Chart.js or a plugin drawing on its canvas) uses
+// these, so chart text is the page's font, never smaller than --fs-1, and in
+// the page's greys. HTML and SVG drawn from JS use the tokens themselves
+// ("var(--c-agree)"), so they follow a theme change without a redraw; only
+// the canvas charts are recoloured, by applyThemeToCharts() below.
+function readUiTokens() {
   const root = getComputedStyle(document.documentElement);
   const v = (name, fallback) => root.getPropertyValue(name).trim() || fallback;
   return {
+    dark: document.documentElement.dataset.theme === "dark",
     font: getComputedStyle(document.body).fontFamily,
     rootPx: parseFloat(root.fontSize) || 19,
     ink: v("--c-ink", "#1C1914"),
@@ -40,14 +44,20 @@ const UI = (() => {
     surface: v("--c-surface", "#FFFDF9"),
     accentBg: v("--c-accent-bg", "#EEF3FC"),
     tooltip: v("--c-tooltip", "rgba(28, 25, 20, 0.94)"),
+    tooltipLine: v("--c-tooltip-line", "transparent"),
     agree: v("--c-agree", "#2A78D6"),
     agreeInk: v("--c-agree-ink", "#1C5CAB"),
-    agreeSoft: "#BFD3EE",
+    agreeSoft: v("--c-agree-soft", "#BFD3EE"),
+    agreeDot: v("--c-agree-dot", "rgba(42, 120, 214, 0.22)"),
+    agreeBand: v("--c-agree-band", "rgba(42, 120, 214, 0.10)"),
     expect: v("--c-expect", "#EB6834"),
     expectInk: v("--c-expect-ink", "#A8461D"),
+    split: v("--c-split", "#C3C2B7"),
     bad: v("--c-bad", "#C03030"),
+    chrome: v("--c-chrome", "#2E2924"),
   };
-})();
+}
+const UI = readUiTokens();
 const CHART_FONT = {
   tick: { size: Math.round(UI.rootPx * 0.72 * 10) / 10 },   // --fs-1
   title: { size: Math.round(UI.rootPx * 0.8 * 10) / 10 },   // --fs-2
@@ -57,19 +67,219 @@ const CHART_FONT = {
 function chartCanvasFont(weight = 600, size = CHART_FONT.tick.size) {
   return `${weight} ${size}px ${UI.font}`;
 }
+// The colours of Chart.defaults follow the theme (applyThemeToCharts())
+function setChartDefaultColors() {
+  Chart.defaults.color = UI.muted;
+  Chart.defaults.borderColor = UI.grid;
+  // Tooltips in the warm ink of the page's own tooltips (--c-tooltip); on
+  // the dark theme they are a lighter step than the page, with a hairline
+  Chart.defaults.plugins.tooltip.backgroundColor = UI.tooltip;
+  Chart.defaults.plugins.tooltip.borderColor = UI.tooltipLine;
+  Chart.defaults.plugins.tooltip.borderWidth = UI.dark ? 1 : 0;
+}
 if (window.Chart) {
   Chart.defaults.font.family = UI.font;
   Chart.defaults.font.size = CHART_FONT.tick.size;
-  Chart.defaults.color = UI.muted;
-  Chart.defaults.borderColor = UI.grid;
   Chart.defaults.plugins.tooltip.titleFont = { size: CHART_FONT.legend.size, weight: "600" };
   Chart.defaults.plugins.tooltip.bodyFont = { size: CHART_FONT.legend.size };
-  // Tooltips in the warm ink of the page's own tooltips (--c-tooltip)
-  Chart.defaults.plugins.tooltip.backgroundColor = UI.tooltip;
   Chart.defaults.plugins.tooltip.padding = 10;
   Chart.defaults.plugins.tooltip.cornerRadius = 8;
   Chart.defaults.plugins.tooltip.boxPadding = 4;
+  setChartDefaultColors();
 }
+
+// ── Theme: light, dark, or the system's (menu in the top bar) ─────────────
+// The inline script in index.html's <head> sets data-theme on <html> before
+// the page draws, from the same localStorage key and media query, so the
+// page never flashes the wrong theme. Every colour is a CSS token (style.css
+// redefines them under :root[data-theme="dark"]), so switching is a matter
+// of setting the attribute; the canvas charts, which hold resolved colours,
+// are recoloured in place. Other scripts can listen for "cs-themechange" on
+// document.
+const THEME_KEY = "cs-theme";
+const THEME_PREFS = ["system", "light", "dark"];
+const themeMql = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+
+function themePref() {
+  let v = null;
+  try { v = localStorage.getItem(THEME_KEY); } catch (e) { /* storage blocked */ }
+  return v === "light" || v === "dark" ? v : "system";
+}
+function systemTheme() {
+  return themeMql && themeMql.matches ? "dark" : "light";
+}
+function resolvedTheme(pref = themePref()) {
+  return pref === "system" ? systemTheme() : pref;
+}
+
+// Swap every colour a chart holds that was one of the old theme's tokens for
+// the new theme's, then redraw it. Chart colours all come from UI, so an
+// exact match on the old values finds them (scriptable options are
+// functions that read UI when drawn, so they need nothing).
+function applyThemeToCharts(oldUi) {
+  if (!window.Chart) return;
+  setChartDefaultColors();
+  const swaps = new Map();
+  for (const [k, v] of Object.entries(oldUi)) {
+    if (typeof v === "string" && k !== "font" && UI[k] !== v) swaps.set(v, UI[k]);
+  }
+  if (!swaps.size) return;
+  const seen = new Set();
+  const swap = (obj) => {
+    if (!obj || typeof obj !== "object" || seen.has(obj)) return;
+    seen.add(obj);
+    for (const key of Object.keys(obj)) {
+      if (key === "data" || key.startsWith("_")) continue; // points, internals
+      const val = obj[key];
+      if (typeof val === "string") {
+        if (swaps.has(val)) obj[key] = swaps.get(val);
+      } else if (val && typeof val === "object") swap(val);
+    }
+  };
+  Object.values(Chart.instances).forEach((chart) => {
+    chart.data.datasets.forEach(swap);
+    swap(chart.config.options);
+    // Chart.js shares one resolved options object among a dataset's
+    // elements, and update("none") leaves it as it was; a full update
+    // renews it, here with animation off so the new colours show at once,
+    // as the CSS ones do. The chart's own animation setting comes back on
+    // its next update.
+    const raw = chart.config.options;
+    const had = Object.prototype.hasOwnProperty.call(raw, "animation"), prev = raw.animation;
+    raw.animation = false;
+    chart.update();
+    if (had) raw.animation = prev;
+    else delete raw.animation;
+  });
+}
+
+// Draw the page in a theme ("light" or "dark"). Transitions are held off
+// while the tokens change, so every colour switches in the same frame
+// rather than buttons fading after the rest.
+function renderTheme(theme) {
+  const root = document.documentElement;
+  if (root.dataset.theme === theme) return;
+  const oldUi = { ...UI };
+  root.classList.add("theme-switching");
+  root.dataset.theme = theme;
+  Object.assign(UI, readUiTokens()); // reading the tokens applies the new styles
+  root.classList.remove("theme-switching");
+  applyThemeToCharts(oldUi);
+  // The browser's own toolbar (mobile) matches the top bar
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute("content", UI.chrome);
+  document.dispatchEvent(new CustomEvent("cs-themechange", { detail: { theme } }));
+}
+
+function applyTheme() {
+  renderTheme(resolvedTheme(themeChoice));
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute("content", UI.chrome);
+  renderThemeMenu();
+}
+
+// Paper is white: print in the light theme, then return to the reader's
+window.addEventListener("beforeprint", () => renderTheme("light"));
+window.addEventListener("afterprint", () => renderTheme(resolvedTheme(themeChoice)));
+
+// The reader's choice: "system", "light" or "dark" (kept here as well as in
+// localStorage, so it holds for the visit when storage is blocked)
+let themeChoice = themePref();
+function setThemePref(pref) {
+  themeChoice = THEME_PREFS.includes(pref) ? pref : "system";
+  try {
+    if (themeChoice === "system") localStorage.removeItem(THEME_KEY);
+    else localStorage.setItem(THEME_KEY, themeChoice);
+  } catch (e) { /* storage blocked */ }
+  applyTheme();
+}
+
+const themeMenuEl = document.getElementById("themeMenu");
+const themeBtn = document.getElementById("themeBtn");
+const themePop = document.getElementById("themePop");
+const THEME_NAMES = { system: "System", light: "Light", dark: "Dark" };
+
+function renderThemeMenu() {
+  if (!themeBtn) return;
+  const pref = themeChoice, theme = document.documentElement.dataset.theme;
+  const label = pref === "system"
+    ? `Theme: match the system (now ${theme})`
+    : `Theme: ${THEME_NAMES[pref].toLowerCase()}`;
+  themeBtn.title = label;
+  themeBtn.setAttribute("aria-label", label);
+  themeBtn.dataset.pref = pref;
+  themePop.querySelectorAll("[data-theme-pref]").forEach((b) => {
+    b.setAttribute("aria-checked", String(b.dataset.themePref === pref));
+  });
+  const note = document.getElementById("themeSystemNote");
+  if (note) note.textContent = systemTheme() === "dark" ? "Dark now" : "Light now";
+}
+
+function setThemePopOpen(open, focusItem = false) {
+  if (!themePop) return;
+  themePop.hidden = !open;
+  themeBtn.setAttribute("aria-expanded", String(open));
+  if (open && focusItem) {
+    const items = [...themePop.querySelectorAll("[data-theme-pref]")];
+    (items.find((b) => b.getAttribute("aria-checked") === "true") || items[0]).focus();
+  }
+}
+
+if (themeBtn && themePop) {
+  themeBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    setDatePopOpen(false); // one top-bar popover at a time
+    // opened from the keyboard, focus goes into the menu
+    setThemePopOpen(themePop.hidden, e.detail === 0);
+  });
+  themeBtn.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      setDatePopOpen(false);
+      setThemePopOpen(true, true);
+    } else if (e.key === "Escape") {
+      setThemePopOpen(false);
+    }
+  });
+  themePop.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-theme-pref]");
+    if (!b) return;
+    setThemePref(b.dataset.themePref);
+    setThemePopOpen(false);
+    themeBtn.focus();
+  });
+  themePop.addEventListener("keydown", (e) => {
+    const items = [...themePop.querySelectorAll("[data-theme-pref]")];
+    const i = items.indexOf(document.activeElement);
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      const step = e.key === "ArrowDown" ? 1 : -1;
+      items[(i + step + items.length) % items.length].focus();
+    } else if (e.key === "Home" || e.key === "End") {
+      e.preventDefault();
+      items[e.key === "Home" ? 0 : items.length - 1].focus();
+    } else if (e.key === "Escape") {
+      setThemePopOpen(false);
+      themeBtn.focus();
+    } else if (e.key === "Tab") {
+      setThemePopOpen(false);
+    }
+  });
+  document.addEventListener("click", (e) => {
+    if (!themePop.hidden && !themeMenuEl.contains(e.target)) setThemePopOpen(false);
+  });
+}
+// Follow the system while the reader hasn't picked a theme, and a choice
+// made in another tab
+if (themeMql) {
+  const onSystemChange = () => { if (themeChoice === "system") applyTheme(); else renderThemeMenu(); };
+  if (themeMql.addEventListener) themeMql.addEventListener("change", onSystemChange);
+  else if (themeMql.addListener) themeMql.addListener(onSystemChange);
+}
+window.addEventListener("storage", (e) => {
+  if (e.key === THEME_KEY) { themeChoice = themePref(); applyTheme(); }
+});
+applyTheme();
 
 // ── Panel URL routing ──────────────────────────────────────────────────────
 const TAB_SLUGS = {
@@ -1654,13 +1864,12 @@ let tsDistCharts = [];
 let tsCsChart = null;
 let tsTableRows = [];
 let tsDetailRequestId = 0;
-// Blue for a feature's 1-valued label (like the ● dots) and for "yes", orange
-// for the 0-valued label and "no", neutral gray for a split. Blue and orange
-// pass the dataviz palette checks on the white card; the gray is below 3:1, so
-// the chart keeps its legend and tooltips and the statement list has the values.
-const TS_COLOR_1 = UI.agree;
-const TS_COLOR_0 = UI.expect;
-const TS_COLOR_SPLIT = '#c3c2b7';
+// Blue (UI.agree) for a feature's 1-valued label (like the ● dots) and for
+// "yes", orange (UI.expect) for the 0-valued label and "no", neutral gray
+// (UI.split) for a split. Blue and orange pass the dataviz palette checks on
+// the card in both themes; the gray is below 3:1, so the chart keeps its
+// legend and tooltips and the statement list has the values. They are read
+// from UI when a chart is drawn, so a theme change is picked up.
 // Jev's confidence sits mostly near 1, so the bands are finer at the top
 const TS_CONF_BANDS = [
   { label: 'Below 0.5', lo: 0, hi: 0.5 },
@@ -1809,9 +2018,9 @@ function tsRenderAgreement() {
 function tsRenderCommonsense() {
   const N = 20;
   const groups = [
-    { label: 'Every LLM judge: common sense', color: TS_COLOR_1, counts: Array(N).fill(0), probs: [] },
-    { label: 'LLM judges split', color: TS_COLOR_SPLIT, counts: Array(N).fill(0), probs: [] },
-    { label: 'No LLM judge: common sense', color: TS_COLOR_0, counts: Array(N).fill(0), probs: [] },
+    { label: 'Every LLM judge: common sense', color: UI.agree, counts: Array(N).fill(0), probs: [] },
+    { label: 'LLM judges split', color: UI.split, counts: Array(N).fill(0), probs: [] },
+    { label: 'No LLM judge: common sense', color: UI.expect, counts: Array(N).fill(0), probs: [] },
   ];
   let unrated = 0;
   tsData.statements.forEach(s => {
@@ -1918,7 +2127,7 @@ function tsRenderDistributions() {
           pole: g.y ? def.v1 : def.v0,
           data: g.counts.map(c => (g.n ? +((100 * c) / g.n).toFixed(1) : 0)),
           counts: g.counts,
-          backgroundColor: g.y ? TS_COLOR_1 : TS_COLOR_0,
+          backgroundColor: g.y ? UI.agree : UI.expect,
           borderWidth: 0,
           borderRadius: 4,
           maxBarThickness: 24,
@@ -2627,14 +2836,16 @@ async function loadHomeMap() {
 }
 
 // Participant-count shading for the Home map: one blue ramp over log-spaced
-// bins (countries below the 10-participant threshold stay grey).
+// bins (countries below the 10-participant threshold stay grey). The colours
+// are the --c-ramp-* tokens, deeper with more people on the light theme and
+// brighter on the dark one, so the map follows a theme change as it is.
 const MAP_COUNT_BINS = [
-  { min: 10,   color: "#9ec5f4" },
-  { min: 30,   color: "#6da7ec" },
-  { min: 100,  color: "#3987e5" },
-  { min: 300,  color: "#256abf" },
-  { min: 1000, color: "#184f95" },
-  { min: 3000, color: "#0d366b" },
+  { min: 10,   color: "var(--c-ramp-1)" },
+  { min: 30,   color: "var(--c-ramp-2)" },
+  { min: 100,  color: "var(--c-ramp-3)" },
+  { min: 300,  color: "var(--c-ramp-4)" },
+  { min: 1000, color: "var(--c-ramp-5)" },
+  { min: 3000, color: "var(--c-ramp-6)" },
 ];
 function _mapCountColor(n) {
   let color = MAP_COUNT_BINS[0].color;
@@ -2642,14 +2853,14 @@ function _mapCountColor(n) {
   return color;
 }
 
-// Olympic-ring-inspired continent colors (pastel via rgba)
+// Olympic-ring-inspired continent colors (pastel via rgba; --c-cont-*)
 const CONTINENT_COLORS = {
-  "Africa":        "rgba(244,195,0,0.75)",    // gold/yellow
-  "Asia":          "rgba(223,0,36,0.75)",     // red
-  "Europe":        "rgba(0,133,199,0.75)",    // blue
-  "North America": "rgba(0,159,107,0.75)",    // green
-  "South America": "rgba(239,106,0,0.75)",    // orange
-  "Oceania":       "rgba(123,79,158,0.75)",   // purple
+  "Africa":        "var(--c-cont-africa)",    // gold/yellow
+  "Asia":          "var(--c-cont-asia)",      // red
+  "Europe":        "var(--c-cont-europe)",    // blue
+  "North America": "var(--c-cont-namerica)",  // green
+  "South America": "var(--c-cont-samerica)",  // orange
+  "Oceania":       "var(--c-cont-oceania)",   // purple
 };
 
 const MAP_CROP_H = 412; // world-countries.json is 960 × 484
@@ -2712,7 +2923,7 @@ async function renderWorldMap({ data, insuff } = {}) {
   const byCount = _homeMapMode === "count";
   // Grey (non-qualifying) layer — drawn first, behind qualifying paths
   for (const { c, ins } of nonQualifying) {
-    const path = _mkPath(c.d, byCount ? UI.lineLight : UI.line, "default");
+    const path = _mkPath(c.d, byCount ? "var(--c-line)" : "var(--c-line-2)", "default");
     path.addEventListener("mousemove", (e) => {
       tooltip.hidden = false;
       const name = ins ? ins.serverName : c.name;
@@ -2727,7 +2938,7 @@ async function renderWorldMap({ data, insuff } = {}) {
 
   // Colored (qualifying) layer — drawn on top so clicks always land here
   for (const { c, entry } of qualifying) {
-    const color = byCount ? _mapCountColor(entry.n) : (CONTINENT_COLORS[c.continent] || UI.line);
+    const color = byCount ? _mapCountColor(entry.n) : (CONTINENT_COLORS[c.continent] || "var(--c-line-2)");
     const path = _mkPath(c.d, color, "pointer");
     pathByServerName[entry.serverName] = path;
     fillByServerName[entry.serverName] = color;
@@ -2739,7 +2950,7 @@ async function renderWorldMap({ data, insuff } = {}) {
         pathByServerName[_selectedHomeCountry].removeAttribute("stroke-width");
       }
       _selectedHomeCountry = entry.serverName;
-      path.setAttribute("stroke", UI.text);
+      path.setAttribute("stroke", "var(--c-text)");
       path.setAttribute("stroke-width", "1.5");
       tooltip.hidden = true;
       showCountryCard(entry.serverName, c.iso_a2 || "");
@@ -2757,7 +2968,7 @@ async function renderWorldMap({ data, insuff } = {}) {
 
   // Keep the selected country outlined when the map is redrawn (mode toggle)
   if (_selectedHomeCountry && pathByServerName[_selectedHomeCountry]) {
-    pathByServerName[_selectedHomeCountry].setAttribute("stroke", UI.text);
+    pathByServerName[_selectedHomeCountry].setAttribute("stroke", "var(--c-text)");
     pathByServerName[_selectedHomeCountry].setAttribute("stroke-width", "1.5");
   }
 
@@ -3557,14 +3768,14 @@ function dpCiSvg(mean, ci_lo, ci_hi) {
   const grids = [0, 0.2, 0.4, 0.6, 0.8, 1.0]
     .map(
       (v) =>
-        `<line x1="${dpX(v)}" y1="2" x2="${dpX(v)}" y2="${DP_H - 2}" stroke="${UI.line}" stroke-width="1"/>`,
+        `<line x1="${dpX(v)}" y1="2" x2="${dpX(v)}" y2="${DP_H - 2}" stroke="var(--c-line-2)" stroke-width="1"/>`,
     )
     .join("");
   return (
     `<svg width="${DP_W}" height="${DP_H}" style="display:block">` +
     grids +
-    `<line x1="${dpX(lo)}" y1="${cy}" x2="${dpX(hi)}" y2="${cy}" stroke="${UI.body}" stroke-width="2.5" stroke-linecap="round"/>` +
-    `<circle cx="${dpX(mean)}" cy="${cy}" r="5" fill="${UI.text}"/>` +
+    `<line x1="${dpX(lo)}" y1="${cy}" x2="${dpX(hi)}" y2="${cy}" stroke="var(--c-body)" stroke-width="2.5" stroke-linecap="round"/>` +
+    `<circle cx="${dpX(mean)}" cy="${cy}" r="5" fill="var(--c-text)"/>` +
     `</svg>`
   );
 }
@@ -3575,18 +3786,18 @@ function dpAxisSvg() {
   const lines = ticks
     .map(
       (v) =>
-        `<line x1="${dpX(v)}" y1="0" x2="${dpX(v)}" y2="6" stroke="${UI.muted}" stroke-width="1"/>`,
+        `<line x1="${dpX(v)}" y1="0" x2="${dpX(v)}" y2="6" stroke="var(--c-muted)" stroke-width="1"/>`,
     )
     .join("");
   const texts = ticks
     .map(
       (v, i) =>
-        `<text x="${dpX(v)}" y="22" text-anchor="middle" font-size="${CHART_FONT.tick.size}" font-weight="600" fill="${UI.muted}">${lbls[i]}</text>`,
+        `<text x="${dpX(v)}" y="22" text-anchor="middle" font-size="${CHART_FONT.tick.size}" font-weight="600" fill="var(--c-muted)">${lbls[i]}</text>`,
     )
     .join("");
   return (
     `<svg width="${DP_W}" height="30" overflow="visible" style="display:block">` +
-    `<line x1="${dpX(0)}" y1="0" x2="${dpX(1)}" y2="0" stroke="${UI.muted}" stroke-width="1"/>` +
+    `<line x1="${dpX(0)}" y1="0" x2="${dpX(1)}" y2="0" stroke="var(--c-muted)" stroke-width="1"/>` +
     lines +
     texts +
     "</svg>"
@@ -3601,18 +3812,18 @@ function dpAxisSvgTop() {
   const lines = ticks
     .map(
       (v) =>
-        `<line x1="${dpX(v)}" y1="${axisY}" x2="${dpX(v)}" y2="${axisY - 5}" stroke="${UI.muted}" stroke-width="1"/>`,
+        `<line x1="${dpX(v)}" y1="${axisY}" x2="${dpX(v)}" y2="${axisY - 5}" stroke="var(--c-muted)" stroke-width="1"/>`,
     )
     .join("");
   const texts = ticks
     .map(
       (v, i) =>
-        `<text x="${dpX(v)}" y="${axisY - 9}" text-anchor="middle" font-size="${CHART_FONT.tick.size}" font-weight="600" fill="${UI.muted}">${lbls[i]}</text>`,
+        `<text x="${dpX(v)}" y="${axisY - 9}" text-anchor="middle" font-size="${CHART_FONT.tick.size}" font-weight="600" fill="var(--c-muted)">${lbls[i]}</text>`,
     )
     .join("");
   return (
     `<svg width="${DP_W}" height="20" overflow="visible" style="display:block">` +
-    `<line x1="${dpX(0)}" y1="${axisY}" x2="${dpX(1)}" y2="${axisY}" stroke="${UI.muted}" stroke-width="1"/>` +
+    `<line x1="${dpX(0)}" y1="${axisY}" x2="${dpX(1)}" y2="${axisY}" stroke="var(--c-muted)" stroke-width="1"/>` +
     lines +
     texts +
     "</svg>"
@@ -4028,21 +4239,21 @@ function updateCmSummary() {
       : `${fmtNum(total)} statements · ${fmtNum(countryMatrixData.countries.length)} countries`;
 }
 
-// Cell shading: white at 0 to mid blue at 100, opaque so the row striping
-// doesn't show through. The toolbar legend uses the same ramp.
+// Cell shading: --c-ramp-base (white; the card on the dark theme) at 0 to
+// a 43% mix of --c-agree at 100, opaque so the row striping doesn't show
+// through. The toolbar legend uses the same ramp. Text stays --c-text on
+// every step in both themes.
+function cmMix(hue, t) {
+  return `color-mix(in srgb, var(${hue}) ${(t * 100).toFixed(1)}%, var(--c-ramp-base))`;
+}
 function cmScoreBg(score) {
-  const t = 0.03 + 0.4 * Math.max(0, Math.min(100, score)) / 100;
-  const mix = (c) => Math.round(255 - (255 - c) * t);
-  return `rgb(${mix(42)}, ${mix(120)}, ${mix(214)})`; // --c-agree
+  return cmMix("--c-agree", 0.03 + 0.4 * Math.max(0, Math.min(100, score)) / 100);
 }
 // "Share who agree" view: diverging, orange where the majority disagrees and
 // blue where it agrees, deeper the further the share is from 50%
 function cmAgreeBg(a) {
   const d = Math.min(50, Math.abs(Math.max(0, Math.min(100, a)) - 50)) / 50;
-  const t = 0.03 + 0.4 * d;
-  const [r, g, b] = a >= 50 ? [42, 120, 214] : [235, 104, 52]; // --c-agree, --c-expect
-  const mix = (c) => Math.round(255 - (255 - c) * t);
-  return `rgb(${mix(r)}, ${mix(g)}, ${mix(b)})`;
+  return cmMix(a >= 50 ? "--c-agree" : "--c-expect", 0.03 + 0.4 * d);
 }
 
 // Toolbar legend, the M / SD header tooltips and the note for the current view
@@ -4485,6 +4696,7 @@ function setGlobalDates(from, to) {
 
 dateBtn.addEventListener("click", (e) => {
   e.stopPropagation();
+  setThemePopOpen(false); // one top-bar popover at a time
   setDatePopOpen(datePop.hidden);
 });
 document.getElementById("datePresets").addEventListener("click", (e) => {
@@ -4654,11 +4866,12 @@ let cmpGroupA = "all";
 let cmpGroupB = "all";
 let cmpReq = 0; // latest /api/group-compare request; older responses are dropped
 
-const CMP_COLOR_A = UI.agree;
-const CMP_OPP_COLOR = UI.bad; // statements whose majorities differ
-const CMP_COLOR_B = UI.expect;
-// Group names and headings in a group's hue use its darker ink step
-const cmpInk = (color) => (color === CMP_COLOR_A ? UI.agreeInk : color === CMP_COLOR_B ? UI.expectInk : color);
+// The two groups' hues, as tokens for HTML (the charts use UI.agree and
+// UI.expect, and UI.bad for statements whose majorities differ)
+const CMP_COLOR_A = "var(--c-agree)";
+const CMP_COLOR_B = "var(--c-expect)";
+// Group names and headings in a group's hue use its -ink step
+const cmpInk = (color) => (color === CMP_COLOR_A ? "var(--c-agree-ink)" : color === CMP_COLOR_B ? "var(--c-expect-ink)" : color);
 const CMP_DETAIL_PLACEHOLDER =
   '<p class="cmp-detail-placeholder">Click a bar or a dot on the left to list the participants or statements behind it.</p>';
 
@@ -4765,14 +4978,14 @@ function makeCompareHistChart(
         {
           label: labelA,
           data: pctA,
-          backgroundColor: CMP_COLOR_A,
+          backgroundColor: UI.agree,
           borderWidth: 0,
           borderRadius: 2,
         },
         {
           label: labelB,
           data: pctB,
-          backgroundColor: CMP_COLOR_B,
+          backgroundColor: UI.expect,
           borderWidth: 0,
           borderRadius: 2,
         },
@@ -4853,7 +5066,7 @@ function makeScatterChart(canvasId, paired, labelA, labelB, onClickFn) {
         {
           label: "Statements",
           data: points,
-          backgroundColor: points.map((p) => (p.opp ? CMP_OPP_COLOR : "rgba(42,120,214,0.22)")),
+          backgroundColor: points.map((p) => (p.opp ? UI.bad : UI.agreeDot)),
           borderColor: points.map((p) => (p.opp ? UI.surface : "transparent")),
           borderWidth: points.map((p) => (p.opp ? 1 : 0)),
           pointRadius: points.map((p) => (p.opp ? 6 : 5)),
@@ -4879,7 +5092,7 @@ function makeScatterChart(canvasId, paired, labelA, labelB, onClickFn) {
                 label: "95% CI",
                 data: ciHi,
                 borderColor: "transparent",
-                backgroundColor: "rgba(42,120,214,0.10)",
+                backgroundColor: UI.agreeBand,
                 fill: "+1",
               },
               // 3: 95% CI lower bound
@@ -5071,7 +5284,7 @@ function renderCmpIndivDetail(binIdx, page = 1) {
   cmpBindPager(content, (p) => renderCmpIndivDetail(binIdx, p));
 
   content.querySelectorAll(".cmp-user-row").forEach((tr) => {
-    tr.addEventListener("mouseenter", () => (tr.style.background = UI.accentBg));
+    tr.addEventListener("mouseenter", () => (tr.style.background = "var(--c-accent-bg)"));
     tr.addEventListener("mouseleave", () => (tr.style.background = ""));
     tr.addEventListener("click", () => {
       openUserDetail(
@@ -5149,7 +5362,7 @@ function renderCmpStmtDetail(binIdx, page = 1) {
 
   const itemsByGroup = { [cmpGroupA]: ga, [cmpGroupB]: gb };
   content.querySelectorAll(".cmp-stmt-row").forEach((tr) => {
-    tr.addEventListener("mouseenter", () => (tr.style.background = UI.accentBg));
+    tr.addEventListener("mouseenter", () => (tr.style.background = "var(--c-accent-bg)"));
     tr.addEventListener("mouseleave", () => (tr.style.background = ""));
     tr.addEventListener("click", () => {
       const items = itemsByGroup[tr.dataset.group];

@@ -17,6 +17,8 @@ The explorer opens on a **Home** page (what the survey asks, who took part, the 
 
 The **date filter** in the top bar (a button with presets and a custom range) limits every view except LLM Evaluations to ratings made in that range; participants are still compared with majorities computed from all dates. The Design Points view also links to three statement-generation pages (Design Point Coverage → Published Statement Audit → TypeSafe Judgments).
 
+The **theme button** (a sun or a moon) at the right of the top bar switches every view between a light and a dark theme, or follows the system's setting, which is the default. The choice is kept in the browser (`localStorage`, key `cs-theme`).
+
 All scores are computed on-the-fly at request time and then cached in memory. The server has no database — it reads from CSV files at startup.
 
 ---
