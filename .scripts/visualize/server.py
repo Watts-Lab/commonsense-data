@@ -39,6 +39,18 @@ answers = pd.read_csv(os.path.join(DATA_DIR, "answers.csv"))
 if "createdAt" in answers.columns:
     answers["createdAt"] = pd.to_datetime(answers["createdAt"], utc=False)
 demo = pd.read_csv(os.path.join(DATA_DIR, "crt_rme_demo.csv"))
+# "item1" is the survey form's unanswered default for country_reside, not a
+# country (39 participants). They are relabelled NO_COUNTRY: they count in
+# "All countries" but in no country of their own, so _in_countries() drops
+# them wherever results are listed or grouped by country (dropdowns, the Home
+# map and its counts, the Countries matrix, a statement's countries).
+NO_COUNTRY = "Not stated"
+demo["country_reside"] = demo["country_reside"].replace({"item1": NO_COUNTRY})
+
+
+def _in_countries(df: pd.DataFrame, col: str = "country_reside") -> pd.DataFrame:
+    return df[df[col] != NO_COUNTRY]
+
 statements = pd.read_csv(
     STATEMENTS_PATH,
     usecols=["id", "statement", "statementSource", "statementCategory", "published"],
@@ -68,7 +80,7 @@ merged = answers.merge(
 
 # Country list sorted by participant count
 _countries = (
-    demo["country_reside"]
+    _in_countries(demo)["country_reside"]
     .value_counts()
     .reset_index()
     .rename(columns={"country_reside": "country", "count": "n_users"})
@@ -80,7 +92,7 @@ print(
     f"Ready — {len(demo):,} participants, "
     f"{len(answers):,} answers, "
     f"{len(statements):,} statements, "
-    f"{demo['country_reside'].nunique()} countries."
+    f"{len(_countries)} countries."
 )
 
 # ── Date filter helper ─────────────────────────────────────────────────────
@@ -101,17 +113,23 @@ def _filter_date(df: pd.DataFrame, date_from: str, date_to: str) -> pd.DataFrame
 
 # ── Score histogram (Individual Scores, Statement Scores) ──────────────────
 
+# Decimals of the 0-1 scores and shares sent by /api/scores and
+# /api/statement-scores. The page rounds them again to one decimal of a
+# percent, so 4 decimals double-rounded (68.853% -> 0.6885 -> "68.8%"); 5 keep
+# that to a rare tie. _score_histogram() bins the same rounded values.
+SCORE_DP = 5
+
 
 def _score_histogram(scores: pd.Series, n_bins: int = 20) -> tuple[list, list]:
     """Counts of 0-1 scores in n_bins equal bins, computed the way app.js
-    filters table rows when a bar is clicked: on the 4-dp values sent to the
-    client, with half-open [lo, hi) bins (the last one closed) and the same
-    rounded edges. np.histogram on the unrounded floats used slightly
+    filters table rows when a bar is clicked: on the SCORE_DP-rounded
+    values sent to the client, with half-open [lo, hi) bins (the last one
+    closed) and the same rounded edges. np.histogram on the unrounded floats used slightly
     different edges (0.6000000000000001 rather than 0.6), so a score lying on
     an edge, such as 9/15 = 0.6, was counted in the bar below the one whose
     list showed it."""
     edges = [round(i / n_bins, 4) for i in range(n_bins + 1)]
-    values = np.round(scores.to_numpy(dtype=float), 4)
+    values = np.round(scores.to_numpy(dtype=float), SCORE_DP)
     counts = []
     for i in range(n_bins):
         lo, hi = edges[i], edges[i + 1]
@@ -135,7 +153,7 @@ def get_countries(date_from: str = "", date_to: str = "") -> bytes:
     key = (date_from, date_to)
     if key in _countries_cache:
         return _countries_cache[key]
-    m = _filter_date(merged, date_from, date_to)
+    m = _in_countries(_filter_date(merged, date_from, date_to))
     rows = (
         m.groupby("country_reside")["sessionId"]
         .nunique()
@@ -262,7 +280,7 @@ def get_scores(target: str, reference: str, date_from: str = "", date_to: str = 
 
     float_cols = ["consensus", "awareness", "commonsensicality"]
     rows_df = scores.reset_index().sort_values("commonsensicality", ascending=False)
-    rows_df[float_cols] = rows_df[float_cols].round(4)
+    rows_df[float_cols] = rows_df[float_cols].round(SCORE_DP)
     rows = rows_df.to_dict(orient="records")
 
     # Excluded users: present in target but didn't qualify for scoring
@@ -303,7 +321,7 @@ def get_scores(target: str, reference: str, date_from: str = "", date_to: str = 
     # Per-country average commonsensicality (qualifying users only)
     if len(scores) > 0 and "country" in scores.columns:
         ca = (
-            scores.groupby("country")["commonsensicality"]
+            _in_countries(scores, "country").groupby("country")["commonsensicality"]
             .agg(mean="mean", n="count")
             .reset_index()
         )
@@ -424,7 +442,7 @@ def get_statement_scores(country: str, date_from: str = "", date_to: str = "") -
         "commonsensicality",
     ]
     rows_df = scores.reset_index().sort_values("commonsensicality", ascending=False)
-    rows_df[float_cols] = rows_df[float_cols].round(4)
+    rows_df[float_cols] = rows_df[float_cols].round(SCORE_DP)
     rows = rows_df.to_dict(orient="records")
 
     # Excluded statements: have ratings but fewer than the minimum
@@ -617,7 +635,7 @@ def get_country_matrix(date_from: str = "", date_to: str = "") -> bytes:
         return _country_matrix_cache[key]
 
     MIN_RATINGS = 10
-    m = _filter_date(merged, date_from, date_to)
+    m = _in_countries(_filter_date(merged, date_from, date_to))
 
     agg_all = (
         m.groupby(["country_reside", "statementId"])
@@ -972,7 +990,7 @@ def get_statement_countries(stmt_id: str, date_from: str = "", date_to: str = ""
     # participants answered. A country with at least 10 ratings also gets its
     # own score: statement_commonsensicality() groups by its statementId
     # column, so passing the country in that column scores each country.
-    sub = m.loc[m["statementId"] == sid, ["country_reside", "I_agree", "others_agree"]]
+    sub = _in_countries(m.loc[m["statementId"] == sid, ["country_reside", "I_agree", "others_agree"]])
     agg = (
         sub.groupby("country_reside")
         .agg(
@@ -1061,7 +1079,7 @@ def get_home_summary(date_from: str = "", date_to: str = "") -> bytes:
     dps = json.loads(get_design_points("all", date_from, date_to))
 
     # ── Totals and who took part ──
-    per_country = m.groupby("country_reside")["sessionId"].nunique().sort_values(ascending=False)
+    per_country = _in_countries(m).groupby("country_reside")["sessionId"].nunique().sort_values(ascending=False)
     has_ts = "createdAt" in m.columns and len(m) > 0
     totals = {
         "participants": int(m["sessionId"].nunique()),

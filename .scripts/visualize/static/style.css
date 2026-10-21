@@ -1118,6 +1118,21 @@ td { padding: 11px 14px; vertical-align: middle; }
   gap: 4px;
   white-space: nowrap;
 }
+/* Participant bins: adjacent swatches, each labelled with its lower bound */
+.wm-steps { display: inline-flex; gap: 2px; }
+.wm-step {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 42px;
+  font-size: var(--fs-1);
+  color: var(--c-muted);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+.wm-step i { display: block; height: 10px; border-radius: 2px; }
+.wm-step:first-child i { border-radius: 4px 2px 2px 4px; }
+.wm-step:last-child i { border-radius: 2px 4px 4px 2px; }
 .world-map-legend-swatch {
   display: inline-block;
   width: 12px;
@@ -1289,8 +1304,9 @@ td { padding: 11px 14px; vertical-align: middle; }
   border-bottom: 1px solid var(--c-line);
 }
 
-/* Individual Scores: cap bar width */
-#scoresTable .pct-track { max-width: 28px; }
+/* Individual Scores: cap bar width (wide enough that 54% and 92% look
+   different; 28px made every bar a dash) */
+#scoresTable .pct-track { max-width: 64px; }
 
 /* Statement Ratings: cap bar width */
 #stmtTable .pct-track { max-width: 65px; }
@@ -1300,12 +1316,12 @@ td { padding: 11px 14px; vertical-align: middle; }
 
 /* Statement Scores table: fixed layout so percentages are enforced */
 #stmtScoresTable { width: 100%; table-layout: fixed; }
-#stmtScoresTable th.col-rank      { width:  4%; }
-#stmtScoresTable th.col-statement { width: 28%; }
-#stmtScoresTable th.col-num       { width:  8%; }
-#stmtScoresTable th.col-stmtscore { width: 12%; }
+#stmtScoresTable th.col-rank      { width: 3.5%; }
+#stmtScoresTable th.col-statement { width: 36%; }
+#stmtScoresTable th.col-num       { width: 7.5%; }
+#stmtScoresTable th.col-stmtscore { width: 10.6%; }
 /* Cap bar width so columns don't feel cramped at wider viewports */
-#stmtScoresTable .pct-track { max-width: 28px; }
+#stmtScoresTable .pct-track { max-width: 44px; }
 #stmtScoresTable .pct-label { width: 48px; }
 
 /* Individual Scores table: rank/user/flag fixed, all 5 data cols equal */
@@ -1590,7 +1606,7 @@ td { padding: 11px 14px; vertical-align: middle; }
 }
 
 .dp-col-n     { width: 70px; }
-.dp-col-prop  { width: 48px; }
+.dp-col-prop  { width: 64px; } /* room for the 45° labels; DP_FIXED_W in app.js */
 .dp-col-ci    { width: 280px; }
 .dp-col-score  { width: 68px; }
 .dp-col-citext { width: 120px; }

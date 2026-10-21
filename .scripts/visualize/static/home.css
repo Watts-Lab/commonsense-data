@@ -2,9 +2,10 @@
    Everything is scoped under #panelHome. Colours follow the app (warm
    charcoal top bar, hero and footer, warm brown text on cream, blue accent). The two data series are blue (share who
    agree; first side of a feature) and orange (share who think most others
-   agree; second side of a feature). */
+   agree; second side of a feature). The LLM panel's Overview reuses the
+   hero and section classes, so it gets the same tokens. */
 
-#panelHome {
+#panelHome, #panelLlm {
   --hs-navy: var(--c-navy);
   --hs-navy-2: var(--c-navy-2);
   --hs-ink: var(--c-ink);

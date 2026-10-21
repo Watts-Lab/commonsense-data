@@ -199,10 +199,16 @@ const DP_PROPS = [
   { key: "knowledge", label: "Knowledge" },
   { key: "everyday", label: "Everyday" },
 ];
-const DP_W = 280,
-  DP_H = 18,
+// The forest plot's width: dpFitWidth() stretches it over the table's free
+// space (DP_W_MIN–DP_W_MAX) each time the table is drawn or resized
+const DP_W_MIN = 240, DP_W_MAX = 560;
+let DP_W = 280;
+const DP_H = 18,
   DP_PAD = 12;
-const DP_PW = DP_W - DP_PAD * 2; // inner plot width
+let DP_PW = DP_W - DP_PAD * 2; // inner plot width
+// Fixed columns beside the plot (.dp-col-* in style.css): N, six features,
+// mean score and 95% CI, plus a little slack
+const DP_FIXED_W = 70 + 6 * 64 + 68 + 120 + 16;
 
 // ── Country -> ISO 3166-1 alpha-2, for rendering flag emoji ─────────────────
 // Keys match the country_reside naming convention used throughout data/*.csv
@@ -521,6 +527,12 @@ function sqrtHtml(inner) {
 
 function fmtPct(v) {
   return (v * 100).toFixed(1) + "%";
+}
+
+// A correlation as the LLM panel writes it (llmR() in llm.js): two decimals,
+// no leading zero, a true minus sign: .63, −.13
+function fmtR(r) {
+  return r.toFixed(2).replace(/^(-?)0\./, "$1.").replace("-", "−");
 }
 
 function badge(value) {
@@ -2640,6 +2652,8 @@ const CONTINENT_COLORS = {
   "Oceania":       "rgba(123,79,158,0.75)",   // purple
 };
 
+const MAP_CROP_H = 412; // world-countries.json is 960 × 484
+
 async function renderWorldMap({ data, insuff } = {}) {
   data   = data   || {};
   insuff = insuff || {};
@@ -2651,7 +2665,11 @@ async function renderWorldMap({ data, insuff } = {}) {
   if (!_worldMapGeo) {
     try {
       _worldMapGeo = await fetch(`${MOUNT_PATH}static/world-countries.json`).then(r => r.json());
-      svg.setAttribute("viewBox", `0 0 ${_worldMapGeo.width} ${_worldMapGeo.height}`);
+      // Antarctica has no participants and fills the bottom eighth of the
+      // map, so it is left out and the frame cropped just below the southern
+      // tip of South America (every other country lies above y = 407)
+      _worldMapGeo.countries = _worldMapGeo.countries.filter((c) => c.name !== "Antarctica");
+      svg.setAttribute("viewBox", `0 0 ${_worldMapGeo.width} ${Math.min(_worldMapGeo.height, MAP_CROP_H)}`);
     } catch (err) {
       console.error("renderWorldMap: geo JSON fetch failed:", err);
       throw err;
@@ -2743,27 +2761,24 @@ async function renderWorldMap({ data, insuff } = {}) {
     pathByServerName[_selectedHomeCountry].setAttribute("stroke-width", "1.5");
   }
 
-  // Render legend: participant bins, or continents
+  // Render legend: participant bins as one stepped ramp, each step labelled
+  // with its lower bound (it fits one line, on phones too), or continents
   const legend = document.getElementById("worldMapLegend");
   if (legend) {
-    legend.innerHTML = "";
-    const items = byCount
-      ? MAP_COUNT_BINS.map((b, i) => {
-          const next = MAP_COUNT_BINS[i + 1];
-          return [b.color, next ? `${fmtNum(b.min)}–${fmtNum(next.min - 1)}` : `${fmtNum(b.min)}+`];
-        })
-      : Object.entries(CONTINENT_COLORS).map(([cont, color]) => [color, cont]);
     if (byCount) {
-      const lab = document.createElement("span");
-      lab.className = "world-map-legend-item";
-      lab.textContent = "Participants:";
-      legend.appendChild(lab);
-    }
-    for (const [color, label] of items) {
-      const item = document.createElement("span");
-      item.className = "world-map-legend-item";
-      item.innerHTML = `<span class="world-map-legend-swatch" style="background:${color}"></span>${label}`;
-      legend.appendChild(item);
+      legend.innerHTML =
+        `<span class="world-map-legend-item">Participants</span>` +
+        `<span class="wm-steps">` +
+        MAP_COUNT_BINS.map((b, i) => {
+          const next = MAP_COUNT_BINS[i + 1];
+          const range = next ? `${fmtNum(b.min)}–${fmtNum(next.min - 1)}` : `${fmtNum(b.min)} or more`;
+          return `<span class="wm-step" title="${range} participants"><i style="background:${b.color}"></i>${fmtNum(b.min)}${next ? "" : "+"}</span>`;
+        }).join("") +
+        `</span>`;
+    } else {
+      legend.innerHTML = Object.entries(CONTINENT_COLORS)
+        .map(([cont, color]) => `<span class="world-map-legend-item"><span class="world-map-legend-swatch" style="background:${color}"></span>${cont}</span>`)
+        .join("");
     }
   }
 }
@@ -2945,8 +2960,8 @@ async function loadScores(target, reference) {
     noteEl.innerHTML =
       `<strong>${fmtNum(data.n_users)}</strong> of ${fmtNum(data.raw_n_users)} participants` +
       `${target === "all" ? "" : ` from ${esc(target)}`} have a score. ` +
-      `The other ${fmtNum(nOut)} rated fewer than 5 statements with at least 10 ratings ` +
-      `${reference === "all" ? "overall" : `from ${esc(reference)}`}; they are listed last in the table, without scores.` + dateNote;
+      `The other ${fmtNum(nOut)} rated fewer than 5 statements that count (10+ ratings ` +
+      `${reference === "all" ? "overall" : `in ${esc(reference)}`}) and are listed last, unscored.` + dateNote;
     noteEl.classList.remove("hidden");
   } else if (dateNote) {
     noteEl.innerHTML = dateNote.trim();
@@ -3167,7 +3182,7 @@ function renderStmtScoresPage(preserveScroll = false) {
     stmtScoresFilterLabel.textContent = !stmtScoresRows.length
       ? "No statements match."
       : `${fmtNum(nScored)} scored statement${nScored !== 1 ? "s" : ""}` +
-        (nUnscored ? `, then ${fmtNum(nUnscored)} with fewer than 10 ratings (no score yet)` : "");
+        (nUnscored ? `, then ${fmtNum(nUnscored)} not yet scored (fewer than 10 ratings)` : "");
   } else {
     const lo = fmtPct(stmtScoresHistBinEdges[stmtScoresActiveBinIdx]);
     const hi = fmtPct(stmtScoresHistBinEdges[stmtScoresActiveBinIdx + 1]);
@@ -3501,6 +3516,39 @@ function dpX(v) {
   return (DP_PAD + v * DP_PW).toFixed(1);
 }
 
+// Sets DP_W from the table container's width; true when it changed
+function dpFitWidth() {
+  const box = document.getElementById("dpTableContainer");
+  const avail = box ? box.clientWidth : 0;
+  if (!avail) return false; // hidden panel: keep the last width
+  const w = Math.round(Math.max(DP_W_MIN, Math.min(DP_W_MAX, avail - DP_FIXED_W)));
+  if (Math.abs(w - DP_W) < 2) return false;
+  DP_W = w;
+  DP_PW = DP_W - DP_PAD * 2;
+  return true;
+}
+
+// Redraws the forest plot when its container's width changes (a resize, or
+// the panel becoming visible after drawing while hidden), keeping the row
+// that is selected
+let _dpLastRows = null;
+if ("ResizeObserver" in window) {
+  let raf = 0;
+  new ResizeObserver(() => {
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(() => {
+      if (!_dpLastRows || !dpFitWidth()) return;
+      const sel = document.querySelector("#dpTableContainer tr.dp-selected");
+      const key = sel ? DP_PROPS.map((p) => sel.dataset[p.key]).join("") : null;
+      renderDesignPoints(_dpLastRows[0], _dpLastRows[1]);
+      if (key === null) return;
+      document.querySelectorAll("#dpTableContainer tr.dp-clickable").forEach((tr) => {
+        if (DP_PROPS.map((p) => tr.dataset[p.key]).join("") === key) tr.classList.add("dp-selected");
+      });
+    });
+  }).observe(document.getElementById("dpTableContainer"));
+}
+
 function dpCiSvg(mean, ci_lo, ci_hi) {
   if (mean === null) return "";
   const cy = (DP_H / 2).toFixed(1);
@@ -3523,7 +3571,7 @@ function dpCiSvg(mean, ci_lo, ci_hi) {
 
 function dpAxisSvg() {
   const ticks = [0, 0.2, 0.4, 0.6, 0.8, 1.0];
-  const lbls = ["0", "20", "40", "60", "80", "100"];
+  const lbls = ["0%", "20%", "40%", "60%", "80%", "100%"];
   const lines = ticks
     .map(
       (v) =>
@@ -3548,7 +3596,7 @@ function dpAxisSvg() {
 function dpAxisSvgTop() {
   // Uses dpX — same coordinate system as data rows so ticks align with gridlines
   const ticks = [0, 0.2, 0.4, 0.6, 0.8, 1.0];
-  const lbls = ["0", "20", "40", "60", "80", "100"];
+  const lbls = ["0%", "20%", "40%", "60%", "80%", "100%"];
   const axisY = 19;
   const lines = ticks
     .map(
@@ -3572,6 +3620,8 @@ function dpAxisSvgTop() {
 }
 
 function renderDesignPoints(rows, rowsExcluded) {
+  _dpLastRows = [rows, rowsExcluded];
+  dpFitWidth();
   const propCols = DP_PROPS.map(() => `<col class="dp-col-prop"/>`).join("");
   const propThs = DP_PROPS.map(
     (p, i) =>
@@ -3640,7 +3690,7 @@ function renderDesignPoints(rows, rowsExcluded) {
   document.getElementById("dpTableContainer").innerHTML =
     `<p class="click-hint">Click a row to list its statements.</p>` +
     `<table class="dp-table">` +
-    `<colgroup><col class="dp-col-n"/>${propCols}<col class="dp-col-ci"/><col class="dp-col-score"/><col class="dp-col-citext"/></colgroup>` +
+    `<colgroup><col class="dp-col-n"/>${propCols}<col class="dp-col-ci" style="width:${DP_W}px"/><col class="dp-col-score"/><col class="dp-col-citext"/></colgroup>` +
     `<thead>` +
     `<tr><th class="dp-th-n" title="Statements with a score (at least 10 ratings)">N</th>${propThs}<th class="dp-th-ci dp-axis-cell">${dpAxisSvgTop()}</th><th class="dp-th-score">Mean score</th><th class="dp-th-citext">95% CI</th></tr>` +
     `</thead>` +
@@ -4220,7 +4270,7 @@ async function loadCountryMatrix() {
   headRow.innerHTML =
     `<th class="cm-rank-th">#</th>` +
     `<th class="cm-stmt-th cm-th-sortable" data-sort="stmt">Statement<span class="cm-sort-icon"></span></th>` +
-    `<th class="cm-n-th cm-th-sortable" data-sort="n" title="Number of countries that have at least 10 ratings for a statement"><em>N</em><span class="cm-sort-icon"></span></th>` +
+    `<th class="cm-n-th cm-th-sortable" data-sort="n" title="Number of countries that have at least 10 ratings for a statement">Countries<span class="cm-sort-icon"></span></th>` +
     `<th class="cm-mean-th cm-th-sortable" data-sort="mean" title="Mean of a statement&#39;s commonsensicality score among all applicable countries"><em>M</em><span class="cm-sort-icon"></span></th>` +
     `<th class="cm-sd-th cm-th-sortable" data-sort="sd" title="Standard deviation of a statement&#39;s commonsensicality score among all applicable countries"><em>SD</em><span class="cm-sort-icon"></span></th>` +
     data.countries.map(c =>
@@ -5251,7 +5301,7 @@ async function loadGroupCompare() {
   if (outA > 0) outParts.push(`${fmtNum(outA)} in ${esc(labelA)}`);
   if (outB > 0) outParts.push(`${fmtNum(outB)} in ${esc(labelB)}`);
   const cmpOutNote = outParts.length
-    ? ` Not shown: ${outParts.join(" and ")}, who rated fewer than 5 statements with at least 10 ratings in their own group.`
+    ? ` Not shown: ${outParts.join(" and ")}, with fewer than 5 statements that count (10+ ratings) in their own group.`
     : "";
   // "All countries" contains the other group whenever it is compared with a single country
   const cmpOverlap =
@@ -5263,7 +5313,7 @@ async function loadGroupCompare() {
   const nPaired = data.statements.paired.length;
   const nSa = data.statements.a.length, nSb = data.statements.b.length;
   const cmpItemsNote = groupA !== groupB && nPaired < Math.max(nSa, nSb)
-    ? ` The groups rated different statements (${fmtNum(nPaired)} are scored in both), and easier statements raise everyone's score, so part of a gap can come from which statements each group saw.`
+    ? ` The groups rated different statements (${fmtNum(nPaired)} are scored in both), so part of a gap can come from which statements each saw.`
     : "";
   document.getElementById("compareIndivSub").innerHTML =
     cmpLine(CMP_COLOR_A, labelA, ia.length, "participants", cmpMean(iaS)) + " &nbsp;·&nbsp; " +
@@ -5335,7 +5385,7 @@ async function loadGroupCompare() {
   document.getElementById("compareScatterSub").innerHTML =
     `${fmtNum(paired.length)} statements scored in both groups` +
     (r !== null
-      ? ` &nbsp;·&nbsp; Pearson <em>r</em> = <strong>${r.toFixed(2)}</strong>`
+      ? ` &nbsp;·&nbsp; Pearson <em>r</em> = <strong>${fmtR(r)}</strong>`
       : "") +
     (paired.length
       ? `<span class="cmp-opp-line"><span class="cmp-opp-key" aria-hidden="true"></span>` +
@@ -5345,7 +5395,7 @@ async function loadGroupCompare() {
           : `On none of them do the two majorities point opposite ways.`) +
         `</span>`
       : "") +
-    `<span class="cmp-filter-note">Dots above the dashed line score higher in ${esc(labelB)}. A score says how widely a group's own majority view is shared, whichever way it points, so click a dot to compare the two majorities.</span>`;
+    `<span class="cmp-filter-note">Dots above the dashed line score higher in ${esc(labelB)}. Click a dot to compare the two majorities.</span>`;
   const oppBtn = document.getElementById("cmpOppBtn");
   if (oppBtn) oppBtn.addEventListener("click", () => { renderCmpOppDetail(); cmpRevealDetail(); });
   if (compareScatterChartInst) compareScatterChartInst.destroy();

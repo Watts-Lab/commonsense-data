@@ -33,7 +33,6 @@
 /* Width and gutters come from the shared --page-max column (style.css) */
 #panelLlm .chart-card > .sg-caption { max-width: 62em; }
 .llm-view { display: flex; flex-direction: column; gap: 16px; }
-.llm-view[data-view="overview"] { gap: 20px; }
 .llm-loading { opacity: 0.5; transition: opacity 0.15s; }
 
 /* ── Toolbar ── */
@@ -49,7 +48,6 @@
 .llm-picker { display: inline-flex; align-items: stretch; }
 .llm-picker .select { min-width: 240px; min-height: 40px; border-radius: 0; font-size: var(--fs-4); font-weight: 700; color: var(--llm-ink); }
 .llm-pick-rank { font-size: var(--fs-3); font-weight: 600; color: var(--llm-text); white-space: nowrap; }
-.llm-pick-hint { font-size: var(--fs-2); color: var(--llm-muted); }
 .llm-step-btn {
   font: inherit; font-size: var(--fs-4); line-height: 1; width: 30px;
   border: 1px solid var(--c-line-2); background: var(--c-surface); color: var(--llm-body); cursor: pointer;
@@ -70,14 +68,13 @@
 .llm-seg-btn:hover { background: var(--llm-bg-alt); color: var(--llm-text); }
 .llm-seg-btn[aria-pressed="true"] { background: var(--llm-navy); color: #fff; }
 .llm-seg-sm .llm-seg-btn { font-size: var(--fs-1); padding: 5px 10px; }
-#panelLlm :is(.llm-seg-btn, .llm-step-btn, .llm-btn, .llm-chip, .llm-link, .llm-land-chip, .llm-land-go, .llm-explore > summary, .llm-nav-link, [data-open], .llm-details summary):focus-visible,
+.llm-seg-btn .llm-narrow-only { display: none; }
+#panelLlm :is(.llm-seg-btn, .llm-step-btn, .llm-btn, .llm-chip, .llm-link, .llm-explore > summary, [data-open], .llm-details summary):focus-visible,
 .llm-pop-row:focus-visible {
   outline: 2px solid var(--c-focus); outline-offset: 2px;
 }
 
 /* ── Shared text ── */
-.llm-kicker { font-size: var(--fs-1); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--llm-accent); }
-.llm-kicker a { color: var(--c-accent-ink); text-transform: none; letter-spacing: 0; font-weight: 600; }
 .llm-p { font-size: var(--fs-3); line-height: 1.6; color: var(--llm-body); margin-top: 10px; max-width: 62em; }
 .llm-p:first-child { margin-top: 0; }
 .llm-p strong { color: var(--llm-ink); }
@@ -96,10 +93,6 @@
 .llm-mini-title { font-size: var(--fs-2); font-weight: 700; color: var(--llm-text); margin-bottom: 6px; }
 .llm-unit { font-size: var(--fs-1); color: var(--llm-muted); }
 
-/* ── Hero ── */
-.llm-hero { padding: 26px 26px 20px; }
-.llm-hero-title { font-size: var(--fs-6); font-weight: 700; color: var(--llm-ink); margin: 6px 0 8px; letter-spacing: -0.015em; line-height: 1.15; }
-.llm-hero-lead { font-size: var(--fs-4); line-height: 1.6; color: var(--llm-body); max-width: 60em; }
 .llm-toc { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 12px; }
 .llm-toc a {
   display: inline-flex; align-items: center; gap: 6px;
@@ -108,50 +101,110 @@
 }
 .llm-toc a:hover { background: var(--llm-bg-alt); }
 
-/* ── The landing page (the overview): two findings ── */
-.llm-land-hero .llm-hero-lead { max-width: 52em; }
-.llm-land-data { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
-.llm-land-chip {
-  font: inherit; font-size: var(--fs-2); font-weight: 600; color: var(--llm-navy); cursor: pointer;
-  border: 1px solid var(--c-line-2); border-radius: var(--r-pill); padding: 4px 13px; background: var(--c-surface);
+/* ── The Overview, laid out like Home ──
+   It reuses Home's hero and section classes (.hs-hero, .hs-section,
+   .hs-section-alt, .hs-inner, .hs-kicker, .hs-h2, .hs-intro, .hs-btn; their
+   --hs-* tokens are set on #panelLlm too, in home.css). While it shows,
+   #llmWrap drops its padding (.is-land, set by llmSyncControls) so the
+   bands run edge to edge; each band makes one point. */
+#llmWrap.is-land { padding: 0 0 48px; gap: 0; }
+#llmWrap.is-land > .llm-view { max-width: none; }
+#llmWrap.is-land > .panel-tour { width: calc(100% - 2 * var(--page-gutter)); margin-top: 40px; }
+.llm-land { gap: 0; color: var(--c-text); font-size: var(--fs-3); line-height: 1.55; }
+.llm-land a.hs-btn { text-decoration: none; }
+.llm-land .hs-section { scroll-margin-top: 0; }
+.llm-land-hero .hs-lede { max-width: 44em; }
+.llm-land-h1 { max-width: 15em; }
+
+/* A band's one chart, and its finding under it, as on Home */
+.llm-band-card {
+  background: var(--c-surface); border: var(--card-border); border-radius: var(--r-lg); box-shadow: var(--shadow-1);
+  padding: 22px 26px 20px; min-width: 0;
 }
-.llm-land-chip:hover { background: var(--llm-bg-alt); }
-.llm-land { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-/* Copy, chart and links stack in two columns; between 700 and 1000px each
-   card takes the full width with its chart beside the copy */
-.llm-land-card {
-  display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr auto;
-  grid-template-areas: "copy" "chart" "links"; row-gap: 12px; padding: var(--card-pad); border-top: 3px solid var(--llm-navy);
+.llm-band-chart { container-type: inline-size; }
+.llm-band-chart .llm-cols { height: 240px; }
+.llm-band-chart .llm-cols { margin-top: 34px; }
+.llm-band-finding {
+  margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--llm-line-2);
+  font-size: var(--fs-5); line-height: 1.4; color: var(--llm-text);
 }
-.llm-land-copy { grid-area: copy; display: flex; flex-direction: column; gap: 10px; }
-.llm-land-kicker { display: flex; align-items: center; gap: 9px; font-size: var(--fs-1); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--llm-muted); }
-.llm-land-num {
-  flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
-  font-size: var(--fs-2); letter-spacing: 0; color: #fff; background: var(--llm-navy);
+.llm-band-finding strong { color: var(--llm-ink); }
+.llm-band-close { font-size: var(--fs-5); line-height: 1.5; color: var(--llm-text); max-width: 42em; }
+
+/* Band 1: the core task (llmTaskHtml) as three cards in a row that
+   scrolls sideways with snap points (llmCarousel): the statement, a person's
+   answers, an LLM's answers. The card in focus is .is-on; the others are
+   dimmed, and a click on one brings it into focus. */
+/* The card in focus sits in the middle (snap to centre): the track's side
+   padding is half of what the card leaves free, in units of the carousel's
+   own width (.llm-car is a size container), so the first and last cards
+   can centre too, and the cards on either side peek in, fading out at the
+   edges. */
+.llm-car { container-type: inline-size; --card: min(780px, 76cqw); }
+.llm-car-track {
+  position: relative; display: flex; gap: 20px; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
+  padding: 6px calc((100cqw - var(--card)) / 2) 32px; margin: -6px 0 -14px; scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 56px, #000 calc(100% - 56px), transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 56px, #000 calc(100% - 56px), transparent 100%);
 }
-.llm-land-title { font-size: var(--fs-5); font-weight: 700; color: var(--llm-ink); letter-spacing: -0.01em; line-height: 1.25; }
-.llm-land-text { font-size: var(--fs-3); line-height: 1.55; color: var(--llm-body); }
-.llm-land-text strong { color: var(--llm-ink); }
-.llm-land-chart { grid-area: chart; align-self: end; padding-top: 6px; }
-.llm-land-chart .llm-legend { margin-top: 2px; }
-/* The finding under each chart, as on Home */
-.llm-land-finding { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--llm-line-2); font-size: var(--fs-3); line-height: 1.5; color: var(--llm-body); }
-.llm-land-finding strong { color: var(--llm-ink); }
-.llm-land-links { grid-area: links; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding-top: 4px; }
-.llm-land-go {
-  font: inherit; font-size: var(--fs-2); font-weight: 700; color: #fff; background: var(--llm-navy);
-  border: 0; border-radius: var(--r-md); min-height: 36px; padding: 8px 14px; cursor: pointer;
+.llm-car-track::-webkit-scrollbar { display: none; }
+.llm-car-track:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; border-radius: var(--r-lg); }
+.llm-car-card {
+  flex: 0 0 var(--card); scroll-snap-align: center; min-width: 0;
+  display: flex; flex-direction: column; gap: 14px;
+  background: var(--c-surface); border: var(--card-border); border-radius: var(--r-lg); box-shadow: var(--shadow-2); padding: 24px 28px;
+  transition: opacity 0.25s;
 }
-.llm-land-go:hover { background: var(--c-navy-2); }
-.llm-land-go.is-link { color: var(--c-accent-ink); background: none; padding: 4px 0; font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
-.llm-land-close { padding: 16px var(--card-pad); }
-.llm-land-close .llm-p { max-width: 70em; }
+.llm-car-card:not(.is-on) { opacity: 0.42; cursor: pointer; box-shadow: var(--shadow-1); }
+.llm-car-card.is-stmt { justify-content: center; }
+.llm-car-card.is-person { border-top: 4px solid var(--llm-human); }
+.llm-car-card.is-llm { border-top: 4px solid var(--llm-model); }
+@media (prefers-reduced-motion: reduce) { .llm-car-card { transition: none; } }
+.llm-task-k { display: flex; align-items: center; gap: 9px; font-size: var(--fs-1); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--llm-muted); }
+.llm-task-k .llm-pp { width: 11px; height: 17px; }
+.llm-chip-ico { width: 20px; height: 20px; color: var(--llm-model); flex-shrink: 0; }
+.llm-task-quote { font-size: var(--fs-6); font-weight: 600; line-height: 1.3; letter-spacing: -0.01em; color: var(--llm-ink); }
+.llm-task-quote::before, .llm-car-quote::before { content: "\201C"; }
+.llm-task-quote::after, .llm-car-quote::after { content: "\201D"; }
+.llm-task-qs { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.llm-task-qs li { display: flex; gap: 10px; align-items: baseline; font-size: var(--fs-4); font-weight: 600; line-height: 1.35; color: var(--llm-text); }
+.llm-car-who { font-size: var(--fs-3); color: var(--llm-muted); line-height: 1.4; }
+.llm-car-who strong { font-size: var(--fs-5); color: var(--llm-ink); margin-right: 6px; }
+.llm-car-quote {
+  font-size: var(--fs-4); font-weight: 600; line-height: 1.35; color: var(--llm-ink);
+  padding: 10px 14px; background: var(--llm-bg); border-left: 3px solid var(--c-line-2); border-radius: 0 var(--r-md) var(--r-md) 0;
+}
+.llm-car-row { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 8px 12px; align-items: center; }
+.llm-car-qt { font-size: var(--fs-3); font-weight: 600; line-height: 1.35; color: var(--llm-text); }
+.llm-car-ans { display: flex; align-items: center; gap: 14px; justify-self: end; }
+.llm-car-opts { display: inline-flex; gap: 6px; }
+.llm-car-opts span {
+  min-width: 3.6em; text-align: center; padding: 5px 12px; border-radius: var(--r-md);
+  font-size: var(--fs-2); font-weight: 700; color: var(--llm-muted); background: var(--llm-bg); border: 1px solid var(--c-line-2);
+}
+.llm-car-opts span.is-on { color: #fff; background: var(--llm-navy); border-color: var(--llm-navy); }
+.llm-car-p { width: 13em; }
+.llm-car-note { font-size: var(--fs-2); color: var(--llm-muted); margin-top: auto; }
+.llm-car-nav { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 4px; }
+.llm-car-btn {
+  font: inherit; font-size: var(--fs-5); line-height: 1; width: 40px; height: 40px; border-radius: 50%;
+  border: 1px solid var(--c-line-2); background: var(--c-surface); color: var(--llm-text); cursor: pointer;
+}
+.llm-car-btn:hover:not(:disabled) { background: var(--llm-bg-alt); }
+.llm-car-btn:disabled { color: var(--c-mark); cursor: default; }
+.llm-car-dots { display: inline-flex; align-items: center; gap: 8px; }
+.llm-car-dots button { width: 10px; height: 10px; padding: 0; border: 0; border-radius: 5px; background: var(--c-line-2); cursor: pointer; transition: width 0.2s, background 0.2s; }
+.llm-car-dots button[aria-current="true"] { width: 26px; background: var(--llm-navy); }
+.llm-car-btn:focus-visible, .llm-car-dots button:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
 
 /* Columns, one per model, on the landing page (llmColsHtml) */
-.llm-cols { display: grid; grid-template-columns: 2.6em minmax(0, 1fr); column-gap: 6px; height: 150px; margin-top: 16px; }
+/* The y-label column is 2.6rem, not em: .llm-lhist-x (smaller type) offsets
+   itself by the same length, so its ticks line up with the bars and markers */
+.llm-cols { display: grid; grid-template-columns: 2.6rem minmax(0, 1fr); column-gap: 6px; height: 150px; margin-top: 16px; }
 .llm-cols i { font-style: normal; }
 .llm-cols-y { position: relative; }
 .llm-cols-y span { position: absolute; right: 0; transform: translateY(50%); font-size: var(--fs-1); color: var(--llm-muted); font-variant-numeric: tabular-nums; }
+.llm-cols-yname { position: absolute; right: 0; top: -2.3em; font-size: var(--fs-2); font-weight: 600; color: var(--llm-muted); }
 .llm-cols-plot { position: relative; }
 .llm-cols-grid { position: absolute; left: 0; right: 0; height: 0; border-top: 1px solid var(--llm-line-2); }
 .llm-cols-grid.is-zero { border-top-color: var(--llm-faint); }
@@ -167,8 +220,6 @@
   position: absolute; left: 0; white-space: nowrap; font-size: var(--fs-1); font-weight: 700; color: var(--llm-ink);
   background: rgba(255, 253, 249, 0.88); padding: 0 3px; border-radius: 3px; z-index: 2;
 }
-.llm-cols-x { margin: 14px 0 0 calc(2.6em + 6px); font-size: var(--fs-1); line-height: 1.4; color: var(--llm-muted); }
-.llm-cols-x.is-vs { margin: 10px 0 0; }
 
 /* Finding 1: humans and models as two histograms (llmHistHtml); room above
    the plot for the median's label */
@@ -183,12 +234,10 @@
   position: absolute; top: -6px; right: 6px; white-space: nowrap;
   font-size: var(--fs-1); font-weight: 700; color: var(--llm-ink);
 }
-.llm-lhist-x { position: relative; height: 1.5em; margin: 6px 0 0 calc(2.6em + 6px); font-size: var(--fs-1); color: var(--llm-muted); font-variant-numeric: tabular-nums; }
+.llm-lhist-x { position: relative; height: 1.5em; margin: 6px 0 0 calc(2.6rem + 6px); font-size: var(--fs-1); color: var(--llm-muted); font-variant-numeric: tabular-nums; }
 .llm-lhist-x span { position: absolute; top: 0; transform: translateX(-50%); }
 .llm-lhist-x span.is-last { transform: translateX(-100%); }
-.llm-lhist-x + .llm-cols-x { margin-top: 2px; }
 /* Narrow charts keep every other x label (40%, 60%, …) */
-.llm-land-chart { container-type: inline-size; }
 @container (max-width: 480px) { .llm-lhist-x span.is-minor { display: none; } }
 
 
@@ -328,7 +377,6 @@
    title. Whatever a click reveals gets .llm-in and fades in. */
 .llm-story-head { padding: 22px 24px 16px; border-top: 3px solid var(--llm-model); }
 .llm-story-title { font-size: var(--fs-6); font-weight: 700; color: var(--llm-ink); letter-spacing: -0.015em; line-height: 1.2; margin-top: 6px; }
-.llm-walk-meta { font-size: var(--fs-2); color: var(--llm-muted); margin-top: 4px; }
 .llm-story-lead { font-size: var(--fs-4); line-height: 1.6; color: var(--llm-body); max-width: 60em; margin: 12px 0 14px; }
 .llm-story-nav { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
 .llm-story-toc { margin: 0; }
@@ -490,7 +538,6 @@
 .llm-tally-table .llm-match { width: 20px; height: 20px; line-height: 20px; font-size: var(--fs-1); }
 .llm-tally-table tfoot th, .llm-tally-table tfoot td { font-weight: 700; color: var(--llm-ink); border-bottom: 0; border-top: 2px solid var(--llm-line); }
 .llm-tally-more td { color: var(--llm-muted); font-style: italic; }
-.llm-tally-note { font-size: var(--fs-2); color: var(--llm-muted); margin-top: 6px; }
 
 /* Chapter 2: the bars that fill as every statement is checked */
 .llm-run { display: flex; flex-direction: column; gap: 10px; max-width: 980px; }
@@ -545,8 +592,6 @@
 .llm-lvl-tipbox { fill: var(--llm-ink); opacity: 0.92; }
 .llm-lvl-tip { font-size: var(--fs-1); font-weight: 600; fill: #fff; }
 .llm-lvl-rad { fill: none; stroke: #fff; stroke-width: 1.3; stroke-linejoin: round; }
-.llm-result.llm-summary { background: #F3F7FC; border-color: #CFE0F7; }
-.llm-summary .llm-link { font-weight: 700; margin-left: 4px; }
 
 /* Chapter 4: one person head to head, then a hundred people */
 .llm-vs-grid {
@@ -663,7 +708,7 @@
 
 /* Population chapter 4: the 1,000 splits' r */
 .llm-rhist { margin-top: 34px; max-width: 760px; }
-.llm-rhist + .llm-lhist-x, .llm-rhist ~ .llm-cols-x { max-width: calc(760px - 2.6em - 6px); }
+.llm-rhist + .llm-lhist-x { max-width: calc(760px - 2.6rem - 6px); }
 .llm-rh-bar { position: absolute; bottom: 0; border-radius: 2px 2px 0 0; background: var(--llm-human); opacity: 0.4; }
 .llm-rh-bar.is-seen { opacity: 0.75; }
 .llm-rh-bar.is-current { background: var(--llm-human-dark); opacity: 1; }
@@ -749,23 +794,6 @@
 .llm-bf-row .llm-track { height: 10px; }
 .llm-bf-row span { line-height: 1.2; }
 
-/* Previous / next model */
-.llm-model-nav { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 12px; align-items: stretch; }
-.llm-nav-link {
-  font: inherit; display: flex; flex-direction: column; gap: 2px; text-align: left;
-  background: var(--c-surface); border: var(--card-border); border-radius: var(--r-lg); padding: 14px 18px; cursor: pointer;
-  box-shadow: var(--shadow-1); transition: border-color var(--ease), box-shadow var(--ease);
-}
-.llm-nav-link:hover { border-color: #F5C0A5; box-shadow: var(--shadow-2); }
-.llm-nav-link.is-next { align-items: flex-end; text-align: right; }
-.llm-nav-link.is-up { justify-content: center; font-size: var(--fs-2); font-weight: 600; color: var(--llm-navy); }
-.llm-nav-dir { font-size: var(--fs-1); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--c-expect-ink); }
-.llm-nav-name { font-size: var(--fs-4); font-weight: 700; color: var(--llm-ink); }
-
-/* ── Histograms ── */
-.llm-hist { height: 320px; }
-.llm-hist canvas { cursor: default; }
-
 /* ── Tables ── */
 .llm-table-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 10px; }
 .llm-table-controls:empty { display: none; }
@@ -782,11 +810,7 @@
 .llm-table .llm-col-score { width: 19%; }
 .llm-table .llm-col-num { width: 10%; text-align: right; }
 .llm-table .llm-col-people { width: 15%; }
-.llm-table .llm-col-models { width: 13%; }
 .llm-table .llm-col-ans { width: 17%; }
-.llm-table .llm-col-source { width: 14%; }
-.llm-part-table .llm-col-pid { width: 18%; }
-.llm-part-table .col-score { width: 22%; }
 .llm-row-link { cursor: pointer; }
 .llm-table .pct-track { max-width: 120px; }
 .llm-fill-human, .llm-fill-model { height: 100%; border-radius: 4px; }
@@ -799,8 +823,6 @@
 .llm-maj { display: inline-flex; flex-direction: column; gap: 1px; }
 .llm-maj-share { font-weight: 600; font-size: var(--fs-3); color: var(--llm-text); font-variant-numeric: tabular-nums; }
 .llm-maj-word { font-size: var(--fs-1); color: var(--llm-muted); }
-.llm-maj.is-against .llm-maj-share { color: var(--llm-bad); }
-.llm-maj.is-against .llm-maj-word { color: var(--llm-bad); }
 
 /* ── Modals ── */
 .llm-prop-chips { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -831,14 +853,6 @@
 .llm-part-modal-table .td-statement { font-size: var(--fs-3); }
 
 /* ── Responsive ── */
-@media (min-width: 701px) and (max-width: 1000px) {
-  .llm-land { grid-template-columns: minmax(0, 1fr); }
-  .llm-land-card {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); grid-template-rows: auto 1fr;
-    grid-template-areas: "copy chart" "links chart"; column-gap: 32px;
-  }
-  .llm-land-links { align-self: end; }
-}
 @media (max-width: 1100px) {
   .llm-lvl-grid, .llm-sct-grid { grid-template-columns: minmax(0, 1fr); }
   .llm-lvl, .llm-sct { justify-self: center; }
@@ -863,13 +877,25 @@
   .llm-model-pick .llm-picker { flex: 1 1 0; min-width: 0; }
   .llm-model-pick .llm-picker .select { flex: 1; min-width: 0; min-height: 36px; }
   .llm-pick-rank { flex-basis: 100%; font-size: var(--fs-2); }
-  .llm-pick-hint { display: none; }
-  .llm-hero, .llm-story-head { padding: 18px 14px 14px; }
-  .llm-land { grid-template-columns: minmax(0, 1fr); }
+  .llm-story-head { padding: 18px 14px 14px; }
+  /* The Overview: the raters stack, under one arrow */
+  .llm-band-card { padding: 16px 14px 14px; }
+  .llm-band-chart .llm-cols { height: 200px; }
+  .llm-band-finding, .llm-band-close { font-size: var(--fs-4); }
+  .llm-car { --card: 84cqw; }
+  .llm-car-track { gap: 10px; -webkit-mask-image: none; mask-image: none; }
+  .llm-car-card { padding: 16px 16px 18px; gap: 12px; }
+  .llm-task-quote { font-size: var(--fs-5); }
+  .llm-task-qs li { font-size: var(--fs-3); }
+  .llm-car-quote { font-size: var(--fs-3); }
+  .llm-car-row { grid-template-columns: 22px minmax(0, 1fr); }
+  .llm-car-ans { grid-column: 2; justify-self: start; gap: 8px; }
+  .llm-car-p { width: 6.8em; }
+  .llm-car-opts span { min-width: 2.8em; padding: 4px 8px; }
   .llm-step, .llm-chap { padding: 14px 14px 14px; }
   .llm-step-body, .llm-chap-body { padding-left: 0; }
   .llm-step-body .llm-table-host, .llm-step > .llm-table-host { margin-left: 0; }
-  .llm-hero-title, .llm-story-title { font-size: var(--fs-6); }
+  .llm-story-title { font-size: var(--fs-6); }
   .llm-multiples { grid-template-columns: minmax(0, 1fr); }
   .llm-bf, .llm-res2 { grid-template-columns: minmax(0, 1fr); }
   .llm-model-nav { grid-template-columns: minmax(0, 1fr); }
@@ -885,6 +911,10 @@
   .lb-org { display: none; }
   .llm-tick.is-minor { display: none; }
   .llm-seg#llmViews { flex-wrap: nowrap; overflow-x: auto; max-width: 100%; scrollbar-width: none; }
+  /* the three views fit on a phone: "Individuals", "Populations" */
+  .llm-seg-btn .llm-wide-only { display: none; }
+  .llm-seg-btn .llm-narrow-only { display: inline; }
+  .llm-toolbar-note { display: none; }
   .llm-seg#llmViews::-webkit-scrollbar { display: none; }
   .llm-feat-sides { margin-left: 0; margin-right: 0; padding: 0; }
   .llm-feat-axis, .llm-feat-bar { grid-template-columns: 3.6rem minmax(0, 1fr) 2.6rem; column-gap: 6px; }
@@ -930,7 +960,7 @@
   .llm-stepper-all .llm-wide-only { display: none; }
   .llm-stepper-all::first-letter { text-transform: uppercase; }
   .llm-table .llm-ans-p, .llm-table .llm-maj-word { display: none; }
-  .llm-table .llm-col-people, .llm-table .llm-col-models { width: 19%; }
+  .llm-table .llm-col-people { width: 19%; }
   .llm-table .ans-pill { min-width: 0; padding: 1px 6px; }
   .llm-table .llm-col-ans { width: 21%; }
   .llm-table .llm-col-score { width: 23%; }

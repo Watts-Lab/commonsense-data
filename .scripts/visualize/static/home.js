@@ -154,10 +154,13 @@ function hsTweenPct(el, to) {
   el._hsRaf = requestAnimationFrame(step);
 }
 
-// The hero card's reading of the bars: which way the majority went
+// The hero card's reading of the bars: which way the majority went. Within
+// 3 points of 50% it says the vote is split rather than calling 50.3% "the
+// majority of people".
 function hsMajoritySentence(p) {
   if (Math.abs(p - 0.5) < 0.0005) return "Exactly half of people agree with this statement.";
   if (p === 1 || p === 0) return `Everyone (100%) ${p ? "agrees" : "disagrees"} with this statement.`;
+  if (Math.abs(p - 0.5) < 0.03) return `People are split almost evenly: ${hsMajPct(p > 0.5 ? p : 1 - p)} ${p > 0.5 ? "agree" : "disagree"}.`;
   return p > 0.5
     ? `The majority of people (${hsMajPct(p)}) agree with this statement.`
     : `The majority of people (${hsMajPct(1 - p)}) disagree with this statement.`;
@@ -277,7 +280,7 @@ function hsShowTicker() {
   quote.title = text;
   quote.classList.toggle("is-long", text.length > 80 && text.length <= 120);
   quote.classList.toggle("is-longer", text.length > 120);
-  count.textContent = `Of ${fmtNum(s.n)} people who have rated the statement`;
+  count.textContent = `Rated by ${fmtNum(s.n)} people`;
   hsSetDualBars(bars, s.p, s.q);
   maj.textContent = hsMajoritySentence(s.p);
 }
@@ -531,10 +534,14 @@ function hsRenderIndivHist(d) {
 
 function hsRenderFeatures(d) {
   const el = document.getElementById("hsFeatures");
+  // The gap is the difference of the two whole percents shown beside the
+  // dots (72% vs 59% reads 13 pts, never 14), largest first; the dots'
+  // tooltips give the means to one decimal
+  const pts = (v) => Number((v * 100).toFixed(0)); // as hsPct() prints it
   const rows = d.properties
     .filter((r) => r.v1.mean !== null && r.v0.mean !== null)
-    .map((r) => ({ ...r, gap: r.v1.mean - r.v0.mean }))
-    .sort((a, b) => Math.abs(b.gap) - Math.abs(a.gap));
+    .map((r) => ({ ...r, gap: r.v1.mean - r.v0.mean, gapPts: pts(r.v1.mean) - pts(r.v0.mean) }))
+    .sort((a, b) => Math.abs(b.gapPts) - Math.abs(a.gapPts) || Math.abs(b.gap) - Math.abs(a.gap));
   if (!rows.length) {
     el.innerHTML = `<p class="hs-empty">No statements can be scored in this date range.</p>`;
     document.getElementById("hsFeatAxis").innerHTML = "";
@@ -567,7 +574,7 @@ function hsRenderFeatures(d) {
         `<span class="hs-feat-link" style="left:${Math.min(a, b).toFixed(2)}%;width:${Math.abs(a - b).toFixed(2)}%"></span>` +
         dot(r.v1, l1, "k1", hiIs1 ? "right" : "left") + dot(r.v0, l0, "k0", hiIs1 ? "left" : "right") +
         `</div>` +
-        `<div class="hs-feat-gap">${Math.round(Math.abs(r.gap) * 100)}<span> pts</span></div>` +
+        `<div class="hs-feat-gap">${Math.abs(r.gapPts)}<span> pts</span></div>` +
         `</div>`
       );
     })
