@@ -18,6 +18,59 @@ const { API, MOUNT_PATH } = (() => {
   };
 })();
 
+// ── Shared chart styling ───────────────────────────────────────────────────
+// Canvas charts can't use CSS variables, so UI reads the colour tokens from
+// style.css once, and CHART_FONT turns its type scale into pixel sizes. Every
+// chart (Chart.js or a plugin drawing on its canvas) uses these, so chart text
+// is the page's font, never smaller than --fs-1, and in the page's greys.
+const UI = (() => {
+  const root = getComputedStyle(document.documentElement);
+  const v = (name, fallback) => root.getPropertyValue(name).trim() || fallback;
+  return {
+    font: getComputedStyle(document.body).fontFamily,
+    rootPx: parseFloat(root.fontSize) || 19,
+    ink: v("--c-ink", "#1C1914"),
+    text: v("--c-text", "#2A251F"),
+    body: v("--c-body", "#463E35"),
+    muted: v("--c-muted", "#6A5F51"),
+    faint: v("--c-faint", "#ADA290"),
+    line: v("--c-line-2", "#D8CEBD"),
+    lineLight: v("--c-line", "#E8E1D4"),
+    grid: v("--c-line-soft", "#F1ECE2"),
+    surface: v("--c-surface", "#FFFDF9"),
+    accentBg: v("--c-accent-bg", "#EEF3FC"),
+    tooltip: v("--c-tooltip", "rgba(28, 25, 20, 0.94)"),
+    agree: v("--c-agree", "#2A78D6"),
+    agreeInk: v("--c-agree-ink", "#1C5CAB"),
+    agreeSoft: "#BFD3EE",
+    expect: v("--c-expect", "#EB6834"),
+    expectInk: v("--c-expect-ink", "#A8461D"),
+    bad: v("--c-bad", "#C03030"),
+  };
+})();
+const CHART_FONT = {
+  tick: { size: Math.round(UI.rootPx * 0.72 * 10) / 10 },   // --fs-1
+  title: { size: Math.round(UI.rootPx * 0.8 * 10) / 10 },   // --fs-2
+  legend: { size: Math.round(UI.rootPx * 0.8 * 10) / 10 },  // --fs-2
+};
+// A canvas font string for plugin labels, e.g. chartCanvasFont(600)
+function chartCanvasFont(weight = 600, size = CHART_FONT.tick.size) {
+  return `${weight} ${size}px ${UI.font}`;
+}
+if (window.Chart) {
+  Chart.defaults.font.family = UI.font;
+  Chart.defaults.font.size = CHART_FONT.tick.size;
+  Chart.defaults.color = UI.muted;
+  Chart.defaults.borderColor = UI.grid;
+  Chart.defaults.plugins.tooltip.titleFont = { size: CHART_FONT.legend.size, weight: "600" };
+  Chart.defaults.plugins.tooltip.bodyFont = { size: CHART_FONT.legend.size };
+  // Tooltips in the warm ink of the page's own tooltips (--c-tooltip)
+  Chart.defaults.plugins.tooltip.backgroundColor = UI.tooltip;
+  Chart.defaults.plugins.tooltip.padding = 10;
+  Chart.defaults.plugins.tooltip.cornerRadius = 8;
+  Chart.defaults.plugins.tooltip.boxPadding = 4;
+}
+
 // ── Panel URL routing ──────────────────────────────────────────────────────
 const TAB_SLUGS = {
   home:       "",
@@ -29,6 +82,7 @@ const TAB_SLUGS = {
   stmtGen:    "statement_generation",
   stmtAudit:  "statement_audit",
   tsAudit:    "typesafe_audit",
+  llm:        "llm_evaluations",
 };
 const SLUG_TABS = Object.fromEntries(
   Object.entries(TAB_SLUGS).map(([k, v]) => [v, k])
@@ -112,16 +166,23 @@ let dpPanelLoaded = false;
 // declared later in the file would be initialized.
 let sgLoaded = false;
 
+// The panel on screen (set by switchToTab), for code that can't read it from
+// the tab bar: Home and the statement-generation pages have no tab button
+let _currentTab = "home";
+
 // Country matrix
 let countryMatrixLoaded = false;
 let countryMatrixData   = null;
 let cmPage              = 1;
 const CM_PAGE_SIZE      = 25;
 let cmSortKey           = 'n';    // 'n' | 'stmt' | country-name
+let cmView              = 'score'; // cells show 'score' or 'agree' (share who agree)
+let cmOnlyFlips         = false;   // only statements whose countries' majorities differ
 let cmSortDir           = 'desc'; // 'asc' | 'desc'
 let stmtScoresSortKey = "commonsensicality",
   stmtScoresSortDir = "desc";
 let stmtScoresActiveBinIdx = null;
+let stmtScoresLens = ""; // a key of STMT_LENSES, or "" for every statement
 let stmtScoresHistChart = null,
   stmtScoresHistBinEdges = [];
 
@@ -449,6 +510,15 @@ function pctBarScore(value) {
 function fmtNum(n) {
   return n.toLocaleString();
 }
+// A square root whose bar spans everything under it. The sign is drawn (an
+// SVG stretched to the terms' height), so its top meets the bar over the
+// terms (.sqrt-arg's top border) in any font; screen readers hear "the square
+// root of". Used for every √ in the explorer's HTML; the LLM level-curve
+// chart draws its own in SVG (llmLvlProbe).
+function sqrtHtml(inner) {
+  return `<span class="sqrt"><span class="sr-only">the square root of </span><svg class="sqrt-sign" viewBox="0 0 10 20" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M0.6 11.6 L2.7 10.5 L5.3 19.3 L9.7 0.75 H10"/></svg><span class="sqrt-arg">${inner}</span></span>`;
+}
+
 function fmtPct(v) {
   return (v * 100).toFixed(1) + "%";
 }
@@ -459,13 +529,23 @@ function badge(value) {
     : '<span class="badge-no">No</span>';
 }
 
+// A participant's Yes / No, marked against the majority (maj 1 = agrees,
+// 0 = disagrees, null = the statement doesn't count): green ✓ when it matches,
+// red ✗ when it doesn't. Colour alone never says yes or no.
+function answerPill(value, maj) {
+  const word = value === 1 ? "Yes" : "No";
+  if (maj === null || maj === undefined) return `<span class="ans-pill is-off">${word}</span>`;
+  const ok = value === maj;
+  return `<span class="ans-pill ${ok ? "is-match" : "is-miss"}" title="${ok ? "Matches" : "Misses"} the majority"><span aria-hidden="true">${ok ? "✓" : "✗"}</span>${word}</span>`;
+}
+
+// The reference group's majority on a statement and the share who gave it,
+// as in the Individual Scores intro card ("Agree 94%", "Disagree 79%")
 function refAvgAgree(mean) {
   if (mean === null || mean === undefined) return "—";
-  const verdict =
-    mean >= 0.5
-      ? ' <span class="badge-yes">Yes</span>'
-      : ' <span class="badge-no">No</span>';
-  return fmtPct(mean) + verdict;
+  return mean >= 0.5
+    ? `Agree <span class="td-muted">${fmtPct(mean)}</span>`
+    : `Disagree <span class="td-muted">${fmtPct(1 - mean)}</span>`;
 }
 
 function refAvgOthers(mean) {
@@ -522,43 +602,42 @@ function notEnoughRatingsHtml(n, groupLabel) {
     `at least <strong>10</strong> are required.`;
 }
 
+// The worked calculation of one statement's score, shared by every statement
+// modal: N ratings, A = share who agree, B = share who think most others agree.
+// Same rule as utils.statement_commonsensicality (a 50/50 tie counts as agree).
+function stmtCalcHtml(row, groupLabel) {
+  const N = row.n_ratings;
+  const A = row.I_agree_mean;
+  const B = row.others_agree_mean;
+  const agrees = A >= 0.5;
+  const fp = (v) => (v * 100).toFixed(1) + "%";
+  const consensus = 2 * Math.abs(A - 0.5);
+  const awareness = agrees ? B : 1 - B;
+  const score = Math.sqrt(consensus * awareness);
+  return (
+    `<p class="expl-context">Computed from the <strong>${fmtNum(N)}</strong> rating${N !== 1 ? "s" : ""} ` +
+    `by participants in <strong>${esc(groupLabel)}</strong>.</p>` +
+    `<ul class="expl-list">` +
+    `<li><strong>Majority:</strong> ${fp(A)} agree, so the majority <strong>${agrees ? "agrees" : "disagrees"}</strong> ` +
+    `(${agrees ? "at least" : "under"} 50%).</li>` +
+    `<li><strong>Consensus</strong> = 2 × |${fp(A)} − 50%| = <strong>${fp(consensus)}</strong>: how one-sided the vote is.</li>` +
+    `<li><strong>Awareness</strong> = <strong>${fp(awareness)}</strong>: the share who correctly expected most people to ` +
+    `${agrees ? "agree" : "disagree"}` +
+    (agrees ? "." : ` (${fp(B)} thought most would agree, so 100% − ${fp(B)}).`) + `</li>` +
+    `<li><strong>Commonsensicality</strong> = ${sqrtHtml(`${fp(consensus)} × ${fp(awareness)}`)} = <strong>${fp(score)}</strong>.</li>` +
+    `</ul>`
+  );
+}
+
 function openStmtDetail(row, country) {
   document.getElementById("stmtModalText").textContent = fixStatement(
     row.statement,
   );
   document.getElementById("stmtModalExplanation").classList.remove("hidden");
   showStmtMeta(document.getElementById("stmtModalMeta"), row.statementId);
-
-  const N = row.n_ratings;
-  const A = row.I_agree_mean; // fraction 0-1
-  const B = row.others_agree_mean; // fraction 0-1
-  const majorityYes = A >= 0.5;
-  const fp = (v) => (v * 100).toFixed(1) + "%";
-
-  // Consensus = 2 × |A − 0.5|
-  const consensus = 2 * Math.abs(A - 0.5);
-  const consFormula = `2 × |${fp(A)} − 50%| = 2 × ${fp(Math.abs(A - 0.5))} = <strong>${fp(consensus)}</strong>`;
-
-  // Awareness: B if majority Yes, else 1 − B
-  const awareness = majorityYes ? B : 1 - B;
-  const awarenessText = majorityYes
-    ? `Of the ${fmtNum(N)} individuals, <strong>${fp(B)}</strong> of them predicted that most people would agree with the statement (via the <em>Others agree</em> column). Since the majority opinion is "Yes", these ${fp(B)} correctly predicted the majority. Thus, the <strong>awareness</strong> score is <strong>${fp(awareness)}</strong>.`
-    : `Of the ${fmtNum(N)} individuals, <strong>${fp(B)}</strong> of them predicted that most people would agree. Since the majority opinion is "No", the remaining <strong>${fp(1 - B)}</strong> who predicted "No" correctly predicted the majority. Thus, the <strong>awareness</strong> score is <strong>${fp(awareness)}</strong>.`;
-
-  const commonsensicality = Math.sqrt(consensus * awareness);
   const c = country !== undefined ? country : stmtScoresCountrySelect.value;
-  const groupLabel = c === "all" ? "all countries" : c;
-
   document.getElementById("stmtModalExplanation").innerHTML =
-    `<p class="expl-context">The following calculation of this statement's commonsensicality score is relative to the target group, <strong>${esc(groupLabel)}</strong>.</p>` +
-    `<ul class="expl-list">` +
-    `<li>Within this group, this statement has received a total of <strong>${fmtNum(N)}</strong> rating${N !== 1 ? "s" : ""}.</li>` +
-    `<li>Of the <strong>${fmtNum(N)}</strong> individuals who rated the statement, <strong>${fp(A)}</strong> of them agreed with it (via the <em>I agree</em> column). Since ${fp(A)} ${majorityYes ? "≥" : "<"} 50%, the majority opinion is <strong>"${majorityYes ? "Yes" : "No"}"</strong> — most people ${majorityYes ? "agreed with" : "disagreed with"} the statement.</li>` +
-    `<li>Since ${fp(A)} of people agreed, the <strong>consensus</strong> score is ${consFormula}.</li>` +
-    `<li>${awarenessText}</li>` +
-    `<li>The <strong>commonsensicality</strong> score is the geometric mean of consensus and awareness: √(${fp(consensus)} × ${fp(awareness)}) = <strong>${fp(commonsensicality)}</strong>.</li>` +
-    `</ul>`;
-
+    stmtCalcHtml(row, c === "all" ? "all countries" : c);
   stmtModal.classList.remove("hidden");
 }
 
@@ -605,9 +684,22 @@ function tabFromPathname() {
 
 function switchToTab(tab, pushUrl) {
   document.querySelectorAll(".tab-btn").forEach((b) => {
-    b.classList.toggle("active", b.dataset.tab === tab);
+    const on = b.dataset.tab === tab;
+    b.classList.toggle("active", on);
+    if (on) {
+      b.setAttribute("aria-current", "page");
+      // narrow windows scroll the tab row sideways: keep the active tab in view
+      const bar = b.parentElement;
+      if (bar.scrollWidth > bar.clientWidth) {
+        const br = b.getBoundingClientRect(), pr = bar.getBoundingClientRect();
+        bar.scrollLeft += (br.left + br.width / 2) - (pr.left + pr.width / 2);
+      }
+    } else {
+      b.removeAttribute("aria-current");
+    }
   });
   document.getElementById("panelHome").classList.toggle("hidden", tab !== "home");
+  _currentTab = tab;
   document.getElementById("panelScores").classList.toggle("hidden", tab !== "scores");
   document.getElementById("panelStmtScores").classList.toggle("hidden", tab !== "stmtScores");
   document.getElementById("panelDP").classList.toggle("hidden", tab !== "dp");
@@ -616,12 +708,15 @@ function switchToTab(tab, pushUrl) {
   document.getElementById("panelStmtGen").classList.toggle("hidden", tab !== "stmtGen");
   document.getElementById("panelStmtAudit").classList.toggle("hidden", tab !== "stmtAudit");
   document.getElementById("panelTsAudit").classList.toggle("hidden", tab !== "tsAudit");
+  document.getElementById("panelLlm").classList.toggle("hidden", tab !== "llm");
   if (tab === "home" && !_homeMapLoaded) { _homeMapLoaded = true; loadHomeMap(); }
   // home.js loads after this file, so it is undefined on the first call
   if (tab === "home" && typeof loadHomeSummary === "function") loadHomeSummary();
   if (tab === "scores" && !scoresLoaded) { scoresLoaded = true; loadScores("all", "all"); }
   if (tab === "dp" && !dpPanelLoaded) { dpPanelLoaded = true; loadDesignPoints("all"); }
   if (tab === "countries" && !countryMatrixLoaded) { countryMatrixLoaded = true; loadCountryMatrix(); }
+  // the window may have been resized while the matrix was hidden
+  if (tab === "countries" && typeof cmSyncHScroll === "function") requestAnimationFrame(() => { cmFixStickyLefts(); cmSyncHScroll(); cmPinHeader(); });
   if (tab === "stmtGen" && !sgLoaded) { sgLoaded = true; sgBuildHeader(); sgLoadCoverage(); }
   if (tab === "stmtAudit" && !auLoaded) { auLoaded = true; auLoad(); }
   if (tab === "tsAudit" && !tsLoaded) { tsLoaded = true; tsLoad(); }
@@ -629,6 +724,9 @@ function switchToTab(tab, pushUrl) {
     const slug = TAB_SLUGS[tab];
     history.pushState({ tab }, "", MOUNT_PATH + (slug || ""));
   }
+  // llm.js loads after this file and keeps its view in the query string, so
+  // it runs after the URL is set (and is undefined on the first call)
+  if (tab === "llm" && typeof llmOpen === "function") llmOpen();
 }
 
 document.querySelectorAll(".tab-btn").forEach((btn) => {
@@ -648,6 +746,105 @@ document.querySelectorAll(".tab-btn").forEach((btn) => {
 document.getElementById("topbarTitle").addEventListener("click", () => {
   switchToTab("home", true);
 });
+
+// ── Panel-to-panel guide ───────────────────────────────────────────────────
+// Each main panel ends with links to the previous and next panel, in tab
+// order, so a first-time visitor can walk through the whole explorer. The
+// questions match the tab tooltips (index.html) and Home's Explore cards.
+const PANEL_TOUR = [
+  { tab: "home",       name: "Home",              q: "What the survey asks, and what it shows" },
+  { tab: "scores",     name: "Individual Scores", q: "How commonsensical is each person?",                 wrap: "#panelScores .scores-wrap" },
+  { tab: "stmtScores", name: "Statement Scores",  q: "How commonsensical is each statement?",              wrap: "#panelStmtScores .scores-wrap" },
+  { tab: "dp",         name: "Design Points",     q: "Which kinds of statements are most commonsensical?", wrap: "#panelDP .scores-wrap" },
+  { tab: "compare",    name: "Group Comparison",  q: "Do two countries share the same common sense?",      wrap: "#compareWrap" },
+  { tab: "countries",  name: "Countries",         q: "Is a statement equally commonsensical everywhere?",  wrap: "#panelCountries .scores-wrap" },
+  { tab: "llm",        name: "LLM Evaluations",   q: "How commonsensical are language models?",            wrap: "#llmWrap" },
+];
+
+function panelTourLink(step, dir) {
+  const label = dir === "prev" ? "← Previous" : step.tab === "home" ? "Back to the start" : "Next →";
+  return (
+    `<a class="panel-tour-link panel-tour-${dir}" href="${TAB_SLUGS[step.tab] || "./"}" data-tour-tab="${step.tab}">` +
+    `<span class="panel-tour-dir">${label}</span>` +
+    `<span class="panel-tour-name">${esc(step.name)}</span>` +
+    `<span class="panel-tour-q">${esc(step.q)}</span></a>`
+  );
+}
+
+PANEL_TOUR.forEach((step, i) => {
+  if (!step.wrap) return;
+  const wrap = document.querySelector(step.wrap);
+  if (!wrap) return;
+  const nav = document.createElement("nav");
+  nav.className = "panel-tour";
+  nav.setAttribute("aria-label", "Other panels");
+  nav.innerHTML =
+    panelTourLink(PANEL_TOUR[i - 1], "prev") +
+    panelTourLink(PANEL_TOUR[(i + 1) % PANEL_TOUR.length], "next");
+  wrap.appendChild(nav);
+});
+
+document.addEventListener("click", (e) => {
+  const a = e.target.closest("a[data-tour-tab]");
+  if (!a || e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
+  e.preventDefault();
+  const tab = a.dataset.tourTab;
+  switchToTab(tab, true);
+  // open the next panel at its top, not wherever it was last left
+  const step = PANEL_TOUR.find((s) => s.tab === tab);
+  const sc = document.querySelector(step && step.wrap ? step.wrap : "#homeScroll");
+  if (sc) sc.scrollTop = 0;
+});
+
+// Tell the panel's intro card (static/intro.js, loaded after this file) that
+// its panel has new data, so the worked example follows the selects and dates.
+function notifyIntro(panel, data, ctx) {
+  if (typeof introOnData === "function") introOnData(panel, data, ctx);
+}
+
+// ── Paginated tables in a scrolling page ──────────────────────────────────
+// The 25-row tables are not height-capped (style.css), so the panel scrolls
+// past them. revealTableTop() scrolls the panel back up to a table's controls
+// when they are above the visible area; mirrorPager() repeats a pager under
+// its table, forwarding clicks to the original buttons and following their
+// state, so the next page is one click away from the bottom of this one.
+function revealTableTop(el) {
+  const sc = el && el.closest(".scores-wrap");
+  if (!sc) return;
+  const dy = el.getBoundingClientRect().top - sc.getBoundingClientRect().top;
+  if (dy < 0) sc.scrollTop += dy - 8;
+}
+
+function mirrorPager(pager, after) {
+  if (!pager || !after) return;
+  const copy = pager.cloneNode(true);
+  copy.querySelectorAll("[id]").forEach((el) => el.removeAttribute("id"));
+  const row = document.createElement("div");
+  row.className = "table-nav-row table-nav-bottom";
+  row.appendChild(copy);
+  const src = [...pager.querySelectorAll("button")];
+  const dst = [...copy.querySelectorAll("button")];
+  const srcInfo = pager.querySelector(".page-info");
+  const dstInfo = copy.querySelector(".page-info");
+  const sync = () => {
+    src.forEach((b, i) => { if (dst[i]) dst[i].disabled = b.disabled; });
+    if (srcInfo && dstInfo) dstInfo.textContent = srcInfo.textContent;
+    row.hidden = src.every((b) => b.disabled); // a single page needs no second pager
+  };
+  dst.forEach((b, i) =>
+    b.addEventListener("click", () => {
+      src[i].click();
+      if (after.scrollHeight > after.clientHeight) after.scrollTop = 0; // a table with its own scroller
+      revealTableTop(pager.closest(".table-nav-row") || pager);
+    }),
+  );
+  after.after(row);
+  new MutationObserver(sync).observe(pager, {
+    subtree: true, childList: true, characterData: true,
+    attributes: true, attributeFilter: ["disabled"],
+  });
+  sync();
+}
 
 // ══ Design Point Coverage (statement-generation) ═══════════════════════════
 // Ported from .scripts/statement-generation/'s standalone Statement Explorer,
@@ -1449,8 +1646,8 @@ let tsDetailRequestId = 0;
 // for the 0-valued label and "no", neutral gray for a split. Blue and orange
 // pass the dataviz palette checks on the white card; the gray is below 3:1, so
 // the chart keeps its legend and tooltips and the statement list has the values.
-const TS_COLOR_1 = '#2a78d6';
-const TS_COLOR_0 = '#eb6834';
+const TS_COLOR_1 = UI.agree;
+const TS_COLOR_0 = UI.expect;
 const TS_COLOR_SPLIT = '#c3c2b7';
 // Jev's confidence sits mostly near 1, so the bands are finer at the top
 const TS_CONF_BANDS = [
@@ -1629,7 +1826,7 @@ function tsRenderCommonsense() {
       datasets: groups.map(g => ({
         label: g.label, data: g.counts, backgroundColor: g.color,
         // A 2px white gap between stacked segments instead of an outline
-        borderColor: '#fff', borderWidth: { top: 2, right: 0, bottom: 0, left: 0 },
+        borderColor: UI.surface, borderWidth: { top: 2, right: 0, bottom: 0, left: 0 },
         maxBarThickness: 24,
       })),
     },
@@ -1638,7 +1835,7 @@ function tsRenderCommonsense() {
       maintainAspectRatio: false,
       interaction: { mode: 'index', intersect: false },
       plugins: {
-        legend: { position: 'top', align: 'start', labels: { boxWidth: 12, boxHeight: 12, font: { size: 12 }, padding: 14 } },
+        legend: { position: 'top', align: 'start', labels: { boxWidth: 12, boxHeight: 12, font: CHART_FONT.legend, padding: 14 } },
         tooltip: {
           callbacks: {
             title: items => `P(common sense) ${items[0].dataIndex * 5}–${items[0].dataIndex * 5 + 5}%`,
@@ -1651,16 +1848,16 @@ function tsRenderCommonsense() {
         x: {
           stacked: true,
           grid: { display: false },
-          title: { display: true, text: "Jev's P(common sense)", font: { size: 13 } },
-          ticks: { font: { size: 12 }, callback: (_, idx) => (idx % 4 === 0 ? labels[idx] : '') },
+          title: { display: true, text: "Jev's P(common sense)", font: CHART_FONT.title },
+          ticks: { font: CHART_FONT.tick, callback: (_, idx) => (idx % 4 === 0 ? labels[idx] : '') },
         },
         y: {
           stacked: true,
           beginAtZero: true,
-          grid: { color: '#EEF2F6' },
+          grid: { color: UI.grid },
           border: { display: false },
-          title: { display: true, text: 'Statements', font: { size: 13 } },
-          ticks: { font: { size: 12 }, precision: 0 },
+          title: { display: true, text: 'Statements', font: CHART_FONT.title },
+          ticks: { font: CHART_FONT.tick, precision: 0 },
         },
       },
     },
@@ -1722,7 +1919,7 @@ function tsRenderDistributions() {
         barPercentage: 0.9,
         interaction: { mode: 'index', intersect: false },
         plugins: {
-          legend: { position: 'top', align: 'start', labels: { boxWidth: 10, boxHeight: 10, font: { size: 11 }, padding: 8 } },
+          legend: { position: 'top', align: 'start', labels: { boxWidth: 10, boxHeight: 10, font: CHART_FONT.legend, padding: 8 } },
           tooltip: {
             callbacks: {
               title: items => `P(${def.v1}) ${items[0].dataIndex * 10}–${items[0].dataIndex * 10 + 10}%`,
@@ -1733,15 +1930,15 @@ function tsRenderDistributions() {
         scales: {
           x: {
             grid: { display: false },
-            title: { display: true, text: `Jev's P(${def.v1})`, font: { size: 11 } },
-            ticks: { font: { size: 10 }, callback: (_, idx) => (idx % 2 === 0 ? labels[idx] : '') },
+            title: { display: true, text: `Jev's P(${def.v1})`, font: CHART_FONT.title },
+            ticks: { font: CHART_FONT.tick, callback: (_, idx) => (idx % 2 === 0 ? labels[idx] : '') },
           },
           y: {
             beginAtZero: true,
-            grid: { color: '#EEF2F6' },
+            grid: { color: UI.grid },
             border: { display: false },
-            title: { display: true, text: 'Share of group', font: { size: 11 } },
-            ticks: { font: { size: 10 }, callback: v => `${v}%` },
+            title: { display: true, text: 'Share of group', font: CHART_FONT.title },
+            ticks: { font: CHART_FONT.tick, callback: v => `${v}%` },
           },
         },
       },
@@ -1982,7 +2179,8 @@ document.querySelector('#tsTable').closest('.sg-table-wrap').addEventListener('s
 
 // Set initial state so back/forward work, then route to the correct panel
 const _initialTab = tabFromPathname();
-history.replaceState({ tab: _initialTab }, "", window.location.pathname);
+// Keep the query string: the LLM Evaluations panel reads its view from it
+history.replaceState({ tab: _initialTab }, "", window.location.pathname + window.location.search);
 switchToTab(_initialTab, false);
 
 window.addEventListener("popstate", (e) => {
@@ -2022,7 +2220,7 @@ async function openUserDetail(userRow, opts = {}) {
   // Excluded users (grayed-out rows) have no scores to show
   modalUserScores.textContent =
     userRow.commonsensicality == null
-      ? "Not scored: fewer than 5 qualifying statements"
+      ? "No score: fewer than 5 statements count"
       : `Consensus: ${fmtPct(userRow.consensus)} · ` +
         `Awareness: ${fmtPct(userRow.awareness)} · ` +
         `Commonsensicality: ${fmtPct(userRow.commonsensicality)}`;
@@ -2063,43 +2261,41 @@ async function openUserDetail(userRow, opts = {}) {
   const commsFrac = Math.sqrt(consFrac * awareFrac);
   const fp = (v) => (v * 100).toFixed(1) + "%";
 
-  const qualifyingNote =
-    N_total > N || data.disqualified
-      ? `In calculating the commonsensicality score, we require that every eligible statement was rated at least 10 times in the reference group (<strong>${esc(refLabel)}</strong>), counting ratings from all dates (the date filter does not apply to the reference group). Only <strong>${N}</strong> out of <strong>${N_total}</strong> statements qualify.` +
-        (data.disqualified
-          ? ` Since fewer than 5 statements qualify (minimum required), <strong>this user is excluded from the commonsensicality calculation</strong>.`
-          : ` The calculation below is based on these <strong>${N}</strong> statements.`)
-      : null;
-
+  // Which statements count, then the three steps, as in the intro card
+  const countNote =
+    N_total > N
+      ? ` <strong>${N}</strong> of them count, having at least 10 ratings ` +
+        `${reference === "all" ? "overall" : `from ${esc(refLabel)}`}.`
+      : "";
   modalExplanation.innerHTML =
-    // A disqualified user has no score: say so instead of explaining one
-    (data.disqualified
-      ? `<p class="expl-context">This user, who is in the <strong>${esc(targetLabel)}</strong> group, has no commonsensicality score relative to the <strong>${esc(refLabel)}</strong> group.</p>`
-      : `<p class="expl-context">The calculation of this user's commonsensicality score is based on the fact that the user, who is in the <strong>${esc(targetLabel)}</strong> group, is being measured relative to the <strong>${esc(refLabel)}</strong> group.</p>`) +
+    `<p class="expl-context">Scored against the majority in <strong>${esc(refLabel)}</strong>, using its ratings from all dates.</p>` +
     `<ul class="expl-list">` +
-    `<li>This user has rated a total of <strong>${N_total}</strong> statement${N_total !== 1 ? "s" : ""}. See the table below.` +
-    (qualifyingNote ? `<br><br>${qualifyingNote}` : "") +
+    `<li>Rated <strong>${N_total}</strong> statement${N_total !== 1 ? "s" : ""}.${countNote}` +
+    (data.disqualified ? ` Fewer than 5 count, so this participant has <strong>no score</strong>.` : "") +
     `</li>` +
     (data.disqualified ? "" :
-    `<li>For each statement, we determine the majority opinion in the reference group (<strong>${esc(refLabel)}</strong>) via the <em>Ref. avg. agree</em> column: if ≥ 50%, the majority agrees; otherwise, the majority disagrees.</li>` +
-    `<li>Of all <strong>${N}</strong> statements:` +
-    `<ul>` +
-    `<li>There ${A === 1 ? "is" : "are"} <strong>${A}</strong> statement${A !== 1 ? "s" : ""} for which the user's opinion (<em>I agree</em>) matches the majority opinion (<em>Ref. avg. agree</em>). Thus, the <strong>consensus</strong> score is <strong>${fp(consFrac)}</strong> (= ${A}/${N}).</li>` +
-    `<li>There ${B === 1 ? "is" : "are"} <strong>${B}</strong> statement${B !== 1 ? "s" : ""} for which the user's prediction of the majority opinion (<em>Others agree</em>) matches the majority opinion (<em>Ref. avg. agree</em>). Thus, the <strong>awareness</strong> score is <strong>${fp(awareFrac)}</strong> (= ${B}/${N}).</li>` +
-    `</ul></li>` +
-    `<li>The <strong>commonsensicality</strong> score is the geometric mean of consensus and awareness: √(${fp(consFrac)} × ${fp(awareFrac)}) = <strong>${fp(commsFrac)}</strong>.</li>`) +
-    `</ul>`;
+    `<li><strong>Consensus</strong>: ${A} of ${N} answers match the majority = <strong>${fp(consFrac)}</strong>.</li>` +
+    `<li><strong>Awareness</strong>: ${B} of ${N} guesses about most others match the majority = <strong>${fp(awareFrac)}</strong>.</li>` +
+    `<li><strong>Commonsensicality</strong> = ${sqrtHtml(`${fp(consFrac)} × ${fp(awareFrac)}`)} = <strong>${fp(commsFrac)}</strong>.</li>`) +
+    `</ul>` +
+    (data.disqualified ? "" : `<p class="expl-context">✓ marks an answer that matches the majority: consensus is the share of ✓ under <em>Agrees?</em>, awareness the share under <em>Thinks most agree?</em></p>`);
   modalExplanation.classList.remove("hidden");
 
+  // ✓ / ✗ against the majority, as in the intro card's worked example; the
+  // server says which statements count (10+ reference ratings) and their
+  // majority, by the same rule as the score; the others are grey
   const fragment = document.createDocumentFragment();
   data.rows.forEach((row) => {
+    const counted = row.counted === true && row.ref_majority != null;
+    const maj = counted ? Number(row.ref_majority) : null;
     const tr = document.createElement("tr");
+    if (!counted) tr.classList.add("row-uncounted");
     tr.innerHTML =
       `<td class="td-statement">${esc(fixStatement(row.statement))}</td>` +
-      `<td class="td-modal-right">${badge(row.I_agree)}</td>` +
-      `<td class="td-modal-right">${badge(row.others_agree)}</td>` +
-      `<td class="td-modal-right">${row.ref_n_ratings != null ? fmtNum(row.ref_n_ratings) : "—"}</td>` +
-      `<td class="td-modal-right">${refAvgAgree(row.ref_i_agree_mean)}</td>`;
+      `<td class="td-modal-right">${counted ? refAvgAgree(row.ref_i_agree_mean) : `<span class="td-muted" title="Fewer than 10 ratings in ${esc(refLabel)}">not counted</span>`}</td>` +
+      `<td class="td-modal-right">${answerPill(row.I_agree, maj)}</td>` +
+      `<td class="td-modal-right">${answerPill(row.others_agree, maj)}</td>` +
+      `<td class="td-modal-right">${row.ref_n_ratings != null ? fmtNum(row.ref_n_ratings) : "—"}</td>`;
     fragment.appendChild(tr);
   });
   modalBody.innerHTML = "";
@@ -2202,8 +2398,8 @@ function updateSortHeaders() {
 function getBarColors() {
   const n = Math.max(histBinEdges.length - 1, 20);
   return Array.from({ length: n }, (_, i) => {
-    if (activeBinIdx === null) return "#3B82F6";
-    return i === activeBinIdx ? "#1D4ED8" : "#93C5FD";
+    if (activeBinIdx === null) return UI.agree;
+    return i === activeBinIdx ? UI.agreeInk : UI.agreeSoft;
   });
 }
 
@@ -2270,12 +2466,12 @@ function renderScoresPage() {
       .classList.contains("hidden");
     scoresFilterLabel.textContent =
       scoresRows.length && !noteVisible
-        ? `${fmtNum(scoresRows.length)} users`
+        ? `${fmtNum(scoresRows.length)} participants`
         : "";
   } else {
     const lo = fmtPct(histBinEdges[activeBinIdx]);
     const hi = fmtPct(histBinEdges[activeBinIdx + 1]);
-    scoresFilterLabel.textContent = `Filtered: score ${lo} – ${hi} · ${fmtNum(scoresRows.length)} users · click bar again to clear`;
+    scoresFilterLabel.textContent = `Showing scores ${lo} – ${hi}: ${fmtNum(scoresRows.length)} participants · click the bar again to show everyone`;
   }
 
   const tp = scoresTotalPages();
@@ -2337,14 +2533,14 @@ function _flagEmoji(iso) {
 async function showCountryCard(serverName, iso_a2) {
   const card = document.getElementById("homeCountryCard");
   card.classList.remove("hidden");
-  card.innerHTML = `<div class="hcc-header"><span class="hcc-flag">${_flagEmoji(iso_a2)}</span><span class="hcc-name">${serverName}</span></div><div style="color:#94A3B8;font-size:0.9rem">Loading…</div>`;
+  card.innerHTML = `<div class="hcc-header"><span class="hcc-flag">${_flagEmoji(iso_a2)}</span><span class="hcc-name">${serverName}</span></div><div style="color:var(--c-muted);font-size:var(--fs-3)">Loading…</div>`;
   card.scrollIntoView({ behavior: "smooth", block: "nearest" });
 
   let data;
   try {
     data = await fetch(`${API}/country-summary?country=${encodeURIComponent(serverName)}${dateParams()}`).then(r => r.json());
   } catch {
-    card.innerHTML += `<div style="color:#EF4444;font-size:0.85rem">Failed to load country data.</div>`;
+    card.innerHTML += `<div style="color:var(--c-bad);font-size:var(--fs-3)">Failed to load country data.</div>`;
     return;
   }
   renderCountryCard(card, serverName, iso_a2, data);
@@ -2498,7 +2694,7 @@ async function renderWorldMap({ data, insuff } = {}) {
   const byCount = _homeMapMode === "count";
   // Grey (non-qualifying) layer — drawn first, behind qualifying paths
   for (const { c, ins } of nonQualifying) {
-    const path = _mkPath(c.d, byCount ? "#E2E8F0" : "#CBD5E1", "default");
+    const path = _mkPath(c.d, byCount ? UI.lineLight : UI.line, "default");
     path.addEventListener("mousemove", (e) => {
       tooltip.hidden = false;
       const name = ins ? ins.serverName : c.name;
@@ -2513,7 +2709,7 @@ async function renderWorldMap({ data, insuff } = {}) {
 
   // Colored (qualifying) layer — drawn on top so clicks always land here
   for (const { c, entry } of qualifying) {
-    const color = byCount ? _mapCountColor(entry.n) : (CONTINENT_COLORS[c.continent] || "#CBD5E1");
+    const color = byCount ? _mapCountColor(entry.n) : (CONTINENT_COLORS[c.continent] || UI.line);
     const path = _mkPath(c.d, color, "pointer");
     pathByServerName[entry.serverName] = path;
     fillByServerName[entry.serverName] = color;
@@ -2525,7 +2721,7 @@ async function renderWorldMap({ data, insuff } = {}) {
         pathByServerName[_selectedHomeCountry].removeAttribute("stroke-width");
       }
       _selectedHomeCountry = entry.serverName;
-      path.setAttribute("stroke", "#1E293B");
+      path.setAttribute("stroke", UI.text);
       path.setAttribute("stroke-width", "1.5");
       tooltip.hidden = true;
       showCountryCard(entry.serverName, c.iso_a2 || "");
@@ -2543,7 +2739,7 @@ async function renderWorldMap({ data, insuff } = {}) {
 
   // Keep the selected country outlined when the map is redrawn (mode toggle)
   if (_selectedHomeCountry && pathByServerName[_selectedHomeCountry]) {
-    pathByServerName[_selectedHomeCountry].setAttribute("stroke", "#1E293B");
+    pathByServerName[_selectedHomeCountry].setAttribute("stroke", UI.text);
     pathByServerName[_selectedHomeCountry].setAttribute("stroke-width", "1.5");
   }
 
@@ -2573,14 +2769,59 @@ async function renderWorldMap({ data, insuff } = {}) {
 }
 
 
+// Score histograms use a 0–100 linear x axis, so the 0%, 20%, … 100% labels
+// sit on bin edges (not under a bar's centre) and every bar is drawn at its
+// bin's centre. Click handlers map a click's x position to a bin, which the
+// 0–100 axis keeps exact.
+function histPoints(counts, edges) {
+  return counts.map((c, i) => ({ x: ((edges[i] + edges[i + 1]) / 2) * 100, y: c }));
+}
+function histXScale(title) {
+  return {
+    type: "linear",
+    min: 0,
+    max: 100,
+    offset: false,
+    title: { display: true, text: title, font: CHART_FONT.title },
+    grid: { display: false },
+    ticks: { font: CHART_FONT.tick, stepSize: 20, maxRotation: 0, callback: (v) => `${v}%` },
+  };
+}
+
+// A vertical marker on the Individual Scores histogram: the median of the
+// participants shown (set by loadScores())
+let histMedian = null; // 0–1 share, or null
+const histMarkerPlugin = {
+  id: "histMedian",
+  afterDatasetsDraw(chart) {
+    if (histMedian == null) return;
+    const { ctx, chartArea: { top, bottom, left, right }, scales: { x } } = chart;
+    const px = x.getPixelForValue(histMedian * 100);
+    const label = `Median ${fmtPct(histMedian)}`;
+    ctx.save();
+    ctx.strokeStyle = UI.muted;
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([4, 3]);
+    ctx.beginPath();
+    ctx.moveTo(px, top - 14);
+    ctx.lineTo(px, bottom);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = UI.body;
+    ctx.font = chartCanvasFont(600);
+    ctx.textBaseline = "bottom";
+    const w = ctx.measureText(label).width;
+    ctx.fillText(label, Math.max(left, Math.min(right - w, px + 5)), top - 4);
+    ctx.restore();
+  },
+};
+
 function renderHistogram({ counts, bin_edges }) {
   histBinEdges = bin_edges;
-  const labels = bin_edges.slice(0, -1).map(fmtPct);
-  const histData = counts;
+  const histData = histPoints(counts, bin_edges);
   const colors = getBarColors();
 
   if (histChart) {
-    histChart.data.labels = labels;
     histChart.data.datasets[0].data = histData;
     histChart.data.datasets[0].backgroundColor = colors;
     histChart.update();
@@ -2590,8 +2831,8 @@ function renderHistogram({ counts, bin_edges }) {
   const ctx = document.getElementById("histChart").getContext("2d");
   histChart = new Chart(ctx, {
     type: "bar",
+    plugins: [histMarkerPlugin],
     data: {
-      labels,
       datasets: [
         {
           data: histData,
@@ -2603,6 +2844,7 @@ function renderHistogram({ counts, bin_edges }) {
       ],
     },
     options: {
+      layout: { padding: { top: 18 } }, // room for the median label
       responsive: true,
       maintainAspectRatio: false,
       categoryPercentage: 1.0,
@@ -2632,33 +2874,17 @@ function renderHistogram({ counts, bin_edges }) {
               return `Score: ${fmtPct(histBinEdges[i])} – ${fmtPct(histBinEdges[i + 1])}`;
             },
             label: (item) =>
-              `${fmtNum(item.raw)} user${item.raw !== 1 ? "s" : ""}`,
+              `${fmtNum(item.raw.y)} participant${item.raw.y !== 1 ? "s" : ""}`,
           },
         },
       },
       scales: {
-        x: {
-          title: {
-            display: true,
-            text: "Commonsensicality score (%)",
-            font: { size: 20 },
-          },
-          grid: { display: false },
-          ticks: {
-            font: { size: 16 },
-            callback: (_, idx, ticks) =>
-              [0, 4, 8, 12, 16].includes(idx)
-                ? labels[idx]
-                : idx === ticks.length - 1
-                  ? "100%"
-                  : "",
-          },
-        },
+        x: histXScale("Commonsensicality score"),
         y: {
-          title: { display: true, text: "Users", font: { size: 20 } },
+          title: { display: true, text: "Participants", font: CHART_FONT.title },
           beginAtZero: true,
-          grid: { color: "#F1F5F9" },
-          ticks: { precision: 0, font: { size: 16 } },
+          grid: { color: UI.grid },
+          ticks: { precision: 0, font: CHART_FONT.tick },
         },
       },
     },
@@ -2704,16 +2930,26 @@ async function loadScores(target, reference) {
 
   allScoresRows = data.users;
   allScoresExcluded = data.users_excluded || [];
+  notifyIntro("scores", data, { target, reference });
 
   const tLabel = target === "all" ? "all countries" : target;
   const rLabel = reference === "all" ? "all countries" : reference;
 
+  // Who has no score, and why; the majority ignores the date filter
   const noteEl = document.getElementById("scoresMinRatingsNote");
+  const dateNote = globalDateFrom || globalDateTo
+    ? ` Majorities use ratings from all dates; the date filter only picks which participants are shown.`
+    : "";
   if (data.raw_n_users != null && data.n_users < data.raw_n_users) {
-    noteEl.textContent =
-      `Note: Only ${fmtNum(data.n_users)} of ${fmtNum(data.raw_n_users)} users in the target group (${tLabel}) are shown. ` +
-      `To qualify, a user in the target group (${tLabel}) must have rated at least 5 statements. ` +
-      `In addition, each statement must have received at least 10 ratings from the reference group (${rLabel}), counting ratings from all dates (the date filter does not apply to the reference group).`;
+    const nOut = data.raw_n_users - data.n_users;
+    noteEl.innerHTML =
+      `<strong>${fmtNum(data.n_users)}</strong> of ${fmtNum(data.raw_n_users)} participants` +
+      `${target === "all" ? "" : ` from ${esc(target)}`} have a score. ` +
+      `The other ${fmtNum(nOut)} rated fewer than 5 statements with at least 10 ratings ` +
+      `${reference === "all" ? "overall" : `from ${esc(reference)}`}; they are listed last in the table, without scores.` + dateNote;
+    noteEl.classList.remove("hidden");
+  } else if (dateNote) {
+    noteEl.innerHTML = dateNote.trim();
     noteEl.classList.remove("hidden");
   } else {
     noteEl.classList.add("hidden");
@@ -2721,10 +2957,13 @@ async function loadScores(target, reference) {
 
   if (allScoresRows.length === 0) {
     scoresBody.innerHTML =
-      '<tr><td colspan="8" class="empty-row">No users met the minimum criteria.</td></tr>';
+      '<tr><td colspan="8" class="empty-row">No participants have a score here: none rated at least 5 statements with 10 or more ratings in the chosen majority group.</td></tr>';
     return;
   }
 
+  const sortedScores = allScoresRows.map((u) => u.commonsensicality).sort((a, b) => a - b);
+  const nS = sortedScores.length;
+  histMedian = nS ? (nS % 2 ? sortedScores[(nS - 1) / 2] : (sortedScores[nS / 2 - 1] + sortedScores[nS / 2]) / 2) : null;
   buildScoresRows();
   renderHistogram(data.histogram);
   renderScoresPage();
@@ -2735,6 +2974,67 @@ async function loadScores(target, reference) {
 function stmtScoresTotalPages() {
   return Math.max(1, Math.ceil(stmtScoresRows.length / PAGE_SIZE));
 }
+
+// Quick views on Statement Scores: each sets the table's sort (and, for
+// "rejected", keeps only statements most raters disagree with) among
+// statements with enough ratings that their shares are stable. Clicking a
+// column header returns to every statement with that sort.
+const STMT_LENSES = {
+  shared: {
+    sort: ["commonsensicality", "desc"],
+    note: "Highest scores first: nearly everyone gives the same answer and expects others to.",
+  },
+  divisive: {
+    sort: ["consensus", "asc"],
+    note: "Closest to an even split first, so consensus is near 0. Whichever way people answer, about half disagree with them.",
+  },
+  misjudged: {
+    sort: ["awareness", "asc"],
+    // a clear majority (at least 60–40), so there is a majority to misjudge
+    keep: (r) => r.consensus >= 0.2,
+    note: "Lowest awareness first, among statements with a clear majority (at least 60–40). Below 50% awareness, more raters expected the opposite of the majority's answer than expected that answer.",
+  },
+  rejected: {
+    sort: ["commonsensicality", "desc"],
+    keep: (r) => r.I_agree_mean < 0.5,
+    note: "Statements most raters disagree with, highest scores first: a shared rejection that people expect is common sense too.",
+  },
+};
+
+// The lens's minimum number of ratings: 100 when that leaves at least 50
+// statements in the current group and dates, else 30, else the scoring
+// minimum of 10
+function stmtLensMinRatings() {
+  for (const n of [100, 30]) {
+    if (stmtScoresAllRows.filter((r) => r.n_ratings >= n).length >= 50) return n;
+  }
+  return 10;
+}
+
+function setStmtLens(lens) {
+  stmtScoresLens = lens && STMT_LENSES[lens] ? lens : "";
+  if (stmtScoresLens) [stmtScoresSortKey, stmtScoresSortDir] = STMT_LENSES[stmtScoresLens].sort;
+  document.querySelectorAll("#ssLenses .lens-btn").forEach((b) =>
+    b.setAttribute("aria-pressed", String(b.dataset.lens === stmtScoresLens)),
+  );
+  const note = document.getElementById("ssLensNote");
+  if (stmtScoresLens) {
+    const min = stmtLensMinRatings();
+    note.innerHTML = `${esc(STMT_LENSES[stmtScoresLens].note)} ` + (min >= 30
+      ? `Only statements with at least <strong>${min}</strong> ratings, so a share isn't swayed by a few raters.`
+      : `Statements with at least <strong>${min}</strong> ratings: too few have more in this group, so shares from few raters can be noisy.`);
+  }
+  note.hidden = !stmtScoresLens;
+}
+
+document.getElementById("ssLenses").addEventListener("click", (e) => {
+  const b = e.target.closest(".lens-btn");
+  if (!b) return;
+  setStmtLens(b.dataset.lens);
+  buildStmtScoresRows();
+  updateStmtScoresSortHeaders();
+  renderStmtScoresPage();
+});
 
 function buildStmtScoresRows() {
   const nBins = stmtScoresHistBinEdges.length - 1;
@@ -2751,10 +3051,17 @@ function buildStmtScoresRows() {
           );
         });
 
+  const lens = STMT_LENSES[stmtScoresLens];
+  if (lens) {
+    const min = stmtLensMinRatings();
+    rows = rows.filter((r) => r.n_ratings >= min && (!lens.keep || lens.keep(r)));
+  }
+
   if (stmtScoresSortKey !== null) {
     rows.sort((a, b) => {
       const d = a[stmtScoresSortKey] - b[stmtScoresSortKey];
-      return stmtScoresSortDir === "asc" ? d : -d;
+      // ties: most-rated first
+      return (stmtScoresSortDir === "asc" ? d : -d) || b.n_ratings - a.n_ratings;
     });
   }
   let ssFiltered = applyPropFilters(rows, ssPropFilters);
@@ -2764,9 +3071,9 @@ function buildStmtScoresRows() {
       r.statement.toLowerCase().includes(ssq),
     );
 
-  // Append excluded statements (only when no histogram bin is selected)
+  // Append excluded statements (only when no histogram bin or quick view is selected)
   let ssExcluded = [];
-  if (stmtScoresActiveBinIdx === null) {
+  if (stmtScoresActiveBinIdx === null && !lens) {
     ssExcluded = stmtScoresAllExcluded.map(r => ({ ...r, _excluded: true }));
     ssExcluded = applyPropFilters(ssExcluded, ssPropFilters);
     if (ssq) ssExcluded = ssExcluded.filter(r => r.statement.toLowerCase().includes(ssq));
@@ -2796,8 +3103,8 @@ function updateStmtScoresSortHeaders() {
 function getStmtScoresBarColors() {
   const n = Math.max(stmtScoresHistBinEdges.length - 1, 20);
   return Array.from({ length: n }, (_, i) => {
-    if (stmtScoresActiveBinIdx === null) return "#3B82F6";
-    return i === stmtScoresActiveBinIdx ? "#1D4ED8" : "#93C5FD";
+    if (stmtScoresActiveBinIdx === null) return UI.agree;
+    return i === stmtScoresActiveBinIdx ? UI.agreeInk : UI.agreeSoft;
   });
 }
 
@@ -2847,17 +3154,24 @@ function renderStmtScoresPage(preserveScroll = false) {
 
   stmtScoresBody.innerHTML = "";
   stmtScoresBody.appendChild(fragment);
-  if (!preserveScroll)
-    document.querySelector("#panelStmtScores .scores-wrap").scrollTop = 0;
+  if (!preserveScroll) revealTableTop(stmtScoresPageInfoEl.closest(".table-nav-row"));
 
-  if (stmtScoresActiveBinIdx === null) {
+  if (stmtScoresLens && stmtScoresActiveBinIdx === null) {
+    const label = document.querySelector(`#ssLenses .lens-btn[data-lens="${stmtScoresLens}"]`).textContent;
     stmtScoresFilterLabel.textContent = stmtScoresRows.length
-      ? `${fmtNum(stmtScoresRows.length)} statements`
-      : "";
+      ? `${label}: ${fmtNum(stmtScoresRows.length)} statement${stmtScoresRows.length !== 1 ? "s" : ""}`
+      : "No statements match.";
+  } else if (stmtScoresActiveBinIdx === null) {
+    const nUnscored = stmtScoresRows.filter((r) => r._excluded).length;
+    const nScored = stmtScoresRows.length - nUnscored;
+    stmtScoresFilterLabel.textContent = !stmtScoresRows.length
+      ? "No statements match."
+      : `${fmtNum(nScored)} scored statement${nScored !== 1 ? "s" : ""}` +
+        (nUnscored ? `, then ${fmtNum(nUnscored)} with fewer than 10 ratings (no score yet)` : "");
   } else {
     const lo = fmtPct(stmtScoresHistBinEdges[stmtScoresActiveBinIdx]);
     const hi = fmtPct(stmtScoresHistBinEdges[stmtScoresActiveBinIdx + 1]);
-    stmtScoresFilterLabel.textContent = `Filtered: score ${lo} – ${hi} · ${fmtNum(stmtScoresRows.length)} statements · click bar again to clear`;
+    stmtScoresFilterLabel.textContent = `Showing scores ${lo} – ${hi}: ${fmtNum(stmtScoresRows.length)} statements · click the bar again to show all`;
   }
 
   const tp = stmtScoresTotalPages();
@@ -2868,12 +3182,10 @@ function renderStmtScoresPage(preserveScroll = false) {
 
 function renderStmtScoresHistogram({ counts, bin_edges }) {
   stmtScoresHistBinEdges = bin_edges;
-  const labels = bin_edges.slice(0, -1).map(fmtPct);
-  const histData = counts;
+  const histData = histPoints(counts, bin_edges);
   const colors = getStmtScoresBarColors();
 
   if (stmtScoresHistChart) {
-    stmtScoresHistChart.data.labels = labels;
     stmtScoresHistChart.data.datasets[0].data = histData;
     stmtScoresHistChart.data.datasets[0].backgroundColor = colors;
     stmtScoresHistChart.update();
@@ -2884,7 +3196,6 @@ function renderStmtScoresHistogram({ counts, bin_edges }) {
   stmtScoresHistChart = new Chart(ctx, {
     type: "bar",
     data: {
-      labels,
       datasets: [
         {
           data: histData,
@@ -2925,39 +3236,25 @@ function renderStmtScoresHistogram({ counts, bin_edges }) {
               return `Score: ${fmtPct(stmtScoresHistBinEdges[i])} – ${fmtPct(stmtScoresHistBinEdges[i + 1])}`;
             },
             label: (item) =>
-              `${fmtNum(item.raw)} statement${item.raw !== 1 ? "s" : ""}`,
+              `${fmtNum(item.raw.y)} statement${item.raw.y !== 1 ? "s" : ""}`,
           },
         },
       },
       scales: {
-        x: {
-          title: {
-            display: true,
-            text: "Commonsensicality score (%)",
-            font: { size: 20 },
-          },
-          grid: { display: false },
-          ticks: {
-            font: { size: 16 },
-            callback: (_, idx, ticks) =>
-              [0, 4, 8, 12, 16].includes(idx)
-                ? labels[idx]
-                : idx === ticks.length - 1
-                  ? "100%"
-                  : "",
-          },
-        },
+        x: histXScale("Commonsensicality score"),
         y: {
-          title: { display: true, text: "Statements", font: { size: 20 } },
+          title: { display: true, text: "Statements", font: CHART_FONT.title },
           beginAtZero: true,
-          grid: { color: "#F1F5F9" },
-          ticks: { precision: 0, font: { size: 16 } },
+          grid: { color: UI.grid },
+          ticks: { precision: 0, font: CHART_FONT.tick },
         },
       },
     },
   });
 }
 
+// The statement modal: its score in the group chosen in Statement Scores,
+// how each country answered, and its six features
 async function openStmtCombined(row) {
   const country = stmtScoresCountrySelect.value;
   const groupLabel = country === "all" ? "all countries" : country;
@@ -2965,66 +3262,83 @@ async function openStmtCombined(row) {
     row.statement,
   );
   document.getElementById("stmtPropsBody").innerHTML =
-    '<p style="color:#94A3B8;padding:12px 0">Loading…</p>';
+    '<p style="color:var(--c-muted);padding:12px 0">Loading…</p>';
   showStmtMeta(document.getElementById("stmtPropsMeta"), row.statementId);
   stmtPropsModal.classList.remove("hidden");
+  const reqId = ++stmtCountriesReq;
 
-  // Fetch top countries async
   let countriesHtml = "";
   try {
     const countries = await fetch(
       `${API}/statement-countries?statementId=${encodeURIComponent(row.statementId)}${dateParams()}`,
     ).then((r) => r.json());
-    if (countries.length) {
-      const countryRows = countries
-        .map(
-          (c, i) =>
-            `<tr><td class="prop-country-rank">${i + 1}</td><td class="prop-country-name">${esc(c.country)}</td><td class="prop-country-n">${fmtNum(c.n_ratings)}</td></tr>`,
-        )
-        .join("");
-      countriesHtml =
-        `<div class="prop-countries-section">` +
-        `<div class="prop-detail-category" style="padding:10px 20px 4px">Top countries by ratings</div>` +
-        `<table class="prop-countries-table"><tbody>${countryRows}</tbody></table>` +
-        `</div>`;
-    }
+    if (Array.isArray(countries) && countries.length) countriesHtml = stmtCountriesHtml(countries, country);
   } catch (_) {}
+  if (reqId !== stmtCountriesReq) return; // another statement was opened meanwhile
 
-  // Score calculation section
-  if (row._excluded) {
-    document.getElementById("stmtPropsBody").innerHTML =
-      countriesHtml +
-      `<div class="stmt-combined-section"><div class="stmt-combined-section-title">Commonsensicality score</div>` +
-      `<p class="expl-context">${notEnoughRatingsHtml(row.n_ratings, groupLabel)}</p></div>` +
-      `<div class="stmt-combined-section"><div class="stmt-combined-section-title">Statement properties</div><ul class="prop-detail-list">${stmtPropItemsHtml(row)}</ul></div>`;
-    return;
-  }
-  const N = row.n_ratings;
-  const A = row.I_agree_mean;
-  const B = row.others_agree_mean;
-  const majorityYes = A >= 0.5;
-  const fp = (v) => (v * 100).toFixed(1) + "%";
-  const consensus = 2 * Math.abs(A - 0.5);
-  const consFormula = `2 × |${fp(A)} − 50%| = 2 × ${fp(Math.abs(A - 0.5))} = <strong>${fp(consensus)}</strong>`;
-  const awareness = majorityYes ? B : 1 - B;
-  const awarenessText = majorityYes
-    ? `Of the ${fmtNum(N)} individuals, <strong>${fp(B)}</strong> of them predicted that most people would agree (via <em>Others agree</em>). Since the majority opinion is "Yes", these ${fp(B)} correctly predicted the majority. Thus, the <strong>awareness</strong> score is <strong>${fp(awareness)}</strong>.`
-    : `Of the ${fmtNum(N)} individuals, <strong>${fp(B)}</strong> of them predicted that most people would agree. Since the majority opinion is "No", the remaining <strong>${fp(1 - B)}</strong> who predicted "No" correctly predicted the majority. Thus, the <strong>awareness</strong> score is <strong>${fp(awareness)}</strong>.`;
-  const commonsensicality = Math.sqrt(consensus * awareness);
-  const scoreHtml =
-    `<p class="expl-context">The following calculation of this statement's commonsensicality score is relative to the target group, <strong>${esc(groupLabel)}</strong>.</p>` +
-    `<ul class="expl-list">` +
-    `<li>Within this group, this statement has received a total of <strong>${fmtNum(N)}</strong> rating${N !== 1 ? "s" : ""}.</li>` +
-    `<li>Of the <strong>${fmtNum(N)}</strong> individuals who rated the statement, <strong>${fp(A)}</strong> of them agreed with it (via <em>I agree</em>). Since ${fp(A)} ${majorityYes ? "≥" : "<"} 50%, the majority opinion is <strong>"${majorityYes ? "Yes" : "No"}"</strong> — most people ${majorityYes ? "agreed with" : "disagreed with"} the statement.</li>` +
-    `<li>Since ${fp(A)} of people agreed, the <strong>consensus</strong> score is ${consFormula}.</li>` +
-    `<li>${awarenessText}</li>` +
-    `<li>The <strong>commonsensicality</strong> score is the geometric mean of consensus and awareness: √(${fp(consensus)} × ${fp(awareness)}) = <strong>${fp(commonsensicality)}</strong>.</li>` +
-    `</ul>`;
-
-  document.getElementById("stmtPropsBody").innerHTML =
-    countriesHtml +
+  // Score first, then how each country answered, then the six features
+  const scoreHtml = row._excluded
+    ? `<p class="expl-context">${notEnoughRatingsHtml(row.n_ratings, groupLabel)}</p>`
+    : stmtCalcHtml(row, groupLabel);
+  const body = document.getElementById("stmtPropsBody");
+  body.innerHTML =
     `<div class="stmt-combined-section"><div class="stmt-combined-section-title">Commonsensicality score</div>${scoreHtml}</div>` +
-    `<div class="stmt-combined-section"><div class="stmt-combined-section-title">Statement properties</div><ul class="prop-detail-list">${stmtPropItemsHtml(row)}</ul></div>`;
+    countriesHtml +
+    `<div class="stmt-combined-section"><div class="stmt-combined-section-title">Statement features</div><ul class="prop-detail-list">${stmtPropItemsHtml(row)}</ul></div>`;
+  const more = body.querySelector(".sc-more");
+  if (more) more.addEventListener("click", () => {
+    body.querySelectorAll(".sc-row.is-extra").forEach((tr) => tr.classList.remove("is-extra"));
+    more.remove();
+  });
+}
+let stmtCountriesReq = 0;
+
+// How each country's participants answered one statement (from
+// /api/statement-countries): the share who agree, with a tick at 50%, and the
+// country's own score once it has at least 10 ratings. A sentence on top says
+// whether the majorities point the same way, which the scores alone don't.
+const SC_SHOW = 8;
+function stmtCountriesHtml(countries, current) {
+  const scored = countries.filter((c) => c.score !== undefined && c.score !== null);
+  const nAgree = scored.filter((c) => c.maj === 1).length;
+  const nDis = scored.length - nAgree;
+  const nCountries = (n) => `${fmtNum(n)} ${n === 1 ? "country" : "countries"}`;
+  let summary;
+  if (!scored.length) {
+    summary = `No country has rated it 10 times yet, so there are no country scores. Shares from fewer than 10 ratings are shown in grey.`;
+  } else if (scored.length === 1) {
+    summary = `Only <strong>${esc(scored[0].country)}</strong> has rated it at least 10 times; its majority ${scored[0].maj ? "agrees" : "disagrees"}.`;
+  } else if (!nAgree || !nDis) {
+    summary = `The majority ${nAgree ? "agrees" : "disagrees"} in all <strong>${fmtNum(scored.length)}</strong> countries with at least 10 ratings.`;
+  } else {
+    summary = `<strong>Majorities differ:</strong> the majority agrees in ${nCountries(nAgree)} and disagrees in ${nCountries(nDis)}, of the ${fmtNum(scored.length)} with at least 10 ratings. A small country's share can be noisy.`;
+  }
+  // Countries with 10+ ratings first (most ratings first), then the rest
+  const order = [...scored, ...countries.filter((c) => c.score === undefined || c.score === null)];
+  const rows = order.map((c, i) => {
+    const ok = c.score !== undefined && c.score !== null;
+    const p = c.I_agree_mean;
+    const cls = `sc-row${ok ? "" : " is-thin"}${c.country === current ? " is-current" : ""}${i >= SC_SHOW ? " is-extra" : ""}`;
+    return (
+      `<tr class="${cls}">` +
+      `<td class="sc-country">${countryFlag(c.country) ? countryFlag(c.country) + " " : ""}${esc(c.country)}</td>` +
+      `<td class="sc-n">${fmtNum(c.n_ratings)}</td>` +
+      `<td class="sc-agree"><span class="sc-bar"><span class="sc-fill${p < 0.5 ? " is-low" : ""}" style="width:${(p * 100).toFixed(1)}%"></span></span>` +
+        `<span class="sc-val">${(p * 100).toFixed(0)}%</span></td>` +
+      `<td class="sc-maj">${ok ? (c.maj ? "Agrees" : "Disagrees") : "—"}</td>` +
+      `<td class="sc-score">${ok ? (c.score * 100).toFixed(1) : "—"}</td>` +
+      `</tr>`
+    );
+  }).join("");
+  const extra = order.length - SC_SHOW;
+  return (
+    `<div class="stmt-combined-section"><div class="stmt-combined-section-title">How each country answered</div>` +
+    `<p class="sc-summary">${summary}</p>` +
+    `<div class="sc-wrap"><table class="sc-table"><thead><tr><th>Country</th><th class="sc-n">Ratings</th><th class="sc-agree">Share who agree</th><th class="sc-maj">Majority</th><th class="sc-score" title="The statement's commonsensicality among that country's participants (10+ ratings)">Score</th></tr></thead>` +
+    `<tbody>${rows}</tbody></table></div>` +
+    (extra > 0 ? `<button type="button" class="sc-more">Show all ${fmtNum(order.length)} countries</button>` : "") +
+    `</div>`
+  );
 }
 
 // Property definitions section of the Statement Scores modal
@@ -3060,6 +3374,7 @@ async function loadStmtScores(country) {
   stmtScoresActiveBinIdx = null;
   stmtScoresSortKey = "n_ratings";
   stmtScoresSortDir = "desc";
+  setStmtLens("");
   updateStmtScoresSortHeaders();
 
   let data;
@@ -3085,9 +3400,9 @@ async function loadStmtScores(country) {
 
   stmtScoresAllRows = data.rows;
   stmtScoresAllExcluded = data.rows_excluded || [];
+  notifyIntro("stmtScores", data, { country });
 
-  const label = country === "all" ? "all countries" : country;
-  stmtScoresSummaryEl.textContent = `${fmtNum(data.n_statements)} statements · ${fmtNum(data.n_users)} participants (${label})`;
+  stmtScoresSummaryEl.textContent = `${fmtNum(data.n_statements)} statements scored from ${fmtNum(data.n_users)} participants`;
 
   if (!stmtScoresAllRows.length) {
     stmtScoresBody.innerHTML =
@@ -3173,6 +3488,7 @@ document
         stmtScoresSortKey = key;
         stmtScoresSortDir = "desc";
       }
+      if (stmtScoresLens) setStmtLens(""); // a header sort shows every statement again
       buildStmtScoresRows();
       updateStmtScoresSortHeaders();
       renderStmtScoresPage();
@@ -3193,14 +3509,14 @@ function dpCiSvg(mean, ci_lo, ci_hi) {
   const grids = [0, 0.2, 0.4, 0.6, 0.8, 1.0]
     .map(
       (v) =>
-        `<line x1="${dpX(v)}" y1="2" x2="${dpX(v)}" y2="${DP_H - 2}" stroke="#CBD5E1" stroke-width="1"/>`,
+        `<line x1="${dpX(v)}" y1="2" x2="${dpX(v)}" y2="${DP_H - 2}" stroke="${UI.line}" stroke-width="1"/>`,
     )
     .join("");
   return (
     `<svg width="${DP_W}" height="${DP_H}" style="display:block">` +
     grids +
-    `<line x1="${dpX(lo)}" y1="${cy}" x2="${dpX(hi)}" y2="${cy}" stroke="#334155" stroke-width="2.5" stroke-linecap="round"/>` +
-    `<circle cx="${dpX(mean)}" cy="${cy}" r="5" fill="#1E293B"/>` +
+    `<line x1="${dpX(lo)}" y1="${cy}" x2="${dpX(hi)}" y2="${cy}" stroke="${UI.body}" stroke-width="2.5" stroke-linecap="round"/>` +
+    `<circle cx="${dpX(mean)}" cy="${cy}" r="5" fill="${UI.text}"/>` +
     `</svg>`
   );
 }
@@ -3211,18 +3527,18 @@ function dpAxisSvg() {
   const lines = ticks
     .map(
       (v) =>
-        `<line x1="${dpX(v)}" y1="0" x2="${dpX(v)}" y2="6" stroke="#1E293B" stroke-width="1"/>`,
+        `<line x1="${dpX(v)}" y1="0" x2="${dpX(v)}" y2="6" stroke="${UI.muted}" stroke-width="1"/>`,
     )
     .join("");
   const texts = ticks
     .map(
       (v, i) =>
-        `<text x="${dpX(v)}" y="28" text-anchor="middle" font-size="19" font-weight="700" fill="#1E293B">${lbls[i]}</text>`,
+        `<text x="${dpX(v)}" y="22" text-anchor="middle" font-size="${CHART_FONT.tick.size}" font-weight="600" fill="${UI.muted}">${lbls[i]}</text>`,
     )
     .join("");
   return (
     `<svg width="${DP_W}" height="30" overflow="visible" style="display:block">` +
-    `<line x1="${dpX(0)}" y1="0" x2="${dpX(1)}" y2="0" stroke="#1E293B" stroke-width="1.5"/>` +
+    `<line x1="${dpX(0)}" y1="0" x2="${dpX(1)}" y2="0" stroke="${UI.muted}" stroke-width="1"/>` +
     lines +
     texts +
     "</svg>"
@@ -3237,18 +3553,18 @@ function dpAxisSvgTop() {
   const lines = ticks
     .map(
       (v) =>
-        `<line x1="${dpX(v)}" y1="${axisY}" x2="${dpX(v)}" y2="${axisY - 5}" stroke="#1E293B" stroke-width="1"/>`,
+        `<line x1="${dpX(v)}" y1="${axisY}" x2="${dpX(v)}" y2="${axisY - 5}" stroke="${UI.muted}" stroke-width="1"/>`,
     )
     .join("");
   const texts = ticks
     .map(
       (v, i) =>
-        `<text x="${dpX(v)}" y="${axisY - 16}" text-anchor="middle" font-size="19" fill="#1E293B">${lbls[i]}</text>`,
+        `<text x="${dpX(v)}" y="${axisY - 9}" text-anchor="middle" font-size="${CHART_FONT.tick.size}" font-weight="600" fill="${UI.muted}">${lbls[i]}</text>`,
     )
     .join("");
   return (
     `<svg width="${DP_W}" height="20" overflow="visible" style="display:block">` +
-    `<line x1="${dpX(0)}" y1="${axisY}" x2="${dpX(1)}" y2="${axisY}" stroke="#1E293B" stroke-width="1"/>` +
+    `<line x1="${dpX(0)}" y1="${axisY}" x2="${dpX(1)}" y2="${axisY}" stroke="${UI.muted}" stroke-width="1"/>` +
     lines +
     texts +
     "</svg>"
@@ -3279,11 +3595,11 @@ function renderDesignPoints(rows, rowsExcluded) {
       ).join(" ");
       return (
         `<tr class="dp-clickable" ${dataAttrs}>` +
-        `<td class="dp-n-cell">N = ${fmtNum(row.n)}</td>` +
+        `<td class="dp-n-cell">${fmtNum(row.n)}</td>` +
         makePropCells(row, "") +
         `<td class="dp-ci-cell">${dpCiSvg(row.mean, row.ci_lo, row.ci_hi)}</td>` +
         `<td class="dp-score-cell">${(row.mean * 100).toFixed(1)}%</td>` +
-        `<td class="dp-ci-text-cell">${row.ci_lo !== null && row.ci_hi !== null ? `${(row.ci_lo * 100).toFixed(2)} – ${(row.ci_hi * 100).toFixed(2)}%` : "—"}</td>` +
+        `<td class="dp-ci-text-cell">${row.ci_lo !== null && row.ci_hi !== null ? `${(row.ci_lo * 100).toFixed(1)} – ${(row.ci_hi * 100).toFixed(1)}%` : "—"}</td>` +
         `</tr>`
       );
     })
@@ -3297,7 +3613,7 @@ function renderDesignPoints(rows, rowsExcluded) {
       ).join(" ");
       return (
         `<tr class="dp-excluded-row dp-clickable" ${dataAttrs}>` +
-        `<td class="dp-n-cell">N = ${fmtNum(row.n)}</td>` +
+        `<td class="dp-n-cell">${fmtNum(row.n)}</td>` +
         makePropCells(row, " dp-excl-prop") +
         `<td class="dp-ci-cell dp-excl-ci"></td>` +
         `<td class="dp-score-cell dp-excl-score">—</td>` +
@@ -3322,11 +3638,11 @@ function renderDesignPoints(rows, rowsExcluded) {
       : "";
 
   document.getElementById("dpTableContainer").innerHTML =
-    `<p class="click-hint">Click on a row to see its statements.</p>` +
+    `<p class="click-hint">Click a row to list its statements.</p>` +
     `<table class="dp-table">` +
     `<colgroup><col class="dp-col-n"/>${propCols}<col class="dp-col-ci"/><col class="dp-col-score"/><col class="dp-col-citext"/></colgroup>` +
     `<thead>` +
-    `<tr><th class="dp-th-n">N</th>${propThs}<th class="dp-th-ci dp-axis-cell">${dpAxisSvgTop()}</th><th class="dp-th-score">Avg. Score</th><th class="dp-th-citext">95% CI</th></tr>` +
+    `<tr><th class="dp-th-n" title="Statements with a score (at least 10 ratings)">N</th>${propThs}<th class="dp-th-ci dp-axis-cell">${dpAxisSvgTop()}</th><th class="dp-th-score">Mean score</th><th class="dp-th-citext">95% CI</th></tr>` +
     `</thead>` +
     `<tbody>${bodyRows}</tbody>` +
     excludedSection +
@@ -3373,10 +3689,10 @@ async function loadDpStatements(country, props) {
     const label = isActive ? p.label : PROP_DEFS[i].v0;
     return isActive
       ? `<strong>${esc(label)}</strong>`
-      : `<span style="color:#94A3B8">${esc(label)}</span>`;
+      : `<span style="color:var(--c-muted)">${esc(label)}</span>`;
   }).join(" · ");
   document.getElementById("dpDetailTitle").textContent =
-    "Statements for selected design point";
+    "Statements in this design point";
   document.getElementById("dpDetailSub").innerHTML = labels;
   detailBody.innerHTML =
     '<div class="empty-row" style="padding:20px 0">Loading…</div>';
@@ -3396,9 +3712,10 @@ async function loadDpStatements(country, props) {
 
   document.getElementById("dpDetailSub").innerHTML =
     labels +
-    `<div class="dp-detail-counts">${fmtNum(data.n)} statement${data.n !== 1 ? "s" : ""} in total · ` +
-    `${fmtNum(data.n_qualified)} used to calculate the mean · ` +
-    `${fmtNum(data.n_excluded)} not qualified (fewer than 10 ratings)</div>`;
+    `<div class="dp-detail-counts">${fmtNum(data.n)} statement${data.n !== 1 ? "s" : ""}: ` +
+    `${fmtNum(data.n_qualified)} with a score, which give the mean` +
+    (data.n_excluded ? `, and ${fmtNum(data.n_excluded)} with fewer than 10 ratings (listed without scores)` : "") +
+    `</div>`;
   renderDpStatements(data.rows);
 }
 
@@ -3489,8 +3806,10 @@ function renderDpDetailBody() {
     `Page ${fmtNum(dpDetailPage)} of ${fmtNum(tp)}`;
   document.getElementById("dpDetailBtnPrev").disabled = dpDetailPage <= 1;
   document.getElementById("dpDetailBtnNext").disabled = dpDetailPage >= tp;
-  document.getElementById("dpDetailCount").textContent =
-    `${fmtNum(rows.length)} statement${rows.length !== 1 ? "s" : ""}`;
+  // The card's subtitle already gives the totals; count only search matches
+  document.getElementById("dpDetailCount").textContent = dpDetailSearchQuery.trim()
+    ? `${fmtNum(rows.length)} of ${fmtNum(dpDetailAllRows.length)} statements match`
+    : "";
 }
 
 function renderDpStatements(rows) {
@@ -3510,16 +3829,16 @@ function renderDpStatements(rows) {
   detailBody.innerHTML =
     `<div class="scores-nav" style="padding:6px 0 2px">` +
     `<span id="dpDetailCount" class="scores-filter-label"></span>` +
-    `<input type="text" id="dpDetailSearchInput" class="stmt-search-input" placeholder="Search statements…" style="flex:1;max-width:280px;margin:0 10px">` +
+    `<input type="search" id="dpDetailSearchInput" class="stmt-search-input" placeholder="Search these statements…" aria-label="Search these statements" style="flex:1;max-width:280px;margin:0 10px">` +
     `</div>` +
     `<div class="table-nav-row">` +
-    `<p class="click-hint">Click on a row to explore more.</p>` +
+    `<p class="click-hint">Click a row to see how its score is calculated.</p>` +
     `<div class="pagination">` +
     `<button id="dpDetailBtnPrev" class="page-btn" disabled>&#8249;</button>` +
     `<span id="dpDetailPageInfo" class="page-info"></span>` +
     `<button id="dpDetailBtnNext" class="page-btn" disabled>&#8250;</button>` +
     `</div></div>` +
-    `<div class="dp-detail-table-wrap"><table id="dpDetailTable" style="margin-top:4px;table-layout:fixed;width:100%;border-collapse:collapse;background:#fff">` +
+    `<div class="dp-detail-table-wrap"><table id="dpDetailTable" style="margin-top:4px;table-layout:fixed;width:100%;border-collapse:collapse;background:var(--c-surface)">` +
     `<colgroup><col class="col-rank"/><col class="col-dp-stmt"/><col class="col-dp-published"/><col class="col-num"/>` +
     `<col class="col-stmtscore"/><col class="col-stmtscore"/><col class="col-stmtscore"/>` +
     `<col class="col-stmtscore"/><col class="col-stmtscore"/></colgroup>` +
@@ -3528,14 +3847,18 @@ function renderDpStatements(rows) {
     `<th class="col-dp-stmt">Statement</th>` +
     `<th class="col-dp-published sortable sort-active" data-sort="published">Published <button class="prop-help-btn" type="button" data-col-label="Published" data-col-def="Whether the statement is currently being sampled to participants.">?</button> <span class="sort-icon">▼</span></th>` +
     `<th class="col-num sortable" data-sort="n_ratings">Ratings <span class="sort-icon"></span></th>` +
-    `<th class="col-stmtscore sortable" data-sort="I_agree_mean">I agree <button class="prop-help-btn" type="button" data-col-label="I agree" data-col-def="Percentage of users who subjectively agreed with the statement.">?</button> <span class="sort-icon"></span></th>` +
-    `<th class="col-stmtscore sortable" data-sort="others_agree_mean">Others agree <button class="prop-help-btn" type="button" data-col-label="Others agree" data-col-def="Percentage of users who believed that most other people would agree with the statement.">?</button> <span class="sort-icon"></span></th>` +
+    `<th class="col-stmtscore sortable" data-sort="I_agree_mean">Agree <button class="prop-help-btn" type="button" data-col-label="Agree" data-col-def="Share of raters who agree with the statement. Orange when under 50%, so the majority disagrees.">?</button> <span class="sort-icon"></span></th>` +
+    `<th class="col-stmtscore sortable" data-sort="others_agree_mean">Think most agree <button class="prop-help-btn" type="button" data-col-label="Think most agree" data-col-def="Share of raters who think most other people would agree with the statement.">?</button> <span class="sort-icon"></span></th>` +
     `<th class="col-stmtscore sortable" data-sort="consensus">Consensus <span class="sort-icon"></span></th>` +
     `<th class="col-stmtscore sortable" data-sort="awareness">Awareness <span class="sort-icon"></span></th>` +
     `<th class="col-stmtscore sortable" data-sort="commonsensicality">Common&shy;sensicality <span class="sort-icon"></span></th>` +
     `</tr></thead><tbody></tbody></table></div>`;
 
   renderDpDetailBody();
+  mirrorPager(
+    document.getElementById("dpDetailBtnPrev").parentElement,
+    detailBody.querySelector(".dp-detail-table-wrap"),
+  );
 
   document
     .querySelectorAll("#dpDetailTable thead th.sortable")
@@ -3594,6 +3917,7 @@ function getFilteredCmRows() {
   }
   const q = cmSearchQuery.trim().toLowerCase();
   if (q) rows = rows.filter(r => r.statement.toLowerCase().includes(q));
+  if (cmOnlyFlips) rows = rows.filter(r => r._flip);
   return rows;
 }
 
@@ -3612,11 +3936,12 @@ function getSortedCmRows() {
       if (va !== vb) return cmSortDir === 'asc' ? va - vb : vb - va;
       return (b.sd || 0) - (a.sd || 0); // tiebreaker: SD desc
     } else if (cmSortKey === 'sd') {
-      va = a.sd || 0; vb = b.sd || 0;
+      va = cmView === 'agree' ? a._aSd : a.sd || 0; vb = cmView === 'agree' ? b._aSd : b.sd || 0;
     } else if (cmSortKey === 'mean') {
-      va = a.mean || 0; vb = b.mean || 0;
+      va = cmView === 'agree' ? a._aMean : a.mean || 0; vb = cmView === 'agree' ? b._aMean : b.mean || 0;
     } else {
-      va = a.scores[cmSortKey]?.s; vb = b.scores[cmSortKey]?.s;
+      const k = cmView === 'agree' ? 'a' : 's';
+      va = a.scores[cmSortKey]?.[k]; vb = b.scores[cmSortKey]?.[k];
       if (va == null && vb == null) return 0;
       if (va == null) return 1;
       if (vb == null) return -1;
@@ -3645,10 +3970,137 @@ function updateCmSummary() {
   if (!countryMatrixData) return;
   const total    = countryMatrixData.rows.length;
   const filtered = getFilteredCmRows().length;
+  const flipBtn = document.getElementById('cmFlipBtn');
+  if (flipBtn) flipBtn.textContent = `Only where majorities differ (${fmtNum(countryMatrixData.rows.filter(r => r._flip).length)})`;
   document.getElementById('cmSummary').textContent =
     filtered < total
       ? `${fmtNum(filtered)} of ${fmtNum(total)} statements · ${fmtNum(countryMatrixData.countries.length)} countries`
       : `${fmtNum(total)} statements · ${fmtNum(countryMatrixData.countries.length)} countries`;
+}
+
+// Cell shading: white at 0 to mid blue at 100, opaque so the row striping
+// doesn't show through. The toolbar legend uses the same ramp.
+function cmScoreBg(score) {
+  const t = 0.03 + 0.4 * Math.max(0, Math.min(100, score)) / 100;
+  const mix = (c) => Math.round(255 - (255 - c) * t);
+  return `rgb(${mix(42)}, ${mix(120)}, ${mix(214)})`; // --c-agree
+}
+// "Share who agree" view: diverging, orange where the majority disagrees and
+// blue where it agrees, deeper the further the share is from 50%
+function cmAgreeBg(a) {
+  const d = Math.min(50, Math.abs(Math.max(0, Math.min(100, a)) - 50)) / 50;
+  const t = 0.03 + 0.4 * d;
+  const [r, g, b] = a >= 50 ? [42, 120, 214] : [235, 104, 52]; // --c-agree, --c-expect
+  const mix = (c) => Math.round(255 - (255 - c) * t);
+  return `rgb(${mix(r)}, ${mix(g)}, ${mix(b)})`;
+}
+
+// Toolbar legend, the M / SD header tooltips and the note for the current view
+function cmSyncView() {
+  const agree = cmView === 'agree';
+  const ramp = document.getElementById("cmLegendRamp");
+  if (ramp) {
+    ramp.style.background = agree
+      ? `linear-gradient(90deg, ${cmAgreeBg(0)}, ${cmAgreeBg(50)}, ${cmAgreeBg(100)})`
+      : `linear-gradient(90deg, ${cmScoreBg(0)}, ${cmScoreBg(50)}, ${cmScoreBg(100)})`;
+  }
+  const set = (id, t) => { const el = document.getElementById(id); if (el) el.textContent = t; };
+  set("cmLegendName", agree ? "Share who agree" : "Score");
+  set("cmLegendLo", agree ? "0%" : "0");
+  set("cmLegendHi", agree ? "100%" : "100");
+  const legend = document.getElementById("cmLegend");
+  if (legend) legend.setAttribute("aria-label", agree ? "Cell shading: share who agree, orange below 50% and blue above" : "Cell shading: commonsensicality from 0 to 100");
+  document.querySelectorAll("#cmViews [data-cm-view]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.cmView === cmView)));
+  const flip = document.getElementById("cmFlipBtn");
+  if (flip) flip.setAttribute("aria-pressed", String(cmOnlyFlips));
+  const mTh = document.querySelector('#cmHeadRow th[data-sort="mean"]');
+  const sdTh = document.querySelector('#cmHeadRow th[data-sort="sd"]');
+  if (mTh) mTh.title = agree ? "Mean share who agree across the countries with at least 10 ratings" : "Mean of a statement's commonsensicality score among all applicable countries";
+  if (sdTh) sdTh.title = agree ? "Standard deviation of the share who agree across those countries" : "Standard deviation of a statement's commonsensicality score among all applicable countries";
+  const note = document.getElementById("cmViewNote");
+  const parts = [];
+  if (agree) parts.push("Each cell is the share of that country's raters who agree: blue when most agree, orange when most disagree. <em>M</em> and <em>SD</em> summarize these shares.");
+  if (cmOnlyFlips) parts.push("Only statements where at least one country's majority agrees and another's disagrees, among countries with 10+ ratings. Small countries are noisy, so a share near 50% can land on either side by chance.");
+  note.innerHTML = parts.join(" ");
+  note.hidden = !parts.length;
+}
+cmSyncView();
+
+document.getElementById("cmViews").addEventListener("click", (e) => {
+  const v = e.target.closest("[data-cm-view]");
+  if (v) {
+    cmView = v.dataset.cmView;
+  } else if (e.target.closest("#cmFlipBtn")) {
+    cmOnlyFlips = !cmOnlyFlips;
+    cmPage = 1;
+  } else {
+    return;
+  }
+  cmSyncView();
+  renderCmPage();
+});
+
+// The first five columns (#, Statement, N, M, SD) stick to the left while the
+// matrix scrolls sideways. Their widths depend on the content (auto layout),
+// so measure them and set each one's left offset, rather than hardcoding it.
+function cmFixStickyLefts() {
+  const table = document.querySelector("#panelCountries .cm-table");
+  const head = document.getElementById("cmHeadRow");
+  if (!table || !head || head.cells.length < 5 || !table.offsetWidth) return;
+  let left = 0;
+  for (let i = 0; i < 5; i++) {
+    table.style.setProperty(`--cm-left-${i}`, `${left}px`);
+    left += head.cells[i].getBoundingClientRect().width;
+  }
+}
+
+// ── Countries matrix in a scrolling page ──────────────────────────────────
+// All 25 rows of the matrix sit in the page (style.css). Its wrapper scrolls
+// sideways, so a sticky-top header row would stick inside that wrapper and
+// never move; cmPinHeader() instead shifts the header cells down by however
+// far the table top has scrolled above the panel's visible top. The
+// wrapper's own scrollbar, which would sit under the 25th row, is replaced
+// by .cm-hscroll, kept at the bottom of the window and synced both ways.
+function cmPinHeader() {
+  const sc = document.querySelector("#panelCountries .scores-wrap");
+  const table = document.querySelector("#panelCountries .cm-table");
+  if (!sc || !table || !table.tHead) return;
+  const head = table.tHead;
+  const room = table.offsetHeight - head.offsetHeight;
+  const dy = Math.max(0, Math.min(sc.getBoundingClientRect().top - table.getBoundingClientRect().top, room));
+  const t = dy > 0 ? `translateY(${dy}px)` : "";
+  head.querySelectorAll("th").forEach((th) => { th.style.transform = t; });
+}
+
+function cmSyncHScroll() {
+  const wrap = document.querySelector("#panelCountries .cm-table-wrap");
+  const bar = document.querySelector("#panelCountries .cm-hscroll");
+  if (!wrap || !bar || !wrap.clientWidth) return; // hidden panel: measure when shown
+  bar.firstElementChild.style.width = `${wrap.scrollWidth}px`;
+  bar.hidden = wrap.scrollWidth <= wrap.clientWidth + 1;
+  bar.scrollLeft = wrap.scrollLeft;
+}
+
+function cmInitScroll() {
+  const sc = document.querySelector("#panelCountries .scores-wrap");
+  const wrap = document.querySelector("#panelCountries .cm-table-wrap");
+  const bar = document.createElement("div");
+  bar.className = "cm-hscroll";
+  bar.setAttribute("aria-hidden", "true");
+  bar.appendChild(document.createElement("div"));
+  wrap.after(bar);
+  // Each follows the other; once both match, the echoed event changes nothing
+  const follow = (from, to) => () => {
+    if (Math.abs(to.scrollLeft - from.scrollLeft) > 0.5) to.scrollLeft = from.scrollLeft;
+  };
+  bar.addEventListener("scroll", follow(bar, wrap), { passive: true });
+  wrap.addEventListener("scroll", follow(wrap, bar), { passive: true });
+  let frame = 0;
+  sc.addEventListener("scroll", () => {
+    if (!frame) frame = requestAnimationFrame(() => { frame = 0; cmPinHeader(); });
+  }, { passive: true });
+  window.addEventListener("resize", () => { cmFixStickyLefts(); cmSyncHScroll(); cmPinHeader(); });
+  mirrorPager(document.getElementById("btnCmPrev").parentElement, bar);
 }
 
 function renderCmPage() {
@@ -3680,14 +4132,15 @@ function renderCmPage() {
     tdN.textContent = row._n;
     tr.appendChild(tdN);
 
+    const agreeView = cmView === 'agree';
     const tdMean = document.createElement('td');
     tdMean.className = 'cm-mean-cell';
-    tdMean.textContent = row._n > 0 ? row.mean.toFixed(1) : '—';
+    tdMean.textContent = row._n > 0 ? (agreeView ? `${row._aMean.toFixed(0)}%` : row.mean.toFixed(1)) : '—';
     tr.appendChild(tdMean);
 
     const tdSd = document.createElement('td');
     tdSd.className = 'cm-sd-cell';
-    tdSd.textContent = row._n > 1 ? row.sd.toFixed(1) : '—';
+    tdSd.textContent = row._n > 1 ? (agreeView ? row._aSd.toFixed(1) : row.sd.toFixed(1)) : '—';
     tr.appendChild(tdSd);
 
     countries.forEach(c => {
@@ -3696,9 +4149,17 @@ function renderCmPage() {
       if (entry != null && entry.s != null) {
         td.className = 'cm-score-cell cm-score-cell-clickable';
         td.dataset.country = c;
-        td.innerHTML =
-          entry.s.toFixed(2) +
-          `<div class="cm-score-n"><em>N</em> = ${fmtNum(entry.n)}</div>`;
+        if (cmView === 'agree') {
+          td.style.background = cmAgreeBg(entry.a);
+          td.innerHTML =
+            `${entry.a.toFixed(0)}%` +
+            `<div class="cm-score-n"><em>N</em> = ${fmtNum(entry.n)}</div>`;
+        } else {
+          td.style.background = cmScoreBg(entry.s);
+          td.innerHTML =
+            entry.s.toFixed(1) +
+            `<div class="cm-score-n"><em>N</em> = ${fmtNum(entry.n)}</div>`;
+        }
       } else {
         // Under 10 ratings: no score, but still opens the statement's info
         const n = entry != null ? entry.n : 0;
@@ -3722,6 +4183,9 @@ function renderCmPage() {
   document.getElementById('btnCmPrev').disabled = cmPage <= 1;
   document.getElementById('btnCmNext').disabled = cmPage >= tp;
   updateCmSummary();
+  cmFixStickyLefts();
+  cmSyncHScroll();
+  cmPinHeader();
 }
 
 async function loadCountryMatrix() {
@@ -3740,7 +4204,17 @@ async function loadCountryMatrix() {
   }
   document.getElementById('cmSpinner').classList.add('hidden');
   countryMatrixData = data;
-  data.rows.forEach(row => { row._n = Object.values(row.scores).filter(e => e.s != null).length; });
+  // Per row: countries scored, whether their majorities point different
+  // ways, and the mean and SD of the share who agree (the "Share who agree" view)
+  data.rows.forEach(row => {
+    const cells = Object.values(row.scores).filter(e => e.s != null);
+    row._n = cells.length;
+    const a = cells.map(e => e.a);
+    const nAgree = a.filter(v => v >= 50).length;
+    row._flip = nAgree > 0 && nAgree < a.length;
+    row._aMean = a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0;
+    row._aSd = a.length > 1 ? Math.sqrt(a.reduce((x, y) => x + (y - row._aMean) ** 2, 0) / (a.length - 1)) : 0;
+  });
 
   const headRow = document.getElementById('cmHeadRow');
   headRow.innerHTML =
@@ -3798,7 +4272,9 @@ async function loadCountryMatrix() {
   cmSortKey = 'n';
   cmSortDir = 'desc';
   updateCmSortIndicators();
+  cmSyncView();
   renderCmPage();
+  notifyIntro("countries", data);
 }
 
 async function loadDesignPoints(country) {
@@ -3820,6 +4296,7 @@ async function loadDesignPoints(country) {
     return;
   }
   renderDesignPoints(data.rows, data.rows_excluded || []);
+  notifyIntro("dp", data, { country });
 }
 
 document.querySelectorAll(".prop-filter-toggle").forEach((btn) => {
@@ -3870,9 +4347,10 @@ function handleGlobalDateChange() {
   loadStmtScores(stmtScoresCountrySelect.value);
   loadGroupCompare();
 
-  // Reload the current active panel
+  // Reload the current active panel (Home only when it is on screen; the
+  // statement-generation pages have no tab button either)
   const activeTab = document.querySelector(".tab-btn.active")?.dataset.tab;
-  if (!activeTab) { // home panel
+  if (_currentTab === "home") {
     _homeMapLoaded = true; loadHomeMap();
     if (typeof loadHomeSummary === "function") loadHomeSummary();
   }
@@ -3881,15 +4359,100 @@ function handleGlobalDateChange() {
   else if (activeTab === "countries") { countryMatrixLoaded = true; loadCountryMatrix(); }
 }
 
-document.getElementById("globalDateFrom").addEventListener("change", (e) => {
-  globalDateFrom = e.target.value;
-  handleGlobalDateChange();
-});
+// ── Global date filter (top bar) ───────────────────────────────────────────
+// One button that opens a popover: quick presets apply at once, a custom
+// range applies with "Apply". Both go through setGlobalDates(), so a range
+// change reloads the panels once (not once per field).
+const DATE_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const DATA_FIRST_YEAR = 2023; // first ratings: July 2023
 
-document.getElementById("globalDateTo").addEventListener("change", (e) => {
-  globalDateTo = e.target.value;
+function fmtDateShort(iso) {
+  const [y, m, d] = iso.split("-").map(Number);
+  return `${d} ${DATE_MONTHS[m - 1]} ${y}`;
+}
+function isoDate(dt) {
+  return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, "0")}-${String(dt.getDate()).padStart(2, "0")}`;
+}
+
+function datePresets() {
+  const now = new Date();
+  const yearAgo = new Date(now);
+  yearAgo.setFullYear(now.getFullYear() - 1);
+  const presets = [
+    { label: "All dates", from: "", to: "" },
+    { label: "Last 12 months", from: isoDate(yearAgo), to: "" },
+  ];
+  for (let y = now.getFullYear(); y >= DATA_FIRST_YEAR; y--) {
+    presets.push({ label: String(y), from: `${y}-01-01`, to: `${y}-12-31` });
+  }
+  return presets;
+}
+
+function dateRangeLabel(from, to) {
+  if (!from && !to) return "All dates";
+  const preset = datePresets().find((p) => p.from === from && p.to === to);
+  if (preset) return preset.label;
+  if (from && to) {
+    // "1 Jul – 30 Sep 2024" within one year, to keep the button short
+    return from.slice(0, 4) === to.slice(0, 4)
+      ? `${fmtDateShort(from).replace(/ \d{4}$/, "")} – ${fmtDateShort(to)}`
+      : `${fmtDateShort(from)} – ${fmtDateShort(to)}`;
+  }
+  return from ? `Since ${fmtDateShort(from)}` : `Until ${fmtDateShort(to)}`;
+}
+
+const dateFilterEl = document.getElementById("dateFilter");
+const dateBtn = document.getElementById("dateBtn");
+const datePop = document.getElementById("datePop");
+const dateFromInput = document.getElementById("globalDateFrom");
+const dateToInput = document.getElementById("globalDateTo");
+
+function renderDateFilter() {
+  document.getElementById("dateBtnLabel").textContent = dateRangeLabel(globalDateFrom, globalDateTo);
+  dateFilterEl.classList.toggle("is-active", Boolean(globalDateFrom || globalDateTo));
+  dateFromInput.value = globalDateFrom;
+  dateToInput.value = globalDateTo;
+  document.getElementById("datePresets").innerHTML = datePresets()
+    .map((p) => `<button type="button" class="date-preset" data-from="${p.from}" data-to="${p.to}" aria-pressed="${p.from === globalDateFrom && p.to === globalDateTo}">${p.label}</button>`)
+    .join("");
+}
+
+function setDatePopOpen(open) {
+  datePop.hidden = !open;
+  dateBtn.setAttribute("aria-expanded", String(open));
+  if (open) renderDateFilter();
+}
+
+function setGlobalDates(from, to) {
+  if (from && to && from > to) [from, to] = [to, from];
+  setDatePopOpen(false);
+  if (from === globalDateFrom && to === globalDateTo) return;
+  globalDateFrom = from;
+  globalDateTo = to;
+  renderDateFilter();
   handleGlobalDateChange();
+}
+
+dateBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  setDatePopOpen(datePop.hidden);
 });
+document.getElementById("datePresets").addEventListener("click", (e) => {
+  const b = e.target.closest(".date-preset");
+  if (b) setGlobalDates(b.dataset.from, b.dataset.to);
+});
+document.getElementById("dateApply").addEventListener("click", () =>
+  setGlobalDates(dateFromInput.value, dateToInput.value),
+);
+document.getElementById("dateClear").addEventListener("click", () => setGlobalDates("", ""));
+datePop.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && e.target.matches("input")) setGlobalDates(dateFromInput.value, dateToInput.value);
+  if (e.key === "Escape") { setDatePopOpen(false); dateBtn.focus(); }
+});
+document.addEventListener("click", (e) => {
+  if (!datePop.hidden && !dateFilterEl.contains(e.target)) setDatePopOpen(false);
+});
+renderDateFilter();
 
 document.getElementById("stmtScoresSearch").addEventListener("input", (e) => {
   stmtScoresSearchQuery = e.target.value;
@@ -4039,9 +4602,15 @@ let cmpLabelA = "";
 let cmpLabelB = "";
 let cmpGroupA = "all";
 let cmpGroupB = "all";
+let cmpReq = 0; // latest /api/group-compare request; older responses are dropped
 
-const CMP_COLOR_A = "rgba(37,99,235,0.65)";
-const CMP_COLOR_B = "rgba(234,88,12,0.65)";
+const CMP_COLOR_A = UI.agree;
+const CMP_OPP_COLOR = UI.bad; // statements whose majorities differ
+const CMP_COLOR_B = UI.expect;
+// Group names and headings in a group's hue use its darker ink step
+const cmpInk = (color) => (color === CMP_COLOR_A ? UI.agreeInk : color === CMP_COLOR_B ? UI.expectInk : color);
+const CMP_DETAIL_PLACEHOLDER =
+  '<p class="cmp-detail-placeholder">Click a bar or a dot on the left to list the participants or statements behind it.</p>';
 
 function cmpBinScores(scores) {
   const N = 20;
@@ -4133,16 +4702,15 @@ function makeCompareHistChart(
   onClickFn,
 ) {
   const N = 20;
-  const labels = Array.from({ length: N }, (_, i) => `${i * 5}%`);
+  const edges = Array.from({ length: N + 1 }, (_, i) => i / N);
   const totalA = countsA.reduce((a, x) => a + x, 0) || 1;
   const totalB = countsB.reduce((a, x) => a + x, 0) || 1;
-  const pctA = countsA.map((c) => +((c / totalA) * 100).toFixed(2));
-  const pctB = countsB.map((c) => +((c / totalB) * 100).toFixed(2));
+  const pctA = histPoints(countsA.map((c) => +((c / totalA) * 100).toFixed(2)), edges);
+  const pctB = histPoints(countsB.map((c) => +((c / totalB) * 100).toFixed(2)), edges);
   const ctx = document.getElementById(canvasId).getContext("2d");
   return new Chart(ctx, {
     type: "bar",
     data: {
-      labels,
       datasets: [
         {
           label: labelA,
@@ -4177,39 +4745,23 @@ function makeCompareHistChart(
         legend: {
           display: true,
           position: "top",
-          labels: { font: { size: 14 }, padding: 16 },
+          labels: { font: CHART_FONT.legend, padding: 14, boxWidth: 14 },
         },
         tooltip: {
           callbacks: {
             title: (items) =>
-              `Score: ${labels[items[0].dataIndex]} – ${parseInt(labels[items[0].dataIndex]) + 5}%`,
-            label: (item) => `${item.dataset.label}: ${item.raw.toFixed(1)}%`,
+              `Score: ${items[0].dataIndex * 5}% – ${items[0].dataIndex * 5 + 5}%`,
+            label: (item) => `${item.dataset.label}: ${item.raw.y.toFixed(1)}%`,
           },
         },
       },
       scales: {
-        x: {
-          title: {
-            display: true,
-            text: "Commonsensicality score (%)",
-            font: { size: 17 },
-          },
-          grid: { display: false },
-          ticks: {
-            font: { size: 14 },
-            callback: (_, idx, ticks) =>
-              [0, 4, 8, 12, 16].includes(idx)
-                ? labels[idx]
-                : idx === ticks.length - 1
-                  ? "100%"
-                  : "",
-          },
-        },
+        x: histXScale("Commonsensicality score"),
         y: {
-          title: { display: true, text: "Frequency", font: { size: 17 } },
+          title: { display: true, text: "Share of group", font: CHART_FONT.title },
           beginAtZero: true,
-          grid: { color: "#F1F5F9" },
-          ticks: { font: { size: 14 }, callback: (v) => v + "%" },
+          grid: { color: UI.grid },
+          ticks: { font: CHART_FONT.tick, callback: (v) => v + "%" },
         },
       },
     },
@@ -4222,6 +4774,7 @@ function makeScatterChart(canvasId, paired, labelA, labelB, onClickFn) {
     x: +(p.score_a * 100).toFixed(2),
     y: +(p.score_b * 100).toFixed(2),
     stmt: p.statement,
+    opp: p.maj_a !== p.maj_b,
   }));
 
   // Regression + CI band
@@ -4245,12 +4798,16 @@ function makeScatterChart(canvasId, paired, labelA, labelB, onClickFn) {
     data: {
       datasets: [
         // 0: scatter points — faint so regression is readable
+        // statements whose two majorities point opposite ways are red
+        // (and drawn last, on top: loadGroupCompare() sorts them to the end)
         {
           label: "Statements",
           data: points,
-          backgroundColor: "rgba(37,99,235,0.18)",
-          pointRadius: 5,
-          pointHoverRadius: 7,
+          backgroundColor: points.map((p) => (p.opp ? CMP_OPP_COLOR : "rgba(42,120,214,0.22)")),
+          borderColor: points.map((p) => (p.opp ? UI.surface : "transparent")),
+          borderWidth: points.map((p) => (p.opp ? 1 : 0)),
+          pointRadius: points.map((p) => (p.opp ? 6 : 5)),
+          pointHoverRadius: 8,
         },
         // 1: y = x reference
         {
@@ -4260,7 +4817,7 @@ function makeScatterChart(canvasId, paired, labelA, labelB, onClickFn) {
             { x: 0, y: 0 },
             { x: 100, y: 100 },
           ],
-          borderColor: "#CBD5E1",
+          borderColor: UI.line,
           borderWidth: 1.5,
           borderDash: [6, 4],
         },
@@ -4272,7 +4829,7 @@ function makeScatterChart(canvasId, paired, labelA, labelB, onClickFn) {
                 label: "95% CI",
                 data: ciHi,
                 borderColor: "transparent",
-                backgroundColor: "rgba(147,197,253,0.25)",
+                backgroundColor: "rgba(42,120,214,0.10)",
                 fill: "+1",
               },
               // 3: 95% CI lower bound
@@ -4288,7 +4845,7 @@ function makeScatterChart(canvasId, paired, labelA, labelB, onClickFn) {
                 ...lineBase,
                 label: "Best fit",
                 data: regLine,
-                borderColor: "rgba(30,64,175,0.9)",
+                borderColor: UI.agreeInk,
                 borderWidth: 2,
               },
             ]
@@ -4319,9 +4876,14 @@ function makeScatterChart(canvasId, paired, labelA, labelB, onClickFn) {
                   ? p.stmt.slice(0, 70) + "…"
                   : p.stmt
                 : "";
+              const pr = paired[item.dataIndex];
+              const side = (v) => (v ? "agrees" : "disagrees");
               return [
                 s,
                 `${labelA}: ${item.raw.x.toFixed(1)}%   ${labelB}: ${item.raw.y.toFixed(1)}%`,
+                pr.maj_a === pr.maj_b
+                  ? `Both majorities ${side(pr.maj_a)}`
+                  : `Majority ${side(pr.maj_a)} in ${labelA}, ${side(pr.maj_b)} in ${labelB}`,
               ];
             },
           },
@@ -4332,9 +4894,9 @@ function makeScatterChart(canvasId, paired, labelA, labelB, onClickFn) {
           type: "linear",
           min: -3,
           max: 103,
-          title: { display: true, text: `${labelA} (%)`, font: { size: 17 } },
-          grid: { color: "#F1F5F9" },
-          ticks: { font: { size: 14 } },
+          title: { display: true, text: `${labelA} (%)`, font: CHART_FONT.title },
+          grid: { color: UI.grid },
+          ticks: { font: CHART_FONT.tick },
           afterBuildTicks: (axis) => {
             axis.ticks = [0, 20, 40, 60, 80, 100].map((v) => ({ value: v }));
           },
@@ -4343,9 +4905,9 @@ function makeScatterChart(canvasId, paired, labelA, labelB, onClickFn) {
           type: "linear",
           min: -3,
           max: 103,
-          title: { display: true, text: `${labelB} (%)`, font: { size: 17 } },
-          grid: { color: "#F1F5F9" },
-          ticks: { font: { size: 14 } },
+          title: { display: true, text: `${labelB} (%)`, font: CHART_FONT.title },
+          grid: { color: UI.grid },
+          ticks: { font: CHART_FONT.tick },
           afterBuildTicks: (axis) => {
             axis.ticks = [0, 20, 40, 60, 80, 100].map((v) => ({ value: v }));
           },
@@ -4356,7 +4918,7 @@ function makeScatterChart(canvasId, paired, labelA, labelB, onClickFn) {
 }
 
 function cmpGroupHtml(items, label, color, rowFn) {
-  const colorSolid = color.replace("0.65", "1");
+  const colorSolid = cmpInk(color);
   return `
     <div class="cmp-detail-group">
       <div class="cmp-detail-group-hd" style="color:${colorSolid}">
@@ -4370,7 +4932,39 @@ function cmpGroupHtml(items, label, color, rowFn) {
     </div>`;
 }
 
-function renderCmpIndivDetail(binIdx) {
+// ── Group Comparison detail lists ─────────────────────────────────────────
+// 25 rows a page per group (one pager drives both columns), so the panel
+// scrolls as one page instead of the list scrolling inside its card.
+function cmpPagerHtml(page, pages, bottom = false) {
+  if (pages <= 1) return "";
+  return (
+    `<div class="table-nav-row cmp-detail-pager${bottom ? " cmp-detail-pager-bottom" : ""}"><div class="pagination">` +
+    `<button class="page-btn" type="button" data-pg="${page - 1}"${page <= 1 ? " disabled" : ""} aria-label="Previous page">&#8249;</button>` +
+    `<span class="page-info">Page ${fmtNum(page)} of ${fmtNum(pages)}</span>` +
+    `<button class="page-btn" type="button" data-pg="${page + 1}"${page >= pages ? " disabled" : ""} aria-label="Next page">&#8250;</button>` +
+    `</div></div>`
+  );
+}
+
+function cmpBindPager(content, rerender) {
+  content.querySelectorAll("[data-pg]").forEach((b) =>
+    b.addEventListener("click", () => {
+      const fromBottom = !!b.closest(".cmp-detail-pager-bottom");
+      rerender(Number(b.dataset.pg));
+      if (fromBottom) revealTableTop(document.getElementById("compareDetailTitle"));
+    }),
+  );
+}
+
+// After a click on a chart, bring the detail card into view if it is not
+function cmpRevealDetail() {
+  const sc = document.getElementById("compareWrap");
+  const card = document.querySelector("#panelCompare .compare-detail-card");
+  const r = card.getBoundingClientRect(), s = sc.getBoundingClientRect();
+  if (r.top < s.top || r.top > s.bottom - 120) sc.scrollTop += r.top - s.top - 8;
+}
+
+function renderCmpIndivDetail(binIdx, page = 1) {
   if (!cmpData) return;
   const N = 20,
     lo = binIdx * 5,
@@ -4385,10 +4979,14 @@ function renderCmpIndivDetail(binIdx) {
       .sort((a, b) => b.score - a.score);
   const ga = inBin(cmpData.individuals.a);
   const gb = inBin(cmpData.individuals.b);
+  const pages = Math.max(1, Math.ceil(Math.max(ga.length, gb.length) / PAGE_SIZE));
+  page = Math.min(Math.max(1, page), pages);
+  const start = (page - 1) * PAGE_SIZE;
 
   const colHtml = (items, label, color, groupVal) => {
-    const colorSolid = color.replace("0.65", "1");
+    const colorSolid = cmpInk(color);
     const rows = items
+      .slice(start, start + PAGE_SIZE)
       .map(
         (x) =>
           `<tr class="cmp-user-row" data-uid="${esc(x.userId)}" data-group="${esc(groupVal)}" data-consensus="${x.consensus}" data-awareness="${x.awareness}" data-score="${x.score}" style="cursor:pointer">` +
@@ -4400,13 +4998,15 @@ function renderCmpIndivDetail(binIdx) {
       <div class="cmp-detail-col">
         <div class="cmp-detail-group-hd" style="color:${colorSolid}">${esc(label)} &mdash; ${fmtNum(items.length)}</div>
         ${
-          items.length
-            ? `<table class="cmp-detail-table">
+          !items.length
+            ? '<p class="cmp-detail-empty">None in this range.</p>'
+            : !rows
+            ? '<p class="cmp-detail-empty">No more in this range.</p>'
+            : `<table class="cmp-detail-table">
                <colgroup><col><col style="width:68px"></colgroup>
-               <thead><tr><th>User</th><th style="text-align:right">Score</th></tr></thead>
+               <thead><tr><th>Participant</th><th style="text-align:right">Score</th></tr></thead>
                <tbody>${rows}</tbody>
              </table>`
-            : '<p class="cmp-detail-empty">None in this range.</p>'
         }
       </div>`;
   };
@@ -4414,10 +5014,14 @@ function renderCmpIndivDetail(binIdx) {
   document.getElementById("compareDetailTitle").textContent =
     `Individual scores: ${rangeLabel}`;
   const content = document.getElementById("compareDetailContent");
-  content.innerHTML = `<div class="cmp-detail-cols">${colHtml(ga, cmpLabelA, CMP_COLOR_A, cmpGroupA)}${colHtml(gb, cmpLabelB, CMP_COLOR_B, cmpGroupB)}</div>`;
+  content.innerHTML =
+    cmpPagerHtml(page, pages) +
+    `<div class="cmp-detail-cols">${colHtml(ga, cmpLabelA, CMP_COLOR_A, cmpGroupA)}${colHtml(gb, cmpLabelB, CMP_COLOR_B, cmpGroupB)}</div>` +
+    cmpPagerHtml(page, pages, true);
+  cmpBindPager(content, (p) => renderCmpIndivDetail(binIdx, p));
 
   content.querySelectorAll(".cmp-user-row").forEach((tr) => {
-    tr.addEventListener("mouseenter", () => (tr.style.background = "#EFF6FF"));
+    tr.addEventListener("mouseenter", () => (tr.style.background = UI.accentBg));
     tr.addEventListener("mouseleave", () => (tr.style.background = ""));
     tr.addEventListener("click", () => {
       openUserDetail(
@@ -4433,7 +5037,7 @@ function renderCmpIndivDetail(binIdx) {
   });
 }
 
-function renderCmpStmtDetail(binIdx) {
+function renderCmpStmtDetail(binIdx, page = 1) {
   if (!cmpData) return;
   const N = 20,
     lo = binIdx * 5,
@@ -4448,11 +5052,16 @@ function renderCmpStmtDetail(binIdx) {
       .sort((a, b) => b.score - a.score);
   const ga = inBin(cmpData.statements.a);
   const gb = inBin(cmpData.statements.b);
+  const pages = Math.max(1, Math.ceil(Math.max(ga.length, gb.length) / PAGE_SIZE));
+  page = Math.min(Math.max(1, page), pages);
+  const start = (page - 1) * PAGE_SIZE;
 
   const colHtml = (items, label, color, groupVal) => {
-    const colorSolid = color.replace("0.65", "1");
+    const colorSolid = cmpInk(color);
     const rows = items
-      .map((x, i) => {
+      .slice(start, start + PAGE_SIZE)
+      .map((x, j) => {
+        const i = start + j; // index into the full list, for the click handler
         const fixed = fixStatement(x.statement);
         const snip = fixed.length > 60 ? fixed.slice(0, 57) + "…" : fixed;
         return (
@@ -4466,13 +5075,15 @@ function renderCmpStmtDetail(binIdx) {
       <div class="cmp-detail-col">
         <div class="cmp-detail-group-hd" style="color:${colorSolid}">${esc(label)} &mdash; ${fmtNum(items.length)}</div>
         ${
-          items.length
-            ? `<table class="cmp-detail-table">
+          !items.length
+            ? '<p class="cmp-detail-empty">None in this range.</p>'
+            : !rows
+            ? '<p class="cmp-detail-empty">No more in this range.</p>'
+            : `<table class="cmp-detail-table">
                <colgroup><col><col style="width:68px"></colgroup>
                <thead><tr><th>Statement</th><th style="text-align:right">Score</th></tr></thead>
                <tbody>${rows}</tbody>
              </table>`
-            : '<p class="cmp-detail-empty">None in this range.</p>'
         }
       </div>`;
   };
@@ -4480,11 +5091,15 @@ function renderCmpStmtDetail(binIdx) {
   document.getElementById("compareDetailTitle").textContent =
     `Statement scores: ${rangeLabel}`;
   const content = document.getElementById("compareDetailContent");
-  content.innerHTML = `<div class="cmp-detail-cols">${colHtml(ga, cmpLabelA, CMP_COLOR_A, cmpGroupA)}${colHtml(gb, cmpLabelB, CMP_COLOR_B, cmpGroupB)}</div>`;
+  content.innerHTML =
+    cmpPagerHtml(page, pages) +
+    `<div class="cmp-detail-cols">${colHtml(ga, cmpLabelA, CMP_COLOR_A, cmpGroupA)}${colHtml(gb, cmpLabelB, CMP_COLOR_B, cmpGroupB)}</div>` +
+    cmpPagerHtml(page, pages, true);
+  cmpBindPager(content, (p) => renderCmpStmtDetail(binIdx, p));
 
   const itemsByGroup = { [cmpGroupA]: ga, [cmpGroupB]: gb };
   content.querySelectorAll(".cmp-stmt-row").forEach((tr) => {
-    tr.addEventListener("mouseenter", () => (tr.style.background = "#EFF6FF"));
+    tr.addEventListener("mouseenter", () => (tr.style.background = UI.accentBg));
     tr.addEventListener("mouseleave", () => (tr.style.background = ""));
     tr.addEventListener("click", () => {
       const items = itemsByGroup[tr.dataset.group];
@@ -4495,7 +5110,7 @@ function renderCmpStmtDetail(binIdx) {
 }
 
 function stmtScoreColHtml(x, label, color) {
-  const colorSolid = color.replace("0.65", "1");
+  const colorSolid = cmpInk(color);
   if (!x)
     return `<div class="cmp-detail-col"><div class="cmp-detail-group-hd" style="color:${colorSolid}">${esc(label)}</div><p class="cmp-detail-empty">No data for this group.</p></div>`;
   const N = x.n_ratings;
@@ -4511,10 +5126,10 @@ function stmtScoreColHtml(x, label, color) {
       <div class="cmp-detail-group-hd" style="color:${colorSolid}">${esc(label)}</div>
       <ul class="cmp-score-expl">
         <li><strong>N</strong> = ${fmtNum(N)} ratings</li>
-        <li><strong>I agree</strong>: ${fp(A)} &rarr; majority <strong>${majYes ? "Yes" : "No"}</strong></li>
+        <li><strong>Agree</strong>: ${fp(A)} &rarr; the majority <strong>${majYes ? "agrees" : "disagrees"}</strong></li>
         <li><strong>Consensus</strong>: 2&thinsp;&times;&thinsp;|${fp(A)}&thinsp;&minus;&thinsp;50%| = <strong>${fp(consensus)}</strong></li>
-        <li><strong>Others agree</strong>: ${fp(B)} &rarr; <strong>awareness</strong> = <strong>${fp(awareness)}</strong></li>
-        <li><strong>Commonsensicality</strong>: &radic;(${fp(consensus)}&thinsp;&times;&thinsp;${fp(awareness)}) = <strong>${fp(comm)}</strong></li>
+        <li><strong>Think most agree</strong>: ${fp(B)} &rarr; <strong>awareness</strong> = <strong>${fp(awareness)}</strong></li>
+        <li><strong>Commonsensicality</strong>: ${sqrtHtml(`${fp(consensus)}&thinsp;&times;&thinsp;${fp(awareness)}`)} = <strong>${fp(comm)}</strong></li>
       </ul>
     </div>`;
 }
@@ -4535,9 +5150,41 @@ function stmtPropsHtml(statementId) {
   }).join("");
   return `
     <div class="cmp-props-section">
-      <div class="cmp-props-title">Statement properties</div>
+      <div class="cmp-props-title">Statement features</div>
       <table class="cmp-props-table"><tbody>${rows}</tbody></table>
     </div>`;
+}
+
+// Statements scored in both groups whose majorities point opposite ways,
+// largest difference in the share who agree first (cmpOpposite, set in
+// loadGroupCompare()), 25 a page
+let cmpOpposite = [];
+function renderCmpOppDetail(page = 1) {
+  const items = cmpOpposite;
+  const pages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
+  page = Math.min(Math.max(1, page), pages);
+  const start = (page - 1) * PAGE_SIZE;
+  const bar = (v, color) =>
+    `<span class="cmp-opp-bar"><span class="cmp-opp-fill" style="width:${(v * 100).toFixed(1)}%;background:${color}"></span></span>` +
+    `<span class="cmp-opp-val">${(v * 100).toFixed(0)}%</span>`;
+  const rows = items.slice(start, start + PAGE_SIZE).map((p, j) =>
+    `<tr class="cmp-opp-row" data-idx="${start + j}" style="cursor:pointer">` +
+    `<td class="cmp-stmt-snip">${esc(fixStatement(p.statement))}</td>` +
+    `<td class="cmp-opp-cell">${bar(p.p_a, CMP_COLOR_A)}</td>` +
+    `<td class="cmp-opp-cell">${bar(p.p_b, CMP_COLOR_B)}</td></tr>`,
+  ).join("");
+  document.getElementById("compareDetailTitle").textContent = `Opposite majorities: ${fmtNum(items.length)} statements`;
+  const content = document.getElementById("compareDetailContent");
+  content.innerHTML =
+    `<p class="cmp-opp-intro">The share who agree in each group; the line marks 50%, and an exact 50/50 split counts as agreeing, as everywhere in the explorer. Click a statement for both calculations. With few ratings, a share near 50% can land on either side by chance.</p>` +
+    cmpPagerHtml(page, pages) +
+    `<table class="cmp-detail-table cmp-opp-table"><colgroup><col><col style="width:30%"><col style="width:30%"></colgroup>` +
+    `<thead><tr><th>Statement</th><th>${esc(cmpLabelA)}</th><th>${esc(cmpLabelB)}</th></tr></thead><tbody>${rows}</tbody></table>` +
+    cmpPagerHtml(page, pages, true);
+  cmpBindPager(content, (pg) => renderCmpOppDetail(pg));
+  content.querySelectorAll(".cmp-opp-row").forEach((tr) =>
+    tr.addEventListener("click", () => renderScatterDetail(items[+tr.dataset.idx])),
+  );
 }
 
 function renderScatterDetail(point) {
@@ -4561,17 +5208,20 @@ async function loadGroupCompare() {
   const groupB = compareGroupBEl.value;
   const labelA = groupA === "all" ? "All countries" : groupA;
   const labelB = groupB === "all" ? "All countries" : groupB;
+  notifyIntro("compare", null, { groupA, groupB });
 
   compareSpinnerEl.classList.remove("hidden");
+  const req = ++cmpReq;
   let data;
   try {
     data = await fetch(
       `${API}/group-compare?groupA=${encodeURIComponent(groupA)}&groupB=${encodeURIComponent(groupB)}${dateParams()}`,
     ).then((r) => r.json());
   } catch {
-    compareSpinnerEl.classList.add("hidden");
+    if (req === cmpReq) compareSpinnerEl.classList.add("hidden");
     return;
   }
+  if (req !== cmpReq) return; // the groups changed while this was loading
   compareSpinnerEl.classList.add("hidden");
 
   // Store globally for detail rendering
@@ -4591,38 +5241,44 @@ async function loadGroupCompare() {
     ibS = scores(ib);
   const rawNA = data.individuals.raw_n_a;
   const rawNB = data.individuals.raw_n_b;
-  const cmpIndivNoteA =
-    rawNA != null && ia.length < rawNA
-      ? ` (${fmtNum(ia.length)} of ${fmtNum(rawNA)})`
-      : "";
-  const cmpIndivNoteB =
-    rawNB != null && ib.length < rawNB
-      ? ` (${fmtNum(ib.length)} of ${fmtNum(rawNB)})`
-      : "";
-  const cmpIndivFootnote =
-    cmpIndivNoteA || cmpIndivNoteB
-      ? `<br><span class="cmp-filter-note">Not all users are shown — each must have rated ≥5 statements with ≥10 ratings in their own group (counting all dates; the date filter does not apply to the reference group).</span>`
-      : "";
-  // Each group is scored against its own majority; "All countries" contains
-  // the other group whenever it is compared with a single country.
+  const swatch = (c) => `<span style="color:${c}" aria-hidden="true">■</span>`;
+  const cmpLine = (color, label, n, noun, mean) =>
+    `${swatch(color)} <strong>${esc(label)}</strong>: ${fmtNum(n)} ${noun}, mean ${mean}`;
+  // Who has no score in each group (fewer than 5 statements with 10+ ratings there)
+  const outA = rawNA != null ? rawNA - ia.length : 0;
+  const outB = rawNB != null ? rawNB - ib.length : 0;
+  const outParts = [];
+  if (outA > 0) outParts.push(`${fmtNum(outA)} in ${esc(labelA)}`);
+  if (outB > 0) outParts.push(`${fmtNum(outB)} in ${esc(labelB)}`);
+  const cmpOutNote = outParts.length
+    ? ` Not shown: ${outParts.join(" and ")}, who rated fewer than 5 statements with at least 10 ratings in their own group.`
+    : "";
+  // "All countries" contains the other group whenever it is compared with a single country
   const cmpOverlap =
     (groupA === "all") !== (groupB === "all")
-      ? ` <strong>All countries</strong> includes every participant in <strong>${esc(groupA === "all" ? labelB : labelA)}</strong>, so the two groups overlap.`
+      ? ` All countries includes everyone in ${esc(groupA === "all" ? labelB : labelA)}, so the groups overlap.`
       : "";
-  const cmpRefNote =
-    `<br><span class="cmp-filter-note">Each group's individuals are scored against that group's own majority` +
-    (groupA === "all" || groupB === "all" ? " (for All countries, the pooled majority of all participants)" : "") +
-    `.${cmpOverlap}</span>`;
+  // A person's score depends on which statements they rated; say so when
+  // the groups' statements differ (the Statement Scores card compares them)
+  const nPaired = data.statements.paired.length;
+  const nSa = data.statements.a.length, nSb = data.statements.b.length;
+  const cmpItemsNote = groupA !== groupB && nPaired < Math.max(nSa, nSb)
+    ? ` The groups rated different statements (${fmtNum(nPaired)} are scored in both), and easier statements raise everyone's score, so part of a gap can come from which statements each group saw.`
+    : "";
   document.getElementById("compareIndivSub").innerHTML =
-    `<span style="color:${CMP_COLOR_A.replace("0.65", "1")}">■</span> <strong>${esc(labelA)}</strong>: ${fmtNum(ia.length)}${cmpIndivNoteA} individuals, mean ${cmpMean(iaS)} &nbsp;·&nbsp; ` +
-    `<span style="color:${CMP_COLOR_B.replace("0.65", "1")}">■</span> <strong>${esc(labelB)}</strong>: ${fmtNum(ib.length)}${cmpIndivNoteB} individuals, mean ${cmpMean(ibS)}` +
-    cmpIndivFootnote +
-    cmpRefNote;
+    cmpLine(CMP_COLOR_A, labelA, ia.length, "participants", cmpMean(iaS)) + " &nbsp;·&nbsp; " +
+    cmpLine(CMP_COLOR_B, labelB, ib.length, "participants", cmpMean(ibS)) +
+    `<span class="cmp-filter-note">Each group is scored against its own majority` +
+    (groupA === "all" || groupB === "all" ? " (for All countries, everyone's pooled majority)" : "") +
+    `.${cmpOverlap}${cmpOutNote}${cmpItemsNote}</span>`;
   const dIndiv = cohenD(iaS, ibS);
+  // Say which group is higher, and how big the gap is (Cohen's conventions)
   document.getElementById("compareIndivEffect").innerHTML =
-    dIndiv !== null
-      ? `Effect size: Cohen's <em>d</em> = <strong>${Math.abs(dIndiv).toFixed(3)}</strong>`
-      : "";
+    dIndiv === null
+      ? ""
+      : Math.abs(dIndiv) < 0.2
+        ? `Gap between the means: Cohen's <em>d</em> = ${Math.abs(dIndiv).toFixed(2)} (negligible)`
+        : `<strong>${esc(dIndiv > 0 ? labelA : labelB)}</strong> scores higher: Cohen's <em>d</em> = <strong>${Math.abs(dIndiv).toFixed(2)}</strong> (${effectSizeLabel(dIndiv)})`;
   if (compareIndivChartInst) compareIndivChartInst.destroy();
   compareIndivChartInst = makeCompareHistChart(
     "compareIndivChart",
@@ -4630,7 +5286,7 @@ async function loadGroupCompare() {
     cmpBinScores(ibS),
     labelA,
     labelB,
-    (binIdx) => renderCmpIndivDetail(binIdx),
+    (binIdx) => { renderCmpIndivDetail(binIdx); cmpRevealDetail(); },
   );
 
   // Section 2: Statement commonsensicality distributions
@@ -4638,11 +5294,18 @@ async function loadGroupCompare() {
     sb = data.statements.b;
   const saS = scores(sa),
     sbS = scores(sb);
+  // Like for like: the two groups rated different statements, so their
+  // means above mix a difference in views with a difference in statements
+  const pairedAll = data.statements.paired;
+  const likeForLike = pairedAll.length && (pairedAll.length < sa.length || pairedAll.length < sb.length)
+    ? `On the <strong>${fmtNum(pairedAll.length)}</strong> statements scored in both, the mean is ` +
+      `<strong>${cmpMean(pairedAll.map((p) => p.score_a))}</strong> in ${esc(labelA)} and <strong>${cmpMean(pairedAll.map((p) => p.score_b))}</strong> in ${esc(labelB)}.`
+    : "";
   document.getElementById("compareStmtSub").innerHTML =
-    `<span style="color:${CMP_COLOR_A.replace("0.65", "1")}">■</span> <strong>${esc(labelA)}</strong>: ${fmtNum(sa.length)} statements, mean ${cmpMean(saS)} &nbsp;·&nbsp; ` +
-    `<span style="color:${CMP_COLOR_B.replace("0.65", "1")}">■</span> <strong>${esc(labelB)}</strong>: ${fmtNum(sb.length)} statements, mean ${cmpMean(sbS)}` +
-    `<br><span class="cmp-filter-note">Each statement is scored within each group, from that group's ratings and majority.</span>`;
-  document.getElementById("compareStmtEffect").innerHTML = "";
+    cmpLine(CMP_COLOR_A, labelA, sa.length, "statements", cmpMean(saS)) + " &nbsp;·&nbsp; " +
+    cmpLine(CMP_COLOR_B, labelB, sb.length, "statements", cmpMean(sbS)) +
+    `<span class="cmp-filter-note">A statement is scored in a group once it has at least 10 ratings there.</span>`;
+  document.getElementById("compareStmtEffect").innerHTML = likeForLike;
   if (compareStmtChartInst) compareStmtChartInst.destroy();
   compareStmtChartInst = makeCompareHistChart(
     "compareStmtChart",
@@ -4650,11 +5313,17 @@ async function loadGroupCompare() {
     cmpBinScores(sbS),
     labelA,
     labelB,
-    (binIdx) => renderCmpStmtDetail(binIdx),
+    (binIdx) => { renderCmpStmtDetail(binIdx); cmpRevealDetail(); },
   );
 
-  // Section 3: Scatter plot of paired statement scores
-  const paired = data.statements.paired;
+  // Section 3: Scatter plot of paired statement scores, with the statements
+  // whose majorities point opposite ways last, so their dots are drawn on top
+  const paired = [...data.statements.paired].sort(
+    (x, y) => Number(x.maj_a !== x.maj_b) - Number(y.maj_a !== y.maj_b),
+  );
+  cmpOpposite = paired
+    .filter((p) => p.maj_a !== p.maj_b)
+    .sort((x, y) => Math.abs(y.p_a - y.p_b) - Math.abs(x.p_a - x.p_b));
   const r =
     paired.length >= 2
       ? pearsonR(
@@ -4662,24 +5331,34 @@ async function loadGroupCompare() {
           paired.map((p) => p.score_b),
         )
       : null;
+  const nOpp = cmpOpposite.length;
   document.getElementById("compareScatterSub").innerHTML =
-    `${fmtNum(paired.length)} statements common to both groups` +
+    `${fmtNum(paired.length)} statements scored in both groups` +
     (r !== null
-      ? ` &nbsp;·&nbsp; Pearson <em>r</em> = <strong>${r.toFixed(3)}</strong>`
+      ? ` &nbsp;·&nbsp; Pearson <em>r</em> = <strong>${r.toFixed(2)}</strong>`
       : "") +
-    `<br><span class="cmp-filter-note">Dashed line: y = x (equal scores). Equal scores do not mean the same view: a statement can score high in both groups while one majority agrees and the other disagrees. Click a dot to see each group's majority.</span>`;
+    (paired.length
+      ? `<span class="cmp-opp-line"><span class="cmp-opp-key" aria-hidden="true"></span>` +
+        (nOpp
+          ? `On <strong>${fmtNum(nOpp)}</strong> of them (${(100 * nOpp / paired.length).toFixed(1)}%) the two majorities point opposite ways. ` +
+            `<button type="button" class="cmp-opp-btn" id="cmpOppBtn">List them</button>`
+          : `On none of them do the two majorities point opposite ways.`) +
+        `</span>`
+      : "") +
+    `<span class="cmp-filter-note">Dots above the dashed line score higher in ${esc(labelB)}. A score says how widely a group's own majority view is shared, whichever way it points, so click a dot to compare the two majorities.</span>`;
+  const oppBtn = document.getElementById("cmpOppBtn");
+  if (oppBtn) oppBtn.addEventListener("click", () => { renderCmpOppDetail(); cmpRevealDetail(); });
   if (compareScatterChartInst) compareScatterChartInst.destroy();
   compareScatterChartInst = paired.length
-    ? makeScatterChart("compareScatterChart", paired, labelA, labelB, (point) =>
-        renderScatterDetail(point),
-      )
+    ? makeScatterChart("compareScatterChart", paired, labelA, labelB, (point) => {
+        renderScatterDetail(point);
+        cmpRevealDetail();
+      })
     : null;
 
   // Reset detail panel when groups change
-  document.getElementById("compareDetailTitle").textContent =
-    "Click a bar or scatter point to explore";
-  document.getElementById("compareDetailContent").innerHTML =
-    '<p class="cmp-detail-placeholder">Select a histogram bar or scatter point on the left to see individuals or statements in that range.</p>';
+  document.getElementById("compareDetailTitle").textContent = "Details";
+  document.getElementById("compareDetailContent").innerHTML = CMP_DETAIL_PLACEHOLDER;
 }
 
 compareGroupAEl.addEventListener("change", loadGroupCompare);
@@ -4691,6 +5370,10 @@ document.getElementById('btnCmPrev').addEventListener('click', () => {
 document.getElementById('btnCmNext').addEventListener('click', () => {
   if (cmPage < cmTotalPages()) { cmPage++; renderCmPage(); }
 });
+
+mirrorPager(btnScoresPrev.parentElement, document.querySelector("#panelScores .table-scroll-wrap"));
+mirrorPager(btnStmtScoresPrev.parentElement, document.querySelector("#panelStmtScores .table-scroll-wrap"));
+cmInitScroll();
 
 async function init() {
   await populateSelects();

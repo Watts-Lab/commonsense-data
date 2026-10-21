@@ -7,27 +7,45 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
   <link rel="stylesheet" href="static/style.css" />
   <link rel="stylesheet" href="static/home.css" />
+  <link rel="stylesheet" href="static/llm.css" />
+  <link rel="stylesheet" href="static/intro.css" />
 </head>
 <body>
 
   <nav class="topbar">
-    <button class="topbar-title" id="topbarTitle">Commonsense Survey Explorer</button>
+    <button class="topbar-title" id="topbarTitle" title="Home"><span class="topbar-title-long">Commonsense Survey Explorer</span><span class="topbar-title-short">Commonsense Explorer</span></button>
     <div class="tab-bar">
-      <button class="tab-btn" data-tab="scores">Individual Scores</button>
-      <button class="tab-btn" data-tab="stmtScores">Statement Scores</button>
-      <button class="tab-btn" data-tab="dp">Design Points</button>
-      <button class="tab-btn" data-tab="compare">Group Comparison</button>
-      <button class="tab-btn" data-tab="countries">Countries</button>
+      <button class="tab-btn" data-tab="scores" title="How commonsensical is each participant?">Individual Scores</button>
+      <button class="tab-btn" data-tab="stmtScores" title="How commonsensical is each statement?">Statement Scores</button>
+      <button class="tab-btn" data-tab="dp" title="Which kinds of statements are most commonsensical?">Design Points</button>
+      <button class="tab-btn" data-tab="compare" title="Do two countries share the same common sense?">Group Comparison</button>
+      <button class="tab-btn" data-tab="countries" title="Is a statement equally commonsensical everywhere?">Countries</button>
+      <button class="tab-btn" data-tab="llm" title="How commonsensical are large language models?">LLM Evaluations</button>
     </div>
-    <div class="topbar-date-filter" style="display:flex;align-items:center;gap:8px;margin-left:16px;flex-shrink:0">
-      <span style="display:flex;align-items:center;gap:4px">
-        <label for="globalDateFrom" style="font-size:0.78rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:rgba(255,255,255,0.7);white-space:nowrap">From</label>
-        <input type="date" id="globalDateFrom" class="select" style="width:auto">
-      </span>
-      <span style="display:flex;align-items:center;gap:4px">
-        <label for="globalDateTo" style="font-size:0.78rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:rgba(255,255,255,0.7);white-space:nowrap">To</label>
-        <input type="date" id="globalDateTo" class="select" style="width:auto">
-      </span>
+    <!-- Not a tab: a call to action that opens the survey site, where a
+         visitor rates statements themselves, in a new tab -->
+    <span class="topbar-break" aria-hidden="true"></span>
+    <a class="topbar-test" href="https://commonsense.seas.upenn.edu/statements" target="_blank" rel="noopener" title="Rate statements on the survey site and measure your own common sense (opens in a new tab)">Test yourself<svg class="ext-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6"/><path d="M20 4 10 14"/><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/></svg><span class="sr-only"> (opens in a new tab)</span></a>
+    <!-- Global date filter: app.js (setGlobalDates) fills the presets and
+         applies a range to every panel except LLM Evaluations -->
+    <div class="date-filter" id="dateFilter">
+      <button type="button" class="date-btn" id="dateBtn" aria-haspopup="dialog" aria-expanded="false" aria-controls="datePop" title="Filter every panel by when ratings were made">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+        <span id="dateBtnLabel">All dates</span><span class="date-btn-caret" aria-hidden="true">▾</span>
+      </button>
+      <div class="date-pop" id="datePop" role="dialog" aria-label="Filter by date" hidden>
+        <div class="date-pop-title">Which ratings to count</div>
+        <div class="date-pop-sub">Scores count only the ratings made in this range, except that participants are still compared with majorities from all dates. LLM Evaluations is a separate study and doesn't change.</div>
+        <div class="date-presets" id="datePresets"></div>
+        <div class="date-custom">
+          <label for="globalDateFrom">From<input type="date" id="globalDateFrom"></label>
+          <label for="globalDateTo">To<input type="date" id="globalDateTo"></label>
+        </div>
+        <div class="date-pop-foot">
+          <button type="button" class="date-pop-btn" id="dateClear">Clear</button>
+          <button type="button" class="date-pop-btn is-primary" id="dateApply">Apply</button>
+        </div>
+      </div>
     </div>
   </nav>
 
@@ -42,9 +60,9 @@
       <header class="hs-hero" id="hs-top">
         <div class="hs-hero-inner">
           <div class="hs-hero-text">
-            <div class="hs-eyebrow">Commonsense Survey Explorer · University of Pennsylvania</div>
-            <h1 class="hs-h1">How common is <em>common sense</em>?</h1>
-            <p class="hs-lede">People around the world tell us whether they agree with short statements, and whether they think <strong>most other people</strong> would. From those two answers we measure how widely a belief is shared, and whether people know it is.</p>
+            <div class="hs-eyebrow">Computational Social Science Lab · University of Pennsylvania</div>
+            <h1 class="hs-h1">Is it <em>common sense</em>,<br>or just you?</h1>
+            <p class="hs-lede">Everyone thinks that they have common sense, that everybody knows what they know, too. We put this to the test: People rate short claims, saying whether they <strong>agree</strong> and whether <strong>most others would agree</strong> as well. Their answers show which beliefs are truly shared, and who can tell.</p>
             <div class="hs-counters">
               <div class="hs-counter"><span class="hs-counter-num" data-h="totals.participants">—</span><span class="hs-counter-label">participants</span></div>
               <div class="hs-counter"><span class="hs-counter-num" data-h="totals.ratings">—</span><span class="hs-counter-label">ratings</span></div>
@@ -52,20 +70,22 @@
               <div class="hs-counter"><span class="hs-counter-num" data-h="totals.countries_10">—</span><span class="hs-counter-label">countries with 10+ people</span></div>
             </div>
             <div class="hs-cta-row">
-              <a class="hs-btn hs-btn-primary" href="#hs-survey" data-scroll>How it works ↓</a>
-              <a class="hs-btn hs-btn-ghost" href="statement_scores" data-tab-link="stmtScores">Browse the statements →</a>
+              <a class="hs-btn hs-btn-primary" href="https://commonsense.seas.upenn.edu/statements" target="_blank" rel="noopener">Test yourself<svg class="ext-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6"/><path d="M20 4 10 14"/><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/></svg><span class="sr-only"> (opens in a new tab)</span></a>
+              <a class="hs-btn hs-btn-ghost" href="#hs-survey" data-scroll>How it works ↓</a>
             </div>
             <div class="hs-stamp" id="hsStamp">Loading live data…</div>
           </div>
           <div class="hs-ticker" id="hsTicker" aria-roledescription="carousel" aria-label="Statements from the data">
             <div class="hs-ticker-head">
               <span class="hs-ticker-kicker">From the data</span>
-              <span class="hs-ticker-tag" id="hsTickerTag"></span>
             </div>
-            <blockquote class="hs-quote hs-ticker-quote" id="hsTickerQuote">&nbsp;</blockquote>
+            <div class="hs-ticker-stage">
+              <blockquote class="hs-quote hs-ticker-quote" id="hsTickerQuote">&nbsp;</blockquote>
+            </div>
+            <div class="hs-ticker-count" id="hsTickerCount"></div>
             <div class="hs-ticker-bars" id="hsTickerBars"></div>
+            <div class="hs-ticker-majority" id="hsTickerMajority"></div>
             <div class="hs-ticker-foot">
-              <span id="hsTickerMeta"></span>
               <span class="hs-ticker-nav">
                 <button type="button" class="hs-ticker-btn" id="hsTickerPrev" aria-label="Previous statement">‹</button>
                 <button type="button" class="hs-ticker-btn" id="hsTickerNext" aria-label="Next statement">›</button>
@@ -81,46 +101,33 @@
         <a href="#hs-where" data-scroll>Who took part</a>
         <a href="#hs-measure" data-scroll>The scores</a>
         <a href="#hs-dp" data-scroll>Design points</a>
+        <a href="#hs-llm" data-scroll>LLMs</a>
+        <a href="#hs-explore" data-scroll>Explore</a>
       </nav>
 
-      <!-- 01 The survey -->
+      <!-- 1 The survey -->
       <section class="hs-section" id="hs-survey">
         <div class="hs-inner">
-          <div class="hs-kicker">01 · The survey</div>
+          <div class="hs-kicker">1 · The survey</div>
           <h2 class="hs-h2">Two questions, every statement</h2>
-          <p class="hs-intro">Each participant rates about <strong data-h="totals.median_ratings_per_participant">15</strong> statements and answers the same two questions about each one. Try one.</p>
-          <div class="hs-survey-grid">
-            <div class="hs-demo" id="hsDemo">
+          <p class="hs-intro">Each participant rates at least 15 statements. For each statement, they are asked two main questions. Try one here for yourself.</p>
+          <div class="hs-demo">
+            <div id="hsDemo">
               <div class="hs-skeleton" style="height:260px"></div>
             </div>
-            <ol class="hs-flow" aria-label="The four parts of the survey">
-              <li class="hs-flow-step is-key">
-                <span class="hs-flow-num">1</span>
-                <span><strong>Rate statements</strong><span class="hs-flow-sub">The two questions, with a short reason for each answer</span></span>
-              </li>
-              <li class="hs-flow-step">
-                <span class="hs-flow-num">2</span>
-                <span><strong>Six reasoning puzzles</strong><span class="hs-flow-sub">Cognitive Reflection Test</span></span>
-              </li>
-              <li class="hs-flow-step">
-                <span class="hs-flow-num">3</span>
-                <span><strong>Ten “read the eyes” items</strong><span class="hs-flow-sub">Reading the Mind in the Eyes Test</span></span>
-              </li>
-              <li class="hs-flow-step">
-                <span class="hs-flow-num">4</span>
-                <span><strong>A few questions about you</strong><span class="hs-flow-sub">Country, age, education and more</span></span>
-              </li>
-            </ol>
+            <div class="hs-demo-foot">
+              <a href="https://commonsense.seas.upenn.edu/statements" target="_blank" rel="noopener">When you're ready, participate in the full survey to measure your common sense.<svg class="ext-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6"/><path d="M20 4 10 14"/><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/></svg><span class="sr-only"> (opens in a new tab)</span></a>
+            </div>
           </div>
         </div>
       </section>
 
-      <!-- 02 Who took part (world map) -->
+      <!-- 2 Who took part (world map) -->
       <section class="hs-section hs-section-alt" id="hs-where">
         <div class="hs-inner">
-          <div class="hs-kicker">02 · Who took part</div>
-          <h2 class="hs-h2">Participants from <span data-h="totals.countries">—</span> countries</h2>
-          <p class="hs-intro">Countries with at least 10 participants are shaded. Click one to see its numbers and open its scores.</p>
+          <div class="hs-kicker">2 · Who took part</div>
+          <h2 class="hs-h2">Participants from <span data-h="totals.countries_10">—</span> countries</h2>
+          <p class="hs-intro">These are the countries for which there are at least 10 participants. Click one to see its numbers and open its scores.</p>
           <div class="hs-where-grid">
             <div class="chart-card hs-map-card" id="worldMapCard">
               <div class="hs-map-toolbar">
@@ -142,45 +149,43 @@
             <div class="hs-card hs-composition">
               <h3 class="hs-h3">Share of participants</h3>
               <div id="hsComposition" class="hs-barlist"><div class="hs-skeleton" style="height:260px"></div></div>
-              <p class="hs-card-note" id="hsCompositionNote"></p>
             </div>
           </div>
           <div id="homeCountryCard" class="chart-card hcc hidden"></div>
         </div>
       </section>
 
-      <!-- 03 The scores -->
+      <!-- 3 The scores -->
       <section class="hs-section" id="hs-measure">
         <div class="hs-inner">
-          <div class="hs-kicker">03 · The scores</div>
-          <h2 class="hs-h2">A score for every statement, and for every person</h2>
-          <p class="hs-intro">We count something as common sense when people <strong>agree</strong> about it and <strong>know</strong> that others agree. Both scores run from 0 to 100%, and both need both parts to be high.</p>
+          <div class="hs-kicker">3 · The scores</div>
+          <h2 class="hs-h2">A score for every person, and for every statement</h2>
+          <p class="hs-intro">We measure the common sense in two ways: for each human individual and for each statement. Open either panel to explore.</p>
           <div class="hs-grid-2">
-            <a class="hs-score-card" href="statement_scores" data-tab-link="stmtScores">
-              <span class="hs-score-kicker">Statement Scores</span>
-              <span class="hs-score-q">How commonsensical is a statement?</span>
-              <span class="hs-score-text">High when nearly everyone gives the same answer and expects others to give it too.</span>
-              <span class="hs-ladder" id="hsLadder"></span>
-              <span class="hs-score-foot"><span id="hsStmtFoot"></span><span class="hs-score-go">Open Statement Scores →</span></span>
-            </a>
-            <a class="hs-score-card" href="individual_scores" data-tab-link="scores">
+            <div class="hs-score-card">
               <span class="hs-score-kicker">Individual Scores</span>
               <span class="hs-score-q">How commonsensical is a person?</span>
-              <span class="hs-score-text">High when someone's own answers side with the majority and they can tell what the majority thinks.</span>
+              <span class="hs-score-text">Each person is assigned a score based on their statement ratings.</span>
               <span class="hs-mini-hist" id="hsIndivHist"></span>
-              <span class="hs-score-foot"><span id="hsIndivFoot"></span><span class="hs-score-go">Open Individual Scores →</span></span>
-            </a>
+              <span class="hs-score-foot"><span id="hsIndivFoot"></span><a class="hs-score-go" href="individual_scores" data-tab-link="scores">Open Individual Scores →</a></span>
+            </div>
+            <div class="hs-score-card">
+              <span class="hs-score-kicker">Statement Scores</span>
+              <span class="hs-score-q">How commonsensical is a statement?</span>
+              <span class="hs-score-text">Each statement is assigned a score based on its ratings from all people.</span>
+              <span class="hs-ladder" id="hsLadder"></span>
+              <span class="hs-score-foot"><span id="hsStmtFoot"></span><a class="hs-score-go" href="statement_scores" data-tab-link="stmtScores">Open Statement Scores →</a></span>
+            </div>
           </div>
-          <p class="hs-more">Compare two countries in <a href="group_comparison" data-tab-link="compare">Group Comparison</a>, or see each statement country by country in <a href="countries" data-tab-link="countries">Countries</a>.</p>
         </div>
       </section>
 
-      <!-- 04 Design points -->
+      <!-- 4 Design points -->
       <section class="hs-section hs-section-alt" id="hs-dp">
         <div class="hs-inner">
-          <div class="hs-kicker">04 · Design points</div>
-          <h2 class="hs-h2">What kinds of knowledge are common sense?</h2>
-          <p class="hs-intro">Every statement is tagged with six features, which gives 2<sup>6</sup> = 64 kinds of statement, or <strong>design points</strong>. Comparing scores across them shows which kinds of knowledge people share most, and so what human common sense is made of.</p>
+          <div class="hs-kicker">4 · Design points</div>
+          <h2 class="hs-h2">What categories of knowledge are associated with common sense?</h2>
+          <p class="hs-intro">Every statement is categorized in six ways. It could be a fact or an opinion; it could use literal language or a figure of speech; and so on. Here is how these features compare with each other, based on a statement's commonsensicality score.</p>
           <div class="hs-card hs-features">
             <div class="hs-feat-head" aria-hidden="true">
               <span>Feature</span>
@@ -190,9 +195,85 @@
             <div id="hsFeatures"><div class="hs-skeleton" style="height:320px"></div></div>
             <p class="hs-card-note">Average statement score on each side of a feature. Features overlap, and are also tied to where and when statements were collected, so read each gap as a description, not a cause.</p>
           </div>
-          <div class="hs-reveals" id="hsReveals"></div>
+          <p class="hs-intro hs-intro-after">Each combination of six features gives us a <em>design point</em>. Comparing statement commonsensicality scores across them shows which kinds of knowledge people share most, and so what human common sense is made of.</p>
           <div class="hs-grid-2 hs-corners" id="hsCorners"></div>
           <p class="hs-more"><a class="hs-btn hs-btn-primary" href="design_points" data-tab-link="dp">Explore all 64 design points →</a></p>
+        </div>
+      </section>
+
+      <!-- 5 LLM evaluations: a separate, fixed study (llm_evals.py), so its
+           numbers come from /api/llm-evals ([data-hl] fields) and ignore the
+           date filter -->
+      <section class="hs-section" id="hs-llm">
+        <div class="hs-inner">
+          <div class="hs-kicker">5 · LLM evaluations</div>
+          <h2 class="hs-h2">What does this imply about LLMs?</h2>
+          <p class="hs-intro">Large language models can be evaluated in the same way humans are. We tested <span data-hl="n_models">44</span> LLMs against <span data-hl="n_participants">2,046</span> human individuals, asking them whether they agree with a statement and whether they predict that most people would agree with it. Since humans and LLMs performed the same task, they can be directly compared with one another.</p>
+          <!-- The two cards are not links: the reader scrolls on to the
+               takeaways and the button under them, which opens the LLM
+               panel's overview -->
+          <div class="hs-grid-2">
+            <div class="hs-score-card">
+              <span class="hs-score-kicker">LLMs as individuals</span>
+              <span class="hs-score-q">Is an LLM as commonsensical as a person?</span>
+              <span class="hs-score-text">Each human participant and LLM is assigned a commonsensicality score, calculated in the same way. The histogram below compares their distributions.</span>
+              <span class="hs-llm-legend" aria-hidden="true"><span><i class="hs-llm-key hs-llm-key-people"></i><span>Humans (N = <span data-hl="n_participants">2,046</span>)</span></span><span><i class="hs-llm-key hs-llm-key-model-bar"></i><span>LLMs (N = <span data-hl="n_models">44</span>)</span></span></span>
+              <span class="hs-llm-chart" id="hsLlmIndiv"><span class="hs-skeleton" style="height:180px"></span></span>
+              <span class="hs-llm-finding" id="hsLlmIndivFoot"></span>
+            </div>
+            <div class="hs-score-card">
+              <span class="hs-score-kicker">LLMs as populations</span>
+              <span class="hs-score-q">Can an LLM stand in for a crowd?</span>
+              <span class="hs-score-text">An LLM can also be viewed as a generator of a synthetic population. Similar to humans, this population determines the commonsensicality scores of all statements. Here is how these scores correlate with those determined by humans.</span>
+              <span class="hs-llm-legend" aria-hidden="true"><span><i class="hs-llm-key hs-llm-key-model-bar"></i><span>LLMs (N = <span data-hl="n_models">44</span>)</span></span><span><i class="hs-llm-key hs-llm-key-model-bar is-faint"></i>Not significantly different from 0</span></span>
+              <span class="hs-llm-chart" id="hsLlmPop"><span class="hs-skeleton" style="height:180px"></span></span>
+              <span class="hs-llm-finding" id="hsLlmPopFoot"></span>
+            </div>
+          </div>
+          <div class="hs-reveals" id="hsLlmReveals"></div>
+          <p class="hs-more"><a class="hs-btn hs-btn-primary" href="llm_evaluations" data-tab-link="llm" data-llm-view="overview">Explore the LLM evaluations →</a></p>
+        </div>
+      </section>
+
+      <!-- 6 Explore: one card per panel, with the question it answers (the
+           same questions as the tab tooltips and PANEL_TOUR in app.js) -->
+      <section class="hs-section hs-section-alt" id="hs-explore">
+        <div class="hs-inner">
+          <div class="hs-kicker">6 · Explore</div>
+          <h2 class="hs-h2">Six ways into the data</h2>
+          <p class="hs-intro">Each view starts by explaining what it shows, most with a worked example you can try.</p>
+          <div class="hs-explore-grid">
+            <a class="hs-explore-card" href="individual_scores" data-tab-link="scores">
+              <span class="hs-explore-name">Individual Scores</span>
+              <span class="hs-explore-q">How commonsensical is each person?</span>
+              <span class="hs-explore-text">Open any participant's answers and see how their score adds up.</span>
+            </a>
+            <a class="hs-explore-card" href="statement_scores" data-tab-link="stmtScores">
+              <span class="hs-explore-name">Statement Scores</span>
+              <span class="hs-explore-q">How commonsensical is each statement?</span>
+              <span class="hs-explore-text">Search every statement, filter by its features and see its score worked out.</span>
+            </a>
+            <a class="hs-explore-card" href="design_points" data-tab-link="dp">
+              <span class="hs-explore-name">Design Points</span>
+              <span class="hs-explore-q">Which kinds of statements are most commonsensical?</span>
+              <span class="hs-explore-text">Combine the six features and see where that kind of statement ranks.</span>
+            </a>
+            <a class="hs-explore-card" href="group_comparison" data-tab-link="compare">
+              <span class="hs-explore-name">Group Comparison</span>
+              <span class="hs-explore-q">Do two countries share the same common sense?</span>
+              <span class="hs-explore-text">Put two countries side by side, for people and for statements.</span>
+            </a>
+            <a class="hs-explore-card" href="countries" data-tab-link="countries">
+              <span class="hs-explore-name">Countries</span>
+              <span class="hs-explore-q">Is a statement equally commonsensical everywhere?</span>
+              <span class="hs-explore-text">Read each statement's score in every country with enough ratings.</span>
+            </a>
+            <a class="hs-explore-card" href="llm_evaluations" data-tab-link="llm" data-llm-view="overview">
+              <span class="hs-explore-name">LLM Evaluations</span>
+              <span class="hs-explore-q">How commonsensical are language models?</span>
+              <span class="hs-explore-text">Score <span data-hl="n_models">44</span> models against people, as respondents and as simulated crowds.</span>
+            </a>
+          </div>
         </div>
       </section>
 
@@ -202,13 +283,15 @@
           <div>
             <h2 class="hs-footer-h">About</h2>
             <p>The Commonsense project is run by the <a href="https://css.seas.upenn.edu/" target="_blank" rel="noopener">Computational Social Science Lab</a> at the University of Pennsylvania.</p>
-            <p><a class="hs-btn hs-btn-primary" href="https://commonsense.seas.upenn.edu/" target="_blank" rel="noopener">Take the survey</a></p>
+            <p><a class="hs-btn hs-btn-primary" href="https://commonsense.seas.upenn.edu/" target="_blank" rel="noopener">Take the survey<svg class="ext-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6"/><path d="M20 4 10 14"/><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/></svg><span class="sr-only"> (opens in a new tab)</span></a></p>
             <p class="hs-footer-note" id="hsDataNote"></p>
           </div>
           <div>
             <h2 class="hs-footer-h">Read more</h2>
-            <p>Whiting, M. E., &amp; Watts, D. J. (2024). <a href="https://doi.org/10.1073/pnas.2309535121" target="_blank" rel="noopener">A framework for quantifying individual and collective common sense</a>. <em>PNAS</em>, 121(4), e2309535121.</p>
-            <p>Nguyen, T. D., Watts, D. J., &amp; Whiting, M. E. (2026). <a href="https://doi.org/10.1093/pnasnexus/pgag029" target="_blank" rel="noopener">A large-scale evaluation of commonsense knowledge in humans and large language models</a>. <em>PNAS Nexus</em>, 5(3), pgag029.</p>
+            <p>Whiting, M. E., &amp; Watts, D. J. (2024). <a href="https://doi.org/10.1073/pnas.2309535121" target="_blank" rel="noopener">A framework for quantifying individual and collective common sense</a>. <em>PNAS</em>, 121(4), e2309535121.
+              <span class="hs-footer-finding">Introduces the scores used here, and finds that the larger the group, the fewer beliefs all its members share.</span></p>
+            <p>Nguyen, T. D., Watts, D. J., &amp; Whiting, M. E. (2026). <a href="https://doi.org/10.1093/pnasnexus/pgag029" target="_blank" rel="noopener">A large-scale evaluation of commonsense knowledge in humans and large language models</a>. <em>PNAS Nexus</em>, 5(3), pgag029.
+              <span class="hs-footer-finding">Gives 44 language models the same test: most score below the median person.</span></p>
           </div>
         </div>
       </footer>
@@ -220,13 +303,14 @@
   <!-- ── Individual Scores panel ──────────────────────────── -->
   <div id="panelScores" class="panel hidden">
     <div class="toolbar">
+      <!-- Reads as a sentence: whose scores (target) against whose majority (reference) -->
       <div class="toolbar-left">
-        <label class="toolbar-label" for="targetSelect">Target</label>
-        <select id="targetSelect" class="select">
+        <label class="toolbar-text" for="targetSelect">Score participants from</label>
+        <select id="targetSelect" class="select" title="Target group: whose scores are shown">
           <option value="all">All countries</option>
         </select>
-        <label class="toolbar-label" for="referenceSelect">Reference</label>
-        <select id="referenceSelect" class="select">
+        <label class="toolbar-text" for="referenceSelect">against the majority in</label>
+        <select id="referenceSelect" class="select" title="Reference group: whose majority answer counts as common sense">
           <option value="all">All countries</option>
         </select>
       </div>
@@ -234,20 +318,46 @@
     </div>
 
     <div class="scores-wrap">
+      <!-- Intro card: static copy here, worked example filled by static/intro.js -->
+      <section class="intro" data-intro="scores" aria-labelledby="introScoresTitle">
+        <div class="intro-head">
+          <div>
+            <div class="intro-kicker">About this score</div>
+            <h2 class="intro-title" id="introScoresTitle">How commonsensical is a person?</h2>
+          </div>
+          <button type="button" class="intro-toggle" aria-expanded="true">Hide ▴</button>
+        </div>
+        <div class="intro-body">
+          <p class="intro-lede">Each participant rates a set of statements and answers two questions about each one: <em>Do you agree with it?</em> and <em>Do you think most other people would?</em> Their score is high when their own answers side with the majority, and they can tell what the majority thinks.</p>
+          <div class="intro-grid">
+            <div class="intro-col">
+              <ol class="intro-steps">
+                <li class="intro-step"><span class="intro-step-num is-agree">1</span><div><div class="intro-step-name">Consensus</div><div class="intro-step-text">The share of their statements where their own answer matches the majority's.</div></div></li>
+                <li class="intro-step"><span class="intro-step-num is-expect">2</span><div><div class="intro-step-name">Awareness</div><div class="intro-step-text">The share where their guess about most other people matches the majority's answer.</div></div></li>
+                <li class="intro-step"><span class="intro-step-num">3</span><div><div class="intro-step-name">Commonsensicality</div><div class="intro-step-text"><span class="intro-formula"><span class="sqrt"><span class="sr-only">the square root of </span><svg class="sqrt-sign" viewBox="0 0 10 20" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M0.6 11.6 L2.7 10.5 L5.3 19.3 L9.7 0.75 H10"/></svg><span class="sqrt-arg">consensus × awareness</span></span></span>, from 0 to 100%. This geometric mean needs both parts to be high: 100% and 25% give 50%, where a plain average would give 62.5%.</div></div></li>
+              </ol>
+              <p class="intro-note">The majority comes from the group chosen in <em>against the majority in</em> above, using its ratings from all dates: it is “agree” when at least 50% of that group agree. A statement counts once that group has rated it at least 10 times, and a participant needs at least 5 statements that count.</p>
+              <p class="intro-note intro-cta">Where would you score? <a href="https://commonsense.seas.upenn.edu/statements" target="_blank" rel="noopener">Rate 15 statements on the survey site<svg class="ext-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6"/><path d="M20 4 10 14"/><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/></svg><span class="sr-only"> (opens in a new tab)</span></a></p>
+            </div>
+            <div class="intro-ex" id="introScoresEx" aria-live="polite"><div class="intro-skeleton"></div></div>
+          </div>
+        </div>
+      </section>
+
       <div class="chart-card">
-        <div class="chart-title">Distribution of Commonsensicality Scores</div>
-        <div class="chart-sub">The commonsensicality score for each human individual ranges from 0 to 100%. It is a combination of two components: consensus and awareness. Click on each user in the table below to explore more.</div>
+        <div class="chart-title">Participants by Commonsensicality</div>
+        <div class="chart-sub">How many participants reach each score. Click a bar to list only that range in the table below; click it again to clear.</div>
         <div class="hist-container">
           <canvas id="histChart"></canvas>
         </div>
       </div>
       <div id="scoresMinRatingsNote" class="min-ratings-note hidden"></div>
       <div class="search-filter-row" style="display:flex;align-items:center;gap:12px">
-        <input type="search" id="scoresSearch" class="stmt-search-input" placeholder="Search by User ID…" autocomplete="off">
+        <input type="search" id="scoresSearch" class="stmt-search-input" placeholder="Search by participant ID…" autocomplete="off" aria-label="Search by participant ID">
       </div>
       <div class="table-nav-row">
         <span id="scoresFilterLabel" class="scores-filter-label"></span>
-        <p class="click-hint">Click on a row to explore more.</p>
+        <p class="click-hint">Click a row to see that participant's answers and how their score adds up.</p>
         <div class="pagination">
           <button id="btnScoresPrev" class="page-btn" disabled>&#8249;</button>
           <span id="scoresPageInfo" class="page-info"></span>
@@ -259,7 +369,7 @@
           <thead>
             <tr>
               <th class="col-rank">#</th>
-              <th class="col-user">User</th>
+              <th class="col-user">Participant</th>
               <th class="col-flag th-wrap">Coun&shy;try</th>
 <th class="col-stmts sortable sort-active th-wrap" data-sort="n_statements">State&shy;ments <span class="sort-icon">▼</span></th>
               <th class="col-score sortable" data-sort="consensus">Consensus <span class="sort-icon"></span></th>
@@ -280,7 +390,7 @@
   <div id="panelStmtScores" class="panel hidden">
     <div class="toolbar">
       <div class="toolbar-left">
-        <label class="toolbar-label" for="stmtScoresCountrySelect">Group</label>
+        <label class="toolbar-text" for="stmtScoresCountrySelect">Score statements using ratings from</label>
         <select id="stmtScoresCountrySelect" class="select">
           <option value="all">All countries</option>
         </select>
@@ -290,17 +400,42 @@
     </div>
 
     <div class="scores-wrap">
+      <!-- Intro card: static copy here, worked example filled by static/intro.js -->
+      <section class="intro" data-intro="stmtScores" aria-labelledby="introStmtTitle">
+        <div class="intro-head">
+          <div>
+            <div class="intro-kicker">About this score</div>
+            <h2 class="intro-title" id="introStmtTitle">How commonsensical is a statement?</h2>
+          </div>
+          <button type="button" class="intro-toggle" aria-expanded="true">Hide ▴</button>
+        </div>
+        <div class="intro-body">
+          <p class="intro-lede">A statement is common sense when nearly everyone gives the same answer to it, and expects others to give that answer too. Its score comes from everyone in the selected group who rated it.</p>
+          <div class="intro-grid">
+            <div class="intro-col">
+              <ol class="intro-steps">
+                <li class="intro-step"><span class="intro-step-num is-agree">1</span><div><div class="intro-step-name">Consensus</div><div class="intro-step-text">How lopsided the vote is: <span class="intro-formula">2 × |share who agree − 50%|</span>. It is 100% when everyone gives the same answer and 0% at an even split.</div></div></li>
+                <li class="intro-step"><span class="intro-step-num is-expect">2</span><div><div class="intro-step-name">Awareness</div><div class="intro-step-text">The share of raters who predicted the majority's answer: those who said most others would agree when the majority agrees, or would not when it disagrees.</div></div></li>
+                <li class="intro-step"><span class="intro-step-num">3</span><div><div class="intro-step-name">Commonsensicality</div><div class="intro-step-text"><span class="intro-formula"><span class="sqrt"><span class="sr-only">the square root of </span><svg class="sqrt-sign" viewBox="0 0 10 20" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M0.6 11.6 L2.7 10.5 L5.3 19.3 L9.7 0.75 H10"/></svg><span class="sqrt-arg">consensus × awareness</span></span></span>, from 0 to 100%. A statement most people reject can still score high, if people expect it to be rejected.</div></div></li>
+              </ol>
+              <p class="intro-note">A statement is scored once it has at least 10 ratings in the group. A 50/50 tie counts as a majority that agrees.</p>
+            </div>
+            <div class="intro-ex" id="introStmtEx" aria-live="polite"><div class="intro-skeleton"></div></div>
+          </div>
+        </div>
+      </section>
+
       <div class="chart-card">
-        <div class="chart-title">Distribution of Statement Commonsensicality Scores</div>
-        <div class="chart-sub">The commonsensicality score for each statement ranges from 0 to 100%. It is a combination of two components: consensus and awareness. Click on each statement in the table below to explore more.</div>
+        <div class="chart-title">Statements by Commonsensicality</div>
+        <div class="chart-sub">How many statements reach each score. Click a bar to list only that range in the table below; click it again to clear.</div>
         <div class="hist-container">
           <canvas id="stmtScoresHistChart"></canvas>
         </div>
       </div>
       <div class="search-filter-row">
-        <input type="text" id="stmtScoresSearch" class="stmt-search-input" placeholder="Search statements…">
+        <input type="search" id="stmtScoresSearch" class="stmt-search-input" placeholder="Search statements…" aria-label="Search statements">
         <div class="prop-filter-panel">
-          <button class="prop-filter-toggle" type="button"><span class="prop-filter-arrow">▶</span> Filter by properties</button>
+          <button class="prop-filter-toggle" type="button"><span class="prop-filter-arrow">▶</span> Filter by features</button>
           <div class="prop-filter-grid hidden">
             <div class="prop-filter-row">
               <div class="prop-filter-label-cell"><span class="prop-filter-row-label">Fact or Opinion?</span><button class="prop-help-btn" type="button" data-prop-key="fact">?</button></div>
@@ -335,9 +470,22 @@
           </div>
         </div>
       </div>
+      <!-- Quick views (STMT_LENSES in app.js): a preset sort, among statements
+           with enough ratings for their shares to be stable -->
+      <div class="lens-row">
+        <div class="lens-group" id="ssLenses" role="group" aria-label="Quick views">
+          <span class="lens-label">Quick views</span>
+          <button type="button" class="lens-btn" data-lens="" aria-pressed="true">All statements</button>
+          <button type="button" class="lens-btn" data-lens="shared" aria-pressed="false">Most shared</button>
+          <button type="button" class="lens-btn" data-lens="divisive" aria-pressed="false">Most divisive</button>
+          <button type="button" class="lens-btn" data-lens="misjudged" aria-pressed="false">Most misjudged</button>
+          <button type="button" class="lens-btn" data-lens="rejected" aria-pressed="false">Rejected by most</button>
+        </div>
+        <p class="lens-note" id="ssLensNote" hidden></p>
+      </div>
       <div class="table-nav-row">
         <span id="stmtScoresFilterLabel" class="scores-filter-label"></span>
-        <p class="click-hint">Click on a row to explore more.</p>
+        <p class="click-hint">Click a row to see how its score is calculated and which countries rated it.</p>
         <div class="pagination">
           <button id="btnStmtScoresPrev" class="page-btn" disabled>&#8249;</button>
           <span id="stmtScoresPageInfo" class="page-info"></span>
@@ -350,9 +498,9 @@
             <tr>
               <th class="col-rank">#</th>
               <th class="col-statement">Statement</th>
-              <th class="col-num sortable sort-active th-wrap" data-sort="n_ratings">Rat&shy;ings <span class="sort-icon">▼</span></th>
-              <th class="col-stmtscore sortable" data-sort="I_agree_mean">I agree <button class="prop-help-btn" type="button" data-col-label="I agree" data-col-def="Percentage of users who subjectively agreed with the statement.">?</button> <span class="sort-icon"></span></th>
-              <th class="col-stmtscore sortable th-wrap" data-sort="others_agree_mean">Others agree <button class="prop-help-btn" type="button" data-col-label="Others agree" data-col-def="Percentage of users who believed that most other people would agree with the statement.">?</button> <span class="sort-icon"></span></th>
+              <th class="col-num sortable sort-active" data-sort="n_ratings">Ratings <span class="sort-icon">▼</span></th>
+              <th class="col-stmtscore sortable" data-sort="I_agree_mean">Agree <button class="prop-help-btn" type="button" data-col-label="Agree" data-col-def="Share of raters who agree with the statement. Orange when under 50%, so the majority disagrees.">?</button> <span class="sort-icon"></span></th>
+              <th class="col-stmtscore sortable th-wrap" data-sort="others_agree_mean">Think most agree <button class="prop-help-btn" type="button" data-col-label="Think most agree" data-col-def="Share of raters who think most other people would agree with the statement.">?</button> <span class="sort-icon"></span></th>
               <th class="col-stmtscore sortable th-wrap" data-sort="consensus">Con&shy;sensus <span class="sort-icon"></span></th>
               <th class="col-stmtscore sortable th-wrap" data-sort="awareness">Aware&shy;ness <span class="sort-icon"></span></th>
               <th class="col-stmtscore sortable th-wrap" data-sort="commonsensicality">Common&shy;sensicality <span class="sort-icon"></span></th>
@@ -370,17 +518,42 @@
   <div id="panelDP" class="panel hidden">
     <div class="toolbar">
       <div class="toolbar-left">
-        <label class="toolbar-label" for="dpCountrySelect">Group</label>
+        <label class="toolbar-text" for="dpCountrySelect">Score statements using ratings from</label>
         <select id="dpCountrySelect" class="select">
           <option value="all">All countries</option>
         </select>
       </div>
-      <a class="toolbar-btn" href="statement_generation" style="margin-left:auto;text-decoration:none">Explore proposed statements &rarr;</a>
+      <a class="toolbar-btn" href="statement_generation" style="margin-left:auto;text-decoration:none" title="How many statements each design point has, and new LLM-written statements to fill the gaps">Design point coverage &rarr;</a>
     </div>
     <div class="scores-wrap">
+      <!-- Intro card: static copy here, the builder is filled by static/intro.js -->
+      <section class="intro" data-intro="dp" aria-labelledby="introDpTitle">
+        <div class="intro-head">
+          <div>
+            <div class="intro-kicker">About design points</div>
+            <h2 class="intro-title" id="introDpTitle">Which kinds of statements are most commonsensical?</h2>
+          </div>
+          <button type="button" class="intro-toggle" aria-expanded="true">Hide ▴</button>
+        </div>
+        <div class="intro-body">
+          <p class="intro-lede">Every statement is categorized in six ways: fact or opinion, literal language or figure of speech, and so on. Each of the 2<sup>6</sup> = 64 combinations of these six features is a <em>design point</em>. Its score is the average commonsensicality of its statements, so comparing design points shows which kinds of knowledge people share most.</p>
+          <div class="intro-grid">
+            <div class="intro-col">
+              <ol class="intro-steps">
+                <li class="intro-step"><span class="intro-step-num">1</span><div><div class="intro-step-name">One row per design point</div><div class="intro-step-text">● marks the first side of a feature (Fact, Physical, Literal, Positive, Knowledge, Everyday) and ○ the second (Opinion, Social, Figurative, Normative, Reasoning, Abstract). Click the <strong>?</strong> in a column header for the full definition.</div></div></li>
+                <li class="intro-step"><span class="intro-step-num">2</span><div><div class="intro-step-name">Average score</div><div class="intro-step-text">The dot is the mean commonsensicality of the design point's statements, and the bar its 95% confidence interval.</div></div></li>
+                <li class="intro-step"><span class="intro-step-num">3</span><div><div class="intro-step-name">N and ranking</div><div class="intro-step-text">N counts the statements with a score (at least 10 ratings). A design point needs N ≥ 5 to be ranked; the others are listed under the table. Click any row to see its statements.</div></div></li>
+              </ol>
+              <p class="intro-note">Features overlap, and are also tied to when and where statements were collected, so read differences between design points as descriptions, not causes.</p>
+            </div>
+            <div class="intro-ex" id="introDpEx" aria-live="polite"><div class="intro-skeleton"></div></div>
+          </div>
+        </div>
+      </section>
+
       <div class="chart-card">
         <div class="chart-title">Commonsensicality by Design Point</div>
-        <div class="chart-sub">Average commonsensicality across all 64 property combinations · Mean and 95% CI · click a row to see its statements</div>
+        <div class="chart-sub">Key: <span class="dp-key-dot">●</span> Fact, Physical, Literal, Positive, Knowledge, Everyday · <span class="dp-key-ring">○</span> their opposites · dot = mean score of the design point's statements, bar = 95% confidence interval.</div>
         <div id="dpTableContainer"><div class="empty-row" style="padding:30px 0">Loading…</div></div>
       </div>
       <div id="dpDetailCard" class="chart-card hidden">
@@ -402,7 +575,7 @@
     <div class="scores-wrap">
       <div class="chart-card">
         <div class="chart-title">Design Point Coverage</div>
-        <p class="sg-caption">Each design point has four statement counts. Hover or click on the ? button to see their definitions. Click a property header to filter by it; click again to switch to its opposite, and once more to clear.</p>
+        <p class="sg-caption">Each design point has four statement counts. Hover or click on the ? button to see their definitions. Click a feature header to filter by it; click again to switch to its opposite, and once more to clear.</p>
         <div class="sg-table-wrap">
           <table id="sgTable">
             <thead><tr id="sgHead"></tr></thead>
@@ -439,7 +612,7 @@
       </div>
       <div class="chart-card">
         <div class="chart-title">Published Statement Audit</div>
-        <p class="sg-caption">LLM judges rated each published statement with the same prompt used for generated statements, without seeing its stored labels. A statement passes when, for every feature, at least half of the judges who rated it give the stored label; no single judge has to agree on all six, and common sense is not required. Rows are the design points of the stored labels; click a row to list its statements. Hover or click on the ? button for definitions; click a property header to filter by it, again to switch to its opposite, and once more to clear.</p>
+        <p class="sg-caption">LLM judges rated each published statement with the same prompt used for generated statements, without seeing its stored labels. A statement passes when, for every feature, at least half of the judges who rated it give the stored label; no single judge has to agree on all six, and common sense is not required. Rows are the design points of the stored labels; click a row to list its statements. Hover or click on the ? button for definitions; click a feature header to filter by it, again to switch to its opposite, and once more to clear.</p>
         <div class="sg-table-wrap">
           <table id="auTable">
             <thead><tr id="auHead"></tr></thead>
@@ -480,7 +653,7 @@
         <div class="ts-chart-box ts-chart-box--wide"><canvas id="tsCsChart" role="img" aria-label="Histogram of Jev's probability that each statement is common sense, stacked by the LLM judges' verdicts"></canvas></div>
       </div>
       <div class="ts-filter-row">
-        <label class="toolbar-label" for="tsRefSelect">Compare Jev with</label>
+        <label class="toolbar-text" for="tsRefSelect">Compare Jev with</label>
         <select id="tsRefSelect" class="select"></select>
         <span class="ts-filter-note">Applies to everything below.</span>
       </div>
@@ -573,10 +746,10 @@
           <thead>
             <tr>
               <th class="col-modal-stmt">Statement</th>
-              <th class="col-modal-yesno">I agree</th>
-              <th class="col-modal-yesno">Others agree</th>
-              <th class="col-modal-refn" title="Ratings of this statement in the reference group, across all dates (the date filter does not apply)">Ref.<br>ratings</th>
-              <th class="col-modal-ref">Ref. avg.<br>agree</th>
+              <th class="col-modal-ref" title="The majority group's answer, and the share who gave it">Majority</th>
+              <th class="col-modal-yesno">Agrees?</th>
+              <th class="col-modal-yesno" title="Does this participant think most other people would agree?">Thinks most agree?</th>
+              <th class="col-modal-refn" title="Ratings of this statement in the majority group, from all dates">Ratings</th>
             </tr>
           </thead>
           <tbody id="modalBody">
@@ -591,39 +764,59 @@
   <div id="panelCompare" class="panel hidden">
     <div class="toolbar">
       <div class="toolbar-left">
-        <label class="toolbar-label" for="compareGroupA">Group A</label>
-        <select id="compareGroupA" class="select"><option value="all">All countries</option></select>
-        <label class="toolbar-label" for="compareGroupB">Group B</label>
-        <select id="compareGroupB" class="select"><option value="all">All countries</option></select>
+        <label class="toolbar-text" for="compareGroupA">Compare</label>
+        <select id="compareGroupA" class="select" title="Group A"><option value="all">All countries</option></select>
+        <label class="toolbar-text" for="compareGroupB">with</label>
+        <select id="compareGroupB" class="select" title="Group B"><option value="all">All countries</option></select>
       </div>
       <div id="compareSpinner" class="spinner hidden"></div>
     </div>
     <div class="scores-wrap" id="compareWrap">
+      <!-- Intro card: static copy here, quick picks filled by static/intro.js -->
+      <section class="intro intro-compact" data-intro="compare" aria-labelledby="introCompareTitle">
+        <div class="intro-head">
+          <div>
+            <div class="intro-kicker">About this comparison</div>
+            <h2 class="intro-title" id="introCompareTitle">Do two groups share the same common sense?</h2>
+          </div>
+          <button type="button" class="intro-toggle" aria-expanded="true">Hide ▴</button>
+        </div>
+        <div class="intro-body">
+          <p class="intro-lede">Choose two groups above. Each is scored on its own terms: its participants against its own majority, and its statements from its own raters.</p>
+          <div class="intro-chips" id="introCompareChips"></div>
+          <ol class="intro-steps">
+            <li class="intro-step"><span class="intro-step-num">1</span><div><div class="intro-step-name">Individual scores</div><div class="intro-step-text">Participant scores in each group, as in Individual Scores. Cohen's <em>d</em> is the gap between the two means, in pooled standard deviations.</div></div></li>
+            <li class="intro-step"><span class="intro-step-num">2</span><div><div class="intro-step-name">Statement scores</div><div class="intro-step-text">Statement scores, each computed within the group (at least 10 ratings there).</div></div></li>
+            <li class="intro-step"><span class="intro-step-num">3</span><div><div class="intro-step-name">Statements in both groups</div><div class="intro-step-text">One dot per statement scored in both groups, Group A across and Group B up. Dots above the dashed line are more commonsensical in Group B.</div></div></li>
+          </ol>
+          <p class="intro-note">Equal scores need not mean the same view: a statement can score high in both groups while one majority agrees and the other disagrees. Click a dot to see each group's majority.</p>
+        </div>
+      </section>
       <div class="compare-layout">
         <div class="compare-left">
           <div class="chart-card">
-            <div class="chart-title">Individual Commonsensicality</div>
+            <div class="chart-title">Individual Scores</div>
             <div class="chart-sub" id="compareIndivSub">Choose two groups above to compare their distributions.</div>
             <div class="compare-effect" id="compareIndivEffect"></div>
             <div class="hist-container" style="height:260px"><canvas id="compareIndivChart"></canvas></div>
           </div>
           <div class="chart-card">
-            <div class="chart-title">Statement Commonsensicality</div>
-            <div class="chart-sub" id="compareStmtSub">Distribution of statement-level commonsensicality scores for each group.</div>
+            <div class="chart-title">Statement Scores</div>
+            <div class="chart-sub" id="compareStmtSub">Each statement's score in each group.</div>
             <div class="compare-effect" id="compareStmtEffect"></div>
             <div class="hist-container" style="height:260px"><canvas id="compareStmtChart"></canvas></div>
           </div>
           <div class="chart-card">
-            <div class="chart-title">Statement Score Calibration</div>
-            <div class="chart-sub" id="compareScatterSub">Each dot is a statement rated by both groups. The dashed line is y = x (equal scores).</div>
+            <div class="chart-title">Statements in Both Groups</div>
+            <div class="chart-sub" id="compareScatterSub">Each dot is a statement scored in both groups. The dashed line marks equal scores.</div>
             <div class="hist-container" style="height:380px"><canvas id="compareScatterChart"></canvas></div>
           </div>
         </div>
         <div class="compare-right">
           <div class="chart-card compare-detail-card">
-            <div id="compareDetailTitle" class="compare-detail-title">Click a bar or scatter point to explore</div>
+            <div id="compareDetailTitle" class="compare-detail-title">Details</div>
             <div id="compareDetailContent">
-              <p class="cmp-detail-placeholder">Select a histogram bar or scatter point on the left to see individuals or statements in that range.</p>
+              <p class="cmp-detail-placeholder">Click a bar or a dot on the left to list the participants or statements behind it.</p>
             </div>
           </div>
         </div>
@@ -634,17 +827,45 @@
   <!-- ── Countries panel ──────────────────────────────────────── -->
   <div id="panelCountries" class="panel hidden">
     <div class="toolbar">
+      <!-- Key to the matrix's cell shading (cmScoreBg() in app.js) -->
       <div class="toolbar-left">
-        <span class="toolbar-label" style="font-size:0.82rem;color:#64748B">Commonsensicality (%) per statement × country · only cells with ≥ 10 ratings shown</span>
+        <span class="cm-legend" id="cmLegend" aria-label="Cell shading: commonsensicality from 0 to 100"><span id="cmLegendName">Score</span> <span id="cmLegendLo">0</span><span class="cm-legend-ramp" id="cmLegendRamp"></span><span id="cmLegendHi">100</span></span>
+        <span class="toolbar-text">· a cell with only <em>N</em> has fewer than 10 ratings</span>
       </div>
       <div id="cmSummary" class="summary"></div>
       <div id="cmSpinner" class="spinner hidden"></div>
     </div>
     <div class="scores-wrap">
+      <!-- Intro card: static copy here, example filled by static/intro.js -->
+      <section class="intro" data-intro="countries" aria-labelledby="introCountriesTitle">
+        <div class="intro-head">
+          <div>
+            <div class="intro-kicker">About this table</div>
+            <h2 class="intro-title" id="introCountriesTitle">Is a statement equally commonsensical everywhere?</h2>
+          </div>
+          <button type="button" class="intro-toggle" aria-expanded="true">Hide ▴</button>
+        </div>
+        <div class="intro-body">
+          <p class="intro-lede">Each cell is one statement's commonsensicality (0–100), computed only from one country's participants, the same way as in Statement Scores. Reading along a row shows where a view is widely shared, and expected, and where it is not.</p>
+          <div class="intro-grid">
+            <div class="intro-col">
+              <ol class="intro-steps">
+                <li class="intro-step"><span class="intro-step-num">1</span><div><div class="intro-step-name">Cells</div><div class="intro-step-text">The score, with its number of ratings <em>N</em> underneath. A cell that shows only <em>N</em> has fewer than 10 ratings, too few to score. Click any cell to see the calculation.</div></div></li>
+                <li class="intro-step"><span class="intro-step-num">2</span><div><div class="intro-step-name"><em>N</em>, <em>M</em> and <em>SD</em></div><div class="intro-step-text">How many countries score the statement, and the mean and standard deviation of their scores.</div></div></li>
+                <li class="intro-step"><span class="intro-step-num">3</span><div><div class="intro-step-name">Order</div><div class="intro-step-text">Rows are sorted by number of countries and columns by number of scored statements. Click a header to sort by it.</div></div></li>
+              </ol>
+              <p class="intro-note">Small cells are noisy: with 10 ratings, a cell's score has a standard error of about 16 points (the median across statements), so compare cells with many ratings.</p>
+              <p class="intro-note">The score measures how widely a country's own majority view is shared, whichever way it points. Two countries can both score a statement highly while one majority agrees and the other disagrees: switch the cells to <em>Share who agree</em> below to see which way each majority points.</p>
+            </div>
+            <div class="intro-ex" id="introCountriesEx" aria-live="polite"><div class="intro-skeleton"></div></div>
+          </div>
+        </div>
+      </section>
+
       <div class="search-filter-row">
-        <input type="text" id="cmSearch" class="stmt-search-input" placeholder="Search statements…">
+        <input type="search" id="cmSearch" class="stmt-search-input" placeholder="Search statements…" aria-label="Search statements">
         <div class="prop-filter-panel">
-          <button class="prop-filter-toggle" type="button"><span class="prop-filter-arrow">▶</span> Filter by properties</button>
+          <button class="prop-filter-toggle" type="button"><span class="prop-filter-arrow">▶</span> Filter by features</button>
           <div class="prop-filter-grid hidden">
             <div class="prop-filter-row">
               <div class="prop-filter-label-cell"><span class="prop-filter-row-label">Fact or Opinion?</span><button class="prop-help-btn" type="button" data-prop-key="fact">?</button></div>
@@ -679,8 +900,20 @@
           </div>
         </div>
       </div>
+      <!-- What the cells show (cmView in app.js), and a filter for statements
+           whose countries' majorities point different ways -->
+      <div class="lens-row">
+        <div class="lens-group" id="cmViews" role="group" aria-label="What the cells show">
+          <span class="lens-label">Cells show</span>
+          <button type="button" class="lens-btn" data-cm-view="score" aria-pressed="true">Commonsensicality</button>
+          <button type="button" class="lens-btn" data-cm-view="agree" aria-pressed="false">Share who agree</button>
+          <span class="lens-sep" aria-hidden="true"></span>
+          <button type="button" class="lens-btn" id="cmFlipBtn" aria-pressed="false">Only where majorities differ</button>
+        </div>
+        <p class="lens-note" id="cmViewNote" hidden></p>
+      </div>
       <div class="table-nav-row">
-        <p class="click-hint">Rows sorted by number of qualifying countries · columns by number of qualifying statements.</p>
+        <p class="click-hint">Click a cell to see how its score is calculated, or a header to sort by it.</p>
         <div class="pagination">
           <button id="btnCmPrev" class="page-btn" disabled>&#8249;</button>
           <span id="cmPageInfo" class="page-info"></span>
@@ -696,9 +929,253 @@
     </div>
   </div>
 
+  <!-- ── LLM Evaluations panel ─────────────────────────────── -->
+  <!-- Results of Nguyen, Watts & Whiting (2026), a separate study with fixed
+       data (llm_evals.py serves data/llm_evals/). static/llm.js fills every
+       view: [data-llm] fields hold its counts, and every #llm… element below
+       is drawn from /api/llm-evals. Overview tells the paper's story in
+       numbered chapters; the two model views tell one model's score as a story
+       whose chapters open one click at a time. Models are orange (proprietary
+       ones striped), people blue. -->
+  <div id="panelLlm" class="panel hidden">
+    <div class="toolbar llm-toolbar">
+      <div class="llm-seg" id="llmViews" role="group" aria-label="View">
+        <button type="button" class="llm-seg-btn" data-value="overview" aria-pressed="true">Overview</button>
+        <button type="button" class="llm-seg-btn" data-value="individual" aria-pressed="false">LLMs as individuals</button>
+        <button type="button" class="llm-seg-btn" data-value="population" aria-pressed="false">LLMs as populations</button>
+        <button type="button" class="llm-seg-btn" data-value="statements" aria-pressed="false">Statements</button>
+        <button type="button" class="llm-seg-btn" data-value="participants" aria-pressed="false">Participants</button>
+      </div>
+      <div class="llm-model-pick hidden" id="llmModelPick">
+        <label class="toolbar-text" for="llmModelSelect">Model</label>
+        <div class="llm-picker">
+          <button type="button" class="llm-step-btn" id="llmModelPrev" aria-label="Previous model in the ranking">&#8249;</button>
+          <select id="llmModelSelect" class="select"></select>
+          <button type="button" class="llm-step-btn" id="llmModelNext" aria-label="Next model in the ranking">&#8250;</button>
+        </div>
+        <span class="llm-pick-rank" id="llmModelRank"></span>
+        <span class="llm-pick-hint">Switch to any of the <span data-llm="n_models">—</span> models at any point; the story keeps your place.</span>
+      </div>
+      <div id="llmSpinner" class="spinner hidden"></div>
+      <span class="summary llm-toolbar-note">Fixed study data · the date filter doesn't apply</span>
+    </div>
+    <div class="scores-wrap" id="llmWrap">
+      <div id="llmError" class="min-ratings-note hidden">The LLM evaluation data could not be loaded. Try refreshing the page.</div>
+
+      <!-- Overview: the paper's findings as numbered chapters (llmRenderOverview) -->
+      <section class="llm-view" data-view="overview">
+        <!-- The landing page: the paper's two main findings, LLMs as
+             individuals and as populations, each one card with a small chart
+             (the same charts as Home section 5) and links to the views that
+             explain it (llmRenderLanding); methods and limits fold away. -->
+        <div class="chart-card llm-hero llm-land-hero">
+          <div class="llm-kicker">LLM evaluations · Nguyen, Watts &amp; Whiting (2026), <em>PNAS Nexus</em> · <a href="https://doi.org/10.1093/pnasnexus/pgag029" target="_blank" rel="noopener">Read the paper<svg class="ext-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6"/><path d="M20 4 10 14"/><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/></svg><span class="sr-only"> (opens in a new tab)</span></a></div>
+          <h2 class="llm-hero-title">Do language models share our common sense?</h2>
+          <p class="llm-hero-lead">People don't always agree on what common sense is. If there is no “ground truth” to common sense, how do we evaluate large language models? This study provides a solution. We recruited <strong><span data-llm="n_participants">—</span> people</strong> and used <strong><span data-llm="n_models">—</span> LLMs</strong> to rate a total of <strong><span data-llm="n_statements">—</span> statements</strong>. The patterns of agreement in their ratings determine their common sense. Explore the main findings here.</p>
+          <div class="llm-land-data">
+            <button type="button" class="llm-land-chip" data-llm-go="statements">The <span data-llm="n_statements">—</span> statements →</button>
+            <button type="button" class="llm-land-chip" data-llm-go="participants">The <span data-llm="n_participants">—</span> people →</button>
+          </div>
+        </div>
+        <div class="llm-land" id="llmLand"></div>
+        <div class="chart-card llm-land-close">
+          <p class="llm-p"><strong>Why it matters.</strong> LLM common sense is typically evaluated using static benchmarks that come with predefined ground-truth answers. But people often disagree with one another on what counts as ground truth. Our study offers a novel methodology to examine the common sense of humans and models without this assumption, highlighting the empirical, collective-agreement nature of commonsense knowledge in society.</p>
+        </div>
+      </section>
+
+      <!-- LLMs as individuals: one model's score told as a story, one step
+           per click of the stepper's Next button (llmRenderIndividual) -->
+      <section class="llm-view hidden" data-view="individual">
+        <div class="llm-story">
+          <div class="chart-card llm-story-head" id="llmIndHead"></div>
+          <div id="llmIndStory" class="llm-chaps"></div>
+          <div class="llm-stepper" id="llmIndStepper"></div>
+        </div>
+        <!-- Folded until the reader opens it; links into it open it first
+             (llmScrollTo, llmRevealPending) -->
+        <details class="llm-explore" id="llmIndExplore">
+          <summary class="llm-explore-sum"><span class="llm-explore-title">Explore further</span><span class="llm-explore-sub">Every model ranked, model size, kinds of statements and every answer</span></summary>
+          <div class="llm-explore-body">
+          <div class="chart-card llm-step" id="llmIndRank">
+            <div class="llm-step-head"><span class="llm-step-num is-feat">+</span><div><h3 class="llm-step-title">Every model as an individual</h3>
+            <p class="llm-step-lead">Each model's commonsensicality as one more respondent, with people at three points of their own distribution. <strong>Beats</strong> is the share of the <span data-llm="n_participants">—</span> people a model outscores on the 50 statements each of them rated. Click a model to follow it through the survey.</p></div></div>
+            <div class="llm-step-body">
+              <div class="llm-card-tools">
+                <div class="llm-seg llm-seg-sm" id="llmBoardFilter" role="group" aria-label="Which models">
+                  <button type="button" class="llm-seg-btn" data-value="all" aria-pressed="true">All</button>
+                  <button type="button" class="llm-seg-btn" data-value="open" aria-pressed="false">Open weights</button>
+                  <button type="button" class="llm-seg-btn" data-value="proprietary" aria-pressed="false">Proprietary</button>
+                </div>
+                <div class="llm-legend" aria-hidden="true">
+                  <span><i class="llm-key llm-key-open"></i>Open-weight model</span>
+                  <span><i class="llm-key llm-key-prop"></i>Proprietary model</span>
+                  <span><i class="llm-key llm-key-people"></i>People</span>
+                </div>
+              </div>
+              <div class="llm-bars llm-board" id="llmBoard"></div>
+              <p class="llm-takeaway" id="llmBoardTakeaway"></p>
+              <p class="llm-note" id="llmBoardNote"></p>
+            </div>
+          </div>
+          <div class="chart-card llm-step" id="llmIndSize">
+            <div class="llm-step-head"><span class="llm-step-num is-feat">+</span><div><h3 class="llm-step-title">Model size</h3>
+            <p class="llm-step-lead" id="llmSizeLead"></p></div></div>
+            <div class="llm-step-body">
+              <div class="llm-bars llm-size" id="llmSize"></div>
+              <p class="llm-note" id="llmSizeNote"></p>
+            </div>
+          </div>
+          <div class="chart-card llm-step" id="llmIndFeat"></div>
+          <div class="chart-card llm-step" id="llmIndAnswers">
+            <div class="llm-step-head"><span class="llm-step-num is-feat">+</span><div><h3 class="llm-step-title" id="llmIndTableTitle">Every answer</h3>
+            <p class="llm-step-lead">Every statement the model answered, next to the people's majority. Green marks a match with the majority; consensus and awareness are the shares of green in their columns. The table opens on the statements where it misses the clearest majorities; choose “All statements” for every one. Click a row to see how every model rated the statement.</p></div></div>
+            <div id="llmIndTable" class="llm-table-host"></div>
+          </div>
+          </div>
+        </details>
+        <nav class="llm-model-nav" id="llmIndNav" aria-label="Other models"></nav>
+      </section>
+
+      <!-- LLMs as populations: one model's crowd told as a story, the
+           split-half benchmark included (llmRenderPopulation) -->
+      <section class="llm-view hidden" data-view="population">
+        <div class="llm-story">
+          <div class="chart-card llm-story-head" id="llmPopHead"></div>
+          <div id="llmPopStory" class="llm-chaps"></div>
+          <div class="llm-stepper" id="llmPopStepper"></div>
+        </div>
+        <!-- Folded until the reader opens it; links into it open it first
+             (llmScrollTo, llmRevealPending) -->
+        <details class="llm-explore" id="llmPopExplore">
+          <summary class="llm-explore-sum"><span class="llm-explore-title">Explore further</span><span class="llm-explore-sub">Every model's crowd, certainty, kinds of statements and the biggest gaps</span></summary>
+          <div class="llm-explore-body">
+          <div class="chart-card llm-step" id="llmPopRank">
+            <div class="llm-step-head"><span class="llm-step-num is-feat">+</span><div><h3 class="llm-step-title">Every model's crowd</h3>
+            <p class="llm-step-lead">How closely each model's crowd agrees with people on which statements are commonsensical (r), against two random halves of people. Click a model to follow its crowd.</p></div></div>
+            <div class="llm-step-body">
+              <div class="llm-legend" aria-hidden="true">
+                <span><i class="llm-key llm-key-open"></i>Open-weight model</span>
+                <span><i class="llm-key llm-key-prop"></i>Proprietary model</span>
+                <span><i class="llm-key llm-key-faint"></i>Not significantly different from 0</span>
+                <span><i class="llm-key llm-key-people"></i>People</span>
+              </div>
+              <div class="llm-bars llm-rbars" id="llmRBars"></div>
+              <p class="llm-takeaway" id="llmRTakeaway"></p>
+              <p class="llm-note" id="llmRNote"></p>
+            </div>
+          </div>
+          <div class="chart-card llm-step" id="llmPopCertainty">
+            <div class="llm-step-head"><span class="llm-step-num is-feat">+</span><div><h3 class="llm-step-title">Models are far more certain than people</h3>
+            <p class="llm-step-lead">Statements by the share of people who agree with each, and by each model's percentage for agreeing. People spread over the whole range; many models pile up near 0% and 100%, so their crowds look unanimous where people are split. The paper puts this partly down to instruction tuning and alignment.</p></div></div>
+            <div class="llm-step-body">
+              <div class="llm-multiples" id="llmCertainty"></div>
+              <p class="llm-note" id="llmCertaintyNote"></p>
+            </div>
+          </div>
+          <div class="chart-card llm-step" id="llmPopFeat">
+            <div class="llm-step-head"><span class="llm-step-num is-feat">+</span><div><h3 class="llm-step-title">Which kinds of statements each crowd finds commonsensical</h3>
+            <p class="llm-step-lead">Every statement is labelled on six features, such as fact or opinion. Each bar shows how much more commonsensical the statements on one side are than those on the other, on average, in points. For people every bar points right, facts over opinions most of all.</p></div></div>
+            <div class="llm-step-body">
+              <div class="llm-chips" id="llmFeatChips" role="group" aria-label="Model to compare"></div>
+              <div class="llm-legend" aria-hidden="true">
+                <span><i class="llm-key llm-key-people"></i>People</span>
+                <span><i class="llm-key llm-key-open"></i><span id="llmFeatLegend">Model's crowd</span></span>
+              </div>
+              <div class="llm-feat" id="llmFeat"></div>
+              <p class="llm-takeaway" id="llmFeatTakeaway"></p>
+              <p class="llm-note">Mean commonsensicality of the statements on the right-hand side minus those on the left (facts minus opinions, for example), in percentage points; hover a bar for its 95% interval (1,000 bootstrap resamples of the statements). The paper reports bootstrap means, which can differ from these by a few hundredths of a point.</p>
+            </div>
+          </div>
+          <div class="chart-card llm-step" id="llmPopGaps">
+            <div class="llm-step-head"><span class="llm-step-num is-feat">+</span><div><h3 class="llm-step-title" id="llmPopTableTitle">Where the two crowds disagree most</h3>
+            <p class="llm-step-lead">Every statement's commonsensicality in the model's crowd and among people, sorted by the size of the gap. Click a row to see the statement in every model's crowd.</p></div></div>
+            <div id="llmPopTable" class="llm-table-host"></div>
+          </div>
+          </div>
+        </details>
+        <nav class="llm-model-nav" id="llmPopNav" aria-label="Other models"></nav>
+      </section>
+
+      <!-- Statements -->
+      <section class="llm-view hidden" data-view="statements">
+        <div class="chart-card">
+          <div class="chart-title">Statement Commonsensicality</div>
+          <p class="sg-caption">How commonsensical each of the <span data-llm="n_statements">—</span> statements is among people, and its median across the models' simulated crowds. The typical model crowd gives far more statements a score near 100% than people do. Click a statement below to see how every model rated it.</p>
+          <div class="hist-container llm-hist"><canvas id="llmStmtChart" role="img" aria-label="Histograms of statement commonsensicality among people and the median across models"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Statements</div>
+          <p class="sg-caption">“Models agree” counts the models whose own answer is yes. Use the first menu to find statements where most models side against people.</p>
+          <div id="llmStmtTable" class="llm-table-host"></div>
+        </div>
+      </section>
+
+      <!-- Participants -->
+      <section class="llm-view hidden" data-view="participants">
+        <div class="chart-card">
+          <div class="chart-title">Survey Participants</div>
+          <p class="sg-caption">The <span data-llm="n_participants">—</span> people in the study each rated 50 statements, <span data-llm="n_ratings">—</span> ratings in all. Their majority answer on each statement is what every model is scored against. Click a bar to list the participants in that range, and a row to see their answers.</p>
+          <div class="llm-card-tools">
+            <div class="llm-seg llm-seg-sm" id="llmPartMetric" role="group" aria-label="Score">
+              <button type="button" class="llm-seg-btn" data-value="2" aria-pressed="true">Commonsensicality</button>
+              <button type="button" class="llm-seg-btn" data-value="0" aria-pressed="false">Consensus</button>
+              <button type="button" class="llm-seg-btn" data-value="1" aria-pressed="false">Awareness</button>
+            </div>
+          </div>
+          <div class="hist-container llm-hist"><canvas id="llmPartChart" role="img" aria-label="Histogram of the participants' scores"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Participants</div>
+          <div id="llmPartTable" class="llm-table-host"></div>
+        </div>
+      </section>
+    </div>
+  </div>
+  <!-- ── LLM statement detail modal ───────────────────────── -->
+  <div id="llmStmtModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="llmStmtModalText">
+    <div class="modal-box" style="max-width:760px">
+      <div class="modal-header">
+        <div>
+          <div class="modal-stmt-title" id="llmStmtModalText"></div>
+          <div class="stmt-meta" id="llmStmtModalMeta"></div>
+        </div>
+        <button class="modal-close" type="button" title="Close" aria-label="Close">&#x2715;</button>
+      </div>
+      <div class="modal-body" id="llmStmtModalBody"></div>
+    </div>
+  </div>
+
+  <!-- ── LLM participant detail modal ─────────────────────── -->
+  <div id="llmPartModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="llmPartModalTitle">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div>
+          <div class="modal-user-id" id="llmPartModalTitle"></div>
+          <div class="modal-user-scores" id="llmPartModalScores"></div>
+        </div>
+        <button class="modal-close" type="button" title="Close" aria-label="Close">&#x2715;</button>
+      </div>
+      <div class="modal-body">
+        <table class="llm-part-modal-table">
+          <thead>
+            <tr>
+              <th class="col-modal-stmt">Statement</th>
+              <th class="llm-col-modal-ref">People agree</th>
+              <th class="llm-col-modal-ans">Agrees?</th>
+              <th class="llm-col-modal-ans">Thinks most agree?</th>
+            </tr>
+          </thead>
+          <tbody id="llmPartModalBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
   <div id="propHelpPopup" class="prop-help-popup" role="tooltip"></div>
   <div id="flagPopup" class="flag-popup" role="tooltip"></div>
   <script src="static/app.js"></script>
+  <script src="static/llm.js"></script>
   <script src="static/home.js"></script>
+  <script src="static/intro.js"></script>
 </body>
 </html>

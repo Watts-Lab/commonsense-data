@@ -23,6 +23,7 @@ from utils import individual_commonsensicality, statement_commonsensicality
 import statement_coverage
 import statement_audit
 import typesafe_audit
+import llm_evals
 
 DATA_DIR = os.environ.get("DATA_DIR", os.path.join(BASE_DIR, "data"))
 # Default to the in-repo location for local dev; override with STATEMENTS_PATH
@@ -655,6 +656,11 @@ def get_country_matrix(date_from: str = "", date_to: str = "") -> bytes:
 
     score_lookup = agg.set_index(["statementId", "country_reside"])["score"].to_dict()
     n_lookup     = agg.set_index(["statementId", "country_reside"])["n_ratings"].to_dict()
+    # Share who agree, 0–100: the Countries panel's "% agree" view, which shows
+    # the direction of each country's majority that the score leaves out
+    agree_lookup = (
+        (agg.set_index(["statementId", "country_reside"])["I_agree_mean"] * 100).round(2).to_dict()
+    )
     stmt_mean    = agg.groupby("statementId")["score"].mean().round(2)
     stmt_sd      = agg.groupby("statementId")["score"].std().fillna(0.0).round(2)
 
@@ -675,7 +681,11 @@ def get_country_matrix(date_from: str = "", date_to: str = "") -> bytes:
         for c in countries:
             v = score_lookup.get((stmt_id, c))
             if v is not None:
-                scores[c] = {"s": float(v), "n": int(n_lookup[(stmt_id, c)])}
+                scores[c] = {
+                    "s": float(v),
+                    "n": int(n_lookup[(stmt_id, c)]),
+                    "a": float(agree_lookup[(stmt_id, c)]),
+                }
             else:
                 sub_n = sub_n_lookup.get((stmt_id, c))
                 if sub_n is not None:
@@ -794,6 +804,11 @@ def get_user_detail(user_id: str, reference: str, date_from: str = "", date_to: 
         .round(4)
     )
 
+    # Whether each statement counts (10+ reference ratings) and the reference
+    # majority (1 = agrees; from the unrounded share), so the modal marks
+    # answers by the same rule as the score above
+    ref_agg["counted"] = ref_agg["statementId"].isin(common_stmts)
+    ref_agg["ref_majority"] = ref_agg["statementId"].map(maj_vote)
     result = user_ratings.merge(ref_agg, on="statementId", how="left").merge(
         statements[["statementId", "statement"]], on="statementId", how="left"
     )
@@ -904,11 +919,11 @@ def get_group_compare(group_a: str, group_b: str, date_from: str = "", date_to: 
         common_ids = sa.index.intersection(sb.index)
         if len(common_ids):
             df = (
-                sa.loc[common_ids, ["commonsensicality"]]
-                .rename(columns={"commonsensicality": "score_a"})
+                sa.loc[common_ids, ["commonsensicality", "I_agree_mean"]]
+                .rename(columns={"commonsensicality": "score_a", "I_agree_mean": "p_a"})
                 .join(
-                    sb.loc[common_ids, ["commonsensicality"]].rename(
-                        columns={"commonsensicality": "score_b"}
+                    sb.loc[common_ids, ["commonsensicality", "I_agree_mean"]].rename(
+                        columns={"commonsensicality": "score_b", "I_agree_mean": "p_b"}
                     )
                 )
                 .reset_index()
@@ -918,12 +933,16 @@ def get_group_compare(group_a: str, group_b: str, date_from: str = "", date_to: 
                     how="left",
                 )
             )
-            df["score_a"] = df["score_a"].round(4)
-            df["score_b"] = df["score_b"].round(4)
+            # Each group's majority (agree when at least half agree, from the
+            # unrounded share): the scatter marks statements where they differ
+            df["maj_a"] = (df["p_a"] >= 0.5).astype(int)
+            df["maj_b"] = (df["p_b"] >= 0.5).astype(int)
+            for col in ("score_a", "score_b", "p_a", "p_b"):
+                df[col] = df[col].round(4)
             df["statement"] = df["statement"].fillna("")
-            paired = df[["statementId", "statement", "score_a", "score_b"]].to_dict(
-                orient="records"
-            )
+            paired = df[
+                ["statementId", "statement", "score_a", "score_b", "p_a", "p_b", "maj_a", "maj_b"]
+            ].to_dict(orient="records")
 
     result = json.dumps(
         {
@@ -949,14 +968,32 @@ def get_statement_countries(stmt_id: str, date_from: str = "", date_to: str = ""
     except ValueError:
         return json.dumps([], ensure_ascii=False).encode("utf-8")
     m = _filter_date(merged, date_from, date_to)
-    rows = (
-        m[m["statementId"] == sid]["country_reside"]
-        .value_counts()
-        .head(5)
+    # Every country that rated the statement, most ratings first, with how its
+    # participants answered. A country with at least 10 ratings also gets its
+    # own score: statement_commonsensicality() groups by its statementId
+    # column, so passing the country in that column scores each country.
+    sub = m.loc[m["statementId"] == sid, ["country_reside", "I_agree", "others_agree"]]
+    agg = (
+        sub.groupby("country_reside")
+        .agg(
+            n_ratings=("I_agree", "size"),
+            I_agree_mean=("I_agree", "mean"),
+            others_agree_mean=("others_agree", "mean"),
+        )
         .reset_index()
-        .rename(columns={"country_reside": "country", "count": "n_ratings"})
-        .to_dict(orient="records")
+        .sort_values(["n_ratings", "country_reside"], ascending=[False, True])
     )
+    scored = statement_commonsensicality(sub.rename(columns={"country_reside": "statementId"}))["commonsensicality"]
+    rows = []
+    for c, n, p, q in agg.itertuples(index=False):
+        row = {
+            "country": c, "n_ratings": int(n),
+            "I_agree_mean": round(float(p), 4), "others_agree_mean": round(float(q), 4),
+            "maj": int(p >= 0.5),  # from the unrounded share; a tie counts as agree
+        }
+        if c in scored.index:
+            row["score"] = round(float(scored[c]), 4)
+        rows.append(row)
     return json.dumps(rows, ensure_ascii=False).encode("utf-8")
 
 
@@ -993,6 +1030,9 @@ _HOME_EXAMPLE_MIN_RATINGS = (100, 30, 10)
 _HOME_EXAMPLES_PER_LIST = 8
 # Scores at which the Statement Scores card shows an example statement
 _HOME_SCALE_TARGETS = (0.95, 0.75, 0.5, 0.25, 0.05)
+# Countries listed in "Share of participants" at most; the page shows as many
+# as fit beside the map and folds the rest into "All other countries"
+_HOME_COMPOSITION_MAX = 30
 
 
 def _round_or_none(x, nd: int = 4):
@@ -1036,7 +1076,7 @@ def get_home_summary(date_from: str = "", date_to: str = "") -> bytes:
         "first_date": m["createdAt"].min().strftime("%Y-%m-%d") if has_ts else None,
         "last_date": m["createdAt"].max().strftime("%Y-%m-%d") if has_ts else None,
     }
-    top = per_country.head(8)
+    top = per_country.head(_HOME_COMPOSITION_MAX)
     composition = [{"country": c, "n": int(n)} for c, n in top.items()]
     if len(per_country) > len(top):
         composition.append({"country": "Other", "n": int(per_country.iloc[len(top):].sum())})
@@ -1108,28 +1148,29 @@ def get_home_summary(date_from: str = "", date_to: str = "") -> bytes:
             side[val] = {"n": n, "mean": _round_or_none(mean), "lo": _round_or_none(lo), "hi": _round_or_none(hi)}
         properties.append({"key": col, "v1": side[1], "v0": side[0]})
 
-    # ── The two opposite corners of the design space, with example statements:
-    # all six features on their concrete side (fact, physical, literal,
-    # positive, knowledge, everyday) and all six on the other side ──
-    ranked = dps["rows"]  # design points with >= 5 statements, sorted by mean
-    all_dps = ranked + dps["rows_excluded"]
+    # ── The highest- and lowest-scoring design points, with their most-rated
+    # statements as examples. Ranked as on the Design Points panel: only
+    # design points with >= 5 scored statements, by mean score ──
+    ranked = dps["rows"]  # sorted by mean, highest first
 
-    def _corner(val):
-        row = next((r for r in all_dps if all(r[c] == val for c in PROP_COLS)), None)
-        if row is None or not row["n"]:
-            return None
+    def _dp_card(rank):
+        row = ranked[rank - 1]
         mask = pd.Series(True, index=df.index)
         for col in PROP_COLS:
-            mask &= df[col] == val
+            mask &= df[col] == row[col]
         ex = df[mask].sort_values("n_ratings", ascending=False).head(3)
-        rank = next((i for i, r in enumerate(ranked, start=1) if r is row), None)
         return {
+            "features": {c: int(row[c]) for c in PROP_COLS},
             "n": row["n"], "mean": row["mean"], "ci_lo": row["ci_lo"], "ci_hi": row["ci_hi"],
             "rank": rank,
             "examples": [_home_stmt(r) for _, r in ex.iterrows()],
         }
 
-    design_points = {"n_ranked": len(ranked), "concrete": _corner(1), "abstract": _corner(0)}
+    design_points = {
+        "n_ranked": len(ranked),
+        "top": _dp_card(1) if ranked else None,
+        "bottom": _dp_card(len(ranked)) if len(ranked) > 1 else None,
+    }
 
     payload = {
         "date_from": date_from,
@@ -1277,6 +1318,40 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 self._send_error_json(400, "Missing or invalid row")
                 return
             self._send_json(json.dumps(typesafe_audit.get_statement(row), ensure_ascii=False).encode("utf-8"))
+        elif parsed.path == "/api/llm-evals":
+            self._send_json(json.dumps(llm_evals.get_summary(), ensure_ascii=False).encode("utf-8"))
+        elif parsed.path == "/api/llm-evals/statements":
+            self._send_json(json.dumps(llm_evals.get_statements(), ensure_ascii=False).encode("utf-8"))
+        elif parsed.path == "/api/llm-evals/split":
+            seed, stmt = params.get("seed", [""])[0], params.get("statement", [""])[0]
+            if not (seed.isdigit() and stmt.isdigit()):
+                self._send_error_json(400, "Missing or invalid seed or statement")
+                return
+            try:
+                data = llm_evals.get_split(int(seed), int(stmt))
+            except ValueError as exc:
+                self._send_error_json(400, str(exc))
+                return
+            self._send_json(json.dumps(data).encode("utf-8"))
+        elif parsed.path in ("/api/llm-evals/model", "/api/llm-evals/statement", "/api/llm-evals/participant"):
+            kind = parsed.path.rsplit("/", 1)[1]
+            raw = params.get("id", [""])[0]
+            if not raw:
+                self._send_error_json(400, "Missing id")
+                return
+            try:
+                if kind == "model":
+                    data = llm_evals.get_model(raw)
+                elif not raw.isdigit():
+                    raise ValueError(f"Invalid id: {raw!r}")
+                elif kind == "statement":
+                    data = llm_evals.get_statement(int(raw))
+                else:
+                    data = llm_evals.get_participant(int(raw))
+            except ValueError as exc:
+                self._send_error_json(400, str(exc))
+                return
+            self._send_json(json.dumps(data, ensure_ascii=False).encode("utf-8"))
         elif parsed.path == "/" or parsed.path.startswith("/static/"):
             http.server.SimpleHTTPRequestHandler.do_GET(self)
         else:
@@ -1311,6 +1386,17 @@ if __name__ == "__main__":
 
         traceback.print_exc()
         print("Home summary warm-up failed; it will be computed on first request.")
+    # The LLM study (Home section 5 and the LLM Evaluations panel) reads all
+    # 44 models' ratings once; load it now rather than on a visitor's request
+    _t0 = time.perf_counter()
+    try:
+        llm_evals.get_summary()
+        print(f"LLM evaluations ready ({time.perf_counter() - _t0:.1f}s).")
+    except Exception:
+        import traceback
+
+        traceback.print_exc()
+        print("LLM evaluations warm-up failed; they will load on first request.")
     httpd = http.server.HTTPServer(("", PORT), Handler)
     print(f"Open http://localhost:{PORT}")
     try:
