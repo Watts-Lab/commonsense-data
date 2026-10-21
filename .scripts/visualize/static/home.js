@@ -28,8 +28,9 @@ const HS = {
 const HS_REDUCED =
   window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-const HS_AGREE = UI.agree;   // share who agree (UI in app.js)
-const HS_EXPECT = UI.expect; // share who think most others agree
+// Tokens, not resolved colours, so the bars follow a theme change
+const HS_AGREE = "var(--c-agree)";   // share who agree
+const HS_EXPECT = "var(--c-expect)"; // share who think most others agree
 
 // The kinds of example statement /api/home-summary returns (its "examples"),
 // used to vary the hero card and the survey demo. They are not shown as labels.
@@ -154,18 +155,23 @@ function hsTweenPct(el, to) {
   el._hsRaf = requestAnimationFrame(step);
 }
 
-// The hero card's reading of the bars: which way the majority went
+// The hero card's reading of the bars: which way the majority went. Within
+// 3 points of 50% it says the vote is split rather than calling 50.3% "the
+// majority of people".
 function hsMajoritySentence(p) {
   if (Math.abs(p - 0.5) < 0.0005) return "Exactly half of people agree with this statement.";
   if (p === 1 || p === 0) return `Everyone (100%) ${p ? "agrees" : "disagrees"} with this statement.`;
+  if (Math.abs(p - 0.5) < 0.03) return `People are split almost evenly: ${hsMajPct(p > 0.5 ? p : 1 - p)} ${p > 0.5 ? "agree" : "disagree"}.`;
   return p > 0.5
     ? `The majority of people (${hsMajPct(p)}) agree with this statement.`
     : `The majority of people (${hsMajPct(1 - p)}) disagree with this statement.`;
 }
 
-// Score pill colour: one blue ramp, light (low) to dark (high). Its text is
-// white on the two darkest steps and ink on the rest, so it clears 4.5:1.
-const HS_SCORE_STOPS = ["#cde2fb", "#9ec5f4", "#6da7ec", "#3987e5", "#256abf", "#184f95"];
+// Score pill colour: one blue ramp (--c-ramp-0 … 5 in style.css), light (low)
+// to deep (high) on the light theme and dim to bright on the dark one. Its
+// text is --c-ramp-ink-hi on the two strongest steps and --c-ramp-ink-lo on
+// the rest, so it clears 4.5:1 in both themes.
+const HS_SCORE_STOPS = [0, 1, 2, 3, 4, 5].map((i) => `var(--c-ramp-${i})`);
 function hsScoreStep(m) {
   return Math.min(HS_SCORE_STOPS.length - 1, Math.max(0, Math.floor(m * HS_SCORE_STOPS.length)));
 }
@@ -173,7 +179,7 @@ function hsScoreColor(m) {
   return HS_SCORE_STOPS[hsScoreStep(m)];
 }
 function hsScoreInk(m) {
-  return hsScoreStep(m) >= 4 ? "#fff" : UI.ink;
+  return hsScoreStep(m) >= 4 ? "var(--c-ramp-ink-hi)" : "var(--c-ramp-ink-lo)";
 }
 
 // ── Loading ─────────────────────────────────────────────────────────────────
@@ -277,7 +283,7 @@ function hsShowTicker() {
   quote.title = text;
   quote.classList.toggle("is-long", text.length > 80 && text.length <= 120);
   quote.classList.toggle("is-longer", text.length > 120);
-  count.textContent = `Of ${fmtNum(s.n)} people who have rated the statement`;
+  count.textContent = `Rated by ${fmtNum(s.n)} people`;
   hsSetDualBars(bars, s.p, s.q);
   maj.textContent = hsMajoritySentence(s.p);
 }
@@ -531,10 +537,14 @@ function hsRenderIndivHist(d) {
 
 function hsRenderFeatures(d) {
   const el = document.getElementById("hsFeatures");
+  // The gap is the difference of the two whole percents shown beside the
+  // dots (72% vs 59% reads 13 pts, never 14), largest first; the dots'
+  // tooltips give the means to one decimal
+  const pts = (v) => Number((v * 100).toFixed(0)); // as hsPct() prints it
   const rows = d.properties
     .filter((r) => r.v1.mean !== null && r.v0.mean !== null)
-    .map((r) => ({ ...r, gap: r.v1.mean - r.v0.mean }))
-    .sort((a, b) => Math.abs(b.gap) - Math.abs(a.gap));
+    .map((r) => ({ ...r, gap: r.v1.mean - r.v0.mean, gapPts: pts(r.v1.mean) - pts(r.v0.mean) }))
+    .sort((a, b) => Math.abs(b.gapPts) - Math.abs(a.gapPts) || Math.abs(b.gap) - Math.abs(a.gap));
   if (!rows.length) {
     el.innerHTML = `<p class="hs-empty">No statements can be scored in this date range.</p>`;
     document.getElementById("hsFeatAxis").innerHTML = "";
@@ -567,7 +577,7 @@ function hsRenderFeatures(d) {
         `<span class="hs-feat-link" style="left:${Math.min(a, b).toFixed(2)}%;width:${Math.abs(a - b).toFixed(2)}%"></span>` +
         dot(r.v1, l1, "k1", hiIs1 ? "right" : "left") + dot(r.v0, l0, "k0", hiIs1 ? "left" : "right") +
         `</div>` +
-        `<div class="hs-feat-gap">${Math.round(Math.abs(r.gap) * 100)}<span> pts</span></div>` +
+        `<div class="hs-feat-gap">${Math.abs(r.gapPts)}<span> pts</span></div>` +
         `</div>`
       );
     })

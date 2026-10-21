@@ -46,6 +46,8 @@ function inPct(v, digits = 1) {
 // The statement card shows two decimals so its arithmetic checks out on screen:
 // at one decimal, a share of 19.96% would read 2 × |20.0% − 50%| = 60.1%.
 function inPct2(v) { return inPct(v, 2); }
+// A 0-1 share rounded to the 4 decimals inPct2() shows (the server sends 5)
+function in4(v) { return Math.round(v * 1e4) / 1e4; }
 
 function inStoreGet(k) { try { return window.localStorage.getItem(k); } catch { return null; } }
 function inStoreSet(k, v) { try { window.localStorage.setItem(k, v); } catch { /* storage unavailable */ } }
@@ -101,8 +103,9 @@ function inDualBar(label, v, color) {
   );
 }
 
-const IN_AGREE = UI.agree;
-const IN_EXPECT = UI.expect;
+// Tokens, not resolved colours, so the bars follow a theme change
+const IN_AGREE = "var(--c-agree)";
+const IN_EXPECT = "var(--c-expect)";
 
 // ── Collapse / expand (remembered per panel in this browser) ──────────────
 
@@ -399,7 +402,7 @@ function introStmtNext() {
     if (cands.length) row = inPick(cands);
   }
   if (!row) { row = inPick(T.rows.slice().sort(byN)); type = { label: "A statement", lesson: "" }; }
-  T.ex = { row, type, p: row.I_agree_mean, q: row.others_agree_mean };
+  T.ex = { row, type, p: in4(row.I_agree_mean), q: in4(row.others_agree_mean) };
   introStmtRender();
 }
 
@@ -440,10 +443,10 @@ function introStmtRender() {
 function introStmtCalcRender() {
   const T = INTRO.stmt;
   const { p, q, row, type } = T.ex;
-  const modified = Math.abs(p - row.I_agree_mean) > 1e-9 || Math.abs(q - row.others_agree_mean) > 1e-9;
-  // Computed from the 4-decimal shares the server sends, so the arithmetic on
-  // screen checks out; it can differ from the table's value (computed before
-  // rounding) by at most about 0.05 points.
+  const modified = Math.abs(p - in4(row.I_agree_mean)) > 1e-9 || Math.abs(q - in4(row.others_agree_mean)) > 1e-9;
+  // Computed from the shares as shown (4 decimals, in4()), so the arithmetic
+  // on screen checks out; it can differ from the table's value (computed
+  // before rounding) by at most about 0.01 points.
   const c = introStmtCalc(p, q);
   const majWord = c.majAgree ? "agree" : "disagree";
   const awMath = c.majAgree
@@ -483,8 +486,8 @@ function introStmtInit() {
     if (!act || !T.ex) return;
     if (act.dataset.act === "another") introStmtNext();
     else if (act.dataset.act === "reset") {
-      T.ex.p = T.ex.row.I_agree_mean;
-      T.ex.q = T.ex.row.others_agree_mean;
+      T.ex.p = in4(T.ex.row.I_agree_mean);
+      T.ex.q = in4(T.ex.row.others_agree_mean);
       introStmtRender();
     } else if (act.dataset.act === "open") openStmtCombined(T.ex.row);
   });

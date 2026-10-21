@@ -74,10 +74,13 @@ button, input, select, textarea { font-family: inherit; }
   --c-bg-alt: #F4EFE5;
   --c-bg: #FBF8F1;
 
-  /* Interface. --c-navy (a historical name) is the dark warm neutral of the
-     top bar, the Home hero and footer, and filled (selected) controls;
-     --c-navy-2 is its darker step. --c-focus is the focus ring on light
-     surfaces; dark surfaces (top bar, hero, footer) reset it to a light blue. */
+  /* Interface. --c-navy (a historical name) is the strong warm neutral of
+     filled (selected) controls and of commonsensicality as a data colour;
+     --c-navy-2 is its hover step. Text on any filled control (navy, accent,
+     a data hue's -ink step) is --c-on-fill. --c-chrome and --c-chrome-2 are
+     the dark surfaces of the top bar, the Home hero and the footer, which
+     stay dark in both themes. --c-focus is the focus ring on light surfaces;
+     the chrome resets it to a light blue. */
   --c-accent: #2563EB;
   --c-accent-ink: #1D4ED8;
   --c-accent-bg: #EEF3FC;
@@ -85,22 +88,174 @@ button, input, select, textarea { font-family: inherit; }
   --c-focus-on-dark: #93C5FD;
   --c-navy: #2E2924;
   --c-navy-2: #201C18;
+  --c-on-fill: #FFFFFF;
+  --c-chrome: #2E2924;
+  --c-chrome-2: #201C18;
+  --c-select-bg: #DBEAFE;   /* a selected row, ::selection */
+  --c-section-alt: var(--c-bg-alt);   /* alternate Home and LLM bands */
   --c-overlay: rgba(28, 25, 20, 0.5);
   --c-tooltip: rgba(28, 25, 20, 0.94);
+  --c-tooltip-line: transparent;
+  /* the --c-muted chevron of .select */
+  --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236A5F51' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
 
   /* Data: blue for agreeing (consensus, people), orange for expecting
      (awareness, models) and for majorities that disagree. Marks use the
-     base hue; text in that hue uses the -ink step, which clears 4.5:1. */
+     base hue; text in that hue uses the -ink step, which clears 4.5:1.
+     -bg are the tints of chips in a hue, --c-agree-soft the dimmed bars of
+     an unselected histogram bin, -dot and -band the scatter's points and
+     confidence band. */
   --c-agree: #2A78D6;
   --c-agree-ink: #1C5CAB;
+  --c-agree-bg: #E0ECFB;
+  --c-agree-soft: #BFD3EE;
+  --c-agree-dot: rgba(42, 120, 214, 0.22);
+  --c-agree-band: rgba(42, 120, 214, 0.10);
   --c-expect: #EB6834;
   --c-expect-ink: #A8461D;
+  --c-expect-bg: #FDE7DC;
+  --c-expect-soft: #F7B79A;
+  --c-split: #C3C2B7;   /* neither side (TypeSafe's split judges) */
+  /* A tint over the surface for every other column of feature labels, and
+     the same tint made opaque for a sticky header */
+  --c-col-alt: rgba(120, 100, 70, 0.05);
+  --c-col-alt-2: rgba(120, 100, 70, 0.09);
+  --c-col-alt-solid: rgb(248, 245, 240);
 
-  /* Status */
+  /* Sequential blue ramp, light to deep: the Home map's participant counts
+     (steps 1-6) and Home's score pills (0-5). Text on steps 0-3 is
+     --c-ramp-ink-lo, on 4-6 --c-ramp-ink-hi. --c-ramp-base is what the
+     Countries cells mix their hue into. */
+  --c-ramp-0: #CDE2FB;
+  --c-ramp-1: #9EC5F4;
+  --c-ramp-2: #6DA7EC;
+  --c-ramp-3: #3987E5;
+  --c-ramp-4: #256ABF;
+  --c-ramp-5: #184F95;
+  --c-ramp-6: #0D366B;
+  --c-ramp-ink-lo: var(--c-ink);
+  --c-ramp-ink-hi: #FFFFFF;
+  --c-ramp-base: #FFFFFF;
+  /* Continents on the Home map (Olympic rings, pastel) */
+  --c-cont-africa: rgba(244, 195, 0, 0.75);
+  --c-cont-asia: rgba(223, 0, 36, 0.75);
+  --c-cont-europe: rgba(0, 133, 199, 0.75);
+  --c-cont-namerica: rgba(0, 159, 107, 0.75);
+  --c-cont-samerica: rgba(239, 106, 0, 0.75);
+  --c-cont-oceania: rgba(123, 79, 158, 0.75);
+
+  /* Status. -line borders the tinted pills; warn is the amber of an active
+     date filter and of notes; judge the teal of LLM judges. */
   --c-good: #0A7D0A;
   --c-good-bg: #EAF6EA;
+  --c-good-line: #BEE2BE;
   --c-bad: #C03030;
   --c-bad-bg: #FDEDED;
+  --c-bad-line: #F1C2C2;
+  --c-bad-hover: #FECDD3;
+  --c-warn-ink: #78350F;
+  --c-warn-bg: #FEF3C7;
+  --c-warn-line: #FDE68A;
+  --c-warn-ring: #FCD34D;
+  --c-judge-ink: #0F766E;
+  --c-judge-bg: #F0FDFA;
+  --c-judge-hover: #CCFBF1;
+
+  color-scheme: light;
+}
+
+/* ── Dark theme ───────────────────────────────────────────── */
+/* data-theme on <html> is set before the page draws (the inline script in
+   index.html) and by the theme menu in the top bar (app.js): "dark" when the
+   reader picks it, or picks "System" and the system is dark. Every token
+   above is redefined here, so a rule written with tokens needs nothing more.
+   The page is warm charcoal: --c-bg is the darkest, cards (--c-surface) sit
+   a step lighter, and tracks, hovers and stripes lighter again. Text greys
+   clear 4.5:1 on every surface (the lowest, --c-muted on --c-bg-alt, is
+   5.7:1). The data hues are a step brighter, so marks keep their weight on
+   the dark ground, and their -ink steps (text) lighter still. Strong fills
+   (navy, accent, the -ink steps) turn light, so --c-on-fill turns dark. */
+:root[data-theme="dark"] {
+  --c-ink: #F6F1E9;
+  --c-text: #E8E1D6;
+  --c-body: #CFC5B6;
+  --c-muted: #A99E8E;
+  --c-mark: #8A7F70;
+  --c-faint: #635A4F;
+
+  --c-surface: #1F1B17;
+  --c-line-2: #4A423A;
+  --c-line: #37312A;
+  --c-line-soft: #2A2520;
+  --c-stripe: #24201B;
+  --c-bg-alt: #2B2621;
+  --c-bg: #15120F;
+
+  --c-accent: #76A9F7;
+  --c-accent-ink: #A3C5FB;
+  --c-accent-bg: #1E2A3B;
+  --c-focus: #76A9F7;
+  --c-focus-on-dark: #93C5FD;
+  --c-navy: #E6DED0;
+  --c-navy-2: #FFFFFF;
+  --c-on-fill: #16130F;
+  --c-chrome: #0F0D0B;
+  --c-chrome-2: #0B0908;
+  --c-select-bg: #24406A;
+  --c-section-alt: #1B1814;
+  --c-overlay: rgba(0, 0, 0, 0.62);
+  --c-tooltip: rgba(58, 52, 45, 0.97);
+  --c-tooltip-line: rgba(255, 255, 255, 0.1);
+  --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23A99E8E' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+
+  --c-agree: #4E95EA;
+  --c-agree-ink: #8EBEF6;
+  --c-agree-bg: #1D2D45;
+  --c-agree-soft: #2C4567;
+  --c-agree-dot: rgba(78, 149, 234, 0.42);
+  --c-agree-band: rgba(78, 149, 234, 0.16);
+  --c-expect: #F07D4A;
+  --c-expect-ink: #F5A583;
+  --c-expect-bg: #3D251A;
+  --c-expect-soft: #8A4A2E;
+  --c-split: #6E675C;
+  --c-col-alt: rgba(255, 240, 215, 0.035);
+  --c-col-alt-2: rgba(255, 240, 215, 0.06);
+  --c-col-alt-solid: rgb(37, 33, 28);
+
+  --c-ramp-0: #1D3049;
+  --c-ramp-1: #213F66;
+  --c-ramp-2: #285489;
+  --c-ramp-3: #316DB1;
+  --c-ramp-4: #4F8EDB;
+  --c-ramp-5: #80B2EF;
+  --c-ramp-6: #B5D3F8;
+  --c-ramp-ink-lo: #F6F1E9;
+  --c-ramp-ink-hi: #16130F;
+  --c-ramp-base: var(--c-surface);
+  --c-cont-africa: rgba(232, 188, 20, 0.8);
+  --c-cont-asia: rgba(228, 70, 88, 0.8);
+  --c-cont-europe: rgba(46, 156, 222, 0.8);
+  --c-cont-namerica: rgba(36, 178, 126, 0.8);
+  --c-cont-samerica: rgba(240, 128, 40, 0.8);
+  --c-cont-oceania: rgba(156, 118, 200, 0.85);
+
+  --c-good: #5CC46E;
+  --c-good-bg: #16301C;
+  --c-good-line: #2A5A33;
+  --c-bad: #F07373;
+  --c-bad-bg: #3A1D1D;
+  --c-bad-line: #6A3333;
+  --c-bad-hover: #4A2328;
+  --c-warn-ink: #F5CF7A;
+  --c-warn-bg: #3A2D12;
+  --c-warn-line: #6B5420;
+  --c-warn-ring: #C9A23A;
+  --c-judge-ink: #5FD0C2;
+  --c-judge-bg: #182A27;
+  --c-judge-hover: #213D39;
+
+  color-scheme: dark;
 }
 
 /* ── Shape, depth and spacing tokens ──────────────────────── */
@@ -124,6 +279,13 @@ button, input, select, textarea { font-family: inherit; }
   --ring: 0 0 0 3px rgba(37, 99, 235, 0.18);
   --ease: 0.15s ease;
 }
+/* Shadows read on a dark page only when they are deeper */
+:root[data-theme="dark"] {
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.32), 0 2px 8px rgba(0, 0, 0, 0.22);
+  --shadow-2: 0 2px 4px rgba(0, 0, 0, 0.32), 0 10px 24px rgba(0, 0, 0, 0.4);
+  --shadow-3: 0 4px 10px rgba(0, 0, 0, 0.4), 0 20px 48px rgba(0, 0, 0, 0.55);
+  --ring: 0 0 0 3px rgba(118, 169, 247, 0.32);
+}
 @media (max-width: 640px) { :root { --card-pad: 16px; --panel-gap: 16px; } }
 @media (pointer: coarse) { :root { --tap: 40px; } }
 /* Dark surfaces keep the light focus ring */
@@ -135,7 +297,7 @@ button, input, select, textarea { font-family: inherit; }
 .topbar {
   flex-shrink: 0;
   min-height: 56px;
-  background: var(--c-navy);
+  background: var(--c-chrome);
   border-bottom: 1px solid rgba(0, 0, 0, 0.25);
   display: flex;
   align-items: center;
@@ -144,9 +306,11 @@ button, input, select, textarea { font-family: inherit; }
   position: relative;
   z-index: 60;
 }
+/* On the dark page the bar is a step darker still, so it needs a hairline */
+:root[data-theme="dark"] .topbar { border-bottom-color: var(--c-line); }
 /* Narrower windows: the tabs move to their own row under the title, and
    scroll sideways (with faded edges) when even that row is too narrow. */
-@media (max-width: 1400px) {
+@media (max-width: 1480px) {
   .topbar { flex-wrap: wrap; padding-top: 8px; }
   .topbar .tab-bar {
     order: 3;
@@ -154,17 +318,21 @@ button, input, select, textarea { font-family: inherit; }
     padding: 2px 0 8px;
     margin: 0 -4px;
   }
-  .topbar-test, .date-filter { order: 2; }
+  .topbar-test, .date-filter, .theme-menu { order: 2; }
   .topbar-test { margin-left: auto; }
 }
 /* Phones: the title and the date filter share the first row; "Test
-   yourself" starts the second, before the tabs that scroll sideways */
+   yourself" and the theme button start the second, before the tabs that
+   scroll sideways */
 .topbar-break { display: none; }
 @media (max-width: 760px) {
   .topbar { padding-left: 12px; padding-right: 12px; }
   /* a full-width, zero-height item that ends the first row */
   .topbar-break { display: block; order: 3; flex: 0 0 100%; height: 0; }
   .topbar-test { order: 4; margin: 0 0 8px; height: 30px; padding: 0 12px; }
+  .theme-menu { order: 4; margin: 0 0 8px; }
+  .theme-btn { width: 30px; height: 30px; }
+  .theme-pop { right: auto; left: 0; }
   .date-filter { margin-left: auto; }
   .topbar .tab-bar { order: 5; flex: 1 1 0; min-width: 0; margin: 0 -4px 0 0; }
   .topbar .tab-bar {
@@ -175,8 +343,8 @@ button, input, select, textarea { font-family: inherit; }
 }
 /* The short title on phones, and where everything shares one row but the
    long title would push the last tab out of view */
-@media (max-width: 760px), (min-width: 1401px) and (max-width: 1540px) { .topbar-title-long { display: none; } }
-@media (min-width: 761px) and (max-width: 1400px), (min-width: 1541px) { .topbar-title-short { display: none; } }
+@media (max-width: 760px), (min-width: 1481px) and (max-width: 1590px) { .topbar-title-long { display: none; } }
+@media (min-width: 761px) and (max-width: 1480px), (min-width: 1591px) { .topbar-title-short { display: none; } }
 
 .topbar-title {
   color: #fff;
@@ -210,7 +378,7 @@ button, input, select, textarea { font-family: inherit; }
 
 .tab-btn {
   height: 34px;
-  padding: 0 12px; /* the six tabs fit on one row from 1401px (see .topbar-title-short) */
+  padding: 0 12px; /* the six tabs fit on one row from 1481px (see .topbar-title-short) */
   border: none;
   border-radius: var(--r-sm);
   background: transparent;
@@ -240,7 +408,7 @@ button, input, select, textarea { font-family: inherit; }
   padding: 0 14px;
   border-radius: var(--r-sm);
   background: var(--c-accent);
-  color: #fff;
+  color: var(--c-on-fill);
   font-size: var(--fs-2);
   font-weight: 600;
   text-decoration: none;
@@ -288,7 +456,7 @@ button, input, select, textarea { font-family: inherit; }
 .date-btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.45); }
 .date-btn svg { flex-shrink: 0; opacity: 0.8; }
 .date-btn-caret { font-size: var(--fs-1); opacity: 0.7; }
-.date-filter.is-active .date-btn { background: #FEF3C7; border-color: #FDE68A; color: #78350F; }
+.date-filter.is-active .date-btn { background: var(--c-warn-bg); border-color: var(--c-warn-line); color: var(--c-warn-ink); }
 .date-filter.is-active .date-btn svg { opacity: 1; }
 .date-pop {
   position: absolute;
@@ -315,7 +483,7 @@ button, input, select, textarea { font-family: inherit; }
   border: 1px solid var(--c-line-2); background: var(--c-surface); color: var(--c-body); cursor: pointer;
 }
 .date-preset:hover { background: var(--c-bg-alt); }
-.date-preset[aria-pressed="true"] { background: var(--c-navy); border-color: var(--c-navy); color: #fff; }
+.date-preset[aria-pressed="true"] { background: var(--c-navy); border-color: var(--c-navy); color: var(--c-on-fill); }
 .date-custom { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
 .date-custom label { display: flex; flex-direction: column; gap: 3px; font-size: var(--fs-1); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--c-muted); }
 .date-custom input {
@@ -330,8 +498,78 @@ button, input, select, textarea { font-family: inherit; }
   border: 1px solid var(--c-line-2); background: var(--c-surface); color: var(--c-body);
 }
 .date-pop-btn:hover { background: var(--c-bg-alt); }
-.date-pop-btn.is-primary { background: var(--c-accent); border-color: var(--c-accent); color: #fff; }
+.date-pop-btn.is-primary { background: var(--c-accent); border-color: var(--c-accent); color: var(--c-on-fill); }
 .date-pop-btn.is-primary:hover { background: var(--c-accent-ink); }
+
+/* While the theme changes (app.js: renderTheme) nothing fades, so every
+   colour switches at once */
+.theme-switching, .theme-switching *, .theme-switching *::before, .theme-switching *::after { transition: none !important; }
+
+/* ── Theme menu (top bar): System / Light / Dark (app.js: applyTheme) ── */
+.theme-menu { position: relative; flex-shrink: 0; }
+.theme-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid rgba(255,255,255,0.24);
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: rgba(255,255,255,0.9);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.theme-btn:hover, .theme-btn[aria-expanded="true"] { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.45); }
+.theme-btn:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+/* the icon of the theme in use */
+:root[data-theme="dark"] .theme-ico-light,
+:root:not([data-theme="dark"]) .theme-ico-dark { display: none; }
+.theme-pop {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  min-width: 190px;
+  padding: 6px;
+  background: var(--c-surface);
+  color: var(--c-text);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-3);
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.theme-pop[hidden] { display: none; }
+.theme-opt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: var(--tap);
+  padding: 6px 10px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: none;
+  color: var(--c-body);
+  font: inherit;
+  font-size: var(--fs-2);
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+.theme-opt svg { flex-shrink: 0; color: var(--c-muted); }
+.theme-opt:hover, .theme-opt:focus-visible { background: var(--c-bg-alt); color: var(--c-ink); outline: none; }
+.theme-opt:focus-visible { box-shadow: inset 0 0 0 2px var(--c-focus); }
+.theme-opt[aria-checked="true"] { background: var(--c-accent-bg); color: var(--c-accent-ink); }
+.theme-opt[aria-checked="true"] svg { color: var(--c-accent-ink); }
+/* a tick after the chosen theme */
+.theme-opt[aria-checked="true"]::after { content: "✓"; margin-left: auto; font-weight: 700; }
+.theme-opt-name { display: flex; flex-direction: column; line-height: 1.25; }
+.theme-opt-note { font-size: var(--fs-1); font-weight: 500; color: var(--c-muted); }
+.theme-opt-note:empty { display: none; }
 
 /* ── Panels ───────────────────────────────────────────────── */
 .panel {
@@ -404,7 +642,7 @@ button, input, select, textarea { font-family: inherit; }
   border: 1px solid var(--c-line-2);
   border-radius: var(--r-sm);
   /* the chevron is --c-muted */
-  background: var(--c-surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236A5F51' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") right 10px center no-repeat;
+  background: var(--c-surface) var(--select-chevron) right 10px center no-repeat;
   transition: border-color var(--ease), box-shadow var(--ease);
   appearance: none;
   color: var(--c-text);
@@ -575,7 +813,7 @@ button, input, select, textarea { font-family: inherit; }
 .prop-help-btn:hover,
 .prop-help-btn.pinned {
   border-color: var(--c-accent);
-  color: #fff;
+  color: var(--c-on-fill);
   background: var(--c-accent);
 }
 
@@ -791,7 +1029,7 @@ td { padding: 11px 14px; vertical-align: middle; }
   padding: 10px 14px;
   margin-bottom: 0;
 }
-#llmError.min-ratings-note { color: #92400E; background: #FEF3C7; border-color: #FDE68A; }
+#llmError.min-ratings-note { color: var(--c-warn-ink); background: var(--c-warn-bg); border-color: var(--c-warn-line); }
 
 .cmp-filter-note {
   display: block;
@@ -805,7 +1043,7 @@ td { padding: 11px 14px; vertical-align: middle; }
 .cmp-opp-line { display: block; margin-top: 6px; color: var(--c-body); }
 .cmp-opp-key {
   display: inline-block; width: 10px; height: 10px; border-radius: 50%;
-  background: rgba(220,38,38,0.75); margin-right: 6px; vertical-align: -1px;
+  background: color-mix(in srgb, var(--c-bad) 80%, transparent); margin-right: 6px; vertical-align: -1px;
 }
 .cmp-opp-btn {
   font: inherit; font-weight: 600; color: var(--c-accent); background: none;
@@ -819,7 +1057,7 @@ td { padding: 11px 14px; vertical-align: middle; }
   display: inline-block; vertical-align: middle; position: relative;
   width: calc(100% - 3em); height: 8px; border-radius: 4px; background: var(--c-bg-alt); overflow: hidden;
 }
-.cmp-opp-bar::after { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: rgba(28, 25, 20, 0.45); }
+.cmp-opp-bar::after { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: color-mix(in srgb, var(--c-ink) 45%, transparent); }
 .cmp-opp-fill { position: absolute; left: 0; top: 0; bottom: 0; }
 .cmp-opp-val { display: inline-block; width: 2.8em; text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
 .cmp-opp-row:hover td { background: var(--c-accent-bg) !important; }
@@ -1087,6 +1325,7 @@ td { padding: 11px 14px; vertical-align: middle; }
   position: fixed;
   background: var(--c-tooltip);
   color: #fff;
+  border: 1px solid var(--c-tooltip-line);
   font-size: var(--fs-2);
   line-height: 1.5;
   padding: 8px 14px;
@@ -1118,6 +1357,21 @@ td { padding: 11px 14px; vertical-align: middle; }
   gap: 4px;
   white-space: nowrap;
 }
+/* Participant bins: adjacent swatches, each labelled with its lower bound */
+.wm-steps { display: inline-flex; gap: 2px; }
+.wm-step {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 42px;
+  font-size: var(--fs-1);
+  color: var(--c-muted);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+.wm-step i { display: block; height: 10px; border-radius: 2px; }
+.wm-step:first-child i { border-radius: 4px 2px 2px 4px; }
+.wm-step:last-child i { border-radius: 2px 4px 4px 2px; }
 .world-map-legend-swatch {
   display: inline-block;
   width: 12px;
@@ -1279,6 +1533,8 @@ td { padding: 11px 14px; vertical-align: middle; }
   overflow: hidden;
   box-shadow: var(--shadow-3);
 }
+/* On the dark theme a dialog takes a hairline, to stand off the dimmed page */
+:root[data-theme="dark"] .modal-box { box-shadow: var(--shadow-3), 0 0 0 1px var(--c-line); }
 
 .modal-header {
   flex-shrink: 0;
@@ -1289,8 +1545,9 @@ td { padding: 11px 14px; vertical-align: middle; }
   border-bottom: 1px solid var(--c-line);
 }
 
-/* Individual Scores: cap bar width */
-#scoresTable .pct-track { max-width: 28px; }
+/* Individual Scores: cap bar width (wide enough that 54% and 92% look
+   different; 28px made every bar a dash) */
+#scoresTable .pct-track { max-width: 64px; }
 
 /* Statement Ratings: cap bar width */
 #stmtTable .pct-track { max-width: 65px; }
@@ -1300,12 +1557,12 @@ td { padding: 11px 14px; vertical-align: middle; }
 
 /* Statement Scores table: fixed layout so percentages are enforced */
 #stmtScoresTable { width: 100%; table-layout: fixed; }
-#stmtScoresTable th.col-rank      { width:  4%; }
-#stmtScoresTable th.col-statement { width: 28%; }
-#stmtScoresTable th.col-num       { width:  8%; }
-#stmtScoresTable th.col-stmtscore { width: 12%; }
+#stmtScoresTable th.col-rank      { width: 3.5%; }
+#stmtScoresTable th.col-statement { width: 36%; }
+#stmtScoresTable th.col-num       { width: 7.5%; }
+#stmtScoresTable th.col-stmtscore { width: 10.6%; }
 /* Cap bar width so columns don't feel cramped at wider viewports */
-#stmtScoresTable .pct-track { max-width: 28px; }
+#stmtScoresTable .pct-track { max-width: 44px; }
 #stmtScoresTable .pct-label { width: 48px; }
 
 /* Individual Scores table: rank/user/flag fixed, all 5 data cols equal */
@@ -1345,7 +1602,7 @@ td { padding: 11px 14px; vertical-align: middle; }
   padding: 2px 10px;
   border-radius: var(--r-pill);
   font-weight: 600;
-  background: #DBEAFE;
+  background: var(--c-select-bg);
   color: var(--c-accent-ink);
   font-size: var(--fs-2);
 }
@@ -1402,7 +1659,7 @@ td { padding: 11px 14px; vertical-align: middle; }
   display: inline-block; vertical-align: middle; position: relative;
   width: calc(100% - 3.4em); height: 8px; border-radius: 4px; background: var(--c-bg-alt); overflow: hidden;
 }
-.sc-bar::after { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: rgba(28, 25, 20, 0.4); }
+.sc-bar::after { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: color-mix(in srgb, var(--c-ink) 40%, transparent); }
 .sc-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--c-agree); }
 .sc-fill.is-low { background: var(--c-expect); }
 .sc-val { display: inline-block; width: 3em; text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
@@ -1549,8 +1806,8 @@ td { padding: 11px 14px; vertical-align: middle; }
   min-width: 4.4em; padding: 1px 9px 1px 7px; border-radius: 999px;
   border: 1px solid transparent; font-size: var(--fs-2); font-weight: 600;
 }
-.ans-pill.is-match { color: var(--c-good); background: var(--c-good-bg); border-color: #BEE2BE; }
-.ans-pill.is-miss  { color: var(--c-bad); background: var(--c-bad-bg); border-color: #F1C2C2; }
+.ans-pill.is-match { color: var(--c-good); background: var(--c-good-bg); border-color: var(--c-good-line); }
+.ans-pill.is-miss  { color: var(--c-bad); background: var(--c-bad-bg); border-color: var(--c-bad-line); }
 .ans-pill.is-off   { color: var(--c-muted); border-color: var(--c-line); }
 #modalTable tr.row-uncounted td { color: var(--c-muted); }
 
@@ -1590,7 +1847,7 @@ td { padding: 11px 14px; vertical-align: middle; }
 }
 
 .dp-col-n     { width: 70px; }
-.dp-col-prop  { width: 48px; }
+.dp-col-prop  { width: 64px; } /* room for the 45° labels; DP_FIXED_W in app.js */
 .dp-col-ci    { width: 280px; }
 .dp-col-score  { width: 68px; }
 .dp-col-citext { width: 120px; }
@@ -1652,7 +1909,7 @@ td { padding: 11px 14px; vertical-align: middle; }
   transition: background var(--ease), border-color var(--ease);
 }
 .lens-btn:hover { background: var(--c-bg-alt); border-color: var(--c-faint); }
-.lens-btn[aria-pressed="true"] { background: var(--c-navy); border-color: var(--c-navy); color: #fff; }
+.lens-btn[aria-pressed="true"] { background: var(--c-navy); border-color: var(--c-navy); color: var(--c-on-fill); }
 .lens-btn:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
 .lens-sep { width: 1px; height: 20px; background: var(--c-line-2); margin: 0 6px; }
 .lens-note { font-size: var(--fs-2); color: var(--c-body); max-width: 70em; }
@@ -1760,13 +2017,13 @@ td { padding: 11px 14px; vertical-align: middle; }
 .popup-circle-empty  { color: var(--c-mark); }
 
 /* Alternating column shading on property columns */
-.dp-prop-alt { background: rgba(120, 100, 70, 0.05); }
-.dp-table tbody tr:nth-child(even) td.dp-prop-alt { background: rgba(120, 100, 70, 0.09); }
-.dp-th-alt { background: rgba(120, 100, 70, 0.05); }
+.dp-prop-alt { background: var(--c-col-alt); }
+.dp-table tbody tr:nth-child(even) td.dp-prop-alt { background: var(--c-col-alt-2); }
+.dp-th-alt { background: var(--c-col-alt); }
 
 /* Hover and selected override cell backgrounds */
 .dp-clickable:hover td { background: var(--c-accent-bg) !important; }
-.dp-selected td { background: #DBEAFE !important; }
+.dp-selected td { background: var(--c-select-bg) !important; }
 
 /* ? button inside diagonal prop headers */
 .dp-prop-help-btn { display: block; margin: 4px auto 0; }
@@ -1934,7 +2191,7 @@ td { padding: 11px 14px; vertical-align: middle; }
   height: 16px;
   overflow-x: auto;
   overflow-y: hidden;
-  background: rgba(251, 248, 241, 0.92); /* --c-bg */
+  background: color-mix(in srgb, var(--c-bg) 92%, transparent);
 }
 .cm-hscroll > div { height: 1px; }
 .cm-hscroll[hidden] { display: none; }
@@ -2168,7 +2425,7 @@ td { padding: 11px 14px; vertical-align: middle; }
   font-variant-numeric: tabular-nums;
   color: var(--c-text);
   white-space: nowrap;
-  border-left: 1px solid rgba(255,255,255,0.7);
+  border-left: 1px solid color-mix(in srgb, var(--c-surface) 70%, transparent);
 }
 .cm-score-cell-sub { color: var(--c-muted); }
 
@@ -2242,14 +2499,14 @@ td { padding: 11px 14px; vertical-align: middle; }
 .sg-val-1 { color: var(--c-accent-ink); }
 .sg-val-0 { color: var(--c-mark); }
 .sg-option-dot { margin-right: 1px; font-size: 1.5em; line-height: 1; vertical-align: middle; }
-.sg-th-alt, td.sg-prop-alt { background: rgba(120, 100, 70, 0.05); }
-:is(#sgBody, #auBody, #tsBody) tr:nth-child(even) td.sg-prop-alt { background: rgba(120, 100, 70, 0.09); }
+.sg-th-alt, td.sg-prop-alt { background: var(--c-col-alt); }
+:is(#sgBody, #auBody, #tsBody) tr:nth-child(even) td.sg-prop-alt { background: var(--c-col-alt-2); }
 .sg-th-prop.sg-filter-v1 { background: var(--c-accent-bg); }
 .sg-th-prop.sg-filter-v0 { background: var(--c-bg-alt); }
 /* Sticky header cells must stay fully opaque or scrolled-past rows show
    through the low-alpha alt-column tint above; these solid equivalents are
    layered so an active filter tint still wins when both apply. */
-:is(#sgTable, #auTable, #tsTable) thead th.sg-th-alt { background: rgb(248, 245, 240); } /* the 0.05 alt tint over --c-surface, opaque */
+:is(#sgTable, #auTable, #tsTable) thead th.sg-th-alt { background: var(--c-col-alt-solid); } /* --c-col-alt over --c-surface, opaque */
 :is(#sgTable, #auTable, #tsTable) thead th.sg-th-alt.sg-filter-v1 { background: var(--c-accent-bg); }
 :is(#sgTable, #auTable, #tsTable) thead th.sg-th-alt.sg-filter-v0 { background: var(--c-bg-alt); }
 .sg-help-btn {
@@ -2275,7 +2532,7 @@ td { padding: 11px 14px; vertical-align: middle; }
   /* A visible border regardless of fill color, so the pill never blends into
      the row's own background — some status colors (e.g. sg-status-help) are
      the exact same hex as the row hover/selected background. */
-  border: 1px solid rgba(28, 25, 20, .14);
+  border: 1px solid color-mix(in srgb, var(--c-ink) 14%, transparent);
   border-radius: 999px;
   font: inherit;
   font-weight: 700;
@@ -2288,13 +2545,13 @@ td { padding: 11px 14px; vertical-align: middle; }
 .sg-frac-den { display: inline-block; width: 3ch; text-align: left; }
 .sg-count.sg-active-metric { outline: 2px solid var(--c-accent); outline-offset: 1px; }
 .sg-count.sg-status-good { color: var(--c-good); background: var(--c-good-bg); }
-.sg-count.sg-status-low { color: #854D0E; background: #FEF9C3; }
+.sg-count.sg-status-low { color: var(--c-warn-ink); background: var(--c-warn-bg); }
 .sg-count.sg-status-none { color: var(--c-bad); background: var(--c-bad-bg); }
 .sg-count.sg-status-help { color: var(--c-navy); background: var(--c-accent-bg); }
 .sg-count.sg-status-none-help { color: var(--c-muted); background: var(--c-bg-alt); }
 :is(#sgBody, #auBody, #tsBody) tr[data-combo] { cursor: pointer; }
 :is(#sgBody, #auBody, #tsBody) tr[data-combo]:hover td { background: var(--c-accent-bg) !important; }
-:is(#sgBody, #auBody, #tsBody) tr[data-combo].sg-selected td { background: #DBEAFE !important; }
+:is(#sgBody, #auBody, #tsBody) tr[data-combo].sg-selected td { background: var(--c-select-bg) !important; }
 .sg-empty-row td { padding: 40px; color: var(--c-muted); font-size: var(--fs-3); text-align: center; }
 .sg-detail-table-wrap { margin-top: 12px; height: 50vh; overflow: auto; }
 /* width: 100% so the table spans the full card (the card itself is capped —
@@ -2334,12 +2591,12 @@ td { padding: 11px 14px; vertical-align: middle; }
 .sg-statement-table tbody tr.sg-row-dim:hover { opacity: .7; }
 .sg-statement-table td.sg-col-generator { color: var(--c-muted); font-size: var(--fs-3); }
 .sg-statement-table td.sg-col-num-judges { font-variant-numeric: tabular-nums; }
-.sg-judge-count { display: inline-block; min-width: 20px; padding: 2px 9px; border-radius: 999px; background: #F0FDFA; color: #0F766E; font-weight: 700; }
+.sg-judge-count { display: inline-block; min-width: 20px; padding: 2px 9px; border-radius: 999px; background: var(--c-judge-bg); color: var(--c-judge-ink); font-weight: 700; }
 .au-feature-cell { cursor: pointer; }
-.au-feature-cell:hover { background: #CCFBF1; }
+.au-feature-cell:hover { background: var(--c-judge-hover); }
 /* Fewer than half of the judges give the stored label, so the statement fails */
 .sg-judge-count.au-no-majority { background: var(--c-bad-bg); color: var(--c-bad); }
-.sg-judge-count.au-no-majority:hover { background: #FECDD3; }
+.sg-judge-count.au-no-majority:hover { background: var(--c-bad-hover); }
 .sg-status-chip { display: inline-block; padding: 3px 7px; border-radius: 999px; font-size: var(--fs-1); font-weight: 700; }
 .sg-status-chip.sg-yes { color: var(--c-good); background: var(--c-good-bg); }
 .sg-status-chip.sg-no { color: var(--c-bad); background: var(--c-bad-bg); }
@@ -2372,8 +2629,8 @@ td { padding: 11px 14px; vertical-align: middle; }
 .sg-assessment-panel strong { display: block; margin-bottom: 4px; }
 .sg-assessment-panel--generator { background: var(--c-accent-bg); border-left-color: var(--c-navy); }
 .sg-assessment-panel--generator h4 { color: var(--c-navy); }
-.sg-assessment-panel--judge { background: #F0FDFA; border-left-color: #0F766E; }
-.sg-assessment-panel--judge h4 { color: #0F766E; }
+.sg-assessment-panel--judge { background: var(--c-judge-bg); border-left-color: var(--c-judge-ink); }
+.sg-assessment-panel--judge h4 { color: var(--c-judge-ink); }
 .sg-feature-confidence { margin-bottom: 5px; color: var(--c-muted); font-size: var(--fs-2); }
 .sg-agreement-badge { margin-left: 8px; font-size: var(--fs-1); color: var(--c-good); }
 .sg-agreement-badge--partial { color: var(--c-bad); }
@@ -2534,7 +2791,7 @@ td { padding: 11px 14px; vertical-align: middle; }
 .panel-tour-link:focus-visible { outline-offset: 3px; }
 /* The tab row scrolls sideways (overflow-x), which would clip an outside ring */
 .tab-btn:focus-visible { outline-offset: -2px; }
-::selection { background: #DBEAFE; color: var(--c-ink); }
+::selection { background: var(--c-select-bg); color: var(--c-ink); }
 @media (prefers-reduced-motion: reduce) {
   .panel-tour-link:hover { transform: none; }
 }

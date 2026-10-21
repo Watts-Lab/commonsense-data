@@ -8,9 +8,10 @@
 // reads the summary through llmGet() and llmSummaryStats() and links into a
 // view with llmShowView().
 //
-// Five views share one model selection, kept in the URL (?view=…&model=…):
-// - Overview: the paper's findings as numbered chapters, every chart a bar
-//   chart (llmRenderOverview).
+// Three views share one model selection, kept in the URL (?view=…&model=…):
+// - Overview: laid out like Home, a hero and bands that each make one point:
+//   the core task (a diagram), the two main findings as Home
+//   section 5 draws them, and why it matters (llmRenderLanding).
 // - LLMs as individuals: one model's score told as a story in four chapters
 //   that open one click at a time: one statement and its two questions, the
 //   model's answers checked against the people's majority, all statements,
@@ -22,21 +23,17 @@
 //   best-fit line and r, the split-half baseline (two random halves of the
 //   people, from /api/llm-evals/split, plotted the same way, and r over 1,000
 //   splits) and the verdict (llmRenderPopulation).
-// - Statements and Participants: the study's data, browsable.
+// (The Statements and Participants views were removed at Josh's request;
+// the statement and participant modals stay, opened from the stories.)
 // Scores arrive as 0-1 and are shown as percentages. People are blue and
 // models orange, proprietary models striped (llmModelCls()). All 44 models
 // are one set: every rank, count and average is over all of them.
 
-const LLM_HUMAN = UI.agree;    // people (the app's blue; UI in app.js)
-const LLM_MODEL = UI.expect;   // models
-const LLM_TIE = UI.faint;
-const LLM_INK = UI.ink;
-const LLM_VIEWS = ["overview", "individual", "population", "statements", "participants"];
-const LLM_METRICS = ["Consensus", "Awareness", "Commonsensicality"];
-const LLM_BINS = 25;          // 4-point histogram bins, as in Individual Scores
+// Tokens, not resolved colours, so the charts follow a theme change
+const LLM_HUMAN = "var(--c-agree)";    // people (the app's blue)
+const LLM_MODEL = "var(--c-expect)";   // models
+const LLM_VIEWS = ["overview", "individual", "population"];
 const LLM_PROP_SHORT = { literal_language: ["Literal", "Figurative"] }; // as the other filters word it
-const LLM_FONT = CHART_FONT.tick;
-const LLM_TITLE_FONT = CHART_FONT.title;
 // The paper's examples: the models in its SI histogram of P(yes), and the
 // five populations of Fig. 3C
 const LLM_CERTAINTY_MODELS = ["gpt-3.5-turbo-0125", "gpt-4o-2024-05-13", "claude-3-opus", "gemini-pro", "google--flan-t5-xxl"];
@@ -59,9 +56,6 @@ const LLM = {
   // whether chapter 3 has finished counting (ran), the stage whose animation
   // is running (anim), and the order statements are counted and plotted in
   pop: { stage: 0, ex: null, seed: 0, split: null, splits: [], busy: false, ran: false, anim: null, order: null },
-  partMetric: 2,
-  partBin: null,        // participants histogram bin that filters the table
-  charts: {},
   tables: {},
   renderSeq: 0,         // drops a model render superseded by a newer one
   pendingAt: null,      // a card to scroll to once the view draws (llmShowView)
@@ -106,7 +100,6 @@ function llmSummaryStats(summary) {
     ...summary,
     models,
     participants,
-    humanMedians: sorted.map((values) => llmQuantile(values, 0.5)), // per LLM_METRICS
     humanMedian: llmQuantile(sorted[2], 0.5),
     humanP10: llmQuantile(sorted[2], 0.1),
     humanP90: llmQuantile(sorted[2], 0.9),
@@ -202,10 +195,6 @@ function llmMonth(ym) {
 
 function llmAccessLabel(m) {
   return m.access === "open" ? "Open weights" : m.access === "proprietary" ? "Proprietary" : "";
-}
-
-function llmMetaLine(m) {
-  return [m.organization, llmAccessLabel(m), m.released ? `released ${llmMonth(m.released)}` : ""].filter(Boolean).map(esc).join(" · ");
 }
 
 function llmName(m) {
@@ -306,102 +295,6 @@ function llmRowOpen(m, view) {
 }
 
 // ── Charts ──────────────────────────────────────────────────────────────────
-
-// Vertical lines on a linear x axis, drawn over the bars and labelled at the
-// top in text ink: {x, color, width, dash, label, align}
-const LLM_REF_FONT = chartCanvasFont(600);
-const llmRefPlugin = {
-  id: "llmRef",
-  afterDatasetsDraw(chart, _args, opts) {
-    const { ctx, chartArea: a, scales: { x } } = chart;
-    ctx.save();
-    for (const l of opts.lines || []) {
-      const px = x.getPixelForValue(l.x);
-      ctx.strokeStyle = l.color;
-      ctx.lineWidth = l.width || 2;
-      ctx.setLineDash(l.dash || []);
-      ctx.beginPath();
-      ctx.moveTo(px, a.top + (l.top || 0));
-      ctx.lineTo(px, a.bottom);
-      ctx.stroke();
-      ctx.setLineDash([]);
-      if (l.label) {
-        ctx.font = LLM_REF_FONT;
-        let right = l.align ? l.align === "right" : px > a.left + (a.right - a.left) * 0.6;
-        const w = ctx.measureText(l.label).width;
-        if (!right && px + 6 + w > a.right) right = true;      // would run off the right edge
-        else if (right && px - 6 - w < a.left) right = false;  // or the left
-        ctx.textAlign = right ? "right" : "left";
-        ctx.lineWidth = 4;
-        ctx.strokeStyle = "rgba(255,255,255,0.92)";
-        const tx = px + (right ? -6 : 6), ty = a.top + (l.top || 0) + 12 + (l.labelDy || 0);
-        ctx.strokeText(l.label, tx, ty);
-        ctx.fillStyle = l.textColor || UI.text;
-        ctx.fillText(l.label, tx, ty);
-      }
-    }
-    ctx.restore();
-  },
-};
-
-function llmHistCounts(values, bins = LLM_BINS) {
-  const counts = Array(bins).fill(0);
-  for (const v of values) counts[Math.min(bins - 1, Math.max(0, Math.floor(v * bins)))]++;
-  return counts;
-}
-
-function llmBinLabel(i, bins = LLM_BINS) {
-  return `${(i * 100) / bins}–${((i + 1) * 100) / bins}%`;
-}
-
-function llmDestroy(key) {
-  if (LLM.charts[key]) { LLM.charts[key].destroy(); delete LLM.charts[key]; }
-}
-
-// Histogram of the participants' scores on a 0-100 linear axis, with
-// labelled lines (opts.lines) and, with opts.onBin, clickable bars
-function llmPeopleHist(key, canvas, opts) {
-  const d = LLM.data;
-  const metric = opts.metric ?? 2;
-  const counts = llmHistCounts(d.participants.map((p) => p.scores[metric]));
-  const bars = counts.map((c, i) => ({ x: ((i + 0.5) * 100) / LLM_BINS, y: c }));
-  const active = opts.activeBin;
-  const colors = counts.map((_, i) => (active === null || active === undefined ? LLM_HUMAN : i === active ? UI.agreeInk : UI.agreeSoft));
-  llmDestroy(key);
-  LLM.charts[key] = new Chart(canvas, {
-    data: { datasets: [{ type: "bar", label: "People", data: bars, backgroundColor: colors, borderRadius: 3, barPercentage: 0.9, categoryPercentage: 1 }] },
-    options: {
-      responsive: true, maintainAspectRatio: false, animation: false,
-      layout: { padding: { top: 18 } },
-      onHover: (e, els) => { e.native.target.style.cursor = els.length && opts.onBin ? "pointer" : "default"; },
-      onClick: (_e, els) => { if (els.length && opts.onBin) opts.onBin(els[0].index); },
-      plugins: {
-        legend: { display: false },
-        llmRef: { lines: opts.lines || [] },
-        tooltip: {
-          callbacks: {
-            title: (items) => `${LLM_METRICS[metric]} ${llmBinLabel(items[0].dataIndex)}`,
-            label: (it) => llmCount(it.raw.y, "person", "people"),
-            footer: (items) => (opts.onBin ? (active === items[0].dataIndex ? "Click to clear" : "Click to list them") : ""),
-          },
-        },
-      },
-      scales: {
-        x: {
-          type: "linear", min: opts.min ?? 0, max: 100, offset: false, grid: { display: false },
-          title: { display: true, text: `${LLM_METRICS[metric]} (%)`, font: LLM_TITLE_FONT },
-          ticks: { font: LLM_FONT, stepSize: 10, maxRotation: 0, autoSkip: true, callback: (v) => `${v}%` },
-        },
-        y: {
-          beginAtZero: true, grid: { color: UI.grid }, border: { display: false },
-          title: { display: true, text: "People", font: LLM_TITLE_FONT },
-          ticks: { font: LLM_FONT, precision: 0, callback: (v) => fmtNum(v) },
-        },
-      },
-    },
-    plugins: [llmRefPlugin],
-  });
-}
 
 // A small SVG histogram (10 bars, shares of a total) for the small multiples
 // The SVG stretches to its card's width; the tick labels are HTML below it,
@@ -637,23 +530,25 @@ function llmFillCounts() {
   });
 }
 
-// ── The landing page: the paper's two main findings ──
-// As individuals, most models fall below the median person; as simulated
-// crowds, they track people only modestly. Each card mirrors its Home
-// section 5 card (the same question, caption, chart and finding), with links
-// to the views that work the finding through. Computed on all the models.
-// (A third card, open-weight against proprietary models, was removed at
-// Josh's request.)
+// ── The landing page ──
+// Laid out like Home: a hero, then bands that each make one point. Band 1 is
+// a diagram of the core task; bands 2 and 3 are the paper's two
+// main findings, each mirroring its Home section 5 card (the same question,
+// caption, chart and finding), computed on all the models: as individuals,
+// most models fall below the median person; as simulated crowds, they track
+// people only modestly. (A third finding, open-weight against proprietary
+// models, was removed at Josh's request.)
 
 // Columns, one per row ({v, cls, tip}), on the scale s ({min, max, ticks,
-// fmt}), with an optional reference line ref ({v, cls, label}); top names
-// the column at topAt (its index; a negative index counts from the end)
-function llmColsHtml(rows, s, ref, aria, xLabel, top = "", topAt = 0) {
+// fmt, name}: name labels the y axis, e.g. "r"), with an optional reference
+// line ref ({v, cls, label}); top names the column at topAt (its index; a
+// negative index counts from the end)
+function llmColsHtml(rows, s, ref, aria, top = "", topAt = 0) {
   const pos = (v) => ((Math.max(s.min, Math.min(s.max, v)) - s.min) / (s.max - s.min)) * 100;
   const z = pos(0), n = rows.length, w = 100 / n, ti = topAt < 0 ? n + topAt : topAt;
   return (
     `<div class="llm-cols" role="img" aria-label="${esc(aria)}">` +
-    `<div class="llm-cols-y" aria-hidden="true">${s.ticks.map((t) => `<span style="bottom:${pos(t).toFixed(2)}%">${s.fmt(t)}</span>`).join("")}</div>` +
+    `<div class="llm-cols-y" aria-hidden="true">${s.name ? `<em class="llm-cols-yname">${s.name}</em>` : ""}${s.ticks.map((t) => `<span style="bottom:${pos(t).toFixed(2)}%">${s.fmt(t)}</span>`).join("")}</div>` +
     `<div class="llm-cols-plot">` +
     s.ticks.map((t) => `<i class="llm-cols-grid${Math.abs(t) < 1e-9 ? " is-zero" : ""}" style="bottom:${pos(t).toFixed(2)}%"></i>`).join("") +
     rows.map((r, i) => {
@@ -663,7 +558,7 @@ function llmColsHtml(rows, s, ref, aria, xLabel, top = "", topAt = 0) {
     }).join("") +
     (top && rows[ti] ? `<i class="llm-cols-top" style="${ti > n / 2 ? "left:auto;right:0" : "left:0"};bottom:calc(${pos(rows[ti].v).toFixed(2)}% + 3px)">${top}</i>` : "") +
     (ref ? `<i class="llm-cols-ref ${ref.cls}" style="bottom:${pos(ref.v).toFixed(2)}%"><span>${ref.label}</span></i>` : "") +
-    `</div></div><div class="llm-cols-x" aria-hidden="true">${xLabel}</div>`
+    `</div></div>`
   );
 }
 
@@ -702,61 +597,139 @@ function llmHistHtml(d) {
     `<div class="llm-cols-plot">` +
     ticks.map((t) => `<i class="llm-cols-grid${t ? "" : " is-zero"}" style="bottom:${yp(t).toFixed(2)}%"></i>`).join("") + bins +
     `<i class="llm-lhist-med" style="left:${xp(d.humanMedian * 100).toFixed(2)}%"><span>Median human ${Math.round(d.humanMedian * 100)}%</span></i>` +
-    `</div></div><div class="llm-lhist-x" aria-hidden="true">${xt.join("")}</div>` +
-    `<div class="llm-cols-x" aria-hidden="true">Commonsensicality, in 5-point bins · each bar the share of its group</div>`
+    `</div></div><div class="llm-lhist-x" aria-hidden="true">${xt.join("")}</div>`
   );
 }
 
-// A finding: its kicker and question, a caption, a chart, the finding under
-// the chart, and links [label, view, card id, {model, board}]
-function llmLandCard(k, kicker, title, text, chart, finding, links) {
-  const attrs = ([, view, at, o = {}]) =>
-    ` data-llm-go="${view}"${at ? ` data-llm-at="${at}"` : ""}${o.model ? ` data-llm-model="${esc(o.model)}"` : ""}${o.board ? ` data-llm-board="${o.board}"` : ""}`;
+// Band 1: the core task, as three cards in a row that scroll sideways, one
+// in focus at a time (llmCarousel): a statement and its two questions; a
+// person's answers to them; an LLM's answers, with the probability of yes
+// behind each. All real: a statement people split on (LLM_TASK_EXAMPLE, Josh's
+// pick: 14 of its 28 raters agree), one of the people who rated it
+// (LLM_TASK_PERSON, who answers no to both) and the top individual model,
+// which answers yes to both.
+const LLM_ICON_LLM =
+  '<svg class="llm-chip-ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">' +
+  '<rect x="5" y="5" width="14" height="14" rx="2.5"/><rect x="9" y="9" width="6" height="6" rx="1" fill="currentColor" stroke="none"/>' +
+  '<path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></svg>';
+const LLM_TASK_EXAMPLE = "As society advances the standard of poverty rises.";
+const LLM_TASK_PERSON = 1300;   // rated LLM_TASK_EXAMPLE (the data is a fixed snapshot)
+const LLM_TASK_QS = ["Do you agree with this statement?", "Do you think most people would agree with this statement?"];
+
+function llmTaskHtml(s, m, pa, pm) {
+  const d = LLM.data, n = 3;
+  const qn = (i) => `<span class="llm-sv-qn">${i}</span>`;
+  // Yes and No, the one given filled
+  const opts = (y) => `<span class="llm-car-opts"><span class="${y ? "is-on" : ""}">Yes</span><span class="${y ? "" : "is-on"}">No</span></span>`;
+  const row = (i, ans) => `<div class="llm-car-row">${qn(i + 1)}<span class="llm-car-qt">${LLM_TASK_QS[i]}</span><span class="llm-car-ans">${ans}</span></div>`;
+  const card = (k, cls, label, body) =>
+    `<article class="llm-car-card ${cls}" aria-roledescription="slide" aria-label="${k} of ${n}: ${label}">${body}</article>`;
+  const quote = `<blockquote class="llm-car-quote">${esc(s.text)}</blockquote>`;
+  const prob = (p) => `<span class="llm-car-p">${llmProbBar(p)}</span>`;
   return (
-    `<article class="chart-card llm-land-card"><div class="llm-land-copy"><div class="llm-land-kicker"><span class="llm-land-num">${k}</span>${kicker}</div>` +
-    `<h3 class="llm-land-title">${title}</h3><p class="llm-land-text">${text}</p></div>` +
-    `<div class="llm-land-chart">${chart}<p class="llm-land-finding">${finding}</p></div>` +
-    `<div class="llm-land-links">${links.map((l, i) => `<button type="button" class="llm-land-go${i ? " is-link" : ""}"${attrs(l)}>${l[0]}</button>`).join("")}</div></article>`
+    `<div class="llm-car-track" tabindex="0">` +
+    card(1, "is-stmt", "the statement",
+      `<div class="llm-task-k">A statement</div><blockquote class="llm-task-quote">${esc(s.text)}</blockquote>` +
+      `<ol class="llm-task-qs">${LLM_TASK_QS.map((t, i) => `<li>${qn(i + 1)}${t}</li>`).join("")}</ol>`) +
+    card(2, "is-person", "a person's answers",
+      `<div class="llm-task-k"><i class="llm-pp is-p"></i>A person's answers</div>` +
+      `<div class="llm-car-who"><strong>Person #${pa.id}</strong> one of ${fmtNum(d.n_participants)} people, who each rated 50 statements</div>` +
+      quote + row(0, opts(pa.a)) + row(1, opts(pa.o)) +
+      `<p class="llm-car-note">People disagree: ${fmtNum(s.k_agree)} of the ${fmtNum(s.n)} who rated this statement agree, and ${fmtNum(s.n - s.k_agree)} don't.</p>`) +
+    card(3, "is-llm", "an LLM's answers",
+      `<div class="llm-task-k">${LLM_ICON_LLM}An LLM's answers</div>` +
+      `<div class="llm-car-who"><strong>${esc(m.name)}</strong> one of ${fmtNum(d.models.length)} LLMs, which each rated all ${fmtNum(d.n_statements)} statements</div>` +
+      quote + row(0, prob(pm[0]) + opts(pm[0] >= 0.5)) + row(1, prob(pm[1]) + opts(pm[1] >= 0.5)) +
+      `<p class="llm-car-note">Each bar is its probability of answering “yes”; 50% or more counts as yes.</p>`) +
+    `</div>` +
+    `<div class="llm-car-nav"><button type="button" class="llm-car-btn" data-car="-1" aria-label="Previous card">‹</button>` +
+    `<span class="llm-car-dots">${Array.from({ length: n }, (_, i) => `<button type="button" data-car-to="${i}" aria-label="Card ${i + 1} of ${n}"></button>`).join("")}</span>` +
+    `<button type="button" class="llm-car-btn" data-car="1" aria-label="Next card">›</button></div>`
   );
+}
+
+// A row of cards that scrolls sideways (scroll snap), with previous / next
+// buttons, dots, the arrow keys and a click on a card out of focus. The card
+// in focus sits in the middle; it is the one whose centred position is
+// nearest the scroll position, and the others are dimmed.
+function llmCarousel(root) {
+  const track = root.querySelector(".llm-car-track"), cards = [...track.children];
+  const dots = [...root.querySelectorAll("[data-car-to]")], btns = [...root.querySelectorAll("[data-car]")];
+  const max = () => track.scrollWidth - track.clientWidth;
+  // the scroll position that puts card c in the middle
+  const pos = (c) => Math.max(0, Math.min(c.offsetLeft + c.offsetWidth / 2 - track.clientWidth / 2, max()));
+  let cur = 0;
+  const mark = () => {
+    const x = track.scrollLeft;
+    cur = cards.reduce((best, c, i) => (Math.abs(pos(c) - x) < Math.abs(pos(cards[best]) - x) ? i : best), 0);
+    cards.forEach((c, i) => c.classList.toggle("is-on", i === cur));
+    dots.forEach((b, i) => b.setAttribute("aria-current", i === cur ? "true" : "false"));
+    btns.forEach((b) => { b.disabled = Number(b.dataset.car) < 0 ? cur === 0 : cur === cards.length - 1; });
+  };
+  const go = (i) => {
+    const k = Math.max(0, Math.min(cards.length - 1, i));
+    track.scrollTo({ left: pos(cards[k]), behavior: llmReduced() ? "auto" : "smooth" });
+    cur = k;
+  };
+  track.addEventListener("scroll", mark, { passive: true });
+  window.addEventListener("resize", mark);
+  btns.forEach((b) => b.addEventListener("click", () => go(cur + Number(b.dataset.car))));
+  dots.forEach((b, i) => b.addEventListener("click", () => go(i)));
+  cards.forEach((c, i) => c.addEventListener("click", () => { if (i !== cur) go(i); }));
+  track.addEventListener("keydown", (e) => {
+    if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+    e.preventDefault();
+    go(cur + (e.key === "ArrowRight" ? 1 : -1));
+  });
+  mark();
+}
+
+async function llmRenderTask(m) {
+  const d = LLM.data, el = document.getElementById("llmTask");
+  const s = d.statements.find((x) => x.raw === LLM_TASK_EXAMPLE) ?? d.statements.find((x) => x.raw === LLM_IND_EXAMPLE) ?? d.statements[0];
+  const key = `${m.id}:${s.id}`;
+  if (el.dataset.key === key) return;
+  try {
+    const [person, sc] = await Promise.all([llmGet(`/llm-evals/participant?id=${LLM_TASK_PERSON}`), llmGet(`/llm-evals/statement?id=${s.id}`)]);
+    const r = person.ratings.find((x) => x[0] === s.id);
+    if (!r) throw new Error(`Person #${LLM_TASK_PERSON} did not rate statement ${s.id}`);
+    el.innerHTML = llmTaskHtml(s, m, { id: person.id, a: r[1], o: r[2] }, sc.ratings[d.models.indexOf(m)]);
+    el.dataset.key = key;
+    llmCarousel(el);
+  } catch (err) {
+    console.error("LLM example load failed:", err);
+    el.innerHTML = '<p class="hs-empty">The example could not be loaded. Try refreshing the page.</p>';
+  }
 }
 
 function llmRenderLanding() {
   const d = LLM.data, all = d.models, P = all.length, half = d.paper.split_half_r;
-  const legend = (items) => `<div class="llm-legend" aria-hidden="true">${items.map(([cls, label]) => `<span><i class="llm-key ${cls}"></i>${label}</span>`).join("")}</div>`;
+  const best = [...all].sort((a, b) => a.rankCs - b.rankCs)[0];
+  llmRenderTask(best);
 
-  // 1 · As individuals: humans' and models' commonsensicality, against the
+  // 2 · As individuals: humans' and models' commonsensicality, against the
   // median human
   const above = all.filter((m) => m.commonsensicality > d.humanMedian).length;
-  const best = [...all].sort((a, b) => a.rankCs - b.rankCs)[0];
-  const card1 = llmLandCard(1, "LLMs as individuals",
-    "Is an LLM as commonsensical as a person?",
-    "Each human participant and LLM is assigned a commonsensicality score, calculated in the same way. The histogram below compares their distributions.",
-    legend([["llm-key-people", `Humans (N = ${fmtNum(d.n_participants)})`], ["llm-key-open", `LLMs (N = ${P})`]]) + llmHistHtml(d),
-    above * 2 < P
-      ? `We found a modest result: only <strong>${above} out of ${P}</strong> LLMs score above the median human.`
-      : `<strong>${above} out of ${P}</strong> LLMs score above the median human.`,
-    [["Follow one model through the survey →", "individual", null, { model: best.id }]]);
+  document.getElementById("llmLandIndChart").innerHTML = llmHistHtml(d);
+  document.getElementById("llmLandIndFinding").innerHTML = above * 2 < P
+    ? `We found a modest result: only <strong>${above} out of ${P}</strong> LLMs score above the median human.`
+    : `<strong>${above} out of ${P}</strong> LLMs score above the median human.`;
+  document.getElementById("llmLandIndGo").dataset.llmModel = best.id;
 
-  // 2 · As populations: r between each model's crowd and people, lowest
+  // 3 · As populations: r between each model's crowd and people, lowest
   // first, against two random halves of people in the sentence under it
   const byR = all.filter((m) => m.r !== null).sort((a, b) => a.r - b.r), bestR = byR.at(-1);
   const gap = bestR.r < half - 0.1 ? "substantially below" : bestR.r < half ? "below" : "at or above";
-  const rs = { min: Math.min(-0.2, Math.floor(byR[0].r * 10) / 10), max: Math.max(0.6, Math.ceil(bestR.r * 10) / 10 + 0.1) };
-  rs.ticks = [];
+  const rs = { min: Math.min(-0.2, Math.floor(byR[0].r * 10) / 10), max: Math.max(0.6, Math.ceil(bestR.r * 10) / 10 + 0.1), fmt: llmRTick, name: "r", ticks: [] };
   for (let t = Math.ceil(rs.min * 5) / 5; t <= rs.max + 1e-9; t += 0.2) rs.ticks.push(Math.round(t * 10) / 10);
-  rs.fmt = llmRTick;
-  const card2 = llmLandCard(2, "LLMs as populations",
-    "Can an LLM stand in for a crowd?",
-    "An LLM can also be viewed as a generator of a synthetic population. Similar to humans, this population determines the commonsensicality scores of all statements. Here is how these scores correlate with those determined by humans.",
-    legend([["llm-key-open", `LLMs (N = ${P})`], ["llm-key-faint", "Not significantly different from 0"]]) +
-      llmColsHtml(byR.map((m) => ({ v: m.r, cls: m.r_sig ? "" : "is-faint", tip: `${m.name}: r = ${llmR(m.r)}${m.r_sig ? "" : ", not significantly different from 0"}` })),
-        rs, null,
-        `Bar chart: each of the ${P} models' r with humans, from lowest to highest; the best is ${llmR(bestR.r)}, against ${llmR(half)} between two halves of humans`,
-        `Correlation with humans' statement scores (r) · one bar per LLM, lowest to highest`, esc(bestR.name), -1),
-    `The best model has a correlation of <strong>r&nbsp;=&nbsp;${llmR(bestR.r)}</strong>, ${gap} the human split-half reliability of <strong>r&nbsp;=&nbsp;${llmR(half)}</strong>.`,
-    [["Follow one model's crowd →", "population", null, { model: bestR.id }]]);
-
-  document.getElementById("llmLand").innerHTML = card1 + card2;
+  document.getElementById("llmLandPopChart").innerHTML = llmColsHtml(
+    byR.map((m) => ({ v: m.r, cls: m.r_sig ? "" : "is-faint", tip: `${m.name}: r = ${llmR(m.r)}${m.r_sig ? "" : ", not significantly different from 0"}` })),
+    rs, null,
+    `Bar chart: each of the ${P} models' correlation r with humans' statement scores, from lowest to highest; the best is ${llmR(bestR.r)}, against ${llmR(half)} between two halves of humans`,
+    esc(bestR.name), -1);
+  document.getElementById("llmLandPopFinding").innerHTML =
+    `The best model has a correlation of <strong>r&nbsp;=&nbsp;${llmR(bestR.r)}</strong>, ${gap} the human split-half reliability of <strong>r&nbsp;=&nbsp;${llmR(half)}</strong>.`;
+  document.getElementById("llmLandPopGo").dataset.llmModel = bestR.id;
 }
 
 // ── Every model as an individual (the individual view's Explore further) ──
@@ -1028,10 +1001,6 @@ function llmRenderFeatures() {
     (like.length === 6 ? " It matches people on all six." : "");
 }
 
-function llmRenderOverview() {
-  llmRenderLanding();
-}
-
 // ══ Stories: shared pieces ═════════════════════════════════════════════════
 // "LLMs as individuals" and "LLMs as populations" each tell one model's score
 // as a story of short steps. One "Next" button, in a bar that sticks to the
@@ -1102,9 +1071,7 @@ function llmStoryHead(mode, m, chapters, opened, lead = null) {
     : `Now read ${esc(m.name)}'s answers as the shares of a population answering yes.`;
   const prefix = ind ? "llmIndC" : "llmPopC";
   return (
-    `<div class="llm-kicker">${ind ? "LLMs as individuals" : "LLMs as populations"}</div>` +
     `<h2 class="llm-story-title">${title}</h2>` +
-    `<div class="llm-walk-meta">${llmMetaLine(m)}</div>` +
     `<p class="llm-story-lead">${lead}</p>` +
     (opened > 1
       ? `<nav class="llm-toc llm-story-toc" aria-label="Chapters">` +
@@ -1188,11 +1155,6 @@ function llmProbFine(p) {
   return p !== 0.5 && Math.abs(p - 0.5) < 0.0005 ? `${(p * 100).toFixed(2)}%` : llmPctFine(p);
 }
 
-// "62.0% > 50%"
-function llmVs50(p) {
-  return `${llmProbFine(p)} ${p > 0.5 ? ">" : p === 0.5 ? "≥" : "<"} 50%`;
-}
-
 // An answer as a bar with a tick at 50%, the line between no and yes
 function llmProbBar(v, cls = "is-model") {
   return (
@@ -1231,16 +1193,6 @@ function llmInTen(v) {
 // Previous / next model in the ranking of the current view
 function llmRankList(mode) {
   return [...LLM.data.models].sort((a, b) => (mode === "individual" ? a.rankCs - b.rankCs : a.rankR - b.rankR));
-}
-
-function llmNavHtml(mode) {
-  const list = llmRankList(mode);
-  const i = list.findIndex((m) => m.id === LLM.model);
-  const link = (m, dir) => m
-    ? `<button type="button" class="llm-nav-link is-${dir}" data-model="${esc(m.id)}"><span class="llm-nav-dir">${dir === "prev" ? "← Ranked above" : "Ranked below →"}</span>` +
-      `<span class="llm-nav-name">${llmOrdinal(list.indexOf(m) + 1)} · ${esc(m.name)}</span></button>`
-    : "<span></span>";
-  return link(list[i - 1], "prev") + `<button type="button" class="llm-nav-link is-up" data-llm-go="overview">Back to the overview</button>` + link(list[i + 1], "next");
 }
 
 // ══ LLMs as individuals ════════════════════════════════════════════════════
@@ -1322,7 +1274,6 @@ async function llmRenderIndividual() {
   llmIndTable(m, md);
   llmRenderBoard();
   llmRenderSize();
-  document.getElementById("llmIndNav").innerHTML = llmNavHtml("individual");
   llmRevealPending();
 }
 
@@ -1381,16 +1332,15 @@ function llmIndCh1(m, md, fresh) {
   let beats = "";
   if (lvl >= 1) {
     beats +=
-      `<div class="llm-beat${llmFresh(fresh, 1)}" id="llmIndB1"><p class="llm-p">${name} <strong>${y1 ? "agrees" : "disagrees"}</strong> with this statement, since ${llmVs50(p1)}. ` +
-      `${y1 === y2 ? "It also" : "But it"} predicts that <strong>most people would ${y2 ? "" : "not "}agree</strong>, since ${llmVs50(p2)}.</p>` +
-      `<details class="llm-details"><summary>The exact questions ${name} was asked</summary>${llmPromptHtml(s.raw)}</details></div>`;
+      `<div class="llm-beat${llmFresh(fresh, 1)}" id="llmIndB1"><p class="llm-note">Each bar is ${name}'s probability of answering “yes”; 50% or more counts as yes.</p>` +
+      `<details class="llm-details"><summary>The exact prompts</summary>${llmPromptHtml(s.raw)}</details></div>`;
   }
   if (lvl >= 2) {
     const who = k === s.n ? `All ${fmtNum(s.n)} people` : k === 0 ? `None of the ${fmtNum(s.n)} people` : `${fmtNum(k)} of the ${fmtNum(s.n)} people`;
     beats +=
       `<div class="llm-beat${llmFresh(fresh, 2)}" id="llmIndB2"><div class="llm-raters">${llmFigureRow(k, s.n, "is-p")}` +
       `<div class="llm-raters-key"><span><i class="llm-pp is-p"></i>agree</span><span><i class="llm-pp"></i>disagree</span></div></div>` +
-      `<p class="llm-p">${who} who rated it agree, so <strong>most people ${maj ? "agree" : "disagree"}</strong>${half ? " (exactly half counts as most)" : ""}. That is the answer key for both of ${name}'s answers.</p></div>`;
+      `<p class="llm-p">${who} who rated it agree, so <strong>most people ${maj ? "agree" : "disagree"}</strong>${half ? " (exactly half counts as most)" : ""}: the answer key for both questions.</p></div>`;
   }
   if (lvl >= 3) {
     // Each check in three sentences: the model's answer, the majority, and
@@ -1406,7 +1356,7 @@ function llmIndCh1(m, md, fresh) {
       `<p>${name} ${y1 ? "agrees" : "disagrees"} with this statement. ${most} ${thus(ok1)}</p></div>` +
       `<div class="llm-check ${ok2 ? "is-ok" : "is-miss"}"><div class="llm-check-q">Question 2 · its prediction ${llmMatch(ok2)}</div>` +
       `<p>${name} predicts that most people would ${y2 ? "" : "not "}agree with this statement. ${most} ${thus(ok2)}</p></div></div>` +
-      llmIndTally(m, md) + `</div>`;
+      (I.seen.length > 1 ? llmIndTally(m, md) : "") + `</div>`;
   }
   return llmChap("llmIndC1", 1, "One statement", true, "", survey + beats);
 }
@@ -1425,8 +1375,7 @@ function llmIndTally(m, md) {
     `<table class="llm-tally-table"><thead><tr><th>Statement</th><th>Own view</th><th>Prediction</th></tr></thead><tbody>` +
     shown.map((r) => `<tr><td>${esc(r.s.text)}</td><td>${llmMatch(r.ok1)}</td><td>${llmMatch(r.ok2)}</td></tr>`).join("") +
     (k > shown.length ? `<tr class="llm-tally-more"><td colspan="3">and ${llmCount(k - shown.length, "earlier statement")}</td></tr>` : "") +
-    `</tbody><tfoot><tr><th>${llmCount(k, "statement")}</th><td>${c} of ${k}</td><td>${a} of ${k}</td></tr></tfoot></table>` +
-    `<div class="llm-tally-note">Try another statement above, or check them all.</div></div>`
+    `</tbody><tfoot><tr><th>${llmCount(k, "statement")}</th><td>${c} of ${k}</td><td>${a} of ${k}</td></tr></tfoot></table></div>`
   );
 }
 
@@ -1447,25 +1396,16 @@ function llmIndCh2(m, md, fresh) {
 }
 
 function llmIndRunResults(m, fresh) {
-  const d = LLM.data, n = d.n_statements, md = LLM.md, name = esc(m.name);
+  const d = LLM.data, n = d.n_statements, name = esc(m.name);
   const q1 = m.tab.q1, q2 = m.tab.q2;
   const con = q1[0][0] + q1[1][1], awa = q2[0][0] + q2[1][1];
   const C = con / n, A = awa / n;
-  // Which way most of its question-1 misses go, when they clearly lean
-  const accepts = q1[0][1], rejects = q1[1][0], misses = accepts + rejects;
-  const ties = d.statements.filter((x) => md.ratings[x.id][0] === 0.5 && !x.majority).length;
-  const lean = misses && Math.max(accepts, rejects) >= 0.65 * misses
-    ? `Most of its misses on question 1 (${fmtNum(Math.max(accepts, rejects))} of ${fmtNum(misses)}) are statements ` +
-      (rejects >= accepts ? "most people agree with but it doesn't."
-        : `it agrees with but most people don't${ties >= 0.1 * accepts ? `, ${fmtNum(ties)} of them because it is split exactly 50–50, which counts as agreeing` : ""}.`)
-    : "";
   return (
     `<div class="llm-beat${llmFresh(fresh, "run")}" id="llmIndB4"><div class="llm-res2">` +
     `<div class="llm-res is-agree"><div class="llm-res-k">Consensus</div><div class="llm-res-v">${fmtPct(C)}</div>` +
     `<p>The matches in question 1 for all statements give us ${name}'s consensus score: ${fmtNum(con)} of ${fmtNum(n)} match, ${llmInTen(C)}.</p></div>` +
     `<div class="llm-res is-expect"><div class="llm-res-k">Awareness</div><div class="llm-res-v">${fmtPct(A)}</div>` +
-    `<p>The matches in question 2 for all statements give us ${name}'s awareness score: ${fmtNum(awa)} of ${fmtNum(n)} match, ${llmInTen(A)}.</p></div></div>` +
-    (lean ? `<p class="llm-note">${lean}</p>` : "") + `</div>`
+    `<p>The matches in question 2 for all statements give us ${name}'s awareness score: ${fmtNum(awa)} of ${fmtNum(n)} match, ${llmInTen(A)}.</p></div></div></div>`
   );
 }
 
@@ -1547,8 +1487,8 @@ function llmIndCh3(m, md, fresh) {
     `<div class="llm-calc"><div class="llm-calc-line">Commonsensicality = ${sqrtHtml("consensus × awareness")}</div>` +
     `<div class="llm-calc-line">= ${sqrtHtml(`${fmtPct(C)} × ${fmtPct(A)}`)}</div>` +
     `<div class="llm-calc-line is-big">= <strong class="llm-calc-res">${fmtPct(M)}</strong></div></div>` +
-    `<p class="llm-p">The score is high only when both are. Each curve on the chart joins the pairs with the same score: ${name} sits on the orange one, at ${fmtPct(M)}.</p>` +
-    `<p class="llm-note">Point at the chart to score any pair. Grey dots are the other models; click one to switch to it.</p>` +
+    `<p class="llm-p">Each curve joins the pairs with the same score; ${name} sits on the orange one.</p>` +
+    `<p class="llm-note">Point at the chart to score any pair; click a grey dot to switch models.</p>` +
     `<div class="llm-result">For comparison, the median person scores <strong>${fmtPct(d.humanMedian)}</strong> on the 50 statements they rated.</div></div>` +
     `<figure class="llm-lvl">${llmLvlSvg(m)}</figure></div>`;
   return llmChap("llmIndC3", 3, title, true, "", body);
@@ -1558,22 +1498,24 @@ function llmIndCh3(m, md, fresh) {
 // curves every 10 points (as the paper's Fig. 2B draws them at 25, 50 and
 // 75%), this model's own level curve in orange, and every model as a dot.
 // The axes start at 30%, below every model, so the dots spread out. The
-// shading is a small canvas drawn once; pointing at the chart shows the
+// shading runs from the card (--llm-lvl-lo) to people's blue (--llm-lvl-hi):
+// a small canvas, drawn once, holds only how far along that ramp each point
+// is (as its alpha), and masks a rect filled with the blue, so the colours
+// stay tokens and follow a theme change. Pointing at the chart shows the
 // score of that pair (llmLvlProbe).
 const LLM_LVL = { S: 320, L: 58, T: 12, R: 44, B: 48, LO: 0.3 };
-let _llmLvlBg = null;
+let _llmLvlBg = null, _llmLvlMasks = 0;
 function llmLvlBg() {
   if (_llmLvlBg) return _llmLvlBg;
   const N = 120, LO = LLM_LVL.LO, cv = document.createElement("canvas");
   cv.width = cv.height = N;
   const ctx = cv.getContext("2d"), img = ctx.createImageData(N, N);
-  const lo = [255, 253, 249], hi = [140, 175, 224];   // the card surface to people's blue
   for (let j = 0; j < N; j++) {
     for (let i = 0; i < N; i++) {
       const xv = LO + (1 - LO) * ((i + 0.5) / N), yv = LO + (1 - LO) * (1 - (j + 0.5) / N);
       const t = (Math.sqrt(xv * yv) - LO) / (1 - LO), k = 4 * (j * N + i);
-      for (let ch = 0; ch < 3; ch++) img.data[k + ch] = Math.round(lo[ch] + (hi[ch] - lo[ch]) * t);
-      img.data[k + 3] = 255;
+      img.data[k] = img.data[k + 1] = img.data[k + 2] = 255;
+      img.data[k + 3] = Math.round(255 * t);
     }
   }
   ctx.putImageData(img, 0, 0);
@@ -1623,7 +1565,10 @@ function llmLvlSvg(m) {
   const px = x(inside(m.consensus)), py = y(inside(m.awareness)), left = px > L + S * 0.5;
   return (
     `<svg class="llm-lvl-svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="${esc(`${m.name} at consensus ${fmtPct(m.consensus)} and awareness ${fmtPct(m.awareness)}, on the curve of commonsensicality ${fmtPct(M)}`)}" data-lvl="${L},${T},${S},${LO}">` +
-    `<image href="${llmLvlBg()}" x="${L}" y="${T}" width="${S}" height="${S}" preserveAspectRatio="none"/>` +
+    `<defs><mask id="llmLvlMask${++_llmLvlMasks}" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="${L}" y="${T}" width="${S}" height="${S}">` +
+    `<image href="${llmLvlBg()}" x="${L}" y="${T}" width="${S}" height="${S}" preserveAspectRatio="none"/></mask></defs>` +
+    `<rect x="${L}" y="${T}" width="${S}" height="${S}" class="llm-lvl-bg"/>` +
+    `<rect x="${L}" y="${T}" width="${S}" height="${S}" class="llm-lvl-shade" mask="url(#llmLvlMask${_llmLvlMasks})"/>` +
     `<rect x="${L}" y="${T}" width="${S}" height="${S}" class="llm-lvl-frame"/>` +
     ticks.map((t) => `<text x="${x(t)}" y="${T + S + 18}" text-anchor="middle" class="llm-lvl-tick">${Math.round(t * 100)}%</text>` +
       `<text x="${L - 7}" y="${y(t) + 4}" text-anchor="end" class="llm-lvl-tick">${Math.round(t * 100)}%</text>`).join("") +
@@ -1723,7 +1668,7 @@ function llmIndCh4(m, md, fresh) {
     `<div class="llm-vs-who" data-who="${person}">${cell(ex.oa, s.majority)}</div><div class="llm-vs-who" data-who="${name}">${cell(ex.y2, s.majority, ex.p2)}</div>${majCell}` +
     `</div>` +
     `<p class="llm-p">On this statement, ${person} matches the majority on <strong>${nOk(ex.pOk1, ex.pOk2)}</strong> and ${name} on <strong>${nOk(ex.mOk1, ex.mOk2)}</strong>` +
-    `${sameP ? "." : `, so ${ex.pOk1 + ex.pOk2 > ex.mOk1 + ex.mOk2 ? "the person" : name} is ahead here.`} One statement decides little; next, all ${k} of them.</p></div>`;
+    `${sameP ? "." : `, so ${ex.pOk1 + ex.pOk2 > ex.mOk1 + ex.mOk2 ? "the person" : name} is ahead here.`}</p></div>`;
 
   // 7 · all 50: the same checks, as strips of squares, and the two scores
   const count = (key) => rows.filter((r) => r[key]).length;
@@ -1743,7 +1688,7 @@ function llmIndCh4(m, md, fresh) {
       `<div class="llm-h2h-score">Consensus ${c}/${k} = ${fmtPct(c / k)} · awareness ${a}/${k} = ${fmtPct(a / k)} · commonsensicality ${sqrtHtml(`${fmtPct(c / k)} × ${fmtPct(a / k)}`)} = <strong>${fmtPct(sc)}</strong></div>`;
     body +=
       `<div class="llm-beat${llmFresh(fresh, 7)}" id="llmIndB7"><div class="llm-h2h">` +
-      `<div class="llm-h2h-axis">Each square is one of the person's ${k} statements, in the same order in every row: green matches most people, red doesn't. The outlined square is the statement above. Point at a square to see its statement.</div>` +
+      `<div class="llm-h2h-axis">Each square is one of the ${k} statements: green matches most people, red doesn't. The outlined one is the statement above.</div>` +
       `<div class="llm-h2h-grid">${who(person, "is-people", pc, pa, ps, "p")}${who(name, "is-model", mc, ma, ms, "m")}</div>` +
       `<div class="llm-inline-btns"><button type="button" class="llm-btn" data-part-open="${pr.id}">See all of ${person}'s answers</button></div></div></div>`;
   }
@@ -1756,7 +1701,7 @@ function llmIndCh4(m, md, fresh) {
         ? `<strong>A tie:</strong> both score ${fmtPct(ps)} on ${person}'s ${k} statements.`
         : `<strong>${person} scores higher</strong> on their own ${k} statements, ${fmtPct(ps)} to ${fmtPct(ms)}.`;
     body +=
-      `<div class="llm-beat${llmFresh(fresh, 8)}" id="llmIndB8"><p class="llm-p">Their two commonsensicality scores on these ${k} statements, side by side:</p><div class="llm-verdict">` +
+      `<div class="llm-beat${llmFresh(fresh, 8)}" id="llmIndB8"><div class="llm-verdict">` +
       `<div class="llm-verdict-row is-people"><span>${person}</span>${llmTrack(ps, LLM_PCT_SCALE, "is-human")}<strong>${fmtPct(ps)}</strong></div>` +
       `<div class="llm-verdict-row"><span>${name}</span>${llmTrack(ms, LLM_PCT_SCALE, llmModelCls(m))}<strong>${fmtPct(ms)}</strong></div>` +
       `<div class="llm-verdict-axis"><span></span>${llmAxis(LLM_PCT_SCALE)}<span></span></div></div>` +
@@ -1774,8 +1719,7 @@ function llmIndCh4(m, md, fresh) {
       `<div class="llm-hundred-wrap llm-gap-top">` +
       `<div><div class="llm-mini-title">Every person, as 100 figures (each about ${Math.round(P / 100)} people)</div>${llmFigures(figs, "is-hundred")}` +
       `<div class="llm-raters-key">${w ? `<span><i class="llm-pp is-m"></i>${name} scores higher: ${w}</span>` : ""}${t ? `<span><i class="llm-pp is-tie"></i>tie: ${t}</span>` : ""}${l ? `<span><i class="llm-pp is-p"></i>the person scores higher: ${l}</span>` : ""}</div></div>` +
-      `<p class="llm-p">${name} scores higher than <strong>${fmtNum(h.wins)} of the ${fmtNum(P)} people (${llmPctFine(h.wins / P)})</strong>, ties with ${fmtNum(h.ties)} and scores lower than ${fmtNum(h.losses)}.</p></div>` +
-      `<div class="llm-result llm-summary"><strong>In short:</strong> as one more participant, ${name} is <strong>${fmtPct(m.commonsensicality)}</strong> commonsensical and outscores <strong>${llmPctFine(h.wins / P)}</strong> of people on their own statements.</div></div>`;
+      `<p class="llm-p">${name} scores higher than <strong>${fmtNum(h.wins)} of the ${fmtNum(P)} people (${llmPctFine(h.wins / P)})</strong>, ties with ${fmtNum(h.ties)} and scores lower than ${fmtNum(h.losses)}.</p></div></div>`;
   }
   return llmChap("llmIndC4", 4, title, true, lead, body);
 }
@@ -2013,7 +1957,6 @@ async function llmRenderPopulation() {
   llmRenderCertainty();
   if (m.features) LLM.featModel = m.id;   // the features card follows the story's model
   llmRenderFeatures();
-  document.getElementById("llmPopNav").innerHTML = llmNavHtml("population");
   llmRevealPending();
 }
 
@@ -2168,7 +2111,7 @@ function llmPopCh2(m, md, fresh) {
     h.maj !== c.maj ? "The two majorities point opposite ways, but each population is scored against its own majority." : "",
   ].filter(Boolean).join(" ");
   return llmChap("llmPopC2", 2, title, true,
-    `Each population is scored as usual. Consensus is how one-sided it is, from 0% at 50–50 to 100% when unanimous; awareness is the share who predicted its majority; and commonsensicality is ${sqrtHtml("consensus × awareness")}.`,
+    "Each population is scored as usual: consensus is how one-sided it is, awareness the share who predicted its majority.",
     cols +
     `<div class="llm-result${llmFresh(fresh, 2)}${llmFresh(fresh, "ex")}">This statement receives a commonsensicality score of <strong>${llmPctFine(h.s)}</strong> according to humans, and <strong>${llmPctFine(c.s)}</strong> according to the ${name}-generated population.</div>` +
     (notes ? `<p class="llm-note">${notes}</p>` : ""));
@@ -2193,19 +2136,15 @@ function llmPopCh3(m, md, fresh) {
   // keeps at the top of the panel
   const body = Q.stage >= 4 ? llmPopScatter(m, md, fresh, run) : run;
   return llmChap("llmPopC3", 3, title, true,
-    `Now we do the same for all ${fmtNum(n)} statements, scoring each one twice: among the people who rated it and in ${name}'s population.`, body);
+    `Now every statement is scored twice: among the people who rated it, and in ${name}'s population.`, body);
 }
 
 function llmPopRunResults(m, md, fresh) {
-  const d = LLM.data, n = d.n_statements, name = esc(m.name);
+  const d = LLM.data, name = esc(m.name);
   const hs = d.statements.map((s) => s.humans), ms = md.scores;
   const mean = (xs) => xs.reduce((a, b) => a + b, 0) / xs.length;
-  const top = (xs) => xs.filter((v) => llmPopBand(v) === 4).length;
-  const th = top(hs), tm = top(ms);
   return (
-    `<div class="llm-beat${llmFresh(fresh, 3)}" id="llmPopB3"><p class="llm-p">Every statement now has two commonsensicality scores. ` +
-    `On average, people give a statement <strong>${fmtPct(mean(hs))}</strong>, and ${name}'s population <strong>${fmtPct(mean(ms))}</strong>. ` +
-    `${name}'s population scores ${fmtNum(tm)} statements (${fmtPct(tm / n)}) 80% or higher; people, ${fmtNum(th)} (${fmtPct(th / n)}).</p></div>`
+    `<div class="llm-beat${llmFresh(fresh, 3)}" id="llmPopB3"><p class="llm-p">On average, people give a statement <strong>${fmtPct(mean(hs))}</strong>, and ${name}'s population <strong>${fmtPct(mean(ms))}</strong>.</p></div>`
   );
 }
 
@@ -2284,20 +2223,16 @@ function llmPopScatter(m, md, fresh, before) {
       (fit ? `, with a best-fit line; r = ${llmR(m.r)}` : ""),
   });
   let text = before +
-    `<p class="llm-p${llmFresh(fresh, 4)}${llmFresh(fresh, "ex")}" id="llmPopB4">Each statement is now a point: across, its score among people; up, its score in ${name}'s population. ` +
-    `Here is the statement from before: “${esc(s.text)}” It scores <strong>${llmPctFine(h.s)}</strong> among people and <strong>${llmPctFine(c.s)}</strong> in ${name}'s population.</p>`;
+    `<p class="llm-p${llmFresh(fresh, 4)}${llmFresh(fresh, "ex")}" id="llmPopB4">Each statement is now a point. The one from before scores <strong>${llmPctFine(h.s)}</strong> among people (across) and <strong>${llmPctFine(c.s)}</strong> in ${name}'s population (up).</p>`;
   if (Q.stage >= 5) {
     text +=
       `<p class="llm-p${llmFresh(fresh, 5)}" id="llmPopB5">And here are all ${fmtNum(n)} statements.</p>` +
-      `<p class="llm-note${llmFresh(fresh, 5)}">Point at a dot to see its statement; click it to see how every model's population scores it.</p>`;
+      `<p class="llm-note${llmFresh(fresh, 5)}">Point at a dot to see its statement.</p>`;
   }
   if (Q.stage >= 6) {
-    const trend = !m.r_sig || !fit
-      ? `The best-fit line is almost flat: how commonsensical people find a statement says little about how ${name}'s population scores it.`
-      : `The best-fit line shows the trend: statements that people score higher, ${name}'s population scores ${fit.b < 0 ? "lower" : "higher"} on average.`;
+    const flat = !m.r_sig || !fit ? "The best-fit line is almost flat. " : "";
     text +=
-      `<div class="llm-beat${llmFresh(fresh, 6)}" id="llmPopB6"><p class="llm-p">${trend} ` +
-      `The correlation, r, measures how closely the points follow a straight line: ±1 if they all lay on one, 0 if the two scores were unrelated.</p>` +
+      `<div class="llm-beat${llmFresh(fresh, 6)}" id="llmPopB6"><p class="llm-p">${flat}The correlation r measures how closely the points follow a straight line: 0 if the two scores are unrelated, 1 if they line up perfectly.</p>` +
       `<div class="llm-result">Judging over all ${fmtNum(n)} statements, the ${name}-generated population correlates with the human population at <strong>r = ${llmR(m.r)}</strong>.` +
       `${m.r_sig ? "" : " That is not significantly different from 0."}</div></div>`;
   }
@@ -2493,14 +2428,14 @@ function llmPopCh4(m, md, fresh) {
     body =
       `<div class="llm-sct-grid" id="llmPopHalves"><div class="llm-sct-text">${body}` +
       `<p class="llm-p${fx(8)}" id="llmPopB8">If we do the same for all statements, we arrive at a correlation of <strong>r = ${llmR(sp.r)}</strong>.</p>` +
-      `<p class="llm-note${fx(8)}">Each point is a statement: across, its score in half A; up, its score in half B${sp.n_used < n ? ` (the ${fmtNum(sp.n_used)} statements both halves rated)` : ""}. ` +
-      `The marked one is the statement above.</p></div><figure class="llm-sct${fx(8)}${fx("split")}">${svg}</figure></div>`;
+      (sp.n_used < n ? `<p class="llm-note${fx(8)}">The ${fmtNum(sp.n_used)} statements both halves rated.</p>` : "") +
+      `</div><figure class="llm-sct${fx(8)}${fx("split")}">${svg}</figure></div>`;
   }
   if (Q.stage >= 9) {
     const runs = Q.splits.slice(-6).map((x) => `<span class="llm-r-chip${x.seed === Q.seed ? " is-current" : ""}">r = ${llmR(x.r, 3)}</span>`).join("");
     body +=
       `<div class="llm-beat${fx(9)}" id="llmPopB9">` +
-      `<p class="llm-p">That was one random split. Split the people again and both halves change, and so does r. Over ${fmtNum(sh.n_splits)} random splits, r averages <strong>${llmR(sh.mean)}</strong>, and 95% of splits fall between ${llmR(sh.lo)} and ${llmR(sh.hi)}.</p>` +
+      `<p class="llm-p">Each split gives a slightly different r. Over ${fmtNum(sh.n_splits)} random splits, r averages <strong>${llmR(sh.mean)}</strong>; 95% fall between ${llmR(sh.lo)} and ${llmR(sh.hi)}.</p>` +
       llmSplitHistHtml() +
       `<div class="llm-r-chips"><span class="llm-r-chips-k">Your splits</span>${runs}<button type="button" class="llm-btn" data-story="pop-resplit">Split again ↻</button></div>` +
       `<div class="llm-result">Thus, the correlation r = ${llmR(sh.mean)} is the <strong>split-half reliability</strong> of the human population. It sets a baseline for what we should expect from another population that claims to be similar to humans.</div>` +
@@ -2535,9 +2470,8 @@ function llmSplitHistHtml() {
     `<div class="llm-cols llm-lhist llm-rhist" role="img" aria-label="${esc(`Histogram of r between the two halves over ${fmtNum(sh.n_splits)} random splits: average ${llmR(sh.mean)}, 95% between ${llmR(sh.lo)} and ${llmR(sh.hi)}`)}">` +
     `<div class="llm-cols-y" aria-hidden="true">${yt.map((t) => `<span style="bottom:${yp(t).toFixed(2)}%">${t}</span>`).join("")}</div>` +
     `<div class="llm-cols-plot">${yt.map((t) => `<i class="llm-cols-grid${t ? "" : " is-zero"}" style="bottom:${yp(t).toFixed(2)}%"></i>`).join("")}${bars}` +
-    `<i class="llm-lhist-med" style="left:${xp(sh.mean).toFixed(2)}%"><span>Average ${llmR(sh.mean)}</span></i></div></div>` +
-    `<div class="llm-lhist-x" aria-hidden="true">${xt.join("")}</div>` +
-    `<div class="llm-cols-x" aria-hidden="true">r between the two halves, in each of ${fmtNum(sh.n_splits)} random splits · each bar the number of splits · darkest: this split</div>`
+    `<i class="llm-lhist-med" style="left:${xp(sh.mean).toFixed(2)}%"><span>Average ${llmR(sh.mean, 3)}</span></i></div></div>` +
+    `<div class="llm-lhist-x" aria-hidden="true">${xt.join("")}</div>`
   );
 }
 
@@ -2674,144 +2608,6 @@ function llmPopTable(m) {
   LLM.tables.pop.refresh(true);
 }
 
-// ══ Statements ═════════════════════════════════════════════════════════════
-
-function llmModelsAgainst(r) {
-  const k = r.models_yes[0], n = LLM.data.models.length;
-  return r.majority ? k < n / 2 : k > n / 2;
-}
-
-const LLM_STMT_SHOW = [
-  ["", "All statements", () => true],
-  ["against", "Most models' answers go against the people's majority", (r) => llmModelsAgainst(r)],
-  ["pyes", "People agree, most models don't", (r) => r.majority === 1 && llmModelsAgainst(r)],
-  ["pno", "People disagree, most models agree", (r) => r.majority === 0 && llmModelsAgainst(r)],
-  ["llm", "Model median 20+ points higher", (r) => r.llm_median - r.humans >= 0.2],
-  ["people", "People 20+ points higher", (r) => r.humans - r.llm_median >= 0.2],
-];
-
-function llmRenderStatements() {
-  const d = LLM.data;
-  if (!LLM.charts.stmt) {
-    const labels = Array.from({ length: LLM_BINS }, (_, i) => `${(i * 100) / LLM_BINS}%`);
-    const series = [
-      ["People", d.statements.map((s) => s.humans), LLM_HUMAN],
-      ["Median across models' crowds", d.statements.map((s) => s.llm_median), LLM_MODEL],
-    ];
-    LLM.charts.stmt = new Chart(document.getElementById("llmStmtChart"), {
-      type: "bar",
-      data: {
-        labels,
-        datasets: series.map(([label, values, color]) => ({
-          label, data: llmHistCounts(values), backgroundColor: color, borderRadius: 3, maxBarThickness: 18,
-        })),
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false, animation: false,
-        interaction: { mode: "index", intersect: false },
-        datasets: { bar: { categoryPercentage: 0.8, barPercentage: 0.9 } },
-        plugins: {
-          legend: { position: "top", align: "start", labels: { boxWidth: 12, boxHeight: 12, font: LLM_FONT, padding: 14 } },
-          tooltip: {
-            callbacks: {
-              title: (items) => `Commonsensicality ${llmBinLabel(items[0].dataIndex)}`,
-              label: (it) => `${it.dataset.label}: ${fmtNum(it.raw)} statements`,
-            },
-          },
-        },
-        scales: {
-          x: {
-            grid: { display: false },
-            title: { display: true, text: "Statement commonsensicality (%)", font: LLM_TITLE_FONT },
-            ticks: { font: LLM_FONT, autoSkip: false, callback: (_, i) => (i % 5 === 0 ? labels[i] : "") },
-          },
-          y: {
-            beginAtZero: true, grid: { color: UI.grid }, border: { display: false },
-            title: { display: true, text: "Statements", font: LLM_TITLE_FONT },
-            ticks: { font: LLM_FONT, precision: 0 },
-          },
-        },
-      },
-    });
-  }
-  if (!LLM.tables.stmt) {
-    const nm = d.models.length;
-    LLM.tables.stmt = llmTable(document.getElementById("llmStmtTable"), {
-      noun: "statements",
-      rows: () => LLM.data.statements,
-      search: llmStatementSearch,
-      selects: llmStatementSelects(LLM_STMT_SHOW),
-      props: true,
-      sort: { key: "humans", dir: "desc" },
-      onRow: (r) => llmOpenStatement(r.id),
-      columns: [
-        { key: "text", label: "Statement", cls: "col-statement", tdCls: "td-statement", value: (r) => r.text, html: (r) => esc(r.text) },
-        { key: "agree", label: "People agree", cls: "llm-col-people", value: (r) => r.I_agree,
-          html: (r) => `<span class="llm-maj"><span class="llm-maj-share">${fmtPct(r.I_agree)}</span> <span class="llm-maj-word">${fmtNum(r.k_agree)} of ${fmtNum(r.n)}</span></span>`,
-          helpLabel: "People agree", help: "The share of the people who rated the statement and agreed with it; the majority answer is agree at 50% or more." },
-        { key: "models", label: "Models agree", cls: "llm-col-models", value: (r) => r.models_yes[0],
-          html: (r) => `<span class="llm-maj${llmModelsAgainst(r) ? " is-against" : ""}"><span class="llm-maj-share">${r.models_yes[0]} of ${nm}</span>${llmModelsAgainst(r) ? ' <span class="llm-maj-word">most against people</span>' : ""}</span>`,
-          helpLabel: "Models agree", help: `How many of the ${nm} models answer yes to “Do you agree with this statement?” (50% or more). Flagged when most of them go against the people's majority.` },
-        { key: "humans", label: "People", cls: "llm-col-score", value: (r) => r.humans, html: (r) => llmBar(r.humans, "human"),
-          helpLabel: "People", help: "The statement's commonsensicality among the people who rated it." },
-        { key: "llm", label: "Model median", cls: "llm-col-score", value: (r) => r.llm_median, html: (r) => llmBar(r.llm_median, "model"),
-          helpLabel: "Model median", help: "The median of the statement's commonsensicality across every model's simulated crowd." },
-      ],
-    });
-  }
-  LLM.tables.stmt.refresh();
-}
-
-// ══ Participants ═══════════════════════════════════════════════════════════
-
-function llmPartChart() {
-  llmSyncSeg("llmPartMetric", LLM.partMetric);
-  const d = LLM.data;
-  llmPeopleHist("part", document.getElementById("llmPartChart"), {
-    metric: LLM.partMetric,
-    activeBin: LLM.partBin,
-    lines: [{ x: d.humanMedians[LLM.partMetric] * 100, color: LLM_INK, width: 1.5, dash: [4, 3], label: `Median ${fmtPct(d.humanMedians[LLM.partMetric])}`, align: "right" }],
-    onBin: (i) => {
-      LLM.partBin = LLM.partBin === i ? null : i;
-      llmPartChart();
-      llmApplyPartBin();
-    },
-  });
-}
-
-function llmRenderParticipants() {
-  llmPartChart();
-  if (!LLM.tables.part) {
-    LLM.tables.part = llmTable(document.getElementById("llmPartTable"), {
-      noun: "participants",
-      cls: "llm-part-table",
-      rows: () => LLM.data.participants,
-      search: { placeholder: "Search by participant number…", match: (p, q) => String(p.id).includes(q.replace(/^#/, "")) },
-      sort: { key: "cs", dir: "desc" },
-      onRow: (p) => llmOpenParticipant(p.id),
-      columns: [
-        { key: "rank", label: "#", cls: "col-rank", tdCls: "td-rank", html: (_p, i) => fmtNum(i + 1) },
-        { key: "id", label: "Participant", cls: "llm-col-pid", tdCls: "td-user", value: (p) => p.id, html: (p) => `#${p.id}` },
-        { key: "con", label: "Consensus", cls: "col-score", value: (p) => p.scores[0], html: (p) => llmBar(p.scores[0]) },
-        { key: "awa", label: "Awareness", cls: "col-score", value: (p) => p.scores[1], html: (p) => llmBar(p.scores[1]) },
-        { key: "cs", label: "Common&shy;sensicality", cls: "col-score", value: (p) => p.scores[2], html: (p) => llmBar(p.scores[2]) },
-      ],
-    });
-  }
-  llmApplyPartBin(false);
-}
-
-function llmApplyPartBin(refresh = true) {
-  const t = LLM.tables.part;
-  if (!t) return;
-  const i = LLM.partBin, metric = LLM.partMetric;
-  t.extra = i === null ? null : {
-    label: `Filtered: ${LLM_METRICS[metric].toLowerCase()} ${llmBinLabel(i)}`,
-    pred: (p) => Math.min(LLM_BINS - 1, Math.floor(p.scores[metric] * LLM_BINS)) === i,
-  };
-  t.refresh(refresh);
-}
-
 // ══ Modals ═════════════════════════════════════════════════════════════════
 
 function llmShowModal(id, show) {
@@ -2906,6 +2702,8 @@ function llmOnSeg(groupId, handler) {
 function llmSyncControls() {
   llmSyncSeg("llmViews", LLM.view);
   document.querySelectorAll("#panelLlm .llm-view").forEach((v) => v.classList.toggle("hidden", v.dataset.view !== LLM.view));
+  // the Overview's bands run edge to edge (llm.css)
+  document.getElementById("llmWrap").classList.toggle("is-land", LLM.view === "overview");
   const pick = LLM.view === "individual" || LLM.view === "population";
   document.getElementById("llmModelPick").classList.toggle("hidden", !pick);
   const select = document.getElementById("llmModelSelect");
@@ -2945,11 +2743,9 @@ function llmRender() {
   llmSyncControls();
   llmWriteUrl();
   const render = {
-    overview: llmRenderOverview,
+    overview: llmRenderLanding,
     individual: llmRenderIndividual,
     population: llmRenderPopulation,
-    statements: llmRenderStatements,
-    participants: llmRenderParticipants,
   }[LLM.view];
   try {
     const out = render();
@@ -3040,8 +2836,6 @@ function llmInit() {
     if (scroll) { e.preventDefault(); llmScrollTo(scroll.getAttribute("href").slice(1)); return; }
     const open = e.target.closest("[data-open][data-model]");
     if (open) { llmOpenModel(open.dataset.model, open.dataset.open); return; }
-    const nav = e.target.closest(".llm-nav-link[data-model]");
-    if (nav) { llmSetModel(nav.dataset.model); return; }
     const chip = e.target.closest("[data-feat]");
     if (chip && LLM.data) { LLM.featModel = chip.dataset.feat; llmRenderFeatures(); return; }
     const story = e.target.closest("[data-story]");
@@ -3114,12 +2908,6 @@ function llmInit() {
   document.getElementById("llmModelPrev").addEventListener("click", () => stepModel(-1));
   document.getElementById("llmModelNext").addEventListener("click", () => stepModel(1));
   llmOnSeg("llmBoardFilter", (v) => { LLM.board = v; if (LLM.data) llmRenderBoard(); });
-  llmOnSeg("llmPartMetric", (v) => {
-    LLM.partMetric = Number(v);
-    LLM.partBin = null;
-    llmPartChart();
-    llmApplyPartBin();
-  });
   // Statement modal: a model row opens that model's population walkthrough
   const stmtBody = document.getElementById("llmStmtModalBody");
   const pickModel = (e) => {
