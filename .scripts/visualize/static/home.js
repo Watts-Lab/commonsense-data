@@ -326,8 +326,7 @@ function hsRenderDemo() {
   const btn = (q, v, label) =>
     `<button type="button" class="hs-choice-btn" data-q="${q}" data-v="${v}" aria-pressed="false">${label}</button>`;
   el.innerHTML =
-    `<div class="hs-demo-head"><span class="hs-demo-label">A statement from the survey</span>` +
-    `<button type="button" class="hs-link-btn" id="hsDemoNext">Try another ↻</button></div>` +
+    `<div class="hs-demo-head"><button type="button" class="hs-link-btn" id="hsDemoNext">Try another statement</button></div>` +
     `<div class="hs-demo-grid">` +
     `<div class="hs-demo-ask">` +
     `<blockquote class="hs-quote hs-demo-quote">${esc(fixStatement(s.text))}</blockquote>` +
@@ -370,7 +369,7 @@ function hsUpdateDemo() {
 function hsDemoResultHtml(s, agree, others) {
   const sc = hsScore(s.p, s.q);
   const maj = sc.majAgree ? "agree" : "disagree";
-  const verdict = (ok, text) => `<strong class="hs-verdict-text ${ok ? "ok" : "no"}">${text}</strong>`;
+  const verdict = (ok, text) => text;
   let explain;
   if (Math.abs(s.p - 0.5) < 0.0005) {
     explain = `<p>Exactly half of people agreed with this statement, so it has no majority rating: there is no majority to side with, or to predict.</p>`;
@@ -386,15 +385,15 @@ function hsDemoResultHtml(s, agree, others) {
       ? `you ${verdict(true, "correctly predicted")} that most people ${would}`
       : `you ${verdict(false, "incorrectly predicted")} that most people ${would}, when they actually ${others ? "did not" : "did"}`;
     explain =
-      `<p>Since ${sc.majAgree ? "" : "only "}<strong>${hsMajPct(s.p)}</strong> of people agreed with this statement, ` +
-      `its majority rating is <strong>${maj}</strong>. ${own}${ok1 === ok2 ? ", and " : ", but "}${pred}.</p>`;
+      `<p>Since ${sc.majAgree ? "" : "only "}${hsMajPct(s.p)} of people agreed with this statement, ` +
+      `its majority rating is ${maj}. ${own}${ok1 === ok2 ? ", and " : ", but "}${pred}.</p>`;
   }
   return (
     `<div class="hs-demo-reveal">` +
     `<div class="hs-reveal-head">How ${fmtNum(s.n)} participants answered</div>` +
     hsDualBars(s.p, s.q) +
     `<div class="hs-explain">${explain}</div>` +
-    `<p class="hs-reveal-note">Based on these ratings, this statement receives a score of <strong>${hsPct(s.m)}</strong>. <a href="#hs-measure" data-scroll>See what this means</a></p>` +
+    `<p class="hs-reveal-note">Based on these ratings, this statement receives a score of ${hsPct(s.m)}. <a href="#hs-measure" data-scroll>See what this means</a></p>` +
     `</div>`
   );
 }
@@ -490,7 +489,7 @@ function hsRenderLadder(d) {
     : `<span class="hs-empty">No statements can be scored in this date range.</span>`;
   const st = d.statement;
   document.getElementById("hsStmtFoot").innerHTML = st.n
-    ? `Median <strong>${hsPct(st.median)}</strong> across ${fmtNum(st.n)} statements`
+    ? `Median ${hsPct(st.median)} across ${fmtNum(st.n)} statements`
     : "";
 }
 
@@ -499,7 +498,7 @@ function hsRenderIndivHist(d) {
   el.innerHTML = "";
   const ind = d.individual;
   document.getElementById("hsIndivFoot").innerHTML = ind.n
-    ? `Median <strong>${hsPct(ind.median)}</strong> across ${fmtNum(ind.n)} people`
+    ? `Median ${hsPct(ind.median)} across ${fmtNum(ind.n)} people`
     : "";
   if (!ind.n) { el.innerHTML = `<span class="hs-empty">No participants can be scored in this date range.</span>`; return; }
   const { counts, bin_edges: edges } = ind.histogram;
@@ -595,10 +594,8 @@ function hsRenderCorners(d) {
   const dp = d.design_points || {};
   const card = (c, title) => {
     if (!c || c.mean === null) return "";
-    const chips = PROP_DEFS.map((p) => {
-      const v = c.features[p.key] ? 1 : 0;
-      return `<span class="hs-chip k${v}">${esc(v ? p.v1 : p.v0)}</span>`;
-    }).join("");
+    // its six features as one plain line: fact · physical · …
+    const chips = PROP_DEFS.map((p) => esc(c.features[p.key] ? p.v1 : p.v0)).join(" · ");
     const ex = (c.examples || []).slice(0, 2)
       .map((s) => `<li><span class="hs-quote">${esc(fixStatement(s.text))}</span><span class="hs-corner-ex-score">${hsPct(s.m)}</span></li>`)
       .join("");
@@ -664,9 +661,9 @@ function hsRenderLlmIndiv(d) {
   el.innerHTML = "";
   const n = d.models.length;
   const above = d.models.filter((m) => m.commonsensicality > d.humanMedian).length;
-  document.getElementById("hsLlmIndivFoot").innerHTML = above * 2 < n
-    ? `We found a modest result: only <strong>${above} out of ${n}</strong> LLMs score above the median human.`
-    : `<strong>${above} out of ${n}</strong> LLMs score above the median human.`;
+  document.getElementById("hsLlmIndivFoot").textContent = above * 2 < n
+    ? `We found a modest result: only ${above} out of ${n} LLMs score above the median human.`
+    : `${above} out of ${n} LLMs score above the median human.`;
   const people = d.participants.map((p) => p.scores[2]);
   // Bins in whole points, so float error can't push a score across an edge
   const lo = Math.min(30, Math.floor(Math.min(...people, ...d.models.map((m) => m.commonsensicality)) * 20) * 5), hi = 100, step = 5;
@@ -733,12 +730,12 @@ function hsRenderLlmPop(d) {
   el.innerHTML = "";
   const models = d.models.filter((m) => m.r !== null).sort((a, b) => a.r - b.r);
   const best = models.at(-1);
-  const half = d.paper ? d.paper.split_half_r : null;
+  const half = d.split_half ? d.split_half.mean : (d.paper ? d.paper.split_half_r : null);
   const gap = !best || half === null ? "" : best.r < half - 0.1 ? "substantially below" : best.r < half ? "below" : "at or above";
   document.getElementById("hsLlmPopFoot").innerHTML = !best ? ""
     : half !== null
-      ? `The best model has a correlation of <strong>r&nbsp;=&nbsp;${llmR(best.r)}</strong>, ${gap} the human split-half reliability of <strong>r&nbsp;=&nbsp;${llmR(half)}</strong>.`
-      : `The best model has a correlation of <strong>r&nbsp;=&nbsp;${llmR(best.r)}</strong>.`;
+      ? `The best model has a correlation of r&nbsp;=&nbsp;${llmR(best.r)}, ${gap} the human split-half reliability of r&nbsp;=&nbsp;${llmR(half)}.`
+      : `The best model has a correlation of r&nbsp;=&nbsp;${llmR(best.r)}.`;
   if (!best) return;
   const lo = Math.min(-0.2, Math.floor(models[0].r * 10) / 10), hi = Math.max(0.6, Math.ceil(best.r * 10) / 10 + 0.1);
   const W = Math.max(260, Math.round(el.clientWidth || 480)), L = 30, R = 6, T = 22, PH = 140, B = 22;
@@ -773,14 +770,16 @@ function hsRenderLlmReveals(d) {
   const above = d.models.filter((m) => m.commonsensicality > d.humanMedian).length;
   const share = above / n;
   const few = share < 0.25 ? "Fewer than a quarter of models" : share < 1 / 3 ? "Fewer than a third of models" : share < 0.5 ? "Fewer than half of the models" : "Only some models";
+  // Josh's three takeaways: each a lead sentence (in ink) and its gloss
+  const take = (lead, rest) => `<li><span class="hs-take-lead">${lead}</span> ${rest}</li>`;
   const parts = [
-    `<p><strong>There is no need for a predefined “correct” answer.</strong> Consensus and awareness arise from the independent judgments of humans and LLMs. These signals can be used to measure their commonsensicality, or “performance,” directly.</p>`,
+    take("There is no need for a predefined “correct” answer.", "Consensus and awareness arise from the independent judgments of humans and LLMs. These signals can be used to measure their commonsensicality, or “performance,” directly."),
     above * 2 < n
-      ? `<p><strong>Most LLMs fall short of the typical person.</strong> The median human participant received a commonsensicality score of ${hsPct(d.humanMedian)}. ${few} (${above}&nbsp;/&nbsp;${n}) managed to surpass this.</p>`
-      : `<p><strong>${above} of ${n} LLMs surpass the typical person.</strong> The median human participant received a commonsensicality score of ${hsPct(d.humanMedian)}.</p>`,
-    `<p><strong>LLM-simulated crowds are very different from humans.</strong> Judging by the way they rate statements, there are substantial differences in how human and LLM-generated populations determine what common sense is.</p>`,
+      ? take("Most LLMs fall short of the typical person.", `The median human participant received a commonsensicality score of ${hsPct(d.humanMedian)}. ${few} (${above}&nbsp;/&nbsp;${n}) managed to surpass this.`)
+      : take(`${above} of ${n} LLMs surpass the typical person.`, `The median human participant received a commonsensicality score of ${hsPct(d.humanMedian)}.`),
+    take("LLM-simulated crowds are very different from humans.", "Judging by the way they rate statements, there are substantial differences in how human and LLM-generated populations determine what common sense is."),
   ];
-  document.getElementById("hsLlmReveals").innerHTML = `<div class="hs-reveals-kicker">What this means for evaluating LLMs</div>${parts.join("")}`;
+  document.getElementById("hsLlmReveals").innerHTML = `<h3 class="hs-h3">What this means for evaluating LLMs</h3><ol class="hs-takes">${parts.join("")}</ol>`;
 }
 
 // ── Navigation, scrolling, reveal, resize ───────────────────────────────────

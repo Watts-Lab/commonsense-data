@@ -17,8 +17,10 @@ extract_llm_evals.py) and writes two files next to it:
                                         of each of the six statement features
                                         (the paper's Fig. 3C), with intervals
 
-Point estimates are the published ones (models.csv, statement_scores.csv);
-only the intervals are new. Every statement's majority answer is held fixed.
+Point estimates are the published ones (models.csv), computed from the
+answers: statement scores come from each model's P(yes) and, for the
+participants, from their ratings, as llm_evals.py computes them, rather than
+from statement_scores.csv's 4 decimals; only the intervals are new. Every statement's majority answer is held fixed.
 A model's commonsensicality, its population's r and both ranks resample the
 4,407 statements; the participants' percentiles and each model's win rate
 (the share of participants it beats on their own 50 statements) resample the
@@ -29,13 +31,14 @@ majority-based score downward, so it is left out.
 
 A model's answer counts as yes when its P(yes) >= 0.5, as in the study. The
 snapshot's model_ratings/*.csv round P(yes) to 4 decimals (the study website
-does), which turns values just under 0.5 into 0.5 and flips them to yes; this
-matters for Mistral-7B (about 2 points of consensus). Pass --ratings-dir with
-the study repo's unrounded ratings (open-llm-commonsense-eval/data/model_ratings,
-one <model>/ratings.csv per model) to binarize from those; --fix-rounding then
-also rewrites those 0.5 values in the snapshot as 0.4999, so the panel's
-per-statement check marks agree with the published scores. Rerun this after
-every extract_llm_evals.py run.
+does), which turns values just under 0.5 into 0.5 and flips them to yes (this
+matters for Mistral-7B: about 2 points of consensus), and misprints about 1 in
+35 of them when the panel shows them to 0.1 points (51.85% for 51.8544%, shown
+as 51.8%). Pass --ratings-dir with the study repo's unrounded ratings
+(open-llm-commonsense-eval/data/model_ratings, one <model>/ratings.csv per
+model) to work from those; --fix-rounding then also rewrites the snapshot's
+P(yes) with them, to 10 decimals, which the panel then shows correctly to the
+last digit. Rerun this after every extract_llm_evals.py run.
 
 Needs numpy and pandas (offline only; the server never imports this):
     python .scripts/visualize/build_llm_leaderboard.py \
@@ -52,26 +55,29 @@ DATA = BASE_DIR / "data" / "llm_evals"
 QUANTILES = [0.1, 0.25, 0.5, 0.75, 0.9]
 
 
+def _p(v: float) -> str:
+    """A P(yes) to 10 decimals ("0.68" for 0.6799999999999999), or in full
+    should that rounding move it to the other side of 0.5."""
+    s = f"{v:.10f}".rstrip("0")
+    s = s + "0" if s.endswith(".") else s
+    return s if (float(s) >= 0.5) == (v >= 0.5) else repr(float(v))
+
+
 def fix_rounding(path: Path, snap: pd.DataFrame, src: pd.DataFrame, mid: str) -> None:
-    """Rewrite snapshot values that rounding pushed up to 0.5 as 0.4999,
-    editing only those fields so the rest of the file stays byte for byte."""
-    cols = {"I_agree": 1, "others_agree": 2}
-    bad = {c: (snap[c].values >= 0.5) & (src[c].values < 0.5) for c in cols}
-    n = int(sum(b.sum() for b in bad.values()))
-    if not n:
-        return
+    """Rewrite the snapshot's P(yes) with the study's unrounded values (to 10
+    decimals), keeping its rows, header and line endings."""
     raw = path.read_bytes().decode("utf-8")
     eol = "\r\n" if "\r\n" in raw else "\n"
-    lines = raw.split(eol)
-    assert lines[0].split(",") == ["statement_id", "I_agree", "others_agree"], path
-    for i in range(len(snap)):
-        fields = lines[i + 1].split(",")
-        for c, j in cols.items():
-            if bad[c][i]:
-                fields[j] = "0.4999"
-        lines[i + 1] = ",".join(fields)
-    path.write_bytes(eol.join(lines).encode("utf-8"))
-    print(f"{mid}: {n} values rounded up to 0.5 rewritten as 0.4999")
+    assert raw.split(eol)[0].split(",") == ["statement_id", "I_agree", "others_agree"], path
+    assert (np.abs(snap[["I_agree", "others_agree"]].values - src[["I_agree", "others_agree"]].values) <= 1.5e-4).all(), mid
+    flips = int(((snap.I_agree.values >= 0.5) != (src.I_agree.values >= 0.5)).sum()
+                + ((snap.others_agree.values >= 0.5) != (src.others_agree.values >= 0.5)).sum())
+    lines = ["statement_id,I_agree,others_agree"] + [
+        f"{sid},{_p(a)},{_p(b)}" for sid, a, b in zip(snap.statement_id.values, src.I_agree.values, src.others_agree.values)]
+    out = eol.join(lines) + (eol if raw.endswith(eol) else "")
+    if out.encode("utf-8") != raw.encode("utf-8"):
+        path.write_bytes(out.encode("utf-8"))
+        print(f"{mid}: P(yes) rewritten unrounded" + (f" ({flips} of them rounded across 0.5)" if flips else ""))
 
 
 def main() -> None:
@@ -103,6 +109,7 @@ def main() -> None:
 
     # Each model's yes/no answers
     yes_ia, yes_oa = np.zeros((K, S), int), np.zeros((K, S), int)
+    p1, p2 = np.zeros((K, S)), np.zeros((K, S))
     for k, mid in enumerate(models.model_id):
         snap_path = DATA / "model_ratings" / f"{mid}.csv"
         snap = pd.read_csv(snap_path)
@@ -112,12 +119,23 @@ def main() -> None:
         yes_oa[k] = (src.others_agree.values >= 0.5).astype(int)
         if args.fix_rounding:
             fix_rounding(snap_path, snap, src, mid)
+        p1[k], p2[k] = src.I_agree.values, src.others_agree.values
     m_con = (yes_ia == maj).astype(float)  # K x S
     m_awa = (yes_oa == maj).astype(float)
     # The model's answers on each participant's own statements (K x ratings)
     mr_con, mr_awa = m_con[:, sid], m_awa[:, sid]
-    G = np.stack([scores[mid].values for mid in models.model_id])  # population scores, K x S
-    H = scores.humans.values
+
+    # Statement scores, as llm_evals.py computes them: each model's population
+    # from its P(yes) (K x S), the participants from their answers
+    def crowd(p: np.ndarray, q: np.ndarray) -> np.ndarray:
+        return np.sqrt(2 * np.abs(p - 0.5) * np.where(p >= 0.5, q, 1 - q))
+
+    G = crowd(p1, p2)
+    n_r = np.bincount(sid, minlength=S)
+    H = crowd(np.bincount(sid, weights=ratings.I_agree.values, minlength=S) / n_r,
+              np.bincount(sid, weights=ratings.others_agree.values, minlength=S) / n_r)
+    published = np.vstack([scores.humans.values, *(scores[mid].values for mid in models.model_id)])
+    print(f"max gap to statement_scores.csv: {np.abs(np.vstack([H, G]) - published).max():.4f}")
 
     # Per-participant scores on their own 50 statements, for people and for each
     # model on the same statements. Fixed: only which participants are drawn varies.
@@ -187,12 +205,12 @@ def main() -> None:
     q_lo, q_hi = interval(draws["quant"])
     human = pd.DataFrame({
         "percentile": [int(q * 100) for q in QUANTILES],
-        "commonsensicality": np.quantile(pd.read_csv(DATA / "participants.csv").commonsensicality, QUANTILES).round(4),
+        "commonsensicality": np.quantile(h_cs, QUANTILES).round(6),
         "lo": q_lo.round(4), "hi": q_hi.round(4),
     })
     human.to_csv(DATA / "human_reference.csv", index=False)
     print(f"wrote {DATA / 'leaderboard.csv'} and {DATA / 'human_reference.csv'} from {args.B} bootstrap samples")
-    write_features(statements, scores, models, args.B, args.seed)
+    write_features(statements, {"humans": H, **dict(zip(models.model_id, G))}, models, args.B, args.seed)
 
 
 # The six statement features (statements.csv columns), each split into its
@@ -200,19 +218,20 @@ def main() -> None:
 FEATURES = ["fact", "physical", "literal_language", "positive", "knowledge", "everyday"]
 
 
-def write_features(statements: pd.DataFrame, scores: pd.DataFrame, models: pd.DataFrame, B: int, seed: int) -> None:
+def write_features(statements: pd.DataFrame, scores: dict, models: pd.DataFrame, B: int, seed: int) -> None:
     """data/llm_evals/features.csv: for the participants ("humans") and every
     model's simulated population, the mean statement commonsensicality of a
     feature's first side minus its second (e.g. facts minus opinions), with a
     95% interval from B bootstrap resamples of the statements. The point
     estimate is the difference on all statements; the paper reports bootstrap
-    means, which differ from it by a few hundredths of a point."""
+    means, which differ from it by a few hundredths of a point. Six decimals,
+    so that the panel's 0.1 points are the point estimate's own rounding."""
     rng = np.random.default_rng(seed)
     S = len(statements)
     idx = rng.integers(0, S, size=(B, S))
     rows = []
     for subject in ["humans", *models.model_id]:
-        vals = scores[subject].values
+        vals = scores[subject]
         v = vals[idx]
         for feat in FEATURES:
             flag = statements[feat].values.astype(float)
@@ -220,7 +239,7 @@ def write_features(statements: pd.DataFrame, scores: pd.DataFrame, models: pd.Da
             point = vals[flag == 1].mean() - vals[flag == 0].mean()
             boot = (v * f).sum(1) / f.sum(1) - (v * (1 - f)).sum(1) / (1 - f).sum(1)
             lo, hi = np.percentile(boot, [2.5, 97.5])
-            rows.append({"subject": subject, "feature": feat, "diff": round(point, 4), "lo": round(lo, 4), "hi": round(hi, 4),
+            rows.append({"subject": subject, "feature": feat, "diff": round(point, 6), "lo": round(lo, 6), "hi": round(hi, 6),
                          "n1": int(flag.sum()), "n0": int(S - flag.sum())})
     pd.DataFrame(rows).to_csv(DATA / "features.csv", index=False)
     print(f"wrote {DATA / 'features.csv'} ({len(rows)} rows)")

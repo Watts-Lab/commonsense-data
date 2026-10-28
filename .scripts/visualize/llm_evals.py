@@ -18,8 +18,16 @@ for every statement with a probability of "yes", and was scored two ways:
   models.csv's 4-decimal rounding differs.
 - as a simulated population: its probabilities stand for the share of a
   population answering yes, which gives each statement a commonsensicality
-  score (statement_scores.csv). "r" is the Pearson correlation of those scores
-  with the participants' scores across statements, computed here.
+  score. "r" is the Pearson correlation of those scores with the participants'
+  scores across statements.
+
+All of these, the participants' scores and every statement's scores are
+computed here from the answers (participant_ratings.csv and model_ratings/),
+not read from the snapshot's 4-decimal summaries (models.csv,
+statement_scores.csv, participants.csv), which only check them: a value
+rounded to 4 decimals and then shown to 0.1 points is misprinted about 1 time
+in 20. The models' P(yes) are unrounded once build_llm_leaderboard.py
+--fix-rounding has rewritten them from the study's repo.
 
 Everything the panel's step-by-step stories show is computed here from those
 files: each model's yes/no counts and their cross-tab with the majority, its
@@ -30,8 +38,9 @@ participant's own statements, and the participants' split-half benchmark
 scoring every statement as its own crowd, and the two lists correlated, over
 SPLITS seeded splits). Optional extras: model_meta.csv (hand-curated:
 developer, open or proprietary, release month, whether the model is in the
-paper (kept for reference; nothing reads it), the parameter count and family of the 23 models in the paper's size
-analysis, and how P(yes) was obtained), leaderboard.csv and
+paper (kept for reference; nothing reads it), the parameter count and family of the
+models in the size analysis (the paper's 23, and Gemma 4 26B and 31B; see
+SIZE_FIT), and how P(yes) was obtained), leaderboard.csv and
 human_reference.csv (bootstrap intervals) and features.csv (the paper's
 Fig. 3C feature gaps), the last three written by build_llm_leaderboard.py.
 Without them the panel still loads; it just shows less. PAPER holds the
@@ -51,6 +60,8 @@ PROP_COLS = ["fact", "physical", "literal_language", "positive", "knowledge", "e
 HIST_BINS = 10   # P(yes) histograms: 0-10%, ..., 90-100%
 SURE = 0.05      # "sure": P(yes) at most 5% or at least 95%
 SPLITS = 1000    # random splits of the participants into halves, as in the paper
+DP = 10          # decimals of the scores and shares sent to the page: enough that
+                 # rounding them again to 0.1 points never changes a digit
 
 _cache = None
 
@@ -75,6 +86,29 @@ PAPER = {
     "size_n": 23,
     "size_families": 6,
     "doi": "10.1093/pnasnexus/pgag029",
+}
+
+# The size regression over the models model_meta.csv gives a size and a
+# family, which the panel's "Model size" chart shows: the paper's mixed model
+# refitted (commonsensicality in points on log10 of the parameter count, a
+# random intercept per family; the REML slope and a profile-likelihood 95%
+# interval, with statsmodels 0.15). On the paper's 23 models it gives the
+# published 8.6 (3.4 to 13.4); on these 25, which add Gemma 4 26B and 31B to
+# the Gemma family, 8.4 (3.6 to 12.9). get_summary() sends it only while
+# model_meta.csv sizes exactly these models; otherwise the panel quotes the
+# paper's figure as the paper's. Refit it when the sized models change.
+SIZE_FIT = {
+    "beta": 8.4, "lo": 3.6, "hi": 12.9, "families": 6,
+    "ids": [
+        "Qwen--Qwen2-0.5B-Instruct", "Qwen--Qwen2-1.5B-Instruct", "Qwen--Qwen2-7B-Instruct",
+        "Qwen--Qwen2-57B-A14B-Instruct", "Qwen--Qwen2-72B-Instruct",
+        "google--flan-t5-small", "google--flan-t5-base", "google--flan-t5-large", "google--flan-t5-xl", "google--flan-t5-xxl",
+        "google--gemma-2b-it", "google--gemma-7b-it", "google--gemma-4-26b-a4b-it", "google--gemma-4-31b-it",
+        "meta-llama--Llama-2-7b-chat-hf", "meta-llama--Llama-2-13b-chat-hf", "meta-llama--Llama-2-70b-chat-hf",
+        "meta-llama--Meta-Llama-3-8B-Instruct", "meta-llama--Meta-Llama-3-70B-Instruct",
+        "mistralai--Mistral-7B-Instruct-v0.2", "mistralai--Mixtral-8x7B-Instruct-v0.1", "mistralai--Mixtral-8x22B-Instruct-v0.1",
+        "tiiuae--falcon-7b-instruct", "tiiuae--falcon-40b-instruct", "tiiuae--falcon-180B-chat",
+    ],
 }
 
 # Statements written around stand-in names ("If max helps sam then ..."),
@@ -228,11 +262,23 @@ def _load() -> dict:
     ]
     statement_rows = _read("statements.csv")
     n_stmts = len(statement_rows)
-    maj = [1 if float(row["I_agree_mean"]) >= 0.5 else 0 for row in statement_rows]  # ties count as agree
     props = [[int(row[col]) for col in PROP_COLS] for row in statement_rows]
 
-    score_rows = _read("statement_scores.csv")
-    scores = {col: [float(row[col]) for row in score_rows] for col in ["humans"] + [m["id"] for m in models]}
+    # Every participant's answers, and each statement's raters and yes counts:
+    # everything about people below is computed exactly from these
+    participant_ratings = {}
+    n_raters = [0] * n_stmts
+    k_agree = [0] * n_stmts
+    k_others = [0] * n_stmts
+    for row in _read("participant_ratings.csv"):
+        sid, ia, oa = int(row["statement_id"]), int(row["I_agree"]), int(row["others_agree"])
+        participant_ratings.setdefault(int(row["participant_id"]), []).append([sid, ia, oa])
+        n_raters[sid] += 1
+        k_agree[sid] += ia
+        k_others[sid] += oa
+    maj = [1 if 2 * k_agree[i] >= n_raters[i] else 0 for i in range(n_stmts)]  # ties count as agree
+    if any(mj != (float(row["I_agree_mean"]) >= 0.5) for mj, row in zip(maj, statement_rows)):
+        print("llm_evals: a statement's majority differs from statements.csv")
 
     # Each model's P(yes) to both questions, and its yes/no answers
     ratings = {}
@@ -240,6 +286,25 @@ def _load() -> dict:
         rows = _read(os.path.join("model_ratings", f"{m['id']}.csv"))
         assert len(rows) == n_stmts, m["id"]
         ratings[m["id"]] = [[float(row["I_agree"]), float(row["others_agree"])] for row in rows]
+
+    # Each statement's commonsensicality among the participants and in each
+    # model's population, computed here rather than read from
+    # statement_scores.csv, whose 4 decimals misprint about 1 in 20 of them at
+    # the panel's 0.1 points (that file only checks these). The models' come
+    # from their P(yes), which build_llm_leaderboard.py --fix-rounding writes
+    # unrounded; from the website's 4-decimal P(yes) a score near 0 can be a
+    # point off, and the check below says so.
+    def crowd(p: float, q: float) -> float:  # shares answering yes to the two questions
+        return math.sqrt(2 * abs(p - 0.5) * (q if p >= 0.5 else 1 - q))
+
+    scores = {"humans": [crowd(k_agree[i] / n_raters[i], k_others[i] / n_raters[i]) for i in range(n_stmts)]}
+    for m in models:
+        scores[m["id"]] = [crowd(p1, p2) for p1, p2 in ratings[m["id"]]]
+    gap = max(abs(float(row[col]) - scores[col][int(row["statement_id"])])
+              for row in _read("statement_scores.csv") for col in scores)
+    if gap > 0.001:
+        print(f"llm_evals: statement scores differ from statement_scores.csv by up to {gap:.4f}; "
+              "rerun build_llm_leaderboard.py with --ratings-dir and --fix-rounding")
     models_yes1 = [0] * n_stmts
     models_yes2 = [0] * n_stmts
 
@@ -254,13 +319,13 @@ def _load() -> dict:
     for m in models:
         mid = m["id"]
         r = _pearson(scores[mid], humans)
-        m["r"] = round(r, 4) if r is not None else None
+        m["r"] = round(r, DP) if r is not None else None
         p = _p_two_sided(r, n_stmts) if r is not None else None
         m["r_p"] = p
         # Bonferroni-corrected for one test per model, as the paper corrects
         # for its own number of models
         m["r_sig"] = p is not None and min(1.0, p * len(models)) < 0.05
-        m["mae"] = round(sum(abs(a - b) for a, b in zip(scores[mid], humans)) / n_stmts, 4)
+        m["mae"] = round(sum(abs(a - b) for a, b in zip(scores[mid], humans)) / n_stmts, DP)
 
         p1 = [pair[0] for pair in ratings[mid]]
         p2 = [pair[1] for pair in ratings[mid]]
@@ -276,7 +341,7 @@ def _load() -> dict:
         for key in ("consensus", "awareness", "commonsensicality"):
             if abs(ind[key] - m[key]) > 0.0006:
                 print(f"llm_evals: {mid} {key} {ind[key]:.4f} differs from models.csv {m[key]}")
-            m[key] = round(ind[key], 6)
+            m[key] = round(ind[key], DP)
         m["tab"] = {"q1": ind["q1"], "q2": ind["q2"]}
         m["n_yes"] = [sum(yes1), sum(yes2)]
         m["n_diverge"] = sum(1 for a, b in zip(yes1, yes2) if a != b)
@@ -290,7 +355,7 @@ def _load() -> dict:
         # Scored only on the statements with each side of each feature
         m["by_feature"] = {
             col: [
-                round(_individual(yes1, yes2, maj, keep=lambda i, j=j, side=side: props[i][j] == side)["commonsensicality"], 6)
+                round(_individual(yes1, yes2, maj, keep=lambda i, j=j, side=side: props[i][j] == side)["commonsensicality"], DP)
                 for side in (1, 0)
             ]
             for j, col in enumerate(PROP_COLS)
@@ -300,7 +365,7 @@ def _load() -> dict:
         m["organization"] = row.get("organization") or None
         m["access"] = row.get("access") or None          # "open" or "proprietary"
         m["released"] = row.get("released") or None      # YYYY-MM
-        m["params_b"] = _num(row.get("params_b"))        # billions; the size analysis's 23
+        m["params_b"] = _num(row.get("params_b"))        # billions; the size analysis's (SIZE_FIT)
         m["size_family"] = row.get("size_family") or None
         m["method"] = row.get("method") or None          # "probabilities" or "sampling"
         m["note"] = row.get("note") or None
@@ -319,20 +384,17 @@ def _load() -> dict:
         for row in _read_optional("human_reference.csv")
     ]
 
-    participants = [
-        [int(row["participant_id"]), float(row["consensus"]), float(row["awareness"]), float(row["commonsensicality"])]
-        for row in _read("participants.csv")
-    ]
-    participant_ratings = {}
-    n_raters = [0] * n_stmts
-    k_agree = [0] * n_stmts
-    k_others = [0] * n_stmts
-    for row in _read("participant_ratings.csv"):
-        sid, ia, oa = int(row["statement_id"]), int(row["I_agree"]), int(row["others_agree"])
-        participant_ratings.setdefault(int(row["participant_id"]), []).append([sid, ia, oa])
-        n_raters[sid] += 1
-        k_agree[sid] += ia
-        k_others[sid] += oa
+    # Each participant's matches with the majority on their own statements, and
+    # their scores from them (participants.csv rounds those to 4 decimals and
+    # only checks them)
+    person_counts = {
+        pid: (sum(1 for sid, ia, _ in rs if ia == maj[sid]), sum(1 for sid, _, oa in rs if oa == maj[sid]), len(rs))
+        for pid, rs in participant_ratings.items()
+    }
+    participants = [[pid, pc / n, pa / n, math.sqrt(pc * pa) / n] for pid, (pc, pa, n) in sorted(person_counts.items())]
+    published = {int(row["participant_id"]): float(row["commonsensicality"]) for row in _read("participants.csv")}
+    if any(abs(published.get(p[0], -1) - p[3]) > 0.0001 for p in participants):
+        print("llm_evals: participant scores differ from participants.csv")
     # The split-half benchmark: every rating as arrays, and r for each of the
     # SPLITS seeded splits of the participants into two halves (about 1 s)
     index = {pid: i for i, (pid, _, _, _) in enumerate(participants)}
@@ -343,9 +405,9 @@ def _load() -> dict:
     split_rs = np.array([_split_scores(split, seed)[3] for seed in range(SPLITS)])
     split["rs"] = split_rs
     lo, hi = np.percentile(split_rs, [2.5, 97.5])
-    split_summary = {"n_splits": SPLITS, "n_half": len(participants) // 2, "mean": round(float(split_rs.mean()), 4),
-                     "lo": round(float(lo), 4), "hi": round(float(hi), 4),
-                     "rs": [round(float(r), 4) for r in split_rs]}
+    split_summary = {"n_splits": SPLITS, "n_half": len(participants) // 2, "mean": round(float(split_rs.mean()), DP),
+                     "lo": round(float(lo), DP), "hi": round(float(hi), DP),
+                     "rs": [round(float(r), 6) for r in split_rs]}
 
     # Every model's crowd together, and a few single crowds, as predictors of
     # people's statement scores (out-of-sample R²)
@@ -354,18 +416,14 @@ def _load() -> dict:
     ensemble = {
         "folds": ENSEMBLE_FOLDS,
         "n_models": len(models),
-        "r2": round(_oos_r2(y, [np.array(scores[m["id"]]) for m in models]), 4),
-        "single": [[names[mid], round(_oos_r2(y, [np.array(scores[mid])]), 4)] for mid in ENSEMBLE_SINGLE if mid in names],
+        "r2": round(_oos_r2(y, [np.array(scores[m["id"]]) for m in models]), DP),
+        "single": [[names[mid], round(_oos_r2(y, [np.array(scores[mid])]), DP)] for mid in ENSEMBLE_SINGLE if mid in names],
     }
 
-    # Each participant's matches with the majority, and each model's on the
-    # same statements: the head-to-heads behind "beats". The comparison uses
-    # exact counts (sqrt is monotone and both scores share the same
-    # statements), so a tie is never broken by rounding.
-    person_counts = {
-        pid: (sum(1 for sid, ia, _ in rs if ia == maj[sid]), sum(1 for sid, _, oa in rs if oa == maj[sid]), len(rs))
-        for pid, rs in participant_ratings.items()
-    }
+    # Each model's matches on each participant's own statements: the
+    # head-to-heads behind "beats". The comparison uses exact counts (sqrt is
+    # monotone and both scores share the same statements), so a tie is never
+    # broken by rounding.
     person_sids = [(pid, [sid for sid, _, _ in participant_ratings[pid]]) for pid, _, _, _ in participants]
     head_to_head = {}
     for m in models:
@@ -382,7 +440,7 @@ def _load() -> dict:
         m["head"] = {"wins": wins, "ties": ties, "losses": len(vs) - wins - ties}
         if abs(wins / len(vs) - m["human_percentile"]) > 1.5 / len(vs):
             print(f"llm_evals: {m['id']} beats {wins / len(vs):.4f} differs from models.csv {m['human_percentile']}")
-        m["human_percentile"] = round(wins / len(vs), 6)
+        m["human_percentile"] = round(wins / len(vs), DP)
 
     statements = []
     for i, row in enumerate(statement_rows):
@@ -392,10 +450,10 @@ def _load() -> dict:
             "source": row["source"],
             "category": row["category"],
             "props": props[i],
-            "I_agree": float(row["I_agree_mean"]),
-            "others_agree": float(row["others_agree_mean"]),
-            "humans": humans[i],
-            "llm_median": round(statistics.median(scores[m["id"]][i] for m in models), 4),
+            "I_agree": round(k_agree[i] / n_raters[i], DP),
+            "others_agree": round(k_others[i] / n_raters[i], DP),
+            "humans": round(humans[i], DP),
+            "llm_median": round(statistics.median(scores[m["id"]][i] for m in models), DP),
             "n": n_raters[i],
             "k_agree": k_agree[i],
             "k_others": k_others[i],
@@ -403,7 +461,15 @@ def _load() -> dict:
             "placeholder": int(bool(PLACEHOLDER.search(row["statement"]))),
         })
     by_text = {s["text"]: s["id"] for s in statements}
-    n_placeholder = {pid: sum(statements[sid]["placeholder"] for sid, _, _ in rs) for pid, rs in participant_ratings.items()}
+    # SIZE_FIT holds for exactly the models model_meta.csv sizes
+    sized = sorted(m["id"] for m in models if m["params_b"] and m["size_family"])
+    size_fit = None
+    if sized == sorted(SIZE_FIT["ids"]):
+        size_fit = {k: v for k, v in SIZE_FIT.items() if k != "ids"} | {"n": len(sized)}
+    elif sized:
+        print(f"llm_evals: model_meta.csv sizes {len(sized)} models, not SIZE_FIT's {len(SIZE_FIT['ids'])}; "
+              "the panel quotes the paper's size regression until SIZE_FIT is refitted")
+    n_placeholder ={pid: sum(statements[sid]["placeholder"] for sid, _, _ in rs) for pid, rs in participant_ratings.items()}
     share_agree = [s["I_agree"] for s in statements]
     return {
         "models": models,
@@ -419,6 +485,7 @@ def _load() -> dict:
         "split": split,
         "split_summary": split_summary,
         "ensemble": ensemble,
+        "size_fit": size_fit,
         "human_reference": human_reference,
         "humans": {
             "n_majority_agree": sum(maj),
@@ -466,7 +533,8 @@ def get_summary() -> dict:
         "ensemble": d["ensemble"],
         "n_tests": len(d["models"]),   # the Bonferroni correction behind r_sig
         "paper": PAPER,
-        "participants": [[*p, d["n_placeholder"][p[0]]] for p in d["participants"]],
+        "size_fit": d["size_fit"],
+        "participants": [[p[0], *(round(v, DP) for v in p[1:]), d["n_placeholder"][p[0]]] for p in d["participants"]],
     }
 
 
@@ -519,7 +587,7 @@ def get_model(model_id: str) -> dict:
         d["model_payloads"][model_id] = {
             "id": model_id,
             "ratings": d["ratings"][model_id],
-            "scores": d["scores"][model_id],
+            "scores": [round(v, DP) for v in d["scores"][model_id]],
             "vs": d["head_to_head"][model_id],
             "head": m["head"],
         }
@@ -535,8 +603,8 @@ def get_statement(statement_id: int) -> dict:
         raise ValueError(f"Unknown statement: {statement_id}")
     return {
         "id": statement_id,
-        "humans": d["scores"]["humans"][statement_id],
-        "scores": [d["scores"][m["id"]][statement_id] for m in d["models"]],
+        "humans": round(d["scores"]["humans"][statement_id], DP),
+        "scores": [round(d["scores"][m["id"]][statement_id], DP) for m in d["models"]],
         "ratings": [d["ratings"][m["id"]][statement_id] for m in d["models"]],
     }
 
@@ -570,8 +638,8 @@ def get_split(seed: int, statement_id: int) -> dict:
         raters["a" if half[sp["person"][i]] else "b"].append([int(sp["ia"][i]), int(sp["oa"][i])])
     return {
         "seed": seed,
-        "r": round(r, 4),
+        "r": round(r, DP),
         "n_used": int(ok.sum()),
-        "scores": {key: [round(float(v), 4) if not np.isnan(v) else None for v in arr] for key, arr in (("a", a), ("b", b))},
+        "scores": {key: [round(float(v), DP) if not np.isnan(v) else None for v in arr] for key, arr in (("a", a), ("b", b))},
         "example": {"id": statement_id, **raters},
     }
