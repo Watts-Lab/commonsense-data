@@ -96,9 +96,8 @@
       <header class="hs-hero" id="hs-top">
         <div class="hs-hero-inner">
           <div class="hs-hero-text">
-            <div class="hs-eyebrow">Computational Social Science Lab · University of Pennsylvania</div>
             <h1 class="hs-h1">Is it <em>common sense</em>,<br>or just you?</h1>
-            <p class="hs-lede">Everyone thinks that they have common sense, that everybody knows what they know, too. We put this to the test: People rate short claims, saying whether they <strong>agree</strong> and whether <strong>most others would agree</strong> as well. Their answers show which beliefs are truly shared, and who can tell.</p>
+            <p class="hs-lede">Everyone thinks that they have common sense, that everybody knows what they know, too. We put this to the test: People rate short claims, saying whether they agree and whether most others would agree as well. Their answers show which beliefs are truly shared, and who can tell.</p>
             <div class="hs-counters">
               <div class="hs-counter"><span class="hs-counter-num" data-h="totals.participants">—</span><span class="hs-counter-label">participants</span></div>
               <div class="hs-counter"><span class="hs-counter-num" data-h="totals.ratings">—</span><span class="hs-counter-label">ratings</span></div>
@@ -112,9 +111,6 @@
             <div class="hs-stamp" id="hsStamp">Loading live data…</div>
           </div>
           <div class="hs-ticker" id="hsTicker" aria-roledescription="carousel" aria-label="Statements from the data">
-            <div class="hs-ticker-head">
-              <span class="hs-ticker-kicker">From the data</span>
-            </div>
             <div class="hs-ticker-stage">
               <blockquote class="hs-quote hs-ticker-quote" id="hsTickerQuote">&nbsp;</blockquote>
             </div>
@@ -144,7 +140,6 @@
       <!-- 1 The survey -->
       <section class="hs-section" id="hs-survey">
         <div class="hs-inner">
-          <div class="hs-kicker">1 · The survey</div>
           <h2 class="hs-h2">Two questions, every statement</h2>
           <p class="hs-intro">Most participants rate 15 statements, answering two questions about each. Try one here for yourself.</p>
           <div class="hs-demo">
@@ -161,8 +156,7 @@
       <!-- 2 Who took part (world map) -->
       <section class="hs-section hs-section-alt" id="hs-where">
         <div class="hs-inner">
-          <div class="hs-kicker">2 · Who took part</div>
-          <h2 class="hs-h2">Participants from <span data-h="totals.countries_10">—</span> countries</h2>
+          <h2 class="hs-h2">Participants from <span data-h="totals.countries">—</span> countries</h2>
           <p class="hs-intro">Countries with at least 10 participants are shaded. Click one to see its numbers and open its scores.</p>
           <div class="hs-where-grid">
             <div class="chart-card hs-map-card" id="worldMapCard">
@@ -194,19 +188,16 @@
       <!-- 3 The scores -->
       <section class="hs-section" id="hs-measure">
         <div class="hs-inner">
-          <div class="hs-kicker">3 · The scores</div>
           <h2 class="hs-h2">A score for every person, and for every statement</h2>
           <p class="hs-intro">We measure common sense in two ways: for each person and for each statement.</p>
           <div class="hs-grid-2">
             <div class="hs-score-card">
-              <span class="hs-score-kicker">Individual Scores</span>
               <span class="hs-score-q">How commonsensical is a person?</span>
               <span class="hs-score-text">Each person is assigned a score based on their statement ratings.</span>
               <span class="hs-mini-hist" id="hsIndivHist"></span>
               <span class="hs-score-foot"><span id="hsIndivFoot"></span><a class="hs-score-go" href="individual_scores" data-tab-link="scores">Open Individual Scores →</a></span>
             </div>
             <div class="hs-score-card">
-              <span class="hs-score-kicker">Statement Scores</span>
               <span class="hs-score-q">How commonsensical is a statement?</span>
               <span class="hs-score-text">Each statement is assigned a score based on its ratings from all people.</span>
               <span class="hs-ladder" id="hsLadder"></span>
@@ -219,7 +210,6 @@
       <!-- 4 Design points -->
       <section class="hs-section hs-section-alt" id="hs-dp">
         <div class="hs-inner">
-          <div class="hs-kicker">4 · Design points</div>
           <h2 class="hs-h2">What categories of knowledge are associated with common sense?</h2>
           <p class="hs-intro">Every statement is labelled on six features: fact or opinion, literal language or figure of speech, and so on. Here is the average score of the statements on each side of each feature.</p>
           <div class="hs-card hs-features">
@@ -242,7 +232,6 @@
            date filter -->
       <section class="hs-section" id="hs-llm">
         <div class="hs-inner">
-          <div class="hs-kicker">5 · LLM evaluations</div>
           <h2 class="hs-h2">What does this imply about LLMs?</h2>
           <p class="hs-intro">Large language models can be evaluated in the same way humans are. We tested <span data-hl="n_models">44</span> LLMs against <span data-hl="n_participants">2,046</span> human individuals, asking them whether they agree with a statement and whether they predict that most people would agree with it. Since humans and LLMs performed the same task, they can be directly compared with one another.</p>
           <!-- The two cards are not links: the reader scrolls on to the
@@ -250,7 +239,6 @@
                panel's overview -->
           <div class="hs-grid-2">
             <div class="hs-score-card">
-              <span class="hs-score-kicker">LLMs as individuals</span>
               <span class="hs-score-q">Is an LLM as commonsensical as a person?</span>
               <span class="hs-score-text">Each human participant and LLM is assigned a commonsensicality score, calculated in the same way. The histogram below compares their distributions.</span>
               <span class="hs-llm-legend" aria-hidden="true"><span><i class="hs-llm-key hs-llm-key-people"></i><span>Humans (N = <span data-hl="n_participants">2,046</span>)</span></span><span><i class="hs-llm-key hs-llm-key-model-bar"></i><span>LLMs (N = <span data-hl="n_models">44</span>)</span></span></span>
@@ -258,7 +246,6 @@
               <span class="hs-llm-finding" id="hsLlmIndivFoot"></span>
             </div>
             <div class="hs-score-card">
-              <span class="hs-score-kicker">LLMs as populations</span>
               <span class="hs-score-q">Can an LLM stand in for a crowd?</span>
               <span class="hs-score-text">An LLM can also be viewed as a generator of a synthetic population. Similar to humans, this population determines the commonsensicality scores of all statements. Here is how these scores correlate with those determined by humans.</span>
               <span class="hs-llm-legend" aria-hidden="true"><span><i class="hs-llm-key hs-llm-key-model-bar"></i><span>LLMs (N = <span data-hl="n_models">44</span>)</span></span><span><i class="hs-llm-key hs-llm-key-model-bar is-faint"></i>Not significantly different from 0</span></span>
@@ -275,39 +262,31 @@
            same questions as the tab tooltips and PANEL_TOUR in app.js) -->
       <section class="hs-section hs-section-alt" id="hs-explore">
         <div class="hs-inner">
-          <div class="hs-kicker">6 · Explore</div>
           <h2 class="hs-h2">Six ways into the data</h2>
-          <p class="hs-intro">Each view starts by explaining what it shows, most with a worked example you can try.</p>
           <div class="hs-explore-grid">
             <a class="hs-explore-card" href="individual_scores" data-tab-link="scores">
               <span class="hs-explore-name">Individual Scores</span>
               <span class="hs-explore-q">How commonsensical is each person?</span>
-              <span class="hs-explore-text">Open any participant's answers and see how their score adds up.</span>
             </a>
             <a class="hs-explore-card" href="statement_scores" data-tab-link="stmtScores">
               <span class="hs-explore-name">Statement Scores</span>
               <span class="hs-explore-q">How commonsensical is each statement?</span>
-              <span class="hs-explore-text">Search every statement, filter by its features and see its score worked out.</span>
             </a>
             <a class="hs-explore-card" href="design_points" data-tab-link="dp">
               <span class="hs-explore-name">Design Points</span>
               <span class="hs-explore-q">Which kinds of statements are most commonsensical?</span>
-              <span class="hs-explore-text">Combine the six features and see where that kind of statement ranks.</span>
             </a>
             <a class="hs-explore-card" href="group_comparison" data-tab-link="compare">
               <span class="hs-explore-name">Group Comparison</span>
               <span class="hs-explore-q">Do two countries share the same common sense?</span>
-              <span class="hs-explore-text">Put two countries side by side, for people and for statements.</span>
             </a>
             <a class="hs-explore-card" href="countries" data-tab-link="countries">
               <span class="hs-explore-name">Countries</span>
               <span class="hs-explore-q">Is a statement equally commonsensical everywhere?</span>
-              <span class="hs-explore-text">Read each statement's score in every country with enough ratings.</span>
             </a>
             <a class="hs-explore-card" href="llm_evaluations" data-tab-link="llm" data-llm-view="overview">
               <span class="hs-explore-name">LLM Evaluations</span>
               <span class="hs-explore-q">How commonsensical are language models?</span>
-              <span class="hs-explore-text">Score <span data-hl="n_models">44</span> models against people, as respondents and as simulated crowds.</span>
             </a>
           </div>
         </div>
@@ -972,8 +951,8 @@
        is drawn from /api/llm-evals. The Overview is laid out like Home: a
        hero and full-width bands on alternating backgrounds, one point each
        (it reuses Home's .hs-hero/.hs-section classes); the two model views
-       tell one model's score as a story whose steps open one click at a time.
-       Models are orange (proprietary ones striped), people blue. -->
+       tell one model's score as a story whose steps open one click of Next at
+       a time. Models are orange (proprietary ones striped), people blue. -->
   <div id="panelLlm" class="panel hidden">
     <div class="toolbar llm-toolbar">
       <div class="llm-seg" id="llmViews" role="group" aria-label="View">
@@ -991,60 +970,115 @@
         <span class="llm-pick-rank" id="llmModelRank"></span>
       </div>
       <div id="llmSpinner" class="spinner hidden"></div>
-      <span class="summary llm-toolbar-note">Fixed study data: the date filter doesn't apply</span>
     </div>
     <div class="scores-wrap" id="llmWrap">
       <div id="llmError" class="min-ratings-note hidden">The LLM evaluation data could not be loaded. Try refreshing the page.</div>
 
       <!-- Overview: laid out like Home (llmRenderLanding): a dark hero, then
            full-width bands on alternating backgrounds, each making one point:
-           1 how rating works (a diagram), 2 LLMs as individuals, 3 LLMs as
-           populations (the same charts and findings as Home section 5) and
-           4 why it matters. #llmWrap gets .is-land while it shows, so the
-           bands run edge to edge. -->
+           how the study works (1 the statements, 2 the two questions, 3 the
+           people, 4 the LLMs, 5 a summary diagram), the two main findings
+           (6 LLMs as individuals, 7 LLMs as populations: the same charts and
+           findings as Home section 5) and 8 why it matters. #llmWrap gets .is-land while it
+           shows, so the bands run edge to edge. -->
       <section class="llm-view llm-land" data-view="overview">
         <header class="hs-hero llm-land-hero">
           <div class="hs-inner">
-            <div class="hs-eyebrow">LLM evaluations · Nguyen, Watts &amp; Whiting (2026), <em>PNAS Nexus</em></div>
             <h2 class="hs-h1 llm-land-h1">Do language models share our <em>common sense</em>?</h2>
-            <p class="hs-lede">People don't always agree on what common sense is. If there is no “ground truth” to common sense, how do we evaluate large language models? This study provides a solution. We recruited <strong><span data-llm="n_participants">—</span> people</strong> and used <strong><span data-llm="n_models">—</span> LLMs</strong> to rate a total of <strong><span data-llm="n_statements">—</span> statements</strong>. The patterns of agreement in their ratings determine their common sense. Explore the main findings here.</p>
+            <p class="hs-lede">People often disagree on what common sense is. If there is no “ground truth” to common sense, how do we evaluate large language models? This study provides a solution. We recruited <span data-llm="n_participants">—</span> people and used <span data-llm="n_models">—</span> LLMs to rate a total of <span data-llm="n_statements">—</span> statements. The patterns of agreement in their ratings determine their common sense. Explore the main findings here.</p>
             <div class="hs-cta-row">
-              <a class="hs-btn hs-btn-primary" href="#llmLandTask" data-llm-scroll>How it works ↓</a>
+              <a class="hs-btn hs-btn-primary" href="#llmLandCorpus" data-llm-scroll>How it works ↓</a>
               <a class="hs-btn hs-btn-ghost" href="https://doi.org/10.1093/pnasnexus/pgag029" target="_blank" rel="noopener">Read the paper<svg class="ext-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6"/><path d="M20 4 10 14"/><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/></svg><span class="sr-only"> (opens in a new tab)</span></a>
             </div>
           </div>
         </header>
 
-        <!-- 1 The core task: the corpus, one statement and its two questions,
-             and who answers them (llmTaskHtml) -->
-        <section class="hs-section llm-band" id="llmLandTask">
+        <!-- 1 The statements: the corpus by source, and some examples
+             (llmRenderCorpus; never one written around stand-in names) -->
+        <section class="hs-section llm-band" id="llmLandCorpus">
           <div class="hs-inner">
-            <div class="hs-kicker">1 · The core task</div>
-            <h2 class="hs-h2">Same statements, same two questions</h2>
-            <p class="hs-intro">Humans and LLMs perform the same task, so they can be directly compared with one another.</p>
-            <div class="llm-car" id="llmTask" role="region" aria-roledescription="carousel" aria-label="The core task, in three cards"><div class="hs-skeleton" style="height:360px"></div></div>
+            <h2 class="hs-h2">Six sources, <span data-llm="n_statements">—</span> short statements</h2>
+            <ul class="llm-cx" id="llmCorpusExamples" aria-label="Example statements"></ul>
           </div>
         </section>
 
-        <!-- 2 LLMs as individuals -->
+        <!-- 2–4 How the task works: the statement and its two questions, then
+             a person's and an LLM's answers to them (llmRenderTask), each
+             band's text beside its card; "Another example" in any card
+             changes all three -->
+        <section class="hs-section hs-section-alt llm-band" id="llmLandTask">
+          <div class="hs-inner llm-split">
+            <div class="llm-split-text">
+              <h2 class="hs-h2">Two questions for every statement</h2>
+            </div>
+            <div class="llm-task-card is-stmt" id="llmTaskStmt"><div class="hs-skeleton" style="height:200px"></div></div>
+          </div>
+        </section>
+
+        <section class="hs-section llm-band" id="llmLandPeople">
+          <div class="hs-inner llm-split">
+            <div class="llm-split-text">
+              <h2 class="hs-h2"><span data-llm="n_participants">—</span> participants</h2>
+              <p class="hs-intro">Recruited from Amazon Mechanical Turk. Each participant rated 50 statements chosen at random.</p>
+            </div>
+            <div class="llm-task-card is-person" id="llmTaskPerson"><div class="hs-skeleton" style="height:260px"></div></div>
+          </div>
+        </section>
+
+        <section class="hs-section hs-section-alt llm-band" id="llmLandModels">
+          <div class="hs-inner llm-split">
+            <div class="llm-split-text">
+              <h2 class="hs-h2"><span data-llm="n_models">—</span> LLMs</h2>
+              <p class="hs-intro">Unlike people, each LLM rated all <span data-llm="n_statements">—</span> statements. The model also gave us the probability of each of its answers.</p>
+            </div>
+            <div class="llm-task-card is-llm" id="llmTaskLlm"><div class="hs-skeleton" style="height:260px"></div></div>
+          </div>
+        </section>
+
+        <!-- 5 In summary: who rated what, as a diagram. The statements in the
+             middle, sent out to people on the left and LLMs on the right (a
+             few of each, and an ellipsis for the rest): arrows fan out from
+             one point on the card to each node, and a count of each side and
+             of its ratings sits under it; turned to run top to bottom on
+             phones (.llm-sum-*). Then what the ratings give. -->
+        <section class="hs-section llm-band" id="llmLandSum">
+          <div class="hs-inner">
+            <h2 class="hs-h2">In summary</h2>
+            <div class="llm-sum" id="llmSum" role="img">
+              <div class="llm-sum-nodes is-people" aria-hidden="true"><span class="llm-sum-dot"><i class="llm-pp is-p"></i></span><span class="llm-sum-dot"><i class="llm-pp is-p"></i></span><span class="llm-sum-dot"><i class="llm-pp is-p"></i></span><span class="llm-sum-more">⋮</span><span class="llm-sum-dot"><i class="llm-pp is-p"></i></span></div>
+              <div class="llm-sum-wire is-in" aria-hidden="true"><svg class="is-h" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M100 50C55 50 45 10 0 10"/><path d="M100 50C55 50 45 30 0 30"/><path d="M100 50C55 50 45 50 0 50"/><path d="M100 50C55 50 45 90 0 90"/></svg><svg class="is-v" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M50 100C50 55 10 45 10 0"/><path d="M50 100C50 55 30 45 30 0"/><path d="M50 100C50 55 50 45 50 0"/><path d="M50 100C50 55 90 45 90 0"/></svg><i class="is-h" style="top:10%"></i><i class="is-h" style="top:30%"></i><i class="is-h" style="top:50%"></i><i class="is-h" style="top:90%"></i><i class="is-v" style="left:10%"></i><i class="is-v" style="left:30%"></i><i class="is-v" style="left:50%"></i><i class="is-v" style="left:90%"></i></div>
+              <div class="llm-sum-node is-stmt" aria-hidden="true">
+                <span class="llm-sum-ico"><svg class="llm-sum-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="3" width="13" height="15" rx="2"/><path d="M4 7v12a2 2 0 0 0 2 2h10"/><path d="M10.5 8h6M10.5 11.5h6M10.5 15h3.5"/></svg></span>
+                <span class="llm-sum-n" data-llm="n_statements">—</span><span class="llm-sum-l">statements</span>
+              </div>
+              <div class="llm-sum-wire is-out" aria-hidden="true"><svg class="is-h" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0 50C45 50 55 10 100 10"/><path d="M0 50C45 50 55 30 100 30"/><path d="M0 50C45 50 55 50 100 50"/><path d="M0 50C45 50 55 90 100 90"/></svg><svg class="is-v" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M50 0C50 45 10 55 10 100"/><path d="M50 0C50 45 30 55 30 100"/><path d="M50 0C50 45 50 55 50 100"/><path d="M50 0C50 45 90 55 90 100"/></svg><i class="is-h" style="top:10%"></i><i class="is-h" style="top:30%"></i><i class="is-h" style="top:50%"></i><i class="is-h" style="top:90%"></i><i class="is-v" style="left:10%"></i><i class="is-v" style="left:30%"></i><i class="is-v" style="left:50%"></i><i class="is-v" style="left:90%"></i></div>
+              <div class="llm-sum-nodes is-llm" aria-hidden="true"><span class="llm-sum-dot"><svg class="llm-sum-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="5" y="5" width="14" height="14" rx="2.5"/><rect x="9" y="9" width="6" height="6" rx="1" fill="currentColor" stroke="none"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></svg></span><span class="llm-sum-dot"><svg class="llm-sum-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="5" y="5" width="14" height="14" rx="2.5"/><rect x="9" y="9" width="6" height="6" rx="1" fill="currentColor" stroke="none"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></svg></span><span class="llm-sum-dot"><svg class="llm-sum-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="5" y="5" width="14" height="14" rx="2.5"/><rect x="9" y="9" width="6" height="6" rx="1" fill="currentColor" stroke="none"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></svg></span><span class="llm-sum-more">⋮</span><span class="llm-sum-dot"><svg class="llm-sum-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="5" y="5" width="14" height="14" rx="2.5"/><rect x="9" y="9" width="6" height="6" rx="1" fill="currentColor" stroke="none"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></svg></span></div>
+              <div class="llm-sum-cap is-people" aria-hidden="true"><strong><span data-llm="n_participants">—</span> people</strong><span><span data-llm="n_ratings">—</span> ratings</span></div>
+              <div class="llm-sum-cap is-llm" aria-hidden="true"><strong><span data-llm="n_models">—</span> LLMs</strong><span><span data-llm="n_ratings_llm">—</span> ratings</span></div>
+            </div>
+            <p class="llm-sum-text">The ratings of humans and LLMs are used to calculate their <em>commonsensicality</em> score, ranging between 0 and 100%.</p>
+          </div>
+        </section>
+
+        <!-- 6 Main finding 1: LLMs as individuals -->
         <section class="hs-section hs-section-alt llm-band" id="llmLandInd">
           <div class="hs-inner">
-            <div class="hs-kicker">2 · LLMs as individuals</div>
+            <div class="llm-band-label">Main finding 1 · LLMs as individuals</div>
             <h2 class="hs-h2">Is an LLM as commonsensical as a person?</h2>
-            <p class="hs-intro">Each human participant and LLM is assigned a commonsensicality score, calculated in the same way. The histogram below compares their distributions.</p>
+            <p class="hs-intro">Scores are calculated in the same way for humans and LLMs, so their distributions can be compared directly.</p>
             <div class="llm-band-card">
               <div class="llm-legend" aria-hidden="true"><span><i class="llm-key llm-key-people"></i><span>Humans (N = <span data-llm="n_participants">—</span>)</span></span><span><i class="llm-key llm-key-open"></i><span>LLMs (N = <span data-llm="n_models">—</span>)</span></span></div>
               <div class="llm-band-chart" id="llmLandIndChart"><div class="hs-skeleton" style="height:280px"></div></div>
               <p class="llm-band-finding" id="llmLandIndFinding"></p>
             </div>
-            <p class="hs-more"><button type="button" class="hs-btn hs-btn-primary" id="llmLandIndGo" data-llm-go="individual">Follow one model through the survey →</button></p>
+            <p class="hs-more"><button type="button" class="hs-btn hs-btn-primary" id="llmLandIndGo" data-llm-go="individual">Follow one model through the survey&nbsp;→</button></p>
           </div>
         </section>
 
-        <!-- 3 LLMs as populations -->
+        <!-- 7 Main finding 2: LLMs as populations -->
         <section class="hs-section llm-band" id="llmLandPop">
           <div class="hs-inner">
-            <div class="hs-kicker">3 · LLMs as populations</div>
+            <div class="llm-band-label">Main finding 2 · LLMs as populations</div>
             <h2 class="hs-h2">Can an LLM stand in for a crowd?</h2>
             <p class="hs-intro">An LLM can also be viewed as a generator of a synthetic population. Similar to humans, this population determines the commonsensicality scores of all statements. Here is how these scores correlate with those determined by humans.</p>
             <div class="llm-band-card">
@@ -1052,69 +1086,28 @@
               <div class="llm-band-chart" id="llmLandPopChart"><div class="hs-skeleton" style="height:280px"></div></div>
               <p class="llm-band-finding" id="llmLandPopFinding"></p>
             </div>
-            <p class="hs-more"><button type="button" class="hs-btn hs-btn-primary" id="llmLandPopGo" data-llm-go="population">Follow one model's crowd →</button></p>
+            <p class="hs-more"><button type="button" class="hs-btn hs-btn-primary" id="llmLandPopGo" data-llm-go="population">Follow one model's crowd&nbsp;→</button></p>
           </div>
         </section>
 
-        <!-- 4 Why it matters -->
+        <!-- 8 Why it matters -->
         <section class="hs-section hs-section-alt llm-band">
           <div class="hs-inner">
-            <div class="hs-kicker">4 · Why it matters</div>
+            <h2 class="hs-h2">Why it matters</h2>
             <p class="llm-band-close">LLM common sense is typically evaluated using static benchmarks that come with predefined ground-truth answers. But people often disagree with one another on what counts as ground truth. Our study offers a novel methodology to examine the common sense of humans and models without this assumption, highlighting the empirical, collective-agreement nature of commonsense knowledge in society.</p>
           </div>
         </section>
       </section>
 
       <!-- LLMs as individuals: one model's score told as a story, one step
-           per click of the stepper's Next button (llmRenderIndividual) -->
+           per click of the bar under it, Previous, Next and Start over
+           (llmRenderIndividual, llmStepper) -->
       <section class="llm-view hidden" data-view="individual">
         <div class="llm-story">
           <div class="chart-card llm-story-head" id="llmIndHead"></div>
           <div id="llmIndStory" class="llm-chaps"></div>
           <div class="llm-stepper" id="llmIndStepper"></div>
         </div>
-        <!-- Folded until the reader opens it; links into it open it first
-             (llmScrollTo, llmRevealPending) -->
-        <details class="llm-explore" id="llmIndExplore">
-          <summary class="llm-explore-sum"><span class="llm-explore-title">Explore further</span><span class="llm-explore-sub">Every model ranked, model size, kinds of statements and every answer</span></summary>
-          <div class="llm-explore-body">
-          <div class="chart-card llm-step" id="llmIndRank">
-            <div class="llm-step-head"><span class="llm-step-num is-feat">+</span><div><h3 class="llm-step-title">Every model as an individual</h3>
-            <p class="llm-step-lead">Each model's commonsensicality as one more respondent, with people at three points of their own distribution. <strong>Beats</strong> is the share of the <span data-llm="n_participants">—</span> people a model outscores on the 50 statements each of them rated. Click a model to follow it through the survey.</p></div></div>
-            <div class="llm-step-body">
-              <div class="llm-card-tools">
-                <div class="llm-seg llm-seg-sm" id="llmBoardFilter" role="group" aria-label="Which models">
-                  <button type="button" class="llm-seg-btn" data-value="all" aria-pressed="true">All</button>
-                  <button type="button" class="llm-seg-btn" data-value="open" aria-pressed="false">Open weights</button>
-                  <button type="button" class="llm-seg-btn" data-value="proprietary" aria-pressed="false">Proprietary</button>
-                </div>
-                <div class="llm-legend" aria-hidden="true">
-                  <span><i class="llm-key llm-key-open"></i>Open-weight model</span>
-                  <span><i class="llm-key llm-key-prop"></i>Proprietary model</span>
-                  <span><i class="llm-key llm-key-people"></i>People</span>
-                </div>
-              </div>
-              <div class="llm-bars llm-board" id="llmBoard"></div>
-              <p class="llm-takeaway" id="llmBoardTakeaway"></p>
-              <p class="llm-note" id="llmBoardNote"></p>
-            </div>
-          </div>
-          <div class="chart-card llm-step" id="llmIndSize">
-            <div class="llm-step-head"><span class="llm-step-num is-feat">+</span><div><h3 class="llm-step-title">Model size</h3>
-            <p class="llm-step-lead" id="llmSizeLead"></p></div></div>
-            <div class="llm-step-body">
-              <div class="llm-bars llm-size" id="llmSize"></div>
-              <p class="llm-note" id="llmSizeNote"></p>
-            </div>
-          </div>
-          <div class="chart-card llm-step" id="llmIndFeat"></div>
-          <div class="chart-card llm-step" id="llmIndAnswers">
-            <div class="llm-step-head"><span class="llm-step-num is-feat">+</span><div><h3 class="llm-step-title" id="llmIndTableTitle">Every answer</h3>
-            <p class="llm-step-lead">Every statement the model answered, next to the people's majority. Green marks a match with the majority; consensus and awareness are the shares of green in their columns. The table opens on the statements where it misses the clearest majorities; choose “All statements” for every one. Click a row to see how every model rated the statement.</p></div></div>
-            <div id="llmIndTable" class="llm-table-host"></div>
-          </div>
-          </div>
-        </details>
       </section>
 
       <!-- LLMs as populations: one model's crowd told as a story, the
@@ -1125,55 +1118,6 @@
           <div id="llmPopStory" class="llm-chaps"></div>
           <div class="llm-stepper" id="llmPopStepper"></div>
         </div>
-        <!-- Folded until the reader opens it; links into it open it first
-             (llmScrollTo, llmRevealPending) -->
-        <details class="llm-explore" id="llmPopExplore">
-          <summary class="llm-explore-sum"><span class="llm-explore-title">Explore further</span><span class="llm-explore-sub">Every model's crowd, certainty, kinds of statements and the biggest gaps</span></summary>
-          <div class="llm-explore-body">
-          <div class="chart-card llm-step" id="llmPopRank">
-            <div class="llm-step-head"><span class="llm-step-num is-feat">+</span><div><h3 class="llm-step-title">Every model's crowd</h3>
-            <p class="llm-step-lead">How closely each model's crowd agrees with people on which statements are commonsensical (r), against two random halves of people. Click a model to follow its crowd.</p></div></div>
-            <div class="llm-step-body">
-              <div class="llm-legend" aria-hidden="true">
-                <span><i class="llm-key llm-key-open"></i>Open-weight model</span>
-                <span><i class="llm-key llm-key-prop"></i>Proprietary model</span>
-                <span><i class="llm-key llm-key-faint"></i>Not significantly different from 0</span>
-                <span><i class="llm-key llm-key-people"></i>People</span>
-              </div>
-              <div class="llm-bars llm-rbars" id="llmRBars"></div>
-              <p class="llm-takeaway" id="llmRTakeaway"></p>
-              <p class="llm-note" id="llmRNote"></p>
-            </div>
-          </div>
-          <div class="chart-card llm-step" id="llmPopCertainty">
-            <div class="llm-step-head"><span class="llm-step-num is-feat">+</span><div><h3 class="llm-step-title">Models are far more certain than people</h3>
-            <p class="llm-step-lead">Statements by the share of people who agree with each, and by each model's percentage for agreeing. People spread over the whole range; many models pile up near 0% and 100%, so their crowds look unanimous where people are split. The paper puts this partly down to instruction tuning and alignment.</p></div></div>
-            <div class="llm-step-body">
-              <div class="llm-multiples" id="llmCertainty"></div>
-              <p class="llm-note" id="llmCertaintyNote"></p>
-            </div>
-          </div>
-          <div class="chart-card llm-step" id="llmPopFeat">
-            <div class="llm-step-head"><span class="llm-step-num is-feat">+</span><div><h3 class="llm-step-title">Which kinds of statements each crowd finds commonsensical</h3>
-            <p class="llm-step-lead">Every statement is labelled on six features, such as fact or opinion. Each bar shows how much more commonsensical the statements on one side are than those on the other, on average, in points. For people every bar points right, facts over opinions most of all.</p></div></div>
-            <div class="llm-step-body">
-              <div class="llm-chips" id="llmFeatChips" role="group" aria-label="Model to compare"></div>
-              <div class="llm-legend" aria-hidden="true">
-                <span><i class="llm-key llm-key-people"></i>People</span>
-                <span><i class="llm-key llm-key-open"></i><span id="llmFeatLegend">Model's crowd</span></span>
-              </div>
-              <div class="llm-feat" id="llmFeat"></div>
-              <p class="llm-takeaway" id="llmFeatTakeaway"></p>
-              <p class="llm-note">Mean commonsensicality of the statements on the right-hand side minus those on the left (facts minus opinions, for example), in percentage points; hover a bar for its 95% interval (1,000 bootstrap resamples of the statements). The paper reports bootstrap means, which can differ from these by a few hundredths of a point.</p>
-            </div>
-          </div>
-          <div class="chart-card llm-step" id="llmPopGaps">
-            <div class="llm-step-head"><span class="llm-step-num is-feat">+</span><div><h3 class="llm-step-title" id="llmPopTableTitle">Where the two crowds disagree most</h3>
-            <p class="llm-step-lead">Every statement's commonsensicality in the model's crowd and among people, sorted by the size of the gap. Click a row to see the statement in every model's crowd.</p></div></div>
-            <div id="llmPopTable" class="llm-table-host"></div>
-          </div>
-          </div>
-        </details>
       </section>
 
     </div>
