@@ -773,26 +773,79 @@ function llmReduced() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
+// The panel's visible band, between the toolbar and the story's button bar
+// (its top and bottom in viewport coordinates), and where an element will
+// sit once a fade-in (.llm-in, which starts 6px low) ends
+function llmLift(x) {
+  const t = getComputedStyle(x).transform;
+  return t && t !== "none" ? new DOMMatrixReadOnly(t).m42 : 0;
+}
+function llmBand(wrap, el) {
+  const w = wrap.getBoundingClientRect();
+  const bar = el.closest(".llm-view")?.querySelector(".llm-stepper-in");
+  return { top: w.top + 14, bottom: w.bottom - (bar ? bar.offsetHeight + 28 : 14) };
+}
+function llmRestRect(el) {
+  const b = el.getBoundingClientRect(), ty = llmLift(el);
+  return { top: b.top - ty, bottom: b.bottom - ty, height: b.height };
+}
+
+// How much further to scroll (≥ 0) so that focus, a rect that will sit
+// shift px higher after the scroll already planned, shows above the bar.
+// Nothing when it already fits (on a tall screen the top stays put);
+// otherwise it is centred in the band, or its top put at the band's top
+// when it is taller than the band (Josh: on a laptop the newest step used
+// to land under the bar or below the window)
+function llmFocusDy(focus, band, shift = 0) {
+  const top = focus.top - shift, bottom = focus.bottom - shift;
+  if (bottom <= band.bottom) return 0;
+  const centre = (top + bottom) / 2 - (band.top + band.bottom) / 2;
+  return Math.max(0, Math.min(centre, top - band.top));
+}
+
+function llmScrollBy(wrap, dy) {
+  if (Math.abs(dy) >= 1) wrap.scrollBy({ top: dy, behavior: llmReduced() ? "auto" : "smooth" });
+}
+
 // Scrolls the panel so el shows: its top just under the toolbar (start), or
 // just enough to show it whole above the story's button bar (its top, if it
-// is taller than the room), but never so far that card's top (when given)
-// leaves the panel. Measured here rather than left to
-// scrollIntoView({block: "nearest"}), which Chrome sometimes declines to
-// scroll inside #llmWrap, and which can't know the bar's height.
+// is taller than the room). With card, it scrolls no further than keeps
+// card's top in the panel, unless el would then stay hidden under the bar
+// (a short screen), when el is centred instead. Measured here rather than
+// left to scrollIntoView({block: "nearest"}), which Chrome sometimes declines
+// to scroll inside #llmWrap, and which can't know the bar's height.
 function llmRevealEl(el, start = false, card = null) {
   const wrap = document.getElementById("llmWrap");
   if (!el || !wrap) return;
-  // where el will sit once a fade-in (.llm-in, which starts 6px low) ends
-  const lift = (x) => { const t = getComputedStyle(x).transform; return t && t !== "none" ? new DOMMatrixReadOnly(t).m42 : 0; };
-  const w = wrap.getBoundingClientRect(), b = el.getBoundingClientRect(), ty = lift(el);
-  const r = { top: b.top - ty, bottom: b.bottom - ty, height: b.height };
-  const bar = el.closest(".llm-view")?.querySelector(".llm-stepper-in");
-  const top = w.top + 14, bottom = w.bottom - (bar ? bar.offsetHeight + 28 : 14);
+  const band = llmBand(wrap, el), r = llmRestRect(el);
+  const room = band.bottom - band.top;
   let dy = 0;
-  if (start || r.top < top || r.height > bottom - top) dy = r.top - top;
-  else if (r.bottom > bottom) dy = r.bottom - bottom;
-  if (card) dy = Math.min(dy, card.getBoundingClientRect().top - lift(card) - top);
-  if (Math.abs(dy) >= 1) wrap.scrollBy({ top: dy, behavior: llmReduced() ? "auto" : "smooth" });
+  if (start || r.top < band.top || r.height > room) dy = r.top - band.top;
+  else if (r.bottom > band.bottom) dy = r.bottom - band.bottom;
+  if (card && !start) {
+    const keep = Math.min(dy, llmRestRect(card).top - band.top);
+    dy = r.bottom - keep <= band.bottom ? keep : keep + llmFocusDy(r, band, keep);
+  }
+  llmScrollBy(wrap, dy);
+}
+
+// After a step: card (the chapter the click changed) to the top of the
+// panel, then, if what the click revealed inside focusIn (its .llm-in
+// elements) would sit under the bar or below the window, on until it shows,
+// centred in the room above the bar where it fits
+function llmRevealStep(card, focusIn) {
+  const wrap = document.getElementById("llmWrap");
+  if (!card || !wrap) return;
+  const band = llmBand(wrap, card);
+  let dy = llmRestRect(card).top - band.top;
+  const fresh = focusIn ? [...focusIn.querySelectorAll(".llm-in")] : [];
+  if (focusIn?.classList.contains("llm-in")) fresh.push(focusIn);
+  const rects = fresh.map(llmRestRect).filter((r) => r.height > 0);
+  if (rects.length) {
+    const focus = { top: Math.min(...rects.map((r) => r.top)), bottom: Math.max(...rects.map((r) => r.bottom)) };
+    dy += llmFocusDy(focus, band, dy);
+  }
+  llmScrollBy(wrap, dy);
 }
 
 function llmScrollTo(id) {
@@ -895,12 +948,16 @@ function llmStoryStage(mode = LLM.view) {
 
 // After Next or Previous: the chapter card the click changed goes to the top
 // of the panel, and stays there for the chapter's later steps (Josh: the
-// top stays put; not the newest step)
+// top stays put; not the newest step), unless the newest step would then
+// sit under the bar or below the window (a short screen), when the panel
+// scrolls on to centre it above the bar
 function llmStoryReveal(S) {
   // chapter 1 stays under the story's header card, as the story opens
   const id = S.chapter === 1 ? `${S.ind ? "llmInd" : "llmPop"}Head` : `${S.ind ? "llmInd" : "llmPop"}C${S.chapter}`;
   const card = document.getElementById(id);
-  if (card && !card.hidden) llmRevealEl(card, true);
+  // what the click revealed is looked for in the chapter itself
+  const chap = document.getElementById(`${S.ind ? "llmInd" : "llmPop"}C${S.chapter}`);
+  if (card && !card.hidden) llmRevealStep(card, chap && !chap.hidden ? chap : null);
 }
 
 // One step on (dir 1) or back (dir -1) in the visible story
@@ -1024,8 +1081,8 @@ function llmIndChapters(m) {
   const name = llmName(m);
   return [`${name}'s answers`, "Aggregating over all statements", `${name}'s score`, "LLM vs. human common sense", "Aggregating over all participants", "Aggregating over all LLMs"];
 }
-const LLM_IND_OPEN = [0, 4, 7, 10, 15, 17];   // the stage that opens each chapter
-const LLM_IND_LAST = 17;
+const LLM_IND_OPEN = [0, 5, 8, 11, 16, 18];   // the stage that opens each chapter
+const LLM_IND_LAST = 18;
 // Chapter 3's steps after its first (Josh, October 2026, a click each): the
 // formula, with the chart's shading, guides, point and curve drawn in
 // (formula), then the score as a sentence (score)
@@ -1066,6 +1123,7 @@ function llmIndNextLabel(m) {
   const d = LLM.data, I = LLM.ind;
   if (llmIndCounting()) return `Checking ${fmtNum(d.n_statements)} statements…`;
   return [
+    "Ask it two questions",
     "Show its answers",
     "Show what other people said",
     "Compare with the majority",
@@ -1236,24 +1294,28 @@ function llmIndCh1(m, md, fresh) {
   const d = LLM.data, I = LLM.ind, name = esc(m.name), title = `${name}'s answers`;
   const s = d.statements[I.ex], [p1, p2] = md.ratings[s.id];
   const y1 = p1 >= 0.5 ? 1 : 0, y2 = p2 >= 0.5 ? 1 : 0, maj = s.majority, k = s.k_agree, n = s.n;
-  // A row per question: the model's probability of yes as a bar, and its
-  // Yes or No
-  // Yes or No; until its click (stage 1), only the questions, with the
-  // answer column and its header (hidden, .is-pend) holding their room so
-  // nothing moves when the answers come in
-  const shown = I.stage >= 1;
+  // The statement alone (stage 0); a click later the two questions, with
+  // the answer column and its header held empty (hidden, .is-pend) (stage
+  // 1, Josh, October 2026); then a row per question fills with the model's
+  // probability of yes as a bar, and its Yes or No (stage 2), so nothing
+  // moves when the answers come in
+  const shown = I.stage >= 2;
   const ans = (p, y) => shown
-    ? `<div class="llm-sv-ans${llmFresh(fresh, 1)}" data-who="${name}">${llmProbBar(p)}${llmYesNo(y)}</div>`
+    ? `<div class="llm-sv-ans${llmFresh(fresh, 2)}" data-who="${name}">${llmProbBar(p)}${llmYesNo(y)}</div>`
     : '<div class="llm-sv-pend"></div>';
   let body =
     `<div class="${llmFresh(fresh, "ex").trim()}" id="llmIndB0">` +
     `<blockquote class="llm-ex-quote">${esc(s.text)}</blockquote>` +
-    `<p class="llm-p llm-sv-intro">We ask the model two questions:</p>` +
-    `<div class="llm-sv-grid"><div class="llm-sv-th"></div><div class="llm-sv-th${shown ? llmFresh(fresh, 1) : " is-pend"}">${name}</div>` +
-    `<div class="llm-sv-q"><span class="llm-sv-qn">1</span>${LLM_TASK_QS[0]}</div>${ans(p1, y1)}` +
-    `<div class="llm-sv-q"><span class="llm-sv-qn">2</span>${LLM_TASK_QS[1]}</div>${ans(p2, y2)}` +
-    `</div></div>`;
-  if (I.stage >= 2) {
+    (I.stage >= 1
+      ? `<div class="${llmFresh(fresh, 1).trim()}" id="llmIndB1">` +
+        `<p class="llm-p llm-sv-intro">We ask the model two questions:</p>` +
+        `<div class="llm-sv-grid"><div class="llm-sv-th"></div><div class="llm-sv-th${shown ? llmFresh(fresh, 2) : " is-pend"}">${name}</div>` +
+        `<div class="llm-sv-q"><span class="llm-sv-qn">1</span>${LLM_TASK_QS[0]}</div>${ans(p1, y1)}` +
+        `<div class="llm-sv-q"><span class="llm-sv-qn">2</span>${LLM_TASK_QS[1]}</div>${ans(p2, y2)}` +
+        `</div></div>`
+      : "") +
+    `</div>`;
+  if (I.stage >= 3) {
     const did = (y) => (y ? "agreed" : "disagreed");
     const thus = 2 * k === n
       ? `That is exactly half, which counts as a majority that <strong>${did(maj)}</strong> with the statement.`
@@ -1264,14 +1326,14 @@ function llmIndCh1(m, md, fresh) {
       : `${name}'s subjective rating <strong>does not match</strong> the human majority rating, since it <strong>${y1 ? "agrees" : "disagrees"}</strong> with the statement.`;
     const pred = `<strong>${ok2 ? "correctly" : "incorrectly"} predicts</strong> that most people would ${y2 ? "" : "not "}agree with it.`;
     body +=
-      `<div class="llm-beat${llmFresh(fresh, 2)}" id="llmIndB2">` +
+      `<div class="llm-beat${llmFresh(fresh, 3)}" id="llmIndB3">` +
       `<p class="llm-p">${llmRatedBy(k, n, true)}</p>` +
       llmFigureRow(k, n, "is-p") +
       `<p class="llm-p">${thus}</p></div>`;
-    // the model against that majority: a click of its own (stage 3)
-    if (I.stage >= 3) {
+    // the model against that majority: a click of its own (stage 4)
+    if (I.stage >= 4) {
       body +=
-        `<div class="llm-beat${llmFresh(fresh, 3)}" id="llmIndB3">` +
+        `<div class="llm-beat${llmFresh(fresh, 4)}" id="llmIndB4">` +
         `<p class="llm-p llm-point">${llmMatch(ok1)}<span>${own}</span></p>` +
         `<p class="llm-p llm-point">${llmMatch(ok2)}<span>${ok1 === ok2 ? `${name} also ${pred}` : `However, ${name} ${pred}`}</span></p></div>`;
     }
@@ -1322,10 +1384,10 @@ function llmIndCh3(m, md, fresh) {
   const C = (q1t[0][0] + q1t[1][1]) / n, A = (q2t[0][0] + q2t[1][1]) / n, M = Math.sqrt(C * A);
   const phase = I.stage >= LLM_IND_CS.formula ? 1 : 0;
   const f = (k) => llmFresh(fresh, k);
-  let text = `<p class="llm-p">${name} achieves a consensus score of ${llmB(fmtPct(C))}, and an awareness score of ${llmB(fmtPct(A))}.</p>`;
+  let text = `<p class="llm-p">${name} achieves a <strong>consensus score of ${fmtPct(C)}</strong>, and an <strong>awareness score of ${fmtPct(A)}</strong>.</p>`;
   if (phase) {
     text +=
-      `<p class="llm-p${f(LLM_IND_CS.formula)}">We combine these two scores into a <em>commonsensicality</em> score by taking their geometric average.</p>` +
+      `<p class="llm-p${f(LLM_IND_CS.formula)}">We combine these two scores into a <strong>commonsensicality score</strong> by taking their geometric average.</p>` +
       `<div class="llm-calc${f(LLM_IND_CS.formula)}">${llmCalcRow("Commonsensicality", sqrtHtml("consensus × awareness"))}` +
       llmCalcRow("", sqrtHtml(`${fmtPct(C)} × ${fmtPct(A)}`)) + llmCalcRow("", fmtPct(M), llmSqrtEq(C, A)) + `</div>`;
   }
@@ -1339,17 +1401,14 @@ function llmIndCh3(m, md, fresh) {
   return llmChap("llmIndC3", 3, title, true, "", body);
 }
 
-// One question's result, once its count finishes, in Josh's words: how many
-// statements match, then the score that gives, consensus (key "c") or
-// awareness ("a"), its name in bold, a sentence each (as chapter 1's
-// "Thus, …" is). The same counts as chapter 3's.
+// One question's result, once its count finishes, in Josh's words (October
+// 2026): the share beside the bar is named as the score, consensus (key "c")
+// or awareness ("a"), in bold. The same counts as chapter 3's.
 function llmIndRunResult(m, key, fresh) {
   const n = LLM.data.n_statements, name = esc(m.name), c = key === "c";
   const t = c ? m.tab.q1 : m.tab.q2, k = t[0][0] + t[1][1], pct = fmtPct(k / n);
-  const of = llmOutOf(k, n, fmtPct, true);
-  const counted = c ? `There is a match for ${of} statements.` : `There are ${of} accurate predictions.`;
   const cls = `llm-p${llmFresh(fresh, `run-${key}`)}`;
-  return `<p class="${cls}">${counted}</p><p class="${cls}">Thus, ${name} achieves ${c ? "a" : "an"} <strong>${c ? "consensus" : "awareness"}</strong> score of ${llmB(pct)}.</p>`;
+  return `<p class="${cls}">We call this ${llmB(pct)} the <strong>${c ? "consensus" : "awareness"} score</strong> of ${name}.</p>`;
 }
 
 // Fills chapter 2's bar for one question (key "c", the model's own
@@ -1382,9 +1441,10 @@ function llmIndRunStart(key, animate) {
     const track = el.querySelector("[data-run]"), val = el.querySelector("[data-run-val]");
     track.children[0].style.width = `${(cum[k] / n) * 100}%`;
     track.children[1].style.width = `${((k - cum[k]) / n) * 100}%`;
-    // the live count of matches; once every statement is in, the sentence
-    // under the bar gives it
-    val.textContent = k < n ? `${fmtNum(cum[k])} match` : "";
+    // the live count of matches; once every statement is in, the share
+    // that matches (Josh, October 2026: beside the bar, not in a sentence)
+    val.textContent = k < n ? `${fmtNum(cum[k])} match` : fmtPct(cum[n] / n);
+    val.classList.toggle("is-done", k >= n);
     const count = el.querySelector(".llm-run-n"), stmt = el.querySelector(".llm-run-stmt");
     if (count) count.textContent = `${fmtNum(k)} of ${fmtNum(n)} checked`;
     if (stmt) {
@@ -1399,7 +1459,8 @@ function llmIndRunStart(key, animate) {
     const foot = box()?.querySelector("[data-run-foot]");
     if (foot) foot.innerHTML = llmIndRunResult(m, key, new Set([`run-${key}`]));
     llmIndStepper();
-    // the result under the bar, as far as keeps the card's top in the panel
+    // the result above the bar: as far as keeps the card's top in the panel,
+    // or, on a short screen, further, to centre it
     if (animate) llmRevealEl(box(), false, document.getElementById("llmIndC2"));
   };
   if (!animate || llmReduced()) { finish(); return; }
@@ -1583,7 +1644,7 @@ function llmLvlProbe(e) {
 // with the person's answers alone (person); the person's three scores
 // (pScore); the model's on the same 50 statements (mScore); who scores
 // higher (verdict). Chapter 5 then aggregates over all 2,046 participants:
-// its lead recaps this comparison (stage 12), and the next click shows how
+// its lead recaps this comparison (LLM_IND_OPEN[4]), and the next click shows how
 // many win, lose and tie with the model (all). Every percentage in the
 // story's sentences is in bold (Josh's request).
 const LLM_IND_AT = (() => {
@@ -1711,7 +1772,7 @@ function llmIndCh4(m, md, fresh) {
 
 // ── 5 · Aggregating over all participants ──
 // Opens by recapping the comparison with the participant in chapter 4
-// (stage 12), then on the next click (all, stage 13) shows how many of all
+// (LLM_IND_OPEN[4]), then on the next click (LLM_IND_AT.all) shows how many of all
 // 2,046 participants win, lose and tie with the model, and concludes with
 // the share of the human population it beats.
 function llmIndCh5(m, md, fresh) {
@@ -2222,7 +2283,7 @@ function llmPopCh2(m, md, fresh) {
   if (Q.stage >= A.crowdS) {
     body +=
       `<div class="llm-beat llm-calc-box${llmFresh(fresh, A.crowdS)}" id="llmPopB${A.crowdS}">` +
-      `<p class="llm-p">We combine these two scores into a <em>commonsensicality</em> score by taking their geometric average.</p>` +
+      `<p class="llm-p">We combine these two scores into a <strong>commonsensicality score</strong> by taking their geometric average.</p>` +
       `<div class="llm-calc">${llmCalcRow("Commonsensicality", sqrtHtml("consensus × awareness"))}` +
       llmCalcRow("", sqrtHtml(`${fmtPct(sc.c)} × ${fmtPct(sc.a)}`)) + llmCalcRow("", fmtPct(sc.s), llmSqrtEq(sc.c, sc.a)) + `</div></div>`;
   }
@@ -2608,7 +2669,11 @@ function llmPopCh7(m, md, fresh) {
 // rather than bars): each split one dot, stacked in its bin from the
 // bottom, a few dots a row, so the columns read as a histogram; this
 // split's dot darkest, the splits seen darker, and the average marked.
-// Drawn in SVG; when anim, the dots rise in row by row (CSS delays).
+// Drawn in SVG; when anim, each split's dot falls from above the plot into
+// its slot, one split after another in split order (spaced out at first,
+// then quickening), each landing on the dots of earlier splits in its bin;
+// this split's dot falls last. Gravity-like: a dot's fall time grows with
+// the square root of its drop (CSS .llm-rd-fall, --d its drop).
 function llmSplitDotsSvg(anim = false) {
   const d = LLM.data, sh = d.split_half, Q = LLM.pop, rs = sh.rs || [];
   if (!rs.length) return "";
@@ -2623,9 +2688,15 @@ function llmSplitDotsSvg(anim = false) {
   const W = L + PW + R, H = T + PH + B, x = (r) => L + ((r - lo) / (hi - lo)) * PW;
   const seen = new Set(Q.splits.map((x) => x.seed)), cur = Q.split ? Q.seed : -1;
   let dots = "", curDot = "";
+  // the order the dots fall: split order, this split's last; the k-th of N
+  // starts at 3.2·sqrt(k/N) s, so the first few fall one by one
+  const N = rs.length, nth = (seed) => (cur < 0 ? seed : seed === cur ? N - 1 : seed > cur ? seed - 1 : seed);
   bins.forEach((b, i) => b.forEach((seed, k) => {
     const row = Math.floor(k / cols), cx = L + i * bw + gap / 2 + (k % cols + 0.5) * step, cy = T + PH - (row + 0.5) * step;
-    const delay = anim ? ` style="animation-delay:${(row * 0.02).toFixed(2)}s"` : "";
+    const drop = cy + 6;   // from just above the plot's top edge
+    const delay = anim
+      ? ` style="--d:${drop.toFixed(0)};animation-delay:${(3.2 * Math.sqrt(nth(seed) / Math.max(1, N - 1)) + (seed === cur ? 0.4 : 0)).toFixed(3)}s;animation-duration:${(0.12 + 0.032 * Math.sqrt(drop)).toFixed(2)}s"`
+      : "";
     const c = `<circle class="llm-rd${seed === cur ? " is-current" : seen.has(seed) ? " is-seen" : ""}" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${(seed === cur ? dot : dot / 2).toFixed(2)}"${delay}><title>Split ${seed + 1}: r = ${llmR(rs[seed], 3)}</title></circle>`;
     // this split's dot, larger, drawn last so nothing covers it
     if (seed === cur) curDot = c; else dots += c;
