@@ -197,17 +197,9 @@ blockquote.hs-quote::after { content: "”"; }
   border-radius: var(--r-lg);
   border: var(--card-border);
   box-shadow: var(--shadow-2);
-  padding: 24px 28px 0;
+  padding: 24px 28px 6px;
   overflow: hidden;
 }
-.hs-demo-foot {
-  margin: 8px -28px 0; padding: 14px 28px;
-  border-top: 1px solid var(--hs-line); background: var(--hs-bg);
-  font-size: var(--fs-3); font-weight: 600;
-}
-.home-scroll .hs-demo-foot a { color: var(--hs-accent); text-decoration: none; }
-.home-scroll .hs-demo-foot a:hover { text-decoration: underline; }
-.hs-demo-foot .ext-icon { margin-left: 5px; vertical-align: -1px; }
 .hs-demo-head { display: flex; justify-content: flex-end; align-items: center; gap: 12px; margin-bottom: 4px; }
 .hs-demo-quote { font-size: var(--fs-6); line-height: 1.3; margin-bottom: 20px; }
 .hs-demo-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); padding-bottom: 18px; }
@@ -236,8 +228,23 @@ blockquote.hs-quote::after { content: "”"; }
 @keyframes hs-pop { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .hs-demo-reveal { animation: none; } }
 .hs-reveal-head { font-size: var(--fs-2); font-weight: 700; color: var(--hs-ink); margin-bottom: 6px; }
+/* The demo card's agree/disagree bar (hsSplitBar() in home.js) */
+.hs-split { margin: 8px 0 0; }
+.hs-split-labels { display: flex; justify-content: space-between; gap: 12px; font-size: var(--fs-2); margin-bottom: 6px; }
+.hs-split-labels .is-dis { text-align: right; }
+.hs-split-val { font-weight: 600; font-variant-numeric: tabular-nums; }
+.hs-split-bar { position: relative; }
+.hs-split-track { display: flex; gap: 2px; height: 12px; border-radius: 6px; overflow: hidden; background: var(--hs-bg-alt); }
+.hs-split-fill { flex: 0 1 0; min-width: 2px; }
+/* The majority blue and the minority grey: agree blue, unless most disagree
+   (.is-maj-dis; a tie counts as agree). Shared with the LLM story's bar. */
+.hs-split-fill.is-agree, .hs-split.is-maj-dis .hs-split-fill.is-dis { background: var(--c-agree); }
+.hs-split-fill.is-dis, .hs-split.is-maj-dis .hs-split-fill.is-agree { background: var(--c-mark); }
+.hs-split-labels .is-agree, .hs-split.is-maj-dis .hs-split-labels .is-dis { color: var(--c-agree-ink); }
+.hs-split-labels .is-dis, .hs-split.is-maj-dis .hs-split-labels .is-agree { color: var(--c-muted); }
+.hs-split-mid { position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: var(--hs-ink); opacity: 0.45; }
 .hs-explain { font-size: var(--fs-3); line-height: 1.55; color: var(--hs-body); margin: 14px 0 10px; }
-.hs-explain p + p { margin-top: 8px; }
+.hs-explain p + p { margin-top: 12px; }
 .hs-explain strong { color: var(--hs-ink); }
 .hs-reveal-note { font-size: var(--fs-2); color: var(--hs-muted); margin-bottom: 8px; }
 .hs-reveal-note a { white-space: nowrap; }
@@ -421,8 +428,7 @@ blockquote.hs-quote::after { content: "”"; }
   .hs-hero { padding: 40px 16px 48px; }
   .hs-section { padding: 48px 16px; }
   .hs-footer { padding: 40px 16px 80px; }
-  .hs-demo { padding: 18px 18px 0; }
-  .hs-demo-foot { margin: 8px -18px 0; padding: 12px 18px; }
+  .hs-demo { padding: 18px 18px 6px; }
   .hs-demo-quote { font-size: var(--fs-5); }
   .hs-subnav { justify-content: flex-start; }
   .hs-dbar { grid-template-columns: 8.5em minmax(0, 1fr) 3em; }

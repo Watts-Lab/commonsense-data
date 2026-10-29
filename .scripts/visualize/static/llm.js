@@ -615,18 +615,21 @@ const LLM_CORPUS = [
   { tag: "ConceptNet", sources: ["Concept Net"] },
   { tag: "News media", sources: ["news media"] },
 ];
-// The six examples, one per source label in the data (two for the
-// participants' two kinds of prompt). Picked by hand to read cleanly (no
-// typos, no named candidates) and to include some that most people reject.
-// Statements written around stand-in names ("If max helps sam …") are never
-// shown, which leaves ATOMIC, all of whose statements use them, without one.
+// The six examples, one per source (two from the online participants).
+// Picked by hand, at Josh's request (October 2026), to be short, plain and
+// sensible, and to split people: between 36% and 64% of their raters agree
+// (17 of 27, 20 of 32, 12 of 23, 20 of 32, 13 of 26, 9 of 25), so the band
+// shows at a glance that common sense is not a given. No typos, no named
+// candidates, none of the task examples below. Statements written around
+// stand-in names ("If max helps sam …") are never shown, which leaves
+// ATOMIC, all of whose statements use them, without one.
 const LLM_CORPUS_EXAMPLES = [
-  "It is easier to catch a runaway horse than to take back a spoken word.",
-  "Being strong doesn't necessarily mean you're in shape.",
-  "The last thing you do when you play poker is cash in your chips.",
-  "We need transparency in how government money is spent.",
-  "If a person is feeling a little cold they might want to eat some ice cream.",
-  "Adults should supervise all fireworks activities.",
+  "Nothing great was ever achieved without enthusiasm.",
+  "Numbers never lie.",
+  "You are likely to find a potato in your pantry.",
+  "We need to help those who help themselves.",
+  "People hold parties when they get a raise.",
+  "People should only hug each other in limited circumstances.",
 ];
 // The examples sections 2–4 share, as [statement, one of the people who
 // rated it, an LLM]. "Another example", in any of the three cards, steps all
@@ -775,15 +778,19 @@ function llmReduced() {
 
 // The panel's visible band, between the toolbar and the story's button bar
 // (its top and bottom in viewport coordinates), and where an element will
-// sit once a fade-in (.llm-in, which starts 6px low) ends
+// sit once a fade-in (.llm-in, which starts 6px low) ends. The band ends at
+// 85% of the window's height at most (Josh, October 2026): a step that
+// reaches past that line scrolls into view even when the bar sits lower.
 function llmLift(x) {
   const t = getComputedStyle(x).transform;
   return t && t !== "none" ? new DOMMatrixReadOnly(t).m42 : 0;
 }
+const LLM_FOCUS_LINE = 0.85;   // share of the window's height
 function llmBand(wrap, el) {
   const w = wrap.getBoundingClientRect();
   const bar = el.closest(".llm-view")?.querySelector(".llm-stepper-in");
-  return { top: w.top + 14, bottom: w.bottom - (bar ? bar.offsetHeight + 28 : 14) };
+  const low = w.bottom - (bar ? bar.offsetHeight + 28 : 14);
+  return { top: w.top + 14, bottom: Math.min(low, window.innerHeight * LLM_FOCUS_LINE) };
 }
 function llmRestRect(el) {
   const b = el.getBoundingClientRect(), ty = llmLift(el);
@@ -791,7 +798,8 @@ function llmRestRect(el) {
 }
 
 // How much further to scroll (≥ 0) so that focus, a rect that will sit
-// shift px higher after the scroll already planned, shows above the bar.
+// shift px higher after the scroll already planned, shows above the bar
+// and the 85% line.
 // Nothing when it already fits (on a tall screen the top stays put);
 // otherwise it is centred in the band, or its top put at the band's top
 // when it is taller than the band (Josh: on a laptop the newest step used
@@ -1246,16 +1254,6 @@ function llmOutOf(k, n, pct = llmPctEx, bold = false) {
   return `${fmtNum(k)} out of ${fmtNum(n)} (or ${bold ? llmB(v) : v})`;
 }
 
-// A statement's raters, in Josh's sentence (October 2026): "This statement
-// was rated by 25 human participants, 20 of whom (or 80%) said they agreed
-// with it." ("all of whom" / "none of whom" when they are of one mind);
-// bold sets the percentage in bold, as the individual story does
-function llmRatedBy(k, n, bold = false) {
-  const v = llmPctEx(k / n);
-  const whom = k === n ? "all of whom" : k === 0 ? "none of whom" : `${fmtNum(k)} of whom (or ${bold ? llmB(v) : v})`;
-  return `This statement was rated by ${fmtNum(n)} human participants, ${whom} said they agreed with it.`;
-}
-
 // A question the story answers in the next lines, numbered as the survey's
 // two questions are (the individual story's chapter 2, the population
 // story's chapters 2 and 5)
@@ -1290,6 +1288,25 @@ function llmSqrtEq(a, b) {
 // word of each sentence in bold (Josh's request). The sentences follow the
 // data: either majority, a tie (half agree, which counts as agreeing),
 // unanimity, and each pair of right and wrong answers.
+// Home's demo bar (hsSplitBar() in home.js, whose .hs-split styles it
+// reuses) for k of n people agreeing: "Agree 60%" over the blue from the
+// left, "40% Disagree" over the orange from the right, a tick at 50%. The
+// shares are written as the story writes them (llmPctEx()), and the
+// disagree share is 100 minus the agree share as shown, so the two add up.
+function llmSplitBar(k, n) {
+  const p = k / n, a = llmPctEx(p), m = /^([\d.]+)%$/.exec(a);
+  const d = m ? `${(100 - parseFloat(m[1])).toFixed((m[1].split(".")[1] || "").length)}%` : llmPctEx(1 - p);
+  const fill = (cls, v) => (v > 0 ? `<span class="hs-split-fill ${cls}" style="flex-grow:${v.toFixed(5)}"></span>` : "");
+  return (
+    // blue marks the majority (a tie counts as agree), grey the rest
+    `<div class="hs-split llm-agree-bar${2 * k < n ? " is-maj-dis" : ""}" role="img" aria-label="${a} agree, ${d} disagree">` +
+    `<div class="hs-split-labels" aria-hidden="true"><span class="is-agree">Agree <span class="hs-split-val">${a}</span></span>` +
+    `<span class="is-dis"><span class="hs-split-val">${d}</span> Disagree</span></div>` +
+    `<div class="hs-split-bar" aria-hidden="true"><div class="hs-split-track">${fill("is-agree", p)}${fill("is-dis", 1 - p)}</div>` +
+    `<span class="hs-split-mid"></span></div></div>`
+  );
+}
+
 function llmIndCh1(m, md, fresh) {
   const d = LLM.data, I = LLM.ind, name = esc(m.name), title = `${name}'s answers`;
   const s = d.statements[I.ex], [p1, p2] = md.ratings[s.id];
@@ -1309,27 +1326,32 @@ function llmIndCh1(m, md, fresh) {
     (I.stage >= 1
       ? `<div class="${llmFresh(fresh, 1).trim()}" id="llmIndB1">` +
         `<p class="llm-p llm-sv-intro">We ask the model two questions:</p>` +
-        `<div class="llm-sv-grid"><div class="llm-sv-th"></div><div class="llm-sv-th${shown ? llmFresh(fresh, 2) : " is-pend"}">${name}</div>` +
+        `<div class="llm-sv-grid"><div class="llm-sv-th"></div><div class="llm-sv-th is-who${shown ? llmFresh(fresh, 2) : " is-pend"}">${llmWho(name, true)}</div>` +
         `<div class="llm-sv-q"><span class="llm-sv-qn">1</span>${LLM_TASK_QS[0]}</div>${ans(p1, y1)}` +
         `<div class="llm-sv-q"><span class="llm-sv-qn">2</span>${LLM_TASK_QS[1]}</div>${ans(p2, y2)}` +
         `</div></div>`
       : "") +
     `</div>`;
   if (I.stage >= 3) {
-    const did = (y) => (y ? "agreed" : "disagreed");
-    const thus = 2 * k === n
-      ? `That is exactly half, which counts as a majority that <strong>${did(maj)}</strong> with the statement.`
-      : `Thus, the majority of people <strong>${did(maj)}</strong> with the statement.`;
+    // Home's demo bar (Josh, October 2026): the share who agree from the
+    // left (blue), the share who disagree from the right (orange), a tick at
+    // 50%, then the majority and its share in one sentence, with no rater
+    // count, its key words in bold
+    const did = maj ? "agreed" : "disagreed";
+    const share = llmPctEx((maj ? k : n - k) / n);
+    const said = k === n || k === 0
+      ? `Of all people who rated the statement, <strong>everyone (${share}) ${did}</strong> with it.`
+      : 2 * k === n
+        ? `Of all people who rated the statement, <strong>exactly half (${share}) agreed</strong> with it, which counts as a majority that agreed.`
+        : `Of all people who rated the statement, the <strong>majority (${share}) ${did}</strong> with it.`;
     const ok1 = y1 === maj, ok2 = y2 === maj;
     const own = ok1
-      ? `${name}'s subjective rating <strong>matches</strong> the human majority rating, since it also <strong>${y1 ? "agrees" : "disagrees"}</strong> with the statement.`
-      : `${name}'s subjective rating <strong>does not match</strong> the human majority rating, since it <strong>${y1 ? "agrees" : "disagrees"}</strong> with the statement.`;
-    const pred = `<strong>${ok2 ? "correctly" : "incorrectly"} predicts</strong> that most people would ${y2 ? "" : "not "}agree with it.`;
+      ? `${name} <strong>sided with the majority</strong>, since it also <strong>${y1 ? "agreed" : "disagreed"}</strong> with the statement.`
+      : `${name} <strong>went against the majority</strong>, since it <strong>${y1 ? "agreed" : "disagreed"}</strong> with the statement.`;
+    const pred = `<strong>${ok2 ? "correctly" : "incorrectly"} predicted</strong> that most people would ${y2 ? "" : "not "}agree with it.`;
     body +=
       `<div class="llm-beat${llmFresh(fresh, 3)}" id="llmIndB3">` +
-      `<p class="llm-p">${llmRatedBy(k, n, true)}</p>` +
-      llmFigureRow(k, n, "is-p") +
-      `<p class="llm-p">${thus}</p></div>`;
+      llmSplitBar(k, n) + `<p class="llm-p">${said}</p></div>`;
     // the model against that majority: a click of its own (stage 4)
     if (I.stage >= 4) {
       body +=
@@ -1847,8 +1869,7 @@ function llmIndCh6(m, md, fresh) {
     `<div class="llm-legend llm-h2h-legend" aria-hidden="true">` +
     `<span><i class="llm-key llm-key-open"></i>LLM scores higher</span>` +
     `<span><i class="llm-key llm-key-tie"></i>Tie</span>` +
-    `<span><i class="llm-key llm-key-people"></i>Participant scores higher</span>` +
-    `<span><i class="llm-key llm-key-line"></i>Half of participants</span></div>` +
+    `<span><i class="llm-key llm-key-people"></i>Participant scores higher</span></div>` +
     `<div class="llm-bars llm-board llm-h2h">` +
     `<div class="llm-bar-row is-head"><span class="lb-rank">#</span><span class="lb-name">LLM</span>${llmAxis(LLM_PCT_SCALE)}<span class="lb-val">Higher</span></div>` +
     rows + `</div>` +
@@ -2259,7 +2280,7 @@ function llmPopCh2(m, md, fresh) {
   const figs = (share, cls) => llmFigureRow(Math.round(share * FIGS), FIGS, cls, "is-grid");
   const nb = (t) => t.replace(/ /g, "\u00a0");   // a formula kept on one line
   const beat = (st, inner) => `<div class="llm-beat llm-irun llm-crowd-beat${llmFresh(fresh, st)}" id="llmPopB${st}">${inner}</div>`;
-  let body = `<blockquote class="llm-ex-quote is-sm">${esc(s.text)}</blockquote>`;
+  let body = `<blockquote class="llm-ex-quote">${esc(s.text)}</blockquote>`;
   // a click each (Josh, October 2026): question 1 and its result, the
   // consensus defined, question 2 and its result, the awareness defined.
   // Every percentage to one decimal, even where 2 × |53.6% − 50%| reads 7.1%
@@ -2309,7 +2330,7 @@ function llmPopCh3(m, md, fresh) {
   const people =
     `<div class="llm-crowd-col">${llmWho("Real people", false, "llm-who-tag")}` +
     `<p class="llm-p">${llmB(fmtPct(pa))} agree with the statement.</p>${figs(pa, "is-p")}` +
-    `<p class="llm-p">${llmB(fmtPct(po))} think most people would agree with it.</p>${figs(po, "is-p")}</div>`;
+    `<p class="llm-p">${llmB(fmtPct(po))} think most people would agree with it.</p>${figs(po, "is-q2")}</div>`;
   const pop =
     `<div class="llm-crowd-col">${llmWho(`${name}'s population`, true, "llm-who-tag")}` +
     `<p class="llm-p">${llmB(llmProbFine(p1))} agree with the statement.</p>${figs(p1, "is-m")}` +
@@ -2761,7 +2782,8 @@ function llmPopCh8(m, md, fresh) {
     `<div class="llm-bars llm-board llm-h2h">` +
     `<div class="llm-bar-row is-head"><span class="lb-rank">#</span><span class="lb-name">LLM</span>${llmAxis(LLM_R_SCALE)}<span class="lb-val">r</span></div>` +
     rows + `</div>` +
-    `</div>`;
+    // as the individual story's chapter 6 ends
+    `<p class="llm-note">Point at a bar for its 95% interval, or click it to follow that LLM.</p></div>`;
   return llmChap("llmPopC8", 8, title, true, lead, body);
 }
 

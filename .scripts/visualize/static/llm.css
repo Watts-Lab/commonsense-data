@@ -598,6 +598,10 @@
 .llm-match { display: inline-block; font-size: var(--fs-3); font-weight: 700; line-height: 1; }
 .llm-match.ok { color: var(--c-good); }
 .llm-match.no { color: var(--c-bad); }
+/* In the stories every mark is the model's: a match in its orange and a
+   miss grey, as chapter 2's bars count them (never green against red) */
+.llm-story .llm-match.ok { color: var(--c-expect-ink); }
+.llm-story .llm-match.no { color: var(--c-muted); }
 .llm-prob { display: grid; grid-template-columns: minmax(40px, 1fr) 3.6em; gap: 8px; align-items: center; }
 .llm-prob-track { position: relative; height: 6px; border-radius: 3px; background: var(--llm-line); }
 .llm-prob-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; background: var(--llm-model); }
@@ -647,6 +651,11 @@
 /* chapter 1's raters, between the sentence that counts them and the one
    that names the majority */
 #llmIndB3 .llm-figs { margin: 16px 0 18px; }
+/* Chapter 1's agree/disagree bar, Home's demo bar (.hs-split in home.css) */
+.llm-agree-bar { max-width: 36rem; margin: 0 0 14px; }
+.llm-story .llm-agree-bar .hs-split-labels { font-size: var(--fs-3); }
+/* its colours, the majority blue and the minority grey, are .hs-split's
+   (home.css) */
 #llmIndB1 > .llm-sv-intro { margin-bottom: 16px; }
 .llm-sv-pend { min-height: 28px; }
 .llm-sv-th.is-pend { visibility: hidden; }
@@ -1103,13 +1112,6 @@
 .llm-h2h .llm-bar-row:not(.is-head) { cursor: pointer; }
 .llm-h2h .llm-bar-row:not(.is-head):hover { background: var(--llm-bg-alt); }
 .llm-h2h .llm-bar-row.is-selected:hover { background: var(--llm-model-tint); }
-
-/* Chapters 5 and 6 of the individual story: people's wins (blue) and ties
-   (grey) are lighter, so the model's wins (orange) stand out (Josh, October
-   2026) */
-.llm-waffle .llm-pp:is(.is-p, .is-tie),
-.llm-track.is-stack .llm-fill:is(.is-human, .is-tie),
-.llm-h2h-legend :is(.llm-key-people, .llm-key-tie) { opacity: 0.5; }
 
 /* Chapter 3's chart drawn in on the click that opens the formula (.is-anim,
    llmLvlSvg): the shading fades in while the guides rise from the consensus

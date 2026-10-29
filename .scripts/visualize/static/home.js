@@ -363,37 +363,61 @@ function hsUpdateDemo() {
   hsBindScrollLinks(res);
 }
 
-// How everyone answered, then the majority rating and how the visitor's two
-// answers compare with it. The majority rule (ties count as agree) is
-// utils.py's, through hsScore(); an exact tie is described as no majority.
+// The demo card's one bar: the share who agree from the left and the share
+// who disagree from the right, the majority blue and the minority grey
+// (a tie counts as agree), with a tick at 50% (the majority line). The
+// disagree share is 100 minus the agree share as shown, so the two printed
+// numbers always add up to 100%.
+function hsSplitPcts(p) {
+  const a = hsMajPct(p);
+  const m = /^([\d.]+)%$/.exec(a);
+  if (!m) return [a, hsMajPct(1 - p)];
+  const dec = (m[1].split(".")[1] || "").length;
+  return [a, `${(100 - parseFloat(m[1])).toFixed(dec)}%`];
+}
+function hsSplitBar(p) {
+  const [a, d] = hsSplitPcts(p);
+  const fill = (cls, v) => (v > 0 ? `<span class="hs-split-fill ${cls}" style="flex-grow:${v.toFixed(5)}"></span>` : "");
+  return (
+    `<div class="hs-split${p < 0.5 ? " is-maj-dis" : ""}" role="img" aria-label="${a} agree, ${d} disagree">` +
+    `<div class="hs-split-labels" aria-hidden="true"><span class="is-agree">Agree <span class="hs-split-val">${a}</span></span>` +
+    `<span class="is-dis"><span class="hs-split-val">${d}</span> Disagree</span></div>` +
+    `<div class="hs-split-bar" aria-hidden="true"><div class="hs-split-track">${fill("is-agree", p)}${fill("is-dis", 1 - p)}</div>` +
+    `<span class="hs-split-mid"></span></div></div>`
+  );
+}
+
+// How everyone answered, then how the visitor's two answers compare with the
+// majority. The majority rule (ties count as agree) is utils.py's, through
+// hsScore(); an exact tie is described as no majority. One sentence a line;
+// the verdicts are bold at Josh's request; the prediction sentence opens "You also" when both
+// answers fare alike and "However, you" when they differ.
 function hsDemoResultHtml(s, agree, others) {
   const sc = hsScore(s.p, s.q);
-  const maj = sc.majAgree ? "agree" : "disagree";
-  const verdict = (ok, text) => text;
+  const did = (v) => (v ? "agreed" : "disagreed");
   let explain;
   if (Math.abs(s.p - 0.5) < 0.0005) {
     explain = `<p>Exactly half of people agreed with this statement, so it has no majority rating: there is no majority to side with, or to predict.</p>`;
   } else {
     const ok1 = agree === sc.majAgree, ok2 = others === sc.majAgree;
-    const own =
-      `You ${verdict(ok1, ok1 ? "sided with the majority" : "went against the majority")} ` +
-      `because you ${agree ? "agreed" : "disagreed"} with the statement`;
+    const [a, d] = hsSplitPcts(s.p);
+    const unanimous = s.p === 1 || s.p === 0;
+    const lead = `${unanimous ? "Everyone" : "Most people"} (${sc.majAgree ? a : d}) ${did(sc.majAgree)} with this statement.`;
+    const own = ok1
+      ? `<strong>You sided with the majority</strong> because you also ${did(agree)} with it.`
+      : `<strong>You went against the majority</strong> because you ${did(agree)} with it.`;
     // The second question asks whether most others would agree, so the
     // prediction is "would agree" or "would not agree"
-    const would = others ? "would agree" : "would not agree";
-    const pred = ok2
-      ? `you ${verdict(true, "correctly predicted")} that most people ${would}`
-      : `you ${verdict(false, "incorrectly predicted")} that most people ${would}, when they actually ${others ? "did not" : "did"}`;
-    explain =
-      `<p>Since ${sc.majAgree ? "" : "only "}${hsMajPct(s.p)} of people agreed with this statement, ` +
-      `its majority rating is ${maj}. ${own}${ok1 === ok2 ? ", and " : ", but "}${pred}.</p>`;
+    const pred =
+      `<strong>${ok1 === ok2 ? "You also" : "However, you"} ${ok2 ? "correctly" : "incorrectly"} predicted</strong> ` +
+      `that most people ${others ? "would agree" : "would not agree"} with the statement.`;
+    explain = `<p>${lead}</p><p>${own}</p><p>${pred}</p>`;
   }
   return (
     `<div class="hs-demo-reveal">` +
     `<div class="hs-reveal-head">How ${fmtNum(s.n)} participants answered</div>` +
-    hsDualBars(s.p, s.q) +
+    hsSplitBar(s.p) +
     `<div class="hs-explain">${explain}</div>` +
-    `<p class="hs-reveal-note">Based on these ratings, this statement receives a score of ${hsPct(s.m)}. <a href="#hs-measure" data-scroll>See what this means</a></p>` +
     `</div>`
   );
 }
@@ -489,7 +513,7 @@ function hsRenderLadder(d) {
     : `<span class="hs-empty">No statements can be scored in this date range.</span>`;
   const st = d.statement;
   document.getElementById("hsStmtFoot").innerHTML = st.n
-    ? `Median ${hsPct(st.median)} across ${fmtNum(st.n)} statements`
+    ? `Total ${fmtNum(st.n)} statements scored`
     : "";
 }
 
@@ -498,15 +522,18 @@ function hsRenderIndivHist(d) {
   el.innerHTML = "";
   const ind = d.individual;
   document.getElementById("hsIndivFoot").innerHTML = ind.n
-    ? `Median ${hsPct(ind.median)} across ${fmtNum(ind.n)} people`
+    ? `Total ${fmtNum(ind.n)} people scored`
     : "";
   if (!ind.n) { el.innerHTML = `<span class="hs-empty">No participants can be scored in this date range.</span>`; return; }
   const { counts, bin_edges: edges } = ind.histogram;
-  // Drawn at the container's pixel width so text stays legible on phones
-  const W = Math.max(260, Math.round(el.clientWidth || 480)), H = 166, L = 8, R = 8, T = 26, B = 26;
+  // Drawn at the container's pixel size so text stays legible on phones and
+  // the bars fill the card: the empty container stretches (flex: 1) to the
+  // height the statement card beside it gives the row
+  const W = Math.max(260, Math.round(el.clientWidth || 480));
+  const H = Math.max(166, Math.floor(el.clientHeight || 0)), L = 8, R = 8, T = 8, B = 26;
   const PW = W - L - R, PH = H - T - B;
   const max = Math.max(...counts, 1);
-  const svg = hsSvg("svg", { viewBox: `0 0 ${W} ${H}`, class: "hs-hist-svg", role: "img", "aria-label": `Histogram of participant scores; median ${hsPct(ind.median)}` });
+  const svg = hsSvg("svg", { viewBox: `0 0 ${W} ${H}`, class: "hs-hist-svg", role: "img", "aria-label": `Histogram of ${fmtNum(ind.n)} participant scores` });
   const xS = (v) => L + v * PW;
   const bw = PW / counts.length, barW = Math.min(24, bw - 2);
   counts.forEach((c, i) => {
@@ -526,9 +553,6 @@ function hsRenderIndivHist(d) {
   for (const t of [0, 0.5, 1]) {
     svg.appendChild(hsSvg("text", { x: xS(t), y: H - 6, class: "hs-axis-tick hs-axis-tick-lg", "text-anchor": t === 0 ? "start" : t === 1 ? "end" : "middle" }, `${t * 100}%`));
   }
-  const mx = xS(ind.median);
-  svg.appendChild(hsSvg("line", { x1: mx, x2: mx, y1: T - 6, y2: T + PH, class: "hs-marker" }));
-  svg.appendChild(hsSvg("text", { x: mx - 5, y: T - 10, class: "hs-marker-label hs-marker-label-lg", "text-anchor": "end" }, `Median ${hsPct(ind.median)}`));
   el.appendChild(svg);
 }
 

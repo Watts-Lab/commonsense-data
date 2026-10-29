@@ -47,6 +47,17 @@ demo = pd.read_csv(os.path.join(DATA_DIR, "crt_rme_demo.csv"))
 NO_COUNTRY = "Not stated"
 demo["country_reside"] = demo["country_reside"].replace({"item1": NO_COUNTRY})
 
+# A participant is someone who rated at least MIN_PARTICIPANT_RATINGS
+# statements (Josh, October 2026). Anyone with fewer is dropped here, answers
+# and all, so every count, map and score on the site uses the same people.
+# This is a floor on raw ratings, separate from utils.py's
+# min_statements_per_user, which counts only statements with 10+ ratings.
+MIN_PARTICIPANT_RATINGS = 5
+_n_rated = answers.groupby("sessionId")["statementId"].nunique()
+_participants = _n_rated.index[_n_rated >= MIN_PARTICIPANT_RATINGS]
+answers = answers[answers["sessionId"].isin(_participants)]
+demo = demo[demo["sessionId"].isin(_participants)]
+
 
 def _in_countries(df: pd.DataFrame, col: str = "country_reside") -> pd.DataFrame:
     return df[df[col] != NO_COUNTRY]
