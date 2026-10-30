@@ -494,11 +494,11 @@
    sentences, figures and bars get room of their own, and the "Thus, …"
    conclusion after a count or a crowd sits a little apart */
 .llm-story :is(.llm-chap-body, .llm-sct-text) > * + .llm-beat,
-:is(#llmIndC4, #llmIndC5) > .llm-chap-body > .llm-beat:first-child { margin-top: 30px; }
-#llmIndC4 > .llm-chap-body > .llm-beat + .llm-beat { margin-top: 40px; }
-#llmIndC4 > .llm-chap-body > .llm-beat + .llm-beat::before { margin-bottom: 30px; }
+:is(#llmIndC5, #llmIndC6) > .llm-chap-body > .llm-beat:first-child { margin-top: 30px; }
+#llmIndC5 > .llm-chap-body > .llm-beat + .llm-beat { margin-top: 40px; }
+#llmIndC5 > .llm-chap-body > .llm-beat + .llm-beat::before { margin-bottom: 30px; }
 .llm-story :is(.llm-chap-body, .llm-sct-text) > * + .llm-beat::before,
-:is(#llmIndC4, #llmIndC5) > .llm-chap-body > .llm-beat:first-child::before {
+:is(#llmIndC5, #llmIndC6) > .llm-chap-body > .llm-beat:first-child::before {
   content: ""; display: block; width: 44px; margin-bottom: 24px;
   border-top: 2px solid var(--c-line-2);
 }
@@ -648,15 +648,43 @@
 .llm-figs.is-big { gap: 6px 5px; }
 .llm-figs.is-grid.is-big { grid-template-columns: repeat(var(--cols, 10), 18px); }
 .llm-figs.is-big .llm-pp { width: 18px; height: 28px; }
-/* chapter 1's raters, between the sentence that counts them and the one
-   that names the majority */
-#llmIndB3 .llm-figs { margin: 16px 0 18px; }
 /* Chapter 1's agree/disagree bar, Home's demo bar (.hs-split in home.css) */
 .llm-agree-bar { max-width: 36rem; margin: 0 0 14px; }
 .llm-story .llm-agree-bar .hs-split-labels { font-size: var(--fs-3); }
 /* its colours, the majority blue and the minority grey, are .hs-split's
    (home.css) */
-#llmIndB1 > .llm-sv-intro { margin-bottom: 16px; }
+.llm-ind-qs > .llm-sv-intro { margin-bottom: 16px; }
+/* chapter 1's people: how many rated the statement, the bar, then the
+   majority */
+.llm-ind-people > .llm-agree-bar { margin: 16px 0 0; }
+/* the second verdict sits under the first, as one block */
+.llm-story .llm-chap-body .llm-ind-pred { margin-top: 10px; }
+/* While a verdict is the latest step, an arrow in the model's orange points
+   back at the answer it rests on, just right of its Yes or No (Josh,
+   October 2026; it replaced boxes round the answer and its word). It is
+   placed outside the answer's column, so nothing moves when it comes or
+   goes, and is decorative (the sentence says the same). */
+.llm-point-at { position: relative; }
+/* the Yes or No only as wide as the word, so the arrow sits right by it */
+.llm-sv-ans > .llm-yn { justify-self: start; }
+.llm-point-at::after {
+  content: "\2190"; content: "\2190" / "";
+  position: absolute; left: calc(100% + 0.45em); top: 50%; transform: translateY(-52%);
+  font-size: var(--fs-4); font-weight: 700; line-height: 1; color: var(--c-expect-ink);
+}
+.llm-point-at::after { animation: llm-point-nudge 1.4s ease-in-out infinite; }
+.llm-point-at.is-new::after { animation: llm-point-in 0.45s ease-out both, llm-point-nudge 1.4s ease-in-out 0.45s infinite; }
+@keyframes llm-point-in { from { opacity: 0; transform: translate(10px, -52%); } }
+/* it jabs twice towards the answer, then rests (Josh, October 2026: "make
+   the arrow shaky"); only while its verdict is the story's latest step:
+   once chapter 2 opens, #llmIndC1 gets .is-done and it keeps still */
+@keyframes llm-point-nudge {
+  0%, 56%, 100% { transform: translate(0, -52%); }
+  14%, 42% { transform: translate(-6px, -52%); }
+  28% { transform: translate(0, -52%); }
+}
+#llmIndC1.is-done .llm-point-at::after { animation: none; }
+@media (prefers-reduced-motion: reduce) { .llm-point-at::after, .llm-point-at.is-new::after { animation: none; } }
 .llm-sv-pend { min-height: 28px; }
 .llm-sv-th.is-pend { visibility: hidden; }
 /* Population chapter 2's crowd of 10: the question, its figures, then the
@@ -708,6 +736,32 @@
    plot's top level with the title, so it overhangs the text's end less
    (Josh, October 2026) */
 @media (min-width: 961px) { #llmIndC3 .llm-lvl { margin-top: -44px; } }
+/* Chapter 4 (all models): the lead and its sentences at the left, with room
+   between them, the chart at the right, risen to the title's row as
+   chapter 3's is, so the card is no taller than the chart (Josh, October
+   2026); the sentences still to come keep their place, hidden */
+@media (min-width: 961px) { #llmIndC4 .llm-lvl { margin-top: -44px; } }
+.llm-lvl-grid.is-all > .llm-lvl-text > .llm-p + .llm-p { margin-top: 36px; }
+.llm-lvl-grid.is-all .llm-p.is-pend { visibility: hidden; }
+@media (max-width: 960px) {
+  .llm-lvl-grid.is-all .llm-p.is-pend { display: none; }
+  /* on phones the chart comes first, so a highlighted point is in view
+     above the sentence that names it */
+  /* (the lead, then the chart, then the sentences) */
+  .llm-lvl-grid.is-all > .llm-lvl-text { display: contents; }
+  .llm-lvl-grid.is-all > .llm-lvl { order: 1; }
+  .llm-lvl-grid.is-all > .llm-lvl-text > .llm-p:not(.is-lead) { order: 2; }
+  .llm-lvl-grid.is-all > .llm-lvl-text > .llm-p + .llm-p { margin-top: 6px; }
+}
+/* every model's point grey; only the highlighted one is orange */
+.llm-lvl-all-dot { fill: var(--llm-ink); fill-opacity: 0.5; stroke: var(--c-surface); stroke-width: 1.5; cursor: pointer; transition: fill-opacity 0.2s; }
+.llm-lvl-all-dot:hover { fill-opacity: 0.85; }
+.is-all .llm-lvl-ring { fill: none; stroke: var(--c-expect-ink); stroke-width: 2; }
+.is-all .llm-lvl-pin { pointer-events: none; }
+.is-anim-all .llm-lvl-all-dot { transform-box: fill-box; transform-origin: center; animation: llm-lvl-pop 0.35s calc(var(--i) * 28ms) ease-out both; }
+.is-all .llm-lvl-pin.is-new :is(.llm-lvl-dot, .llm-lvl-ring) { transform-box: fill-box; transform-origin: center; animation: llm-lvl-pop 0.4s ease-out both; }
+.is-all .llm-lvl-pin.is-new .llm-lvl-name { animation: llm-lvl-fade 0.4s 0.15s ease-out both; }
+@media (prefers-reduced-motion: reduce) { .is-anim-all .llm-lvl-all-dot, .is-all .llm-lvl-pin.is-new * { animation: none; } }
 .llm-lvl-svg { display: block; max-width: 100%; height: auto; overflow: visible; touch-action: pan-y; }
 .llm-lvl-frame { fill: none; stroke: var(--c-line-2); stroke-width: 1; }
 .llm-lvl-bg { fill: var(--llm-lvl-lo); }
@@ -801,7 +855,11 @@
 .llm-story .llm-chap-body .llm-who-tag + .llm-p { margin-top: 0; }
 .llm-sv-th > .llm-who, .llm-ps-th > .llm-who { font-size: var(--fs-3); }
 .llm-ps-th > .llm-who > span { display: inline; font-size: inherit; font-weight: 600; color: inherit; }
-#llmIndC4 .llm-ex-quote { margin-bottom: 22px; }
+#llmIndC5 .llm-ex-quote { margin-bottom: 22px; }
+/* chapter 5: the statement under its sentence, and the table under "In
+   summary:" */
+#llmIndC5 .llm-p + .llm-ex-quote { margin-top: 16px; }
+#llmIndC5 .llm-ind-vs { margin-top: 18px; }
 .llm-vs { max-width: 820px; margin-bottom: 26px; }
 .llm-vs .llm-ps-th { padding-bottom: 10px; }
 .llm-vs .llm-ps-k.is-total { color: var(--llm-ink); font-weight: 600; }
@@ -896,24 +954,6 @@
 /* Individual chapter 5: how many win, lose and tie with the model, three
    bars on one 0–100% scale (model wins in orange, human wins in blue, ties
    in grey), with each outcome's count and percentage */
-/* Individual story, chapter 5: 100 person figures, 1% of participants each,
-   in three separate crowds (the model's wins, people's wins, ties), each
-   filled column by column, five to a column, with its label and count under */
-.llm-waffle { margin: 22px 0 26px; }
-/* centred, the ties in the middle (Josh, October 2026) */
-.llm-waffle-grps { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: center; gap: 24px 48px; }
-.llm-waffle-grp { display: grid; gap: 12px; min-width: 8em; justify-items: center; text-align: center; }
-.llm-waffle .llm-figs { display: grid; grid-template-rows: repeat(5, 28px); grid-auto-flow: column; grid-auto-columns: 18px; gap: 5px 4px; justify-content: start; }
-.llm-waffle .llm-figs .llm-pp { width: 18px; height: 28px; }
-.llm-waffle-key { display: grid; gap: 2px; font-size: var(--fs-3); color: var(--llm-text); line-height: 1.35; }
-.llm-waffle-key strong { font-weight: 600; color: var(--llm-ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.llm-waffle-key strong > span { font-weight: 400; color: var(--llm-muted); }
-.llm-waffle-note { margin-top: 18px; font-size: var(--fs-2); color: var(--llm-muted); text-align: center; }
-@media (max-width: 700px) {
-  .llm-waffle-grps { gap: 20px 28px; }
-  .llm-waffle .llm-figs { grid-template-rows: repeat(5, 19px); grid-auto-columns: 12px; gap: 4px 3px; }
-  .llm-waffle .llm-figs .llm-pp { width: 12px; height: 19px; }
-}
 
 
 /* Explore further's cards: a title and one line on what the chart shows */
@@ -1055,6 +1095,8 @@
   .llm-sv-th { display: none; }
   .llm-sv-q { grid-column: 1 / -1; margin-top: 10px; }
   .llm-sv-ans { grid-column: 1 / -1; grid-template-columns: auto minmax(0, 1fr) 2.4em; }
+  /* room at the right for the arrow that points at an answer */
+  #llmIndC1 .llm-sv-ans { padding-right: 1.6em; }
   .llm-sv-ans::before { content: attr(data-who); font-size: var(--fs-2); color: var(--llm-muted); }
   .llm-sv-one { gap: 12px; }
   .llm-sv-pend { grid-column: 1 / -1; }   /* keeps the answer's room, so question 2 stays put */
@@ -1160,15 +1202,15 @@
 .llm-story .llm-crowd-col > .llm-figs + .llm-p,
 .llm-story .llm-crowd-pair > .llm-crowd-col > .llm-p + .llm-figs + .llm-p { margin-top: 36px; }
 .llm-story .llm-ex-quote + .llm-crowd-cols { margin-top: 28px; }
-#llmPopC4 .llm-ps { grid-template-columns: 11em repeat(2, minmax(0, 19rem)); column-gap: 48px; justify-content: center; max-width: none; margin: 28px 0 8px; }
+:is(#llmPopC3, #llmPopC5) .llm-ps { grid-template-columns: 11em repeat(2, minmax(0, 19rem)); column-gap: 48px; justify-content: center; max-width: none; margin: 28px 0 8px; }
 /* more room between the table's rows (Josh: less cluttered) */
-#llmPopC4 .llm-ps-th { padding-bottom: 14px; }
-#llmPopC4 .llm-ps-k { padding-top: 26px; }
-#llmPopC4 .llm-ps-cell { padding-top: 22px; padding-bottom: 6px; }
-#llmPopC4 .llm-ps-cell .llm-sc-calc { margin-top: 8px; }
-#llmPopC4 .llm-ps-text { margin-top: 36px; }
+:is(#llmPopC3, #llmPopC5) .llm-ps-th { padding-bottom: 14px; }
+:is(#llmPopC3, #llmPopC5) .llm-ps-k { padding-top: 26px; }
+:is(#llmPopC3, #llmPopC5) .llm-ps-cell { padding-top: 22px; padding-bottom: 6px; }
+:is(#llmPopC3, #llmPopC5) .llm-ps-cell .llm-sc-calc { margin-top: 8px; }
+:is(#llmPopC3, #llmPopC5) .llm-ps-text { margin-top: 36px; }
 @media (max-width: 700px) {
-  #llmPopC4 .llm-ps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  :is(#llmPopC3, #llmPopC5) .llm-ps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 /* A short formula on a line of its own under its sentence, never broken
@@ -1202,6 +1244,49 @@
 .llm-rd-avgl { font-size: var(--fs-2); font-weight: 600; fill: var(--llm-ink); }
 /* each dot falls from above the plot to its slot (--d its drop, in SVG
    units; delay and duration set inline by llmSplitDotsSvg) */
-.llm-rh-fig.is-anim .llm-rd { animation-name: llm-rd-fall; animation-timing-function: cubic-bezier(0.5, 0, 1, 0.6); animation-fill-mode: both; }
+.llm-rd.is-fall { animation-name: llm-rd-fall; animation-timing-function: cubic-bezier(0.5, 0, 1, 0.6); animation-fill-mode: both; }
 @keyframes llm-rd-fall { from { transform: translateY(calc(var(--d) * -1px)); opacity: 0; } 10% { opacity: 1; } to { transform: none; opacity: 1; } }
-@media (prefers-reduced-motion: reduce) { .llm-rh-fig.is-anim .llm-rd { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .llm-rd.is-fall { animation: none; } }
+
+/* Population story, a click a step (Josh, October 2026, as in the individual
+   story): what a later click shows in a row, a column or over the bars
+   holds its place, hidden, so nothing moves when it appears; on narrow
+   screens, where the columns stack, it is simply left out */
+#llmPopStory .is-pend { visibility: hidden; }
+@media (max-width: 1000px) { #llmPopStory .is-pend { display: none; } }
+/* the scatter plots' point and guides, the dot plot's average line and its
+   95% band fade in on the click that names them */
+.llm-sct-pin.is-new, .llm-rd-mark.is-new, .llm-rd-band.is-new { animation: llm-sct-fade 0.5s ease-out both; }
+.llm-rd-band { fill: var(--llm-human); fill-opacity: 0.13; }
+@media (prefers-reduced-motion: reduce) { .llm-sct-pin.is-new, .llm-rd-mark.is-new, .llm-rd-band.is-new { animation: none; } }
+/* a fade that, unlike .llm-in, doesn't make the panel scroll to what it
+   reveals (population chapter 8's bars, which run past the window) */
+.llm-in-quiet { animation: llm-in 0.45s ease-out both; }
+@media (prefers-reduced-motion: reduce) { .llm-in-quiet { animation: none; } }
+/* population chapter 2: the score as a sentence under the formula */
+.llm-calc-box > .llm-calc + .llm-p { margin-top: 22px; }
+
+/* Individual chapter 6: the model's bar moves from where it stood alone
+   down into its place among every LLM's (--dy, set by llmIndMorphBars())
+   while the other rows come in, nearest first (--d) */
+.llm-h2h .llm-bar-row.is-fly { position: relative; z-index: 2; animation: llm-bar-fly 0.9s cubic-bezier(0.3, 0.7, 0.2, 1) 0.15s both; }
+.llm-h2h .llm-bar-row.is-rise { animation: llm-bar-rise 0.4s ease-out var(--d, 0ms) both; }
+@keyframes llm-bar-fly { from { transform: translateY(var(--dy, 0px)); } }
+@keyframes llm-bar-rise { from { opacity: 0; transform: translateY(4px); } }
+/* the board is counted as revealed (.llm-in, for the scroll) but not faded
+   as a whole: its rows come in on their own */
+.llm-h2h.is-morph.llm-in { animation: none; }
+@media (prefers-reduced-motion: reduce) { .llm-h2h .llm-bar-row.is-fly, .llm-h2h .llm-bar-row.is-rise { animation: none; } }
+/* Individual chapter 6's shares, each in the colour of its part of the
+   bar above (in place of a legend, Josh, October 2026) */
+.llm-share.is-open { color: var(--c-expect-ink); }
+.llm-share.is-tie { color: var(--c-muted); }
+.llm-share.is-human { color: var(--c-agree-ink); }
+.llm-share > strong { font-weight: 600; color: inherit; }
+/* Population chapter 6 (Josh, October 2026): the plot rises into the
+   title's row, as the individual story's chapters 3 and 4 do, so its top
+   is level with the title (only where it sits beside the text); and its
+   sentences are set apart by room alone, with no short rule between them */
+@media (min-width: 1101px) { #llmPopC6 .llm-sct { margin-top: -44px; } }
+#llmPopC6 .llm-sct-text > * + .llm-beat { margin-top: 40px; }
+#llmPopC6 .llm-sct-text > * + .llm-beat::before { content: none; }

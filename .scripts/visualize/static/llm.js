@@ -837,21 +837,33 @@ function llmRevealEl(el, start = false, card = null) {
   llmScrollBy(wrap, dy);
 }
 
-// After a step: card (the chapter the click changed) to the top of the
-// panel, then, if what the click revealed inside focusIn (its .llm-in
+// After a step: card (the chapter the click changed), or a step in it
+// marked data-llm-top, to the top of the panel, then, if what the click revealed inside focusIn (its .llm-in
 // elements) would sit under the bar or below the window, on until it shows,
 // centred in the room above the bar where it fits
 function llmRevealStep(card, focusIn) {
   const wrap = document.getElementById("llmWrap");
   if (!card || !wrap) return;
   const band = llmBand(wrap, card);
-  let dy = llmRestRect(card).top - band.top;
+  // a step that marks itself data-llm-top (individual chapter 5's "In
+  // summary:") goes to the top in the card's place, and stays there while
+  // the steps under it come in
+  const top = card.querySelector("[data-llm-top]") || card;
+  let dy = llmRestRect(top).top - band.top;
   const fresh = focusIn ? [...focusIn.querySelectorAll(".llm-in")] : [];
   if (focusIn?.classList.contains("llm-in")) fresh.push(focusIn);
   const rects = fresh.map(llmRestRect).filter((r) => r.height > 0);
   if (rects.length) {
     const focus = { top: Math.min(...rects.map((r) => r.top)), bottom: Math.max(...rects.map((r) => r.bottom)) };
     dy += llmFocusDy(focus, band, dy);
+  }
+  // an element marked data-llm-keep (individual chapter 6's moving bar, in
+  // its place among every LLM's) stays in view above the bar, even if the
+  // top of what the click revealed has to pass under the toolbar
+  const keep = card.querySelector("[data-llm-keep]");
+  if (keep) {
+    const r = llmRestRect(keep);
+    if (r.bottom - dy > band.bottom) dy = r.bottom - band.bottom;
   }
   llmScrollBy(wrap, dy);
 }
@@ -889,8 +901,10 @@ function llmFresh(fresh, k) {
 // "Show all steps" (until the end). st: { stage, end }.
 function llmStoryHead(mode, m, chapters, opened, st) {
   const ind = mode === "individual", name = llmName(m);
-  const title = ind ? `What if ${name} took the survey?` : `What if ${name} stood for a whole crowd?`;
-  const lead = ind ? "Each participant, human or LLM, rated a number of statements." : "Each statement was rated by a number of participants.";
+  const title = ind ? `How should we measure the common sense of ${name}?` : `What if ${name} stood for a whole crowd?`;
+  const lead = ind
+    ? "Like humans, LLMs also rate the same statements. Their ratings are used to calculate the commonsensicality score. Follow along to see how it’s calculated."
+    : "Each statement was rated by a number of participants.";
   const prefix = ind ? "llmIndC" : "llmPopC";
   const acts = st.end ? "" : `<button type="button" class="llm-btn" data-story-all="${mode}">Show all steps</button>`;
   return (
@@ -960,8 +974,11 @@ function llmStoryStage(mode = LLM.view) {
 // sit under the bar or below the window (a short screen), when the panel
 // scrolls on to centre it above the bar
 function llmStoryReveal(S) {
-  // chapter 1 stays under the story's header card, as the story opens
-  const id = S.chapter === 1 ? `${S.ind ? "llmInd" : "llmPop"}Head` : `${S.ind ? "llmInd" : "llmPop"}C${S.chapter}`;
+  // The header alone (stage 0) stays at the top. Chapter 1 opens on a
+  // click in both stories, so it goes to the top as every later chapter
+  // does (Josh, October 2026)
+  const head = S.chapter === 0;
+  const id = head ? `${S.ind ? "llmInd" : "llmPop"}Head` : `${S.ind ? "llmInd" : "llmPop"}C${S.chapter}`;
   const card = document.getElementById(id);
   // what the click revealed is looked for in the chapter itself
   const chap = document.getElementById(`${S.ind ? "llmInd" : "llmPop"}C${S.chapter}`);
@@ -985,13 +1002,11 @@ async function llmStoryStep(mode, dir) {
   if (S2 && S2.stage !== S.stage) llmStoryReveal(S2);
 }
 
-// The links that change a story's statement, at the right of its chapter's
-// title: another one, and the paper's own example when it isn't showing
-function llmExTools(isPaper, prefix) {
-  return (
-    `<button type="button" class="llm-btn" data-story="${prefix}-another">Another statement</button>` +
-    (isPaper ? "" : `<button type="button" class="llm-btn" data-story="${prefix}-paper">The paper's example</button>`)
-  );
+// The link that changes the individual story's statement, at the right of
+// chapter 1's title ("The paper's example" came out at Josh's request,
+// October 2026)
+function llmExTools() {
+  return `<button type="button" class="llm-btn" data-story="ind-another">Another statement</button>`;
 }
 
 // Person figures: cls per figure (is-p people blue, is-m model orange,
@@ -1070,35 +1085,46 @@ function llmRankList(mode) {
 }
 
 // ══ LLMs as individuals ════════════════════════════════════════════════════
-// Stages, one per click of Next. Chapters 1–3 score the model (Josh, October
-// 2026: just the model, in short chapters with as little text as possible;
-// an intro on a general Participant A came out again): 0 its answers to one
-// statement; 1 the people who rated it and their majority; 2 how the
-// model's two answers compare with it (chapter 1); 3 the same for every
-// statement, 4 its own opinions counted and 5 its predictions (2); 6 its
-// score (3). Then chapter 4 compares it with one person, a sentence a click
-// (Josh, October 2026, in his words): 7 the model's score and the question;
-// 9 one person and one of their 50 statements; 10 the person's score; 11 the
-// model's on the same 50 statements; 12 who scores higher. Chapter 5
-// aggregates over all 2,046 participants: 13 the recap of that person; 14
-// how many win, lose and tie with the model (LLM_IND_AT names steps 9–14).
-// Chapter 6 (15) does the same for every LLM, a bar each.
+// Stages, one per click of Next (LLM_IND_OPEN gives the stage that opens
+// each chapter). Chapters 1–3 score the model (Josh, October 2026: just the
+// model, in short chapters with as little text as possible). Stage 0 is the
+// header alone; a click opens chapter 1, whose steps LLM_IND_C1 names (the
+// statement, each question and its answer in turn, the people who rated
+// it, then the model's two answers against their majority, a click each).
+// Chapter 2 counts every statement (LLM_IND_RUN), each count's result a
+// click later (LLM_IND_RES), chapter 3 combines the
+// two scores (LLM_IND_CS), chapter 5 compares the model with one person, a
+// click a step (its statement, each question and answer, both scores, then
+// the two side by side), and chapter 6 with all 2,046 participants
+// (LLM_IND_AT), and chapter 7 does the
+// same for every LLM, a bar each. Chapter 4 (LLM_IND_ALL), between the
+// model's score and people, puts every model on chapter 3's chart.
 
 // The chapters' names in the story's header
 function llmIndChapters(m) {
   const name = llmName(m);
-  return [`${name}'s answers`, "Aggregating over all statements", `${name}'s score`, "LLM vs. human common sense", "Aggregating over all participants", "Aggregating over all LLMs"];
+  return [`${name}'s answers`, "Aggregating over all statements", `${name}'s score`, "All models", "Comparing human and LLM common sense", "Aggregating over all participants and LLMs"];
 }
-const LLM_IND_OPEN = [0, 5, 8, 11, 16, 18];   // the stage that opens each chapter
-const LLM_IND_LAST = 18;
+// the stage that opens each chapter: stage 0 is the header alone, and a
+// click opens chapter 1 (Josh, October 2026)
+const LLM_IND_OPEN = [1, 10, 15, 18, 23, 37];
+const LLM_IND_LAST = 41;
 // Chapter 3's steps after its first (Josh, October 2026, a click each): the
 // formula, with the chart's shading, guides, point and curve drawn in
 // (formula), then the score as a sentence (score)
 const LLM_IND_CS = { formula: LLM_IND_OPEN[2] + 1, score: LLM_IND_OPEN[2] + 2 };
+// Chapter 4's steps after its lead (Josh, October 2026, a click each): every
+// model's point on chapter 3's chart (plot), then the highest-scoring model
+// (top), the lowest (bottom) and the followed model's percentile (self),
+// each highlighting only its own model's point
+const LLM_IND_ALL = { plot: LLM_IND_OPEN[3] + 1, top: LLM_IND_OPEN[3] + 2, bottom: LLM_IND_OPEN[3] + 3, self: LLM_IND_OPEN[3] + 4 };
 // Chapter 2's two counts, a click each after its lead: the model's own
 // opinions (c, its consensus), then its predictions (a, its awareness). The
-// next step waits for each to finish.
-const LLM_IND_RUN = { c: LLM_IND_OPEN[1] + 1, a: LLM_IND_OPEN[1] + 2 };
+// next step waits for each to finish, and each count's result sentence ("We
+// call this …% the consensus score of …") waits for a click of its own
+// (LLM_IND_RES; Josh, October 2026)
+const LLM_IND_RUN = { c: LLM_IND_OPEN[1] + 1, a: LLM_IND_OPEN[1] + 3 };
+const LLM_IND_RES = { c: LLM_IND_OPEN[1] + 2, a: LLM_IND_OPEN[1] + 4 };
 // Whether one of chapter 2's counts is under way
 function llmIndCounting() {
   const I = LLM.ind;
@@ -1114,7 +1140,7 @@ function llmDefaultModel() {
 // The model's statement in chapter 1, chosen for GPT-4o: people are split
 // but lean one way (18 of 30 agree), its answers are far from certain (32%
 // and 73%), and its two answers differ: it disagrees itself, but correctly
-// predicts that most people would agree. The paper's example is a click away.
+// predicts that most people would agree.
 const LLM_IND_EXAMPLE = "Do not speak of your happiness to one less fortunate than yourself.";
 // "Another statement" draws from statements as telling for the model in the
 // picker: people not near-unanimous (10–90% agree), neither answer
@@ -1131,24 +1157,47 @@ function llmIndNextLabel(m) {
   const d = LLM.data, I = LLM.ind;
   if (llmIndCounting()) return `Checking ${fmtNum(d.n_statements)} statements…`;
   return [
+    "Start with one statement",
     "Ask it two questions",
-    "Show its answers",
+    "Ask it the first question",
+    "Show its answer",
+    "Ask it the second question",
+    "Show its answer",
     "Show what other people said",
-    "Compare with the majority",
+    "Compare its opinion with the majority",
+    "Compare its prediction with the majority",
     "Aggregate over all statements",
     "Check its own opinions",
+    "Show its consensus score",
     "Check its predictions",
+    "Show its awareness score",
     "Plot its two scores",
     "Combine them into one score",
     "Show its commonsensicality",
+    `Compare all ${fmtNum(d.models.length)} models`,
+    "Plot every model",
+    "Show the highest-scoring model",
+    "Show the lowest-scoring model",
+    `Show where ${m.name} stands`,
     "Compare with humans",
     "Show a participant",
+    "Show their statement",
+    "Ask them the first question",
+    "Show their answer",
+    "Ask them the second question",
+    "Show their answer",
+    "Show how many they rated",
     "Score the participant",
-    "Score the model on the same statements",
+    "Restrict the model to the same statements",
+    "Score the model",
+    "Sum up",
+    "Show the two side by side",
     "Who scores higher?",
     "Aggregate over all participants",
     `Compare with all ${fmtNum(d.n_participants)} participants`,
+    "Show the shares",
     `Compare all ${fmtNum(d.models.length)} LLMs`,
+    "How many beat half of people?",
   ][I.stage] ?? `Next: ${m.name} as a crowd`;
 }
 
@@ -1221,6 +1270,10 @@ function llmIndPaint(fresh, only = null) {
   const opened = LLM_IND_OPEN.filter((s) => I.stage >= s).length;
   document.getElementById("llmIndHead").innerHTML = llmStoryHead("individual", m, llmIndChapters(m), opened, { stage: I.stage, end: I.stage >= LLM_IND_LAST });
   const chapters = [llmIndCh1, llmIndCh2, llmIndCh3, llmIndCh4, llmIndCh5, llmIndCh6];
+  // chapter 6's bar, measured before it gives way to every LLM's
+  const wrap = document.getElementById("llmWrap");
+  const one = fresh && fresh.has(LLM_IND_AGG.llms) && document.querySelector("#llmIndOne .llm-bar-row.is-selected");
+  const from = one && wrap ? one.getBoundingClientRect().top + wrap.scrollTop : null;
   const story = document.getElementById("llmIndStory");
   if (only === null || !story.children.length) {
     story.innerHTML = chapters.map((f) => f(m, md, fresh)).join("");
@@ -1230,6 +1283,9 @@ function llmIndPaint(fresh, only = null) {
       if (el) el.outerHTML = chapters[k - 1](m, md, fresh);
     }
   }
+  if (fresh && fresh.has(LLM_IND_AGG.llms)) llmIndMorphBars(from);
+  // chapter 1's arrow jabs only while its verdict is the latest step
+  document.getElementById("llmIndC1")?.classList.toggle("is-done", I.stage > LLM_IND_C1.pred);
   // Chapter 2's bars: counted afresh when that click opened them, else full
   if (only === null || only.includes(2)) {
     for (const key of ["c", "a"]) {
@@ -1281,13 +1337,6 @@ function llmSqrtEq(a, b) {
 // checked, one question a click (4–6); its score (7), each a chapter of its own (Josh, October 2026: just
 // the model, with as little text as possible) ──
 
-// Chapter 1, in Josh's words (October 2026): "Consider the following
-// statement", "We ask the model two questions:" and the questions; a click
-// later (Josh), the model's two answers alone; then the raters' count, the
-// raters as figures and the majority; then, a click later (Josh), whether the model agrees with it and predicts it, the key
-// word of each sentence in bold (Josh's request). The sentences follow the
-// data: either majority, a tie (half agree, which counts as agreeing),
-// unanimity, and each pair of right and wrong answers.
 // Home's demo bar (hsSplitBar() in home.js, whose .hs-split styles it
 // reuses) for k of n people agreeing: "Agree 60%" over the blue from the
 // left, "40% Disagree" over the orange from the right, a tick at 50%. The
@@ -1307,69 +1356,100 @@ function llmSplitBar(k, n) {
   );
 }
 
+// Chapter 1's steps (Josh, October 2026), a click each: the chapter opens
+// with the statement alone (open); "We ask the model two questions:" alone
+// (intro, Josh, October 2026); the first question (q1), then the model's
+// answer to it (a1); the second
+// question (q2), then its answer (a2); the people who rated the statement
+// (people: how many, Home's demo bar, then their majority); then the
+// model's opinion against that majority (own) and, a click later, its
+// prediction (pred). While a verdict is the latest, an arrow in the model's
+// orange points back at the answer it rests on (.llm-point-at; Josh,
+// October 2026, in place of boxes around the answer and its word).
+const LLM_IND_C1 = (() => {
+  const o = LLM_IND_OPEN[0];
+  return { open: o, intro: o + 1, q1: o + 2, a1: o + 3, q2: o + 4, a2: o + 5, people: o + 6, own: o + 7, pred: o + 8 };
+})();
+
 function llmIndCh1(m, md, fresh) {
-  const d = LLM.data, I = LLM.ind, name = esc(m.name), title = `${name}'s answers`;
+  const d = LLM.data, I = LLM.ind, C = LLM_IND_C1, name = esc(m.name), title = `${name}'s answers`;
+  if (I.stage < C.open) return llmChap("llmIndC1", 1, title, false);
   const s = d.statements[I.ex], [p1, p2] = md.ratings[s.id];
   const y1 = p1 >= 0.5 ? 1 : 0, y2 = p2 >= 0.5 ? 1 : 0, maj = s.majority, k = s.k_agree, n = s.n;
-  // The statement alone (stage 0); a click later the two questions, with
-  // the answer column and its header held empty (hidden, .is-pend) (stage
-  // 1, Josh, October 2026); then a row per question fills with the model's
-  // probability of yes as a bar, and its Yes or No (stage 2), so nothing
-  // moves when the answers come in
-  const shown = I.stage >= 2;
-  const ans = (p, y) => shown
-    ? `<div class="llm-sv-ans${llmFresh(fresh, 2)}" data-who="${name}">${llmProbBar(p)}${llmYesNo(y)}</div>`
-    : '<div class="llm-sv-pend"></div>';
+  const f = (st) => llmFresh(fresh, st);
+  // the answer the arrow points at: the latest verdict's (1 its opinion, 2
+  // its prediction); the arrow slides in on the click that shows it
+  const hl = I.stage >= C.pred ? 2 : I.stage >= C.own ? 1 : 0;
+  const hlCls = (q) => (hl === q ? ` llm-point-at${fresh && fresh.has(q === 1 ? C.own : C.pred) ? " is-new" : ""}` : "");
+  // a question's answer: the model's probability of yes as a bar and its Yes
+  // or No, or, until its click, an empty slot of the same height
+  const ans = (q, p, y, st) => (I.stage >= st
+    ? `<div class="llm-sv-ans${f(st)}" data-who="${name}">${llmProbBar(p)}<span class="llm-yn${hlCls(q)}">${y ? "Yes" : "No"}</span></div>`
+    : `<div class="llm-sv-pend${q === 2 ? f(C.q2) : ""}"></div>`);
   let body =
-    `<div class="${llmFresh(fresh, "ex").trim()}" id="llmIndB0">` +
-    `<blockquote class="llm-ex-quote">${esc(s.text)}</blockquote>` +
-    (I.stage >= 1
-      ? `<div class="${llmFresh(fresh, 1).trim()}" id="llmIndB1">` +
-        `<p class="llm-p llm-sv-intro">We ask the model two questions:</p>` +
-        `<div class="llm-sv-grid"><div class="llm-sv-th"></div><div class="llm-sv-th is-who${shown ? llmFresh(fresh, 2) : " is-pend"}">${llmWho(name, true)}</div>` +
-        `<div class="llm-sv-q"><span class="llm-sv-qn">1</span>${LLM_TASK_QS[0]}</div>${ans(p1, y1)}` +
-        `<div class="llm-sv-q"><span class="llm-sv-qn">2</span>${LLM_TASK_QS[1]}</div>${ans(p2, y2)}` +
-        `</div></div>`
-      : "") +
-    `</div>`;
-  if (I.stage >= 3) {
-    // Home's demo bar (Josh, October 2026): the share who agree from the
-    // left (blue), the share who disagree from the right (orange), a tick at
-    // 50%, then the majority and its share in one sentence, with no rater
-    // count, its key words in bold
+    `<div class="${f("ex").trim()}" id="llmIndB${C.open}">` +
+    `<blockquote class="llm-ex-quote">${esc(s.text)}</blockquote>`;
+  if (I.stage >= C.intro) {
+    // the intro alone, then the grid; the answer column's header waits
+    // (hidden) for the first answer
+    body +=
+      `<div class="llm-ind-qs" id="llmIndB${C.intro}">` +
+      `<p class="llm-p llm-sv-intro${f(C.intro)}">We ask the model two questions:</p>` +
+      (I.stage < C.q1 ? "</div>" :
+      `<div class="llm-sv-grid${f(C.q1)}" id="llmIndB${C.q1}"><div class="llm-sv-th"></div><div class="llm-sv-th is-who${I.stage >= C.a1 ? f(C.a1) : " is-pend"}">${llmWho(name, true)}</div>` +
+      `<div class="llm-sv-q"><span class="llm-sv-qn">1</span>${LLM_TASK_QS[0]}</div>${ans(1, p1, y1, C.a1)}` +
+      (I.stage >= C.q2
+        ? `<div class="llm-sv-q${f(C.q2)}" id="llmIndB${C.q2}"><span class="llm-sv-qn">2</span>${LLM_TASK_QS[1]}</div>${ans(2, p2, y2, C.a2)}`
+        : "") +
+      `</div></div>`);
+  }
+  body += `</div>`;
+  if (I.stage >= C.people) {
+    // how many rated it, Home's demo bar (blue the majority, grey the rest,
+    // a tick at 50%), then the majority and its share, the key words in bold
+    // (Josh, October 2026)
     const did = maj ? "agreed" : "disagreed";
     const share = llmPctEx((maj ? k : n - k) / n);
     const said = k === n || k === 0
-      ? `Of all people who rated the statement, <strong>everyone (${share}) ${did}</strong> with it.`
+      ? `<strong>Everyone (${share})</strong> <strong>${did}</strong> with it.`
       : 2 * k === n
-        ? `Of all people who rated the statement, <strong>exactly half (${share}) agreed</strong> with it, which counts as a majority that agreed.`
-        : `Of all people who rated the statement, the <strong>majority (${share}) ${did}</strong> with it.`;
-    const ok1 = y1 === maj, ok2 = y2 === maj;
-    const own = ok1
-      ? `${name} <strong>sided with the majority</strong>, since it also <strong>${y1 ? "agreed" : "disagreed"}</strong> with the statement.`
-      : `${name} <strong>went against the majority</strong>, since it <strong>${y1 ? "agreed" : "disagreed"}</strong> with the statement.`;
-    const pred = `<strong>${ok2 ? "correctly" : "incorrectly"} predicted</strong> that most people would ${y2 ? "" : "not "}agree with it.`;
+        ? `<strong>Exactly half (${share})</strong> of them <strong>agreed</strong> with it, which counts as a majority that agreed.`
+        : `The <strong>majority (${share})</strong> of them <strong>${did}</strong> with it.`;
     body +=
-      `<div class="llm-beat${llmFresh(fresh, 3)}" id="llmIndB3">` +
+      `<div class="llm-beat llm-ind-people${f(C.people)}" id="llmIndB${C.people}">` +
+      `<p class="llm-p">This statement was rated by ${fmtNum(n)} ${n === 1 ? "person" : "people"}.</p>` +
       llmSplitBar(k, n) + `<p class="llm-p">${said}</p></div>`;
-    // the model against that majority: a click of its own (stage 4)
-    if (I.stage >= 4) {
-      body +=
-        `<div class="llm-beat${llmFresh(fresh, 4)}" id="llmIndB4">` +
-        `<p class="llm-p llm-point">${llmMatch(ok1)}<span>${own}</span></p>` +
-        `<p class="llm-p llm-point">${llmMatch(ok2)}<span>${ok1 === ok2 ? `${name} also ${pred}` : `However, ${name} ${pred}`}</span></p></div>`;
-    }
   }
-  return llmChap("llmIndC1", 1, title, true, "Consider the following statement:", body, llmExTools(s.id === d.examples.individual, "ind"));
+  // the model against that majority, a click for each answer (Josh, October
+  // 2026)
+  const ok1 = y1 === maj, ok2 = y2 === maj;
+  if (I.stage >= C.own) {
+    const w1 = `<strong>${y1 ? "agreed" : "disagreed"}</strong>`;
+    const own = ok1
+      ? `${name} <strong>sided with the majority</strong>, since it also ${w1} with the statement.`
+      : `${name} <strong>went against the majority</strong>, since it ${w1} with the statement.`;
+    body +=
+      `<div class="llm-beat${f(C.own)}" id="llmIndB${C.own}">` +
+      `<p class="llm-p llm-point">${llmMatch(ok1)}<span>${own}</span></p></div>`;
+  }
+  if (I.stage >= C.pred) {
+    const w2 = `${y2 ? "" : "not "}agree`;
+    // under the first verdict, as part of the same step (no rule between)
+    const pred = `<strong>${ok2 ? "correctly" : "incorrectly"} predicted</strong> that most people would ${w2} with it.`;
+    body +=
+      `<div class="llm-ind-pred${f(C.pred)}" id="llmIndB${C.pred}">` +
+      `<p class="llm-p llm-point">${llmMatch(ok2)}<span>${ok1 === ok2 ? `${name} also ${pred}` : `However, ${name} ${pred}`}</span></p></div>`;
+  }
+  return llmChap("llmIndC1", 1, title, true, "Consider the following statement:", body, llmExTools());
 }
 
 // Chapter 2, in Josh's words (October 2026): the lead alone, then a click
 // for each question, the model's own opinion (1), then its prediction (2):
 // the question in full, its bar filling statement by statement with the
 // model's matches (its orange) against the misses (grey) over a ticker of
-// the statements checked, and, once the count finishes, in the ticker's
-// place, how many match and the score that gives, its name in bold (Josh's
-// request, as in chapter 1)
+// the statements checked, and, a click after the count finishes, in the
+// ticker's place, the score that gives, its name in bold (Josh's request,
+// as in chapter 1)
 function llmIndCh2(m, md, fresh) {
   const I = LLM.ind, name = esc(m.name), title = llmIndChapters(m)[1];
   if (I.stage < LLM_IND_OPEN[1]) return llmChap("llmIndC2", 2, title, false);
@@ -1386,10 +1466,10 @@ function llmIndCh2(m, md, fresh) {
       llmQuestion(num, qs[key]) +
       `<div class="llm-run-row"><div class="llm-run-track" data-run="${key}"><span class="llm-run-ok"></span><span class="llm-run-miss"></span></div>` +
       `<div class="llm-run-val" data-run-val="${key}"></div></div>` +
-      `<div class="llm-irun-foot" data-run-foot="${key}">${I.ran[key] ? llmIndRunResult(m, key, fresh) : ticker}</div></div>`
+      `<div class="llm-irun-foot" data-run-foot="${key}">${I.ran[key] && I.stage >= LLM_IND_RES[key] ? llmIndRunResult(m, key, fresh) : ticker}</div></div>`
     );
   };
-  return llmChap("llmIndC2", 2, title, true, "If we do the same for all statements, we have the following results.", step("c", 1) + step("a", 2));
+  return llmChap("llmIndC2", 2, title, true, `If we do the same for all ${fmtNum(LLM.data.n_statements)} statements, we have the following results.`, step("c", 1) + step("a", 2));
 }
 
 // Its score, in Josh's words (October 2026), a click a step: its two scores
@@ -1429,7 +1509,7 @@ function llmIndCh3(m, md, fresh) {
 function llmIndRunResult(m, key, fresh) {
   const n = LLM.data.n_statements, name = esc(m.name), c = key === "c";
   const t = c ? m.tab.q1 : m.tab.q2, k = t[0][0] + t[1][1], pct = fmtPct(k / n);
-  const cls = `llm-p${llmFresh(fresh, `run-${key}`)}`;
+  const cls = `llm-p${llmFresh(fresh, LLM_IND_RES[key])}`;
   return `<p class="${cls}">We call this ${llmB(pct)} the <strong>${c ? "consensus" : "awareness"} score</strong> of ${name}.</p>`;
 }
 
@@ -1468,7 +1548,9 @@ function llmIndRunStart(key, animate) {
     val.textContent = k < n ? `${fmtNum(cum[k])} match` : fmtPct(cum[n] / n);
     val.classList.toggle("is-done", k >= n);
     const count = el.querySelector(".llm-run-n"), stmt = el.querySelector(".llm-run-stmt");
-    if (count) count.textContent = `${fmtNum(k)} of ${fmtNum(n)} checked`;
+    // the live count while it runs; nothing once it is done (Josh, October
+    // 2026: no "4,407 of 4,407 checked"; the lead gives the total)
+    if (count) count.textContent = k < n ? `${fmtNum(k)} of ${fmtNum(n)} checked` : "";
     if (stmt) {
       const j = k > 0 && k < n ? shown[k - 1] : -1;
       stmt.innerHTML = j >= 0 ? `<span class="llm-run-text">${esc(d.statements[order[j]].text)}</span> ${llmMatch(ok[j])}` : "";
@@ -1478,11 +1560,10 @@ function llmIndRunStart(key, animate) {
     draw(n);
     if (I.ran[key]) return;
     I.ran[key] = true;
-    const foot = box()?.querySelector("[data-run-foot]");
-    if (foot) foot.innerHTML = llmIndRunResult(m, key, new Set([`run-${key}`]));
+    // the result sentence waits for the next click (LLM_IND_RES)
     llmIndStepper();
-    // the result above the bar: as far as keeps the card's top in the panel,
-    // or, on a short screen, further, to centre it
+    // the finished bar: as far as keeps the card's top in the panel, or, on
+    // a short screen, further, to centre it
     if (animate) llmRevealEl(box(), false, document.getElementById("llmIndC2"));
   };
   if (!animate || llmReduced()) { finish(); return; }
@@ -1631,7 +1712,9 @@ function llmLvlSvg(m, phase = 1, animate = false) {
 // Pointing at the level-curve chart: the score of the pair under the pointer
 function llmLvlProbe(e) {
   const svg = e.target.closest(".llm-lvl-svg");
-  if (!svg || svg.classList.contains("is-p0")) return;   // the bare chart (chapter 3's first step)
+  // the bare chart (chapter 3's first step), and chapter 4's chart of every
+  // model, whose dots carry their own tooltips
+  if (!svg || svg.classList.contains("is-p0") || svg.classList.contains("is-all")) return;
   const [L, T, S, LO] = svg.dataset.lvl.split(",").map(Number);
   const box = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal;
   const sx = ((e.clientX - box.left) / box.width) * vb.width, sy = ((e.clientY - box.top) / box.height) * vb.height;
@@ -1660,18 +1743,33 @@ function llmLvlProbe(e) {
   rect.setAttribute("x", tx - 6); rect.setAttribute("y", ty - 16); rect.setAttribute("width", tw + 12); rect.setAttribute("height", 22);
 }
 
-// ── 4 · LLM vs. human common sense ──
-// In Josh's words (October 2026), a click a sentence: the model's score
-// (the chapter's lead, stage 7); one person and one of their 50 statements,
-// with the person's answers alone (person); the person's three scores
-// (pScore); the model's on the same 50 statements (mScore); who scores
-// higher (verdict). Chapter 5 then aggregates over all 2,046 participants:
-// its lead recaps this comparison (LLM_IND_OPEN[4]), and the next click shows how
-// many win, lose and tie with the model (all). Every percentage in the
-// story's sentences is in bold (Josh's request).
+// ── 5 · Comparing human and LLM common sense ──
+// In Josh's words (October 2026), a click a step, as chapter 1 builds the
+// model's answers: the lead (the model's score, LLM_IND_OPEN[4]); "Consider
+// the following individual. …" alone (intro); one of their statements
+// (stmt); the first question (q1), their answer (a1), the second (q2), their
+// answer (a2); how many statements the person rated (pTotal), then their
+// three scores (pScore); the model restricted to the same statements
+// (mTotal), then its scores (mScore), with no square roots (Josh, October
+// 2026); "In summary:" alone (sum);
+// the two side by side (table); then who scores higher (verdict). Chapter 6
+// (LLM_IND_AGG) then aggregates over all 2,046 participants and all 44 LLMs.
+// Every percentage in the story's sentences is in bold (Josh's request).
 const LLM_IND_AT = (() => {
-  const o = LLM_IND_OPEN[3];
-  return { person: o + 1, pScore: o + 2, mScore: o + 3, verdict: o + 4, all: LLM_IND_OPEN[4] + 1 };
+  const o = LLM_IND_OPEN[4];
+  return {
+    intro: o + 1, stmt: o + 2, q1: o + 3, a1: o + 4, q2: o + 5, a2: o + 6,
+    pTotal: o + 7, pScore: o + 8, mTotal: o + 9, mScore: o + 10, sum: o + 11, table: o + 12, verdict: o + 13,
+  };
+})();
+// Chapter 6's steps after its lead (Josh, October 2026: chapters 6 and 7
+// combined), a click each: the model's bar against all participants (one),
+// the shares in a sentence (shares), the bar joining every LLM's (llms; the
+// model's bar moves down into its place among them as the others come in,
+// llmIndMorphBars()), then how many LLMs beat half of people (half)
+const LLM_IND_AGG = (() => {
+  const o = LLM_IND_OPEN[5];
+  return { one: o + 1, shares: o + 2, llms: o + 3, half: o + 4 };
 })();
 
 // A number in bold, as the story's sentences set every percentage
@@ -1686,7 +1784,13 @@ const LLM_POLITICAL_SOURCES = ["campaign email", "news media"];
 // which the person's two answers differ, when there is one (Josh, October
 // 2026: more interesting than "A needle is sharp."; for #1441, "All life is
 // an experiment the more experiments you make the better.")
+// The default participant's statement, chosen to be easy to understand
+// (Josh, October 2026: "All life is an experiment …" was not): #1441 says
+// yes to both questions, as 13 of the 15 who rated it agree
+const LLM_IND_PERSON_EXAMPLE = "Love makes life meaningful.";
 function llmIndPersonExample(rows) {
+  const fixed = rows.find((r) => r.s.raw === LLM_IND_PERSON_EXAMPLE);
+  if (fixed) return fixed.s.id;
   const plain = rows.filter((r) => !r.s.placeholder);
   const calm = plain.filter((r) => !LLM_POLITICAL_SOURCES.includes(r.s.source));
   const split = calm.filter((r) => { const h = r.s.k_agree / r.s.n; return h >= 0.1 && h <= 0.9; });
@@ -1716,14 +1820,14 @@ function llmIndPersonRows(md) {
 }
 
 // "… a consensus score of 84.0%, an awareness score of 78.0%, and thus a
-// commonsensicality score of √(84.0% × 78.0%) = 80.9%", from the counts of
-// matches (c, a) out of k; the inputs under the square root restate the
-// two scores, so only the scores themselves are in bold
+// commonsensicality score of 80.9%", from the counts of matches (c, a) out
+// of k, each score with its name in bold and no square root (Josh, October
+// 2026: chapter 3 has shown how the two combine)
 function llmIndScoreSentence(c, a, k) {
   const C = c / k, A = a / k;
   return (
-    `a consensus score of ${llmB(fmtPct(C))}, an awareness score of ${llmB(fmtPct(A))}, and thus a commonsensicality score of ` +
-    `<span class="llm-nowrap">${sqrtHtml(`${fmtPct(C)} × ${fmtPct(A)}`)} ${llmSqrtEq(C, A)} ${llmB(fmtPct(Math.sqrt(C * A)))}</span>`
+    `a ${llmB(`consensus score of ${fmtPct(C)}`)}, an ${llmB(`awareness score of ${fmtPct(A)}`)}, ` +
+    `and thus a ${llmB(`commonsensicality score of ${fmtPct(Math.sqrt(C * A))}`)}`
   );
 }
 
@@ -1755,127 +1859,261 @@ function llmIndVsTable(person, name, [pc, pa], [mc, ma], k, cmp) {
   );
 }
 
+// ── 4 · All models (Josh, October 2026, a click a step): the lead alone;
+// every model's point on chapter 3's chart (shading, frame and ticks, with
+// no guides, curves or axis points); then "The highest-scoring model is …",
+// "The lowest-scoring model is …" and "[the model] has a score of …, which
+// is at about the …th percentile of all models.", each highlighting only its
+// own model's point. A model's percentile is the share of the other models
+// that score lower than it (0th for the lowest, 100th for the highest). A
+// point's tooltip names its model, and a click follows it (data-ind-pick). ──
 function llmIndCh4(m, md, fresh) {
-  const d = LLM.data, I = LLM.ind, n = d.n_statements, name = esc(m.name), title = llmIndChapters(m)[3];
+  const d = LLM.data, I = LLM.ind, A = LLM_IND_ALL, title = llmIndChapters(m)[3], name = esc(m.name);
   if (I.stage < LLM_IND_OPEN[3]) return llmChap("llmIndC4", 4, title, false);
-  // the model's score, as chapter 3 computes it
-  const q1t = m.tab.q1, q2t = m.tab.q2;
-  const M = Math.sqrt(((q1t[0][0] + q1t[1][1]) / n) * ((q2t[0][0] + q2t[1][1]) / n));
-  const lead = `${name} achieves a commonsensicality score of ${llmB(fmtPct(M))}. How does its score compare with humans?`;
-  if (I.stage < LLM_IND_AT.person) return llmChap("llmIndC4", 4, title, true, lead, "");
-  const P = llmIndPersonRows(md);
-  if (!P) return llmChap("llmIndC4", 4, title, true, lead, '<div class="empty-row">Loading…</div>');
-  const { ex, person, rows, pr, pc, pa, mc, ma, cmp } = P, s = ex.s, k = rows.length;
-  const beat = (st, html, key = st) => (I.stage >= st ? `<div class="llm-beat${llmFresh(fresh, key)}" id="llmIndB${st}">${html}</div>` : "");
-  // One of their statements, with the person's two answers alone
-  let body = beat(LLM_IND_AT.person,
-    `<p class="llm-p">Consider the following human participant. They rated ${k} statements in total. Here is an example.</p>` +
-    `<blockquote class="llm-ex-quote">${esc(s.text)}</blockquote>` +
-    `<div class="llm-sv-grid"><div class="llm-sv-th"></div><div class="llm-sv-th is-who">${llmWho(person, false)}</div>` +
-    `<div class="llm-sv-q"><span class="llm-sv-qn">1</span>${LLM_TASK_QS[0]}</div><div class="llm-sv-one" data-who="${person}">${llmYesNo(ex.ia)}</div>` +
-    `<div class="llm-sv-q"><span class="llm-sv-qn">2</span>${LLM_TASK_QS[1]}</div><div class="llm-sv-one" data-who="${person}">${llmYesNo(ex.oa)}</div></div>`,
-    fresh && fresh.has("pex") ? "pex" : LLM_IND_AT.person);
-  body += beat(LLM_IND_AT.pScore,
-    llmWho(person, false, "llm-who-tag") +
-    `<p class="llm-p">Aggregating their ratings over ${k} statements, the participant achieves ${llmIndScoreSentence(pc, pa, k)}.</p>`,
-    fresh && fresh.has("person") ? "person" : LLM_IND_AT.pScore);
-  body += beat(LLM_IND_AT.mScore,
-    llmWho(name, true, "llm-who-tag") +
-    `<p class="llm-p">For a fair comparison, we restrict ${name} to the same ${k} statements. The model achieves ${llmIndScoreSentence(mc, ma, k)}.</p>`,
-    fresh && fresh.has("person") ? "person" : LLM_IND_AT.mScore);
-  body += beat(LLM_IND_AT.verdict,
-    llmIndVsTable(person, name, [pc, pa], [mc, ma], k, cmp) +
-    `<p class="llm-p">${cmp === 0 ? `So, ${name} achieves <strong>the same</strong> score as this participant.` : `So, ${name} achieves a <strong>${cmp > 0 ? "higher" : "lower"}</strong> score than this participant.`}</p>`,
-    fresh && fresh.has("person") ? "person" : LLM_IND_AT.verdict);
-  // one participant and one of their statements, with no links to others
-  // (Josh, October 2026)
-  return llmChap("llmIndC4", 4, title, true, lead, body);
+  const N = d.models.length;
+  const lead = `If we perform the same calculations for all ${N} models, we have the following results.`;
+  // The lead heads the text column (not the chapter), so the chart can rise
+  // beside it to the title's row, as chapter 3's does (Josh, October 2026:
+  // a shorter card)
+  const leadP = `<p class="llm-p is-lead">${lead}</p>`;
+  if (I.stage < A.plot) return llmChap("llmIndC4", 4, title, true, "", `<div class="llm-lvl-grid is-all"><div class="llm-lvl-text">${leadP}</div></div>`);
+  const f = (k) => llmFresh(fresh, k);
+  const ranked = [...d.models].sort((a, b) => b.commonsensicality - a.commonsensicality || a.name.localeCompare(b.name));
+  const top = ranked[0], bot = ranked.at(-1);
+  const below = d.models.filter((x) => x.commonsensicality < m.commonsensicality).length;
+  const pct = Math.round((100 * below) / (N - 1));
+  const focus = I.stage >= A.self ? m : I.stage >= A.bottom ? bot : I.stage >= A.top ? top : null;
+  const focusNew = !!fresh && (fresh.has(A.top) || fresh.has(A.bottom) || fresh.has(A.self));
+  // The three sentences are all laid out from the start under the lead,
+  // those still to come hidden (.is-pend), so nothing moves as they appear
+  // (on phones they are simply left out)
+  const say = (st, html) => `<p class="llm-p${I.stage >= st ? f(st) : " is-pend"}"${I.stage >= st ? "" : ' aria-hidden="true"'}>${html}</p>`;
+  const text =
+    say(A.top, `The highest-scoring model is <strong>${esc(top.name)}</strong>, with a score of ${llmB(fmtPct(top.commonsensicality))}.`) +
+    say(A.bottom, `The lowest-scoring model is <strong>${esc(bot.name)}</strong>, with a score of ${llmB(fmtPct(bot.commonsensicality))}.`) +
+    say(A.self, `<strong>${name}</strong> has a score of ${llmB(fmtPct(m.commonsensicality))}, which is at about the ${llmB(`${llmOrdinal(pct)} percentile`)} of all models.`);
+  // the sentences at the left, the chart at the right, as in chapter 3
+  const body =
+    `<div class="llm-lvl-grid is-all">` +
+    `<div class="llm-lvl-text">${leadP}${text}</div>` +
+    `<figure class="llm-lvl${f(A.plot)}" id="llmIndB${A.plot}">${llmLvlAllSvg(ranked, focus, !!fresh && fresh.has(A.plot), focusNew)}</figure></div>`;
+  return llmChap("llmIndC4", 4, title, true, "", body);
 }
 
-// ── 5 · Aggregating over all participants ──
-// Opens by recapping the comparison with the participant in chapter 4
-// (LLM_IND_OPEN[4]), then on the next click (LLM_IND_AT.all) shows how many of all
-// 2,046 participants win, lose and tie with the model, and concludes with
-// the share of the human population it beats.
-function llmIndCh5(m, md, fresh) {
-  const I = LLM.ind, name = esc(m.name), title = llmIndChapters(m)[4];
-  if (I.stage < LLM_IND_OPEN[4]) return llmChap("llmIndC5", 5, title, false);
-  const P = llmIndPersonRows(md);
-  const cmp = P ? P.cmp : 1, pid = P ? P.pr.id : I.person;
-  const how = cmp === 0 ? "the same commonsensicality score as" : `a ${cmp > 0 ? "higher" : "lower"} commonsensicality score than`;
-  const lead = `We just saw that ${name} achieves ${how} participant #${pid}.`;
-  const body = I.stage >= LLM_IND_AT.all
-    ? `<div class="llm-beat${llmFresh(fresh, LLM_IND_AT.all)}" id="llmIndB${LLM_IND_AT.all}">${llmIndAllHtml(m, md)}</div>`
-    : "";
-  return llmChap("llmIndC5", 5, title, true, lead, body);
-}
-
-// Every person: how many win, lose and tie with the model, each person on
-// their own 50 statements, as 100 person figures, each 1% of participants
-// (rounded by largest remainder, so they sum to 100), in three separate
-// crowds filled column by column and centred: the model's wins in its
-// orange, ties in grey in the middle, people's wins in their blue, each with
-// its label and share under it (the exact count is in the aria-label),
-// then the concluding share of the human population
-function llmIndAllHtml(m, md) {
-  const P = LLM.data.n_participants, name = esc(m.name), h = md.head;
-  const groups = [
-    [h.wins, "is-m", `${name} scores higher`],
-    [h.ties, "is-tie", "Tie"],
-    [h.losses, "is-p", "Participant scores higher"],
-  ];
-  const figs = llmRoundTo(groups.map(([v]) => v), 100);
-  // three separate crowds, each its own block of figures with its label and
-  // exact count under it
-  const crowds = groups.map(([v, c, label], i) =>
-    `<div class="llm-waffle-grp">${llmFigures(Array(figs[i]).fill(c))}` +
-    `<div class="llm-waffle-key"><span>${label}</span><strong>${llmPctFine(v / P)}</strong></div></div>`,
-  ).join("");
+// Chapter 3's chart (llmLvlSvg()) with a point for every model and no
+// guides or curves: every point grey, and focus, if given, the one point
+// highlighted (larger, orange, in a ring, named; Josh, October 2026). animate pops the points in,
+// lowest score first, on the click that shows them; focusNew pops the
+// highlighted point in.
+function llmLvlAllSvg(models, focus, animate, focusNew) {
+  const { S, L, T, R, B, LO } = LLM_LVL, W = L + S + R, H = T + S + B;
+  const x = (v) => L + ((Math.min(1, Math.max(LO, v)) - LO) / (1 - LO)) * S;
+  const y = (v) => T + S - ((Math.min(1, Math.max(LO, v)) - LO) / (1 - LO)) * S;
+  const ticks = [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1];
+  const ty = T + S / 2, n = models.length;
+  const dots = models.map((x0, i) => {
+    const tip = `<strong>${esc(x0.name)}</strong><br>Commonsensicality ${fmtPct(x0.commonsensicality)}<br>Consensus ${fmtPct(x0.consensus)} · awareness ${fmtPct(x0.awareness)}`;
+    return `<circle class="llm-lvl-all-dot" cx="${x(x0.consensus).toFixed(1)}" cy="${y(x0.awareness).toFixed(1)}" r="5.5" style="--i:${n - 1 - i}" data-llm-tip="${esc(tip)}" data-ind-pick="${esc(x0.id)}"/>`;
+  }).join("");
+  let pin = "";
+  if (focus) {
+    const px = x(focus.consensus), py = y(focus.awareness), left = px > L + S * 0.5;
+    pin =
+      `<g class="llm-lvl-pin${focusNew ? " is-new" : ""}"><circle class="llm-lvl-ring" cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="13"/>` +
+      `<circle class="llm-lvl-dot" cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="8"/>` +
+      `<text x="${(left ? px - 18 : px + 18).toFixed(1)}" y="${(py + 22 > T + S - 24 ? py - 18 : py + 26).toFixed(1)}" text-anchor="${left ? "end" : "start"}" class="llm-lvl-name">${esc(focus.name)}</text></g>`;
+  }
+  const label = focus ? `, ${focus.name} highlighted` : "";
   return (
-    `<p class="llm-p">If we do this for all ${fmtNum(P)} participants, the result is:</p>` +
-    `<div class="llm-waffle" role="img" aria-label="${groups.map(([v, , l]) => `${l}: ${fmtNum(v)} of ${fmtNum(P)}`).join("; ")}">` +
-    `<div class="llm-waffle-grps">${crowds}</div></div>` +
-    `<p class="llm-p">Thus, ${name} is rated more commonsensical than ${llmB(llmPctFine(h.wins / P))} of the human population.</p>`
+    `<svg class="llm-lvl-svg is-all${focus ? " has-focus" : ""}${animate ? " is-anim-all" : ""}" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="${esc(`Consensus and awareness of all ${n} models${label}`)}" data-lvl="${L},${T},${S},${LO}">` +
+    `<defs><mask id="llmLvlMask${++_llmLvlMasks}" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="${L}" y="${T}" width="${S}" height="${S}">` +
+    `<image href="${llmLvlBg()}" x="${L}" y="${T}" width="${S}" height="${S}" preserveAspectRatio="none"/></mask></defs>` +
+    `<rect x="${L}" y="${T}" width="${S}" height="${S}" class="llm-lvl-bg"/>` +
+    `<rect x="${L}" y="${T}" width="${S}" height="${S}" class="llm-lvl-shade" mask="url(#llmLvlMask${_llmLvlMasks})"/>` +
+    `<rect x="${L}" y="${T}" width="${S}" height="${S}" class="llm-lvl-frame"/>` +
+    ticks.map((t) => `<text x="${x(t)}" y="${T + S + 25}" text-anchor="middle" class="llm-lvl-tick">${Math.round(t * 100)}%</text>` +
+      `<text x="${L - 9}" y="${y(t) + 6}" text-anchor="end" class="llm-lvl-tick">${Math.round(t * 100)}%</text>`).join("") +
+    `<text x="${L + S / 2}" y="${H - 4}" text-anchor="middle" class="llm-lvl-axis is-agree">Consensus</text>` +
+    `<text x="16" y="${ty}" text-anchor="middle" transform="rotate(-90 16 ${ty})" class="llm-lvl-axis is-expect">Awareness</text>` +
+    `<g class="llm-lvl-all">${dots}</g>` + pin +
+    `</svg>`
   );
 }
 
-// Chapter 6: chapter 5's comparison for every LLM (Josh, October 2026: what
-// matters is where a model falls among people, not its raw score). Each
-// model is a bar of the share of the participants it scores higher than
-// (orange), ties with (grey) and scores lower than (blue), each person on
-// their own 50 statements (m.head), sorted by the share it beats (rankInd),
-// with a dashed line at half of participants. The followed model is
-// highlighted; a click on another follows it in place (data-ind-pick).
+function llmIndCh5(m, md, fresh) {
+  const d = LLM.data, I = LLM.ind, T = LLM_IND_AT, n = d.n_statements, name = esc(m.name), title = llmIndChapters(m)[4];
+  if (I.stage < LLM_IND_OPEN[4]) return llmChap("llmIndC5", 5, title, false);
+  // the model's score, as chapter 3 computes it
+  const q1t = m.tab.q1, q2t = m.tab.q2;
+  const M = Math.sqrt(((q1t[0][0] + q1t[1][1]) / n) * ((q2t[0][0] + q2t[1][1]) / n));
+  const lead = `How should we compare ${name}, which has a commonsensicality score of ${llmB(fmtPct(M))}, with humans?`;
+  if (I.stage < T.intro) return llmChap("llmIndC5", 5, title, true, lead, "");
+  const P = llmIndPersonRows(md);
+  if (!P) return llmChap("llmIndC5", 5, title, true, lead, '<div class="empty-row">Loading…</div>');
+  const { ex, person, rows, pc, pa, mc, ma, cmp } = P, s = ex.s, k = rows.length;
+  const f = (st) => llmFresh(fresh, st);
+  const pf = (st) => (fresh && fresh.has("person") ? " llm-in" : f(st));
+  const beat = (st, html, key = st, attrs = "") => (I.stage >= st ? `<div class="llm-beat${llmFresh(fresh, key)}" id="llmIndB${st}"${attrs}>${html}</div>` : "");
+  // the person's answer to a question, or, until its click, an empty slot
+  // of the same height (as chapter 1 holds the model's)
+  const ans = (v, st) => (I.stage >= st
+    ? `<div class="llm-sv-one${f(st)}" data-who="${person}">${llmYesNo(v)}</div>`
+    : `<div class="llm-sv-pend"></div>`);
+  // One of their statements, then each question and the person's answer,
+  // a click each
+  let ratings = `<p class="llm-p">Consider the following individual. Here are their ratings of a statement.</p>`;
+  if (I.stage >= T.stmt) ratings += `<blockquote class="llm-ex-quote${f(T.stmt)}">${esc(s.text)}</blockquote>`;
+  if (I.stage >= T.q1) {
+    ratings +=
+      `<div class="llm-sv-grid${f(T.q1)}"><div class="llm-sv-th"></div>` +
+      `<div class="llm-sv-th is-who${I.stage >= T.a1 ? f(T.a1) : " is-pend"}">${llmWho(person, false)}</div>` +
+      `<div class="llm-sv-q"><span class="llm-sv-qn">1</span>${LLM_TASK_QS[0]}</div>${ans(ex.ia, T.a1)}` +
+      (I.stage >= T.q2
+        ? `<div class="llm-sv-q${f(T.q2)}"><span class="llm-sv-qn">2</span>${LLM_TASK_QS[1]}</div>${ans(ex.oa, T.a2)}`
+        : "") +
+      `</div>`;
+  }
+  let body = beat(T.intro, ratings, fresh && fresh.has("pex") ? "pex" : T.intro);
+  // each side's scores: the sentence before them alone, then the scores a
+  // click later, in the same block
+  const scores = (total, st, who, first, then) => beat(total,
+    who + `<p class="llm-p">${first}</p>` + (I.stage >= st ? `<p class="llm-p${pf(st)}">${then}</p>` : ""),
+    fresh && fresh.has("person") ? "person" : total);
+  body += scores(T.pTotal, T.pScore, llmWho(person, false, "llm-who-tag"),
+    `This participant rated ${k} statements in total.`,
+    `By comparing their answers with the majority ratings, they receive ${llmIndScoreSentence(pc, pa, k)}.`);
+  body += scores(T.mTotal, T.mScore, llmWho(name, true, "llm-who-tag"),
+    `For a fair comparison, we restrict ${name} to the same ${k} statements.`,
+    `The model achieves ${llmIndScoreSentence(mc, ma, k)}.`);
+  // "In summary:" alone, then the two side by side, then who scores higher
+  // (on a tie, which the match counts decide, the same score)
+  let sum = `<p class="llm-p">In summary:</p>`;
+  if (I.stage >= T.table) sum += `<div class="llm-ind-vs${pf(T.table)}">${llmIndVsTable(person, name, [pc, pa], [mc, ma], k, cmp)}</div>`;
+  if (I.stage >= T.verdict) {
+    sum += `<p class="llm-p${pf(T.verdict)}">Thus, ${name} achieves ${cmp === 0
+      ? `${llmB("the same commonsensicality score")} as ${person}`
+      : `a ${llmB(`${cmp > 0 ? "higher" : "lower"} commonsensicality score`)} than ${person}`}.</p>`;
+  }
+  // from "In summary:" on, the panel keeps it at the top (data-llm-top;
+  // Josh, October 2026), so the table and the verdict come in under it
+  body += beat(T.sum, sum, fresh && fresh.has("person") ? "person" : T.sum, " data-llm-top");
+  // one participant and one of their statements, with no links to others
+  // (Josh, October 2026)
+  return llmChap("llmIndC5", 5, title, true, lead, body);
+}
+
+// ── 6 · Aggregating over all participants and LLMs ──
+// Chapters 6 and 7 combined (Josh, October 2026). The lead recaps the
+// comparison with chapter 5's participant; then, a click each: "If we
+// perform this comparison for all 2,046 people:" and the model's bar of the
+// participants it scores higher than (orange), ties with (grey) and scores
+// lower than (blue), each person on their own 50 statements (one); the
+// three shares in a sentence (shares), rounded by largest remainder so they
+// add up to 100.0% (llmIndShares()); every LLM's bar, sorted by the share it
+// beats (rankInd), with a dashed line at half of participants, the model's
+// bar moving from where it stood down into its place among them (llms,
+// llmIndMorphBars()); then how many LLMs beat half of people (half). The
+// followed model is highlighted; a click on another follows it in place
+// (data-ind-pick).
 function llmIndCh6(m, md, fresh) {
-  const I = LLM.ind, d = LLM.data, P = d.n_participants, title = llmIndChapters(m)[5];
+  const I = LLM.ind, d = LLM.data, A = LLM_IND_AGG, P = d.n_participants, name = esc(m.name), title = llmIndChapters(m)[5];
   if (I.stage < LLM_IND_OPEN[5]) return llmChap("llmIndC6", 6, title, false);
+  const R = llmIndPersonRows(md);
+  const cmp = R ? R.cmp : 1, pid = R ? R.pr.id : I.person;
+  const how = cmp === 0 ? "the same commonsensicality score as" : `a ${cmp > 0 ? "higher" : "lower"} commonsensicality score than`;
+  const lead = `We just saw that ${name} achieves ${how} participant #${pid}.`;
+  if (I.stage < A.one) return llmChap("llmIndC6", 6, title, true, lead, "");
+  const f = (k) => llmFresh(fresh, k);
   const models = [...d.models].sort((a, b) => a.rankInd - b.rankInd), N = models.length;
-  const half = models.filter((x) => 2 * x.head.wins > P).length;
-  const refs = [{ x: 0.5, cls: "is-half" }];
-  const rows = models.map((x, i) => {
-    const h = x.head;
-    const tip = `<strong>${esc(x.name)}</strong><br>Scores higher than ${fmtNum(h.wins)} participants (${llmPctFine(h.wins / P)})` +
-      `<br>Ties with ${fmtNum(h.ties)} (${llmPctFine(h.ties / P)})<br>Scores lower than ${fmtNum(h.losses)} (${llmPctFine(h.losses / P)})`;
-    return (
-      `<div class="llm-bar-row${x.id === m.id ? " is-selected" : ""}" data-ind-pick="${esc(x.id)}" data-llm-tip="${esc(tip)}" role="button" tabindex="0"` +
-      ` aria-label="${esc(`${x.name}: scores higher than ${llmPctFine(h.wins / P)}, ties with ${llmPctFine(h.ties / P)} and scores lower than ${llmPctFine(h.losses / P)} of participants. Follow this model.`)}">` +
-      `<span class="lb-rank">${i + 1}</span><span class="lb-name">${llmName(x)} <span class="lb-org">${esc(x.organization || "")}</span></span>` +
-      llmStackTrack([[h.wins / P, "is-open"], [h.ties / P, "is-tie"], [h.losses / P, "is-human"]], refs) +
-      `<span class="lb-val">${llmPctFine(h.wins / P)}</span></div>`
-    );
-  }).join("");
-  const body =
-    `<div class="llm-beat${llmFresh(fresh, LLM_IND_OPEN[5])}" id="llmIndB${LLM_IND_OPEN[5]}">` +
+  const legend =
     `<div class="llm-legend llm-h2h-legend" aria-hidden="true">` +
     `<span><i class="llm-key llm-key-open"></i>LLM scores higher</span>` +
     `<span><i class="llm-key llm-key-tie"></i>Tie</span>` +
-    `<span><i class="llm-key llm-key-people"></i>Participant scores higher</span></div>` +
-    `<div class="llm-bars llm-board llm-h2h">` +
-    `<div class="llm-bar-row is-head"><span class="lb-rank">#</span><span class="lb-name">LLM</span>${llmAxis(LLM_PCT_SCALE)}<span class="lb-val">Higher</span></div>` +
-    rows + `</div>` +
-    `<p class="llm-p">Thus, ${2 * half < N ? "only " : ""}${llmB(`${half} out of ${N}`)} LLMs are rated more commonsensical than half of the human population.</p>` +
-    `<p class="llm-note">Point at a bar for its counts, or click it to follow that LLM.</p></div>`;
-  return llmChap("llmIndC6", 6, title, true, `If we do the same for all ${N} LLMs, we have the following results.`, body);
+    `<span><i class="llm-key llm-key-people"></i>Participant scores higher</span></div>`;
+  const head = `<div class="llm-bar-row is-head"><span class="lb-rank">${I.stage >= A.llms ? "#" : ""}</span><span class="lb-name">LLM</span>${llmAxis(LLM_PCT_SCALE)}<span class="lb-val">Higher</span></div>`;
+  const [sw, st, sl] = llmIndShares(m.head, P);
+  let body =
+    `<div class="llm-beat${f(A.one)}" id="llmIndB${A.one}">` +
+    `<p class="llm-p">If we perform this comparison for all ${fmtNum(P)} people:</p>`;
+  // until every LLM comes in, the model's bar alone; from then on it is one
+  // of the 44, below
+  // (no legend here: the next sentence names each colour, Josh, October 2026)
+  if (I.stage < A.llms) body += `<div class="llm-bars llm-board llm-h2h" id="llmIndOne">${head}${llmIndH2hRow(m, m, "")}</div>`;
+  if (I.stage >= A.shares) {
+    // each share in its part's colour: higher orange, ties grey, lower blue
+    const part = (cls, html) => `<span class="llm-share ${cls}">${html}</span>`;
+    body += `<p class="llm-p${f(A.shares)}">${name} ${part("is-open", `scores higher than ${llmB(sw)}`)}, ` +
+      `${part("is-tie", `ties with ${llmB(st)}`)}, and ${part("is-human", `scores lower than ${llmB(sl)}`)} of them.</p>`;
+  }
+  body += `</div>`;
+  if (I.stage >= A.llms) {
+    const half = models.filter((x) => 2 * x.head.wins > P).length;
+    // the board itself is not faded in (.is-morph): its rows come in one by
+    // one, and the model's moves down from where its bar stood
+    // (the beat itself isn't faded, or the moving bar would fade with it)
+    const morph = fresh && fresh.has(A.llms);
+    body +=
+      `<div class="llm-beat" id="llmIndB${A.llms}">` +
+      `<p class="llm-p${f(A.llms)}">If we do the same for all ${N} LLMs, we have the following results.</p>` +
+      (morph ? legend.replace('class="llm-legend', 'class="llm-in llm-legend') : legend) +
+      `<div class="llm-bars llm-board llm-h2h${morph ? " is-morph llm-in" : ""}" id="llmIndAll">${head}` +
+      models.map((x, i) => llmIndH2hRow(x, m, i + 1, morph)).join("") + `</div>` +
+      (I.stage >= A.half
+        ? `<p class="llm-p${f(A.half)}">Thus, ${2 * half < N ? "only " : ""}${llmB(`${half} out of ${N}`)} LLMs are rated more commonsensical than half of the human population.</p>` +
+          `<p class="llm-note${f(A.half)}">Point at a bar for its counts, or click it to follow that LLM.</p>`
+        : "") +
+      `</div>`;
+  }
+  return llmChap("llmIndC6", 6, title, true, lead, body);
+}
+
+// The shares of participants a model scores higher than, ties with and
+// scores lower than, each to one decimal and rounded by largest remainder,
+// so the three add up to 100.0% (rounded one by one, GPT-4o's 652, 22 and
+// 1,372 of 2,046 read 31.9%, 1.1% and 67.1%)
+function llmIndShares(h, P) {
+  return llmRoundTo([h.wins, h.ties, h.losses], 1000).map((v) => `${(v / 10).toFixed(1)}%`);
+}
+
+// One model's row of chapter 6's board: its rank (empty for the model's bar
+// alone), name, bar and the share it beats; the followed model (m)
+// highlighted
+function llmIndH2hRow(x, m, rank, keep = false) {
+  const h = x.head, P = LLM.data.n_participants;
+  const [w, t, l] = llmIndShares(h, P);
+  const tip = `<strong>${esc(x.name)}</strong><br>Scores higher than ${fmtNum(h.wins)} participants (${w})` +
+    `<br>Ties with ${fmtNum(h.ties)} (${t})<br>Scores lower than ${fmtNum(h.losses)} (${l})`;
+  return (
+    `<div class="llm-bar-row${x.id === m.id ? " is-selected" : ""}"${keep && x.id === m.id ? " data-llm-keep" : ""} data-ind-pick="${esc(x.id)}" data-llm-tip="${esc(tip)}" role="button" tabindex="0"` +
+    ` aria-label="${esc(`${x.name}: scores higher than ${w}, ties with ${t} and scores lower than ${l} of participants. Follow this model.`)}">` +
+    `<span class="lb-rank">${rank}</span><span class="lb-name">${llmName(x)} <span class="lb-org">${esc(x.organization || "")}</span></span>` +
+    llmStackTrack([[h.wins / P, "is-open"], [h.ties / P, "is-tie"], [h.losses / P, "is-human"]], [{ x: 0.5, cls: "is-half" }]) +
+    `<span class="lb-val">${w}</span></div>`
+  );
+}
+
+// Chapter 6's move from the model's bar to every LLM's: from (the bar's
+// place before the click, in the panel's scrolled coordinates) to the
+// model's row among the 44, which starts there and slides down into place
+// while the other rows come in, nearest first (CSS animations, so they
+// always finish, and none under reduced motion)
+function llmIndMorphBars(from) {
+  const wrap = document.getElementById("llmWrap"), board = document.getElementById("llmIndAll");
+  if (!wrap || !board) return;
+  const rows = [...board.querySelectorAll(".llm-bar-row:not(.is-head)")];
+  const k = rows.findIndex((r) => r.classList.contains("is-selected"));
+  if (k < 0) return;
+  const to = rows[k].getBoundingClientRect().top + wrap.scrollTop;
+  const dy = from === null ? 0 : from - to;
+  rows.forEach((r, i) => {
+    if (i === k) {
+      r.style.setProperty("--dy", `${dy.toFixed(1)}px`);
+      r.classList.add("is-fly");
+    } else {
+      r.style.setProperty("--d", `${450 + 28 * Math.abs(i - k)}ms`);
+      r.classList.add("is-rise");
+    }
+  });
 }
 
 // A bar of parts ([share, fill class]) laid end to end, with reference lines
@@ -1931,18 +2169,18 @@ function llmIndNext() {
 function llmIndAction(action) {
   const d = LLM.data, I = LLM.ind;
   if (!LLM.md) return;
-  if (action === "ind-another" || action === "ind-paper") {
-    I.ex = action === "ind-paper" ? d.examples.individual : llmRandomStatement(I.ex, llmIndTelling);
+  if (action === "ind-another") {
+    I.ex = llmRandomStatement(I.ex, llmIndTelling);
     llmIndPaint(new Set(["ex"]), [1]);
   } else if (action === "ind-person") {
     I.person = llmIndRandomPerson(I.person);
     I.pex = null;
-    llmIndLoadPerson().then(() => llmIndPaint(new Set(["pex", "person"]), [4, 5]))
+    llmIndLoadPerson().then(() => llmIndPaint(new Set(["pex", "person"]), [5, 6]))
       .catch((err) => console.error("LLM participant load failed:", err));
   } else if (action === "ind-pstmt" && I.personRatings) {
     const pool = I.personRatings.ratings.map((r) => r[0]).filter((id) => id !== I.pex && !d.statements[id].placeholder);
     if (pool.length) I.pex = pool[Math.floor(Math.random() * pool.length)];
-    llmIndPaint(new Set(["pex"]), [4]);
+    llmIndPaint(new Set(["pex"]), [5]);
   }
 }
 
@@ -1980,7 +2218,7 @@ function llmIndRestart() {
   llmIndPaint(null);
   llmStoryTop();
   // the first person's statements, ready before chapter 4 opens again
-  llmIndLoadPerson().then(() => { if (I.stage >= LLM_IND_OPEN[3]) llmIndPaint(null, [4, 5]); })
+  llmIndLoadPerson().then(() => { if (I.stage >= LLM_IND_OPEN[4]) llmIndPaint(null, [5, 6]); })
     .catch((err) => console.error("LLM participant load failed:", err));
 }
 
@@ -1990,33 +2228,34 @@ function llmStoryTop() {
 }
 
 // ══ LLMs as populations ════════════════════════════════════════════════════
-// Stages, one per click of Next. Chapters 1 and 2 show how a crowd
-// scores a statement, for a crowd that could be real or simulated (Josh,
-// October 2026: an intro that doesn't go straight to the calculation, in
-// short chapters): 0 two statements, one-sided and split (chapter 1); 1–3
-// the question, how common-sense a statement is, and a crowd of 10 worked
-// through a beat a click, its consensus (1), its awareness (2) and the two
-// combined (3) (chapter 2). Then 4 the model's population next to the real
-// raters of one statement (3); 5 the statement scored in each population
-// (4); 6 the lead into every statement, then each population's scores
-// counted statement by statement, people's (7) and the model's
-// population's (8) (5); 9 one statement as a point on a scatter plot of the
-// two scores; 10 every statement; 11 the best-fit line and r (6); 12 one
-// statement in two random halves of people; 13 every statement in each
-// half, plotted, and the halves' r (7); 14 r over many random splits, the
-// split-half reliability (8); 15 the verdict (9). Chapters 1–6 are narrated
-// as the individual story's chapters 1–3 are (October 2026: "Consider …",
-// "If we do the same for all statements …", "Thus, … a consensus score of
-// …", the key word in bold, sentences in place of labels). The counts (7,
-// 8) and the plots (10, 13) animate when they open (on a timer, as chapter 2
-// of the individual story does), and the next step waits for them to
-// finish. One idea per chapter (Josh, October 2026), so the count, the
-// plot, the two halves and the many splits each have a card of their own.
+// Stages, one per click of Next, as in the individual story (Josh, October
+// 2026: a click per sentence or element, wherever a step can be broken
+// down). Stage 0 is the header alone; a click opens chapter 1. Chapters 1
+// and 2 show how a crowd scores a statement: two statements and their
+// raters, a share a click (1); statement 1 scored, each question alone,
+// then people's answers, then the score it defines, then the two combined
+// and the score as a sentence (2); both statements' three scores side by
+// side, a row a click, and which is more commonsensical (3). Then the
+// model's population, following statement 2 from here on: the lead
+// alone, the statement, real people, then the population's two answers a
+// click each (4); the statement scored in each population, a row of the
+// table a click (5); the scatter plot of the two scores over every
+// statement, opening, as the individual story's chapter 3 does, on the
+// statement's two values marked on the axes, then its point, every point,
+// the line and r (6); the baseline, two random halves of people, each
+// half a click, then their scatter plot built the same way (7); r over
+// many splits, its average and its spread each a click and marked on the
+// plot as they are named (8); every LLM's r (9). What a later click shows
+// in a row or a column holds its place, hidden (.is-pend), so nothing
+// moves when it appears. The plots animate when they open (on a timer),
+// and the next step waits for them to finish. Chapters 1–7 are narrated as
+// the individual story's chapters 1–3 are ("Consider …", "Thus, …", the
+// key word in bold, sentences in place of labels).
 
 // The chapters' names in the story's header (chapter 2's card is titled
 // with its question)
 function llmPopChapters(m) {
-  return ["Statement ratings", "Measuring a statement's common sense", `${llmName(m)}'s population`, "One statement, two scores", "Across all statements", "Setting up a baseline", "Many random splits", "Aggregating over all LLMs"];
+  return ["Statement ratings", "Measuring a statement's common sense", "Comparing the two statements", `${llmName(m)}'s population`, "One statement, two scores", "Across all statements", "Setting up a baseline", "Many random splits", "Aggregating over all LLMs"];
 }
 // (the chapter that counted each population's scores, "Aggregating over all
 // statements", was removed at Josh's request, October 2026: chapter 4 leads
@@ -2024,34 +2263,52 @@ function llmPopChapters(m) {
 // (the verdict for the followed model alone was removed too, at Josh's
 // request: the baseline leads straight to every LLM, as the individual
 // story ends)
-const LLM_POP_OPEN = [0, 4, 10, 11, 12, 15, 21, 25];   // the stage that opens each chapter
-const LLM_POP_LAST = 26;
-// The steps inside chapters, by name, so no stage number is written twice:
-// chapter 2's crowd (consensus, awareness, the two combined), chapter 5's
-// counts (people's scores, the model's population's), chapter 6's plot
-// (one point, every point, the best-fit line) and chapter 7's split (one
-// statement, every statement)
-const LLM_POP_AT = {
-  // chapter 2 opens on the statement alone; then question 1 and its result
-  // (crowdC), the consensus defined (crowdCd), question 2 and its result
-  // (crowdA), the awareness defined (crowdAd), the two combined (crowdS)
-  crowdC: LLM_POP_OPEN[1] + 1, crowdCd: LLM_POP_OPEN[1] + 2, crowdA: LLM_POP_OPEN[1] + 3, crowdAd: LLM_POP_OPEN[1] + 4, crowdS: LLM_POP_OPEN[1] + 5,
-  pop: LLM_POP_OPEN[2], two: LLM_POP_OPEN[3],
-  sctOne: LLM_POP_OPEN[4], sctAll: LLM_POP_OPEN[4] + 1, sctFit: LLM_POP_OPEN[4] + 2,
-  // chapter 6, a click a step (Josh, October 2026): the question alone
-  // (split), the two halves (imagine), their ratings of statement 2
-  // (crowds), its score in each half as one point (one), every statement
-  // (halves), the line and r (halvesFit)
-  split: LLM_POP_OPEN[5], imagine: LLM_POP_OPEN[5] + 1, crowds: LLM_POP_OPEN[5] + 2, one: LLM_POP_OPEN[5] + 3,
-  halves: LLM_POP_OPEN[5] + 4, halvesFit: LLM_POP_OPEN[5] + 5,
-  // chapter 7, a click a step as chapter 6 (Josh, October 2026): the lead
-  // alone (splits), the histogram of r over every split (splitsHist), its
-  // average and range (splitsAvg), the split-half reliability (splitsThus)
-  splits: LLM_POP_OPEN[6], splitsHist: LLM_POP_OPEN[6] + 1, splitsAvg: LLM_POP_OPEN[6] + 2, splitsThus: LLM_POP_OPEN[6] + 3,
-  // chapter 8: the followed model against the baseline (allLlms), then
-  // the best model and every LLM's bar (allBars)
-  allLlms: LLM_POP_OPEN[7], allBars: LLM_POP_OPEN[7] + 1,
-};
+const LLM_POP_OPEN = [1, 7, 16, 21, 26, 31, 35, 44, 50];   // the stage that opens each chapter
+const LLM_POP_LAST = 52;
+// The steps inside chapters, by name, so no stage number is written twice
+const LLM_POP_AT = (() => {
+  const O = LLM_POP_OPEN;
+  return {
+    // chapter 2 opens on statement 2 alone; then, a click each, question 1
+    // alone (q1), people's answers and the sentence that counts them (r1),
+    // the consensus defined (cDef); the same for question 2 (q2, r2, aDef);
+    // the two combined (comb) and the score as a sentence (score)
+    q1: O[1] + 1, r1: O[1] + 2, cDef: O[1] + 3, q2: O[1] + 4, r2: O[1] + 5, aDef: O[1] + 6, comb: O[1] + 7, score: O[1] + 8,
+    // chapter 3 (Josh, October 2026): the lead alone (cmp), then the table
+    // comparing the two statements a row a click (cmpC, cmpA, cmpS), then
+    // which is more commonsensical (cmpThus)
+    cmp: O[2], cmpC: O[2] + 1, cmpA: O[2] + 2, cmpS: O[2] + 3, cmpThus: O[2] + 4,
+    // chapter 4: the lead alone (pop), "Coming back to statement 2." and the
+    // statement (stmt), real people (people), then the population's share
+    // that agrees (popAgree) and the share that predicts most would (popPred)
+    pop: O[3], stmt: O[3] + 1, people: O[3] + 2, popAgree: O[3] + 3, popPred: O[3] + 4,
+    // chapter 5: the lead and the statement (two), then the table a row a
+    // click (cons, aware, css), then the conclusion (thus)
+    two: O[4], cons: O[4] + 1, aware: O[4] + 2, css: O[4] + 3, thus: O[4] + 4,
+    // chapter 6: the sentence beside the plot with the statement's two
+    // values on the axes (sctOne), its point (sctPt), every statement
+    // (sctAll), the line and r (sctFit)
+    sctOne: O[5], sctPt: O[5] + 1, sctAll: O[5] + 2, sctFit: O[5] + 3,
+    // chapter 7: the question alone (split), the two halves (imagine; the
+    // split loads on this click), "Here are what their ratings look like."
+    // and the statement (crowds), half A (halfA), half B (halfB), the
+    // statement's score in each half beside the plot with its values on
+    // the axes (one), its point (onePt), every statement (halves), the line
+    // and r (halvesFit)
+    split: O[6], imagine: O[6] + 1, crowds: O[6] + 2, halfA: O[6] + 3, halfB: O[6] + 4,
+    one: O[6] + 5, onePt: O[6] + 6, halves: O[6] + 7, halvesFit: O[6] + 8,
+    // chapter 8: the lead alone, this split's r (splits); the dot plot with
+    // only this split's dot, falling onto the axis (splitsOne); every other
+    // split's dot falling onto it (splitsHist); its average, marked on the
+    // plot (splitsAvg), the range of 95% of splits, shaded (splitsRange), the
+    // split-half reliability (splitsThus)
+    splits: O[7], splitsOne: O[7] + 1, splitsHist: O[7] + 2, splitsAvg: O[7] + 3, splitsRange: O[7] + 4, splitsThus: O[7] + 5,
+    // chapter 9: the followed model against the baseline (allLlms), every
+    // LLM's bar (allBars), then the best model, in the room kept for it
+    // over the bars (allBest)
+    allLlms: O[8], allBars: O[8] + 1, allBest: O[8] + 2,
+  };
+})();
 // Chapter 1's two statements (Josh, October 2026: something more interesting
 // than "Oranges grow on trees", and plainer than "A person doesn't want a fly
 // in their soup", and not quite unanimous, Josh): statement 1, which 27 of
@@ -2061,10 +2318,11 @@ const LLM_POP_AT = {
 // read cleanly, with no stand-in names (statement 2 is also the Overview's
 // second task example, LLM_TASK_EXAMPLES)
 const LLM_POP_INTRO = ["The first thing you do when you cook is wash your hands.", "An apple a day keeps the doctor away."];
-// Chapter 1's steps: the two statements (0), the share who agree with each
-// (1), the share who predict most others would (2), and which is more
-// commonsensical (3)
-const LLM_POP_INTRO_AT = { agree: 1, predict: 2, verdict: 3 };
+// Chapter 1's steps: the two statements (open), the share who agree with
+// statement 1, then statement 2 (agree), the share who predict most others
+// would agree, statement 1's then 2's (predict), and which is more
+// commonsensical (verdict)
+const LLM_POP_INTRO_AT = { open: LLM_POP_OPEN[0], agree: [2, 3], predict: [4, 5], verdict: 6 };
 // The next step waits while a split loads and while a plot draws
 function llmPopBusy() {
   const Q = LLM.pop;
@@ -2075,33 +2333,61 @@ function llmPopNextLabel(m) {
   const Q = LLM.pop, n = fmtNum(LLM.data.n_statements);
   if (Q.anim !== null) return "Plotting…";
   if (Q.busy) return "Splitting the people…";
+  const K = fmtNum(LLM.data.models.length);
+  // the label for the step Next takes (stage + 1)
   return [
-    "How many people agreed?",
-    "What did they predict?",
+    "Start with two statements",
+    "How many agree with statement 1?",
+    "How many agree with statement 2?",
+    "What do statement 1's raters predict?",
+    "What do statement 2's raters predict?",
     "Compare the two statements",
-    "Measure statement 2's common sense",
-    "How close are people to unanimity?",
+    "Measure statement 1's common sense",
+    "Ask the first question",
+    "Show how people answered",
     "Define its consensus",
-    "Check their predictions",
+    "Ask the second question",
+    "Show their predictions",
     "Define its awareness",
     "Combine them into one score",
+    "Show its commonsensicality",
+    "Compare the two statements",
+    "Compare their consensus",
+    "Compare their awareness",
+    "Compare their commonsensicality",
+    "Which is more commonsensical?",
     `Meet ${m.name}'s population`,
+    "Come back to statement 2",
+    "Show how real people rated it",
+    "How many in the population agree?",
+    "What does the population predict?",
     "Score the statement in each population",
+    "Compare their consensus",
+    "Compare their awareness",
+    "Compare their commonsensicality",
+    "Sum up",
     "Compare across all statements",
+    "Plot statement 2",
     `Plot all ${n} statements`,
     "Show the correlation",
     "Set up a baseline",
     "Split the people in two",
     "Show their ratings",
+    "Show half A",
+    "Show half B",
     "Score statement 2 in each half",
+    "Plot statement 2",
     `Plot all ${n} statements`,
     "Show the correlation",
     "Try many random splits",
+    "Plot this split",
     `Split ${fmtNum(LLM.data.split_half.n_splits)} times`,
     "Average them",
+    "Show their spread",
     "Set the baseline",
-    `Compare all ${fmtNum(LLM.data.models.length)} LLMs`,
-    `Show all ${fmtNum(LLM.data.models.length)} LLMs`,
+    `Compare all ${K} LLMs`,
+    `Show all ${K} LLMs`,
+    "Find the best LLM",
   ][Q.stage] ?? "Next: the overview";
 }
 
@@ -2176,7 +2462,7 @@ function llmPopPaint(fresh, only = null) {
   llmPopAnimStop();
   const opened = LLM_POP_OPEN.filter((s) => Q.stage >= s).length;
   document.getElementById("llmPopHead").innerHTML = llmStoryHead("population", m, llmPopChapters(m), opened, { stage: Q.stage, end: Q.stage >= LLM_POP_LAST });
-  const chapters = [llmPopCh1, llmPopCh2, llmPopCh3, llmPopCh4, llmPopCh5, llmPopCh6, llmPopCh7, llmPopCh8];
+  const chapters = [llmPopCh1, llmPopCh2, llmPopCh3, llmPopCh4, llmPopCh5, llmPopCh6, llmPopCh7, llmPopCh8, llmPopCh9];
   const story = document.getElementById("llmPopStory");
   const all = only === null || !story.children.length;
   const which = all ? chapters.map((_, i) => i + 1) : only;
@@ -2187,8 +2473,8 @@ function llmPopPaint(fresh, only = null) {
   }
   const has = (k) => !!fresh && fresh.has(k);
   const A = LLM_POP_AT;
-  if (which.includes(5) && Q.stage >= A.sctAll && has(A.sctAll)) llmSctAnimate("llmPopSctSvg", A.sctAll);
-  if (which.includes(6) && Q.stage >= A.halves && has(A.halves) && llmPopSplitReady()) llmSctAnimate("llmPopHalvesSvg", A.halves);
+  if (which.includes(6) && Q.stage >= A.sctAll && has(A.sctAll)) llmSctAnimate("llmPopSctSvg", A.sctAll);
+  if (which.includes(7) && Q.stage >= A.halves && has(A.halves) && llmPopSplitReady()) llmSctAnimate("llmPopHalvesSvg", A.halves);
   llmPopStepper();
 }
 
@@ -2228,24 +2514,28 @@ function llmPopAnimate(dur, frame, done) {
   }, 40);
 }
 
-// ── 1 · One-sided or split: two real statements and their raters (0) ──
-// Narrated as the individual story's chapter 1 is (October 2026):
-// "Consider the following two statements:", each with the sentence that
-// counts its raters and the raters as figures, then what the two show,
-// the key words in bold
+// ── 1 · Statement ratings (stages 1–6). Stage 0 is the header alone and a
+// click opens the chapter, as in the individual story (Josh, October 2026);
+// then a click each: the two statements side by side (open), the share of
+// statement 1's raters who agree, then statement 2's (agree), the share
+// who predict most others would agree, statement 1's then 2's (predict),
+// and which is more commonsensical (verdict). Each share is a sentence
+// over 20 figures (people's blue, question 2's teal), percentages only. A
+// row's second cell holds its place, hidden, until its click. ──
 
 function llmPopCh1(m, md, fresh) {
   const d = LLM.data, Q = LLM.pop, A = LLM_POP_INTRO_AT, title = llmPopChapters(m)[0];
+  if (Q.stage < A.open) return llmChap("llmPopC1", 1, title, false);
   const shown = LLM_POP_INTRO.map((t) => d.statements.find((x) => x.raw === t)).filter(Boolean);
-  // Both statements side by side, a column each, one row a click: the
-  // statements alone (0), then the share of their raters who agree (1),
-  // then the share who predict most others would agree (2), each as a
-  // percentage only and the same 20 figures for both (Josh, October 2026:
-  // the raw counts left out), question 2 in its own colour
   const FIGS = 20;
-  const cols = (f) => `<div class="llm-crowd-cols">${shown.map((s, i) => `<div class="llm-crowd-col">${f(s, i + 1)}</div>`).join("")}</div>`;
-  const row = (st, f) => Q.stage >= st ? `<div class="llm-beat${llmFresh(fresh, st)}" id="llmPopB${st}">${cols(f)}</div>` : "";
   const figs = (share, cls) => llmFigureRow(Math.round(share * FIGS), FIGS, cls, "is-grid");
+  // the two columns; with sts (a stage per column), each column shows from
+  // its own click, held in place and hidden until then (.is-pend)
+  const cols = (f, sts = null) => `<div class="llm-crowd-cols">${shown.map((s, i) => {
+    const cls = !sts ? "" : Q.stage < sts[i] ? " is-pend" : i ? llmFresh(fresh, sts[i]) : "";
+    return `<div class="llm-crowd-col${cls}">${f(s, i + 1)}</div>`;
+  }).join("")}</div>`;
+  const row = (sts, f) => (Q.stage >= sts[0] ? `<div class="llm-beat${llmFresh(fresh, sts[0])}" id="llmPopB${sts[0]}">${cols(f, sts)}</div>` : "");
   let body = cols((s, k) =>
     `<div class="llm-stmt-label">Statement ${k}</div><blockquote class="llm-ex-quote is-sm">${esc(s.text)}</blockquote>`);
   body += row(A.agree, (s, k) =>
@@ -2260,90 +2550,142 @@ function llmPopCh1(m, md, fresh) {
   return llmChap("llmPopC1", 1, title, true, "Consider the following two statements:", body);
 }
 
-// ── 2 · Measuring a statement's common sense (stages 4–6; Josh, October
-// 2026): chapter 1's statement 2 again, with chapter 1's percentages and
+// ── 2 · Measuring a statement's common sense (stages 7–15; Josh, October
+// 2026): chapter 1's statement 1 again (the one people agree on, so the
+// score it gets is high; statement 2's follows in chapter 3), with chapter 1's percentages and
 // colours (people's agreement in blue, their predictions in teal, 20
-// figures), opening on the statement alone (4), then a click each: how
-// close people are to a unanimous judgment (5) and its consensus defined
-// (6); how many predict the majority (7) and its awareness defined (8);
-// then the two combined, in the individual story's chapter 3's words and
-// display (9). Every percentage to one decimal (Josh). ──
+// figures), opening on the statement alone, then a click each, as the
+// individual story's chapter 1 asks its questions: question 1 alone (q1),
+// people's answers as figures and the sentence that counts them (r1), the
+// consensus defined (cDef); the same for question 2 (q2, r2, aDef); then
+// the two combined, in the individual story's chapter 3's words and display
+// (comb), and, as that chapter ends, the score as a sentence (score). Every
+// percentage to one decimal (Josh). ──
 
 function llmPopCh2(m, md, fresh) {
   const d = LLM.data, Q = LLM.pop, A = LLM_POP_AT, title = llmPopChapters(m)[1];
   if (Q.stage < LLM_POP_OPEN[1]) return llmChap("llmPopC2", 2, title, false);
-  const s = d.statements.find((x) => x.raw === LLM_POP_INTRO[1]);
+  const s = d.statements.find((x) => x.raw === LLM_POP_INTRO[0]);
   if (!s) return llmChap("llmPopC2", 2, title, true, "", "");
   const pa = s.k_agree / s.n, po = s.k_others / s.n, sc = llmCrowdScore(pa, po);
   const pPred = sc.maj ? po : 1 - po;   // those who predict the majority
-  const FIGS = 20;
-  const figs = (share, cls) => llmFigureRow(Math.round(share * FIGS), FIGS, cls, "is-grid");
-  const nb = (t) => t.replace(/ /g, "\u00a0");   // a formula kept on one line
-  const beat = (st, inner) => `<div class="llm-beat llm-irun llm-crowd-beat${llmFresh(fresh, st)}" id="llmPopB${st}">${inner}</div>`;
-  let body = `<blockquote class="llm-ex-quote">${esc(s.text)}</blockquote>`;
-  // a click each (Josh, October 2026): question 1 and its result, the
-  // consensus defined, question 2 and its result, the awareness defined.
+  const FIGS = 20, f = (st) => llmFresh(fresh, st);
+  const figs = (share, cls, st) => llmFigureRow(Math.round(share * FIGS), FIGS, cls, `is-grid${f(st)}`);
+  const p = (st, html) => (Q.stage >= st ? `<p class="llm-p${f(st)}" id="llmPopB${st}">${html}</p>` : "");
+  // a question alone; a click later, people's answers as figures and the
+  // sentence that counts them; another click, the score that defines (each
+  // definition indented as the result above it, with no rule above it)
+  const step = (q, num, text, r, share, cls, said, def, defHtml) => (Q.stage < q ? "" :
+    `<div class="llm-beat llm-irun llm-crowd-beat${f(q)}" id="llmPopB${q}">` +
+    llmQuestion(num, text) + (Q.stage >= r ? figs(share, cls, r) : "") + p(r, said) + p(def, defHtml) + `</div>`);
   // Every percentage to one decimal, even where 2 × |53.6% − 50%| reads 7.1%
-  // (Josh: fine).
-  const did = sc.maj ? "would agree" : "would not agree";
-  // each definition joins its question's step, a click later, with no rule
-  // above it and indented as the result above it (Josh, October 2026)
-  const def = (st, html) => (Q.stage >= st ? `<p class="llm-p${llmFresh(fresh, st)}" id="llmPopB${st}">${html}</p>` : "");
-  if (Q.stage >= A.crowdC) {
-    body += beat(A.crowdC,
-      llmQuestion(1, "How close are people to a unanimous judgment?") + figs(pa, "is-p") +
-      `<p class="llm-p">${sc.c < 0.3 ? `People are split: only ${llmB(fmtPct(pa))} of them agreed with this statement.` : `${llmB(fmtPct(pa))} of people agreed with this statement.`}</p>` +
-      def(A.crowdCd, `Define the statement's <strong>consensus</strong> score to be how far this percentage is from a 50-50 split:<span class="llm-formula-line">2 × |${fmtPct(pa)} − 50%| = ${llmB(fmtPct(sc.c))}.</span>`));
-  }
-  if (Q.stage >= A.crowdA) {
-    body += beat(A.crowdA,
-      llmQuestion(2, "How many accurately predict the opinion of most other people?") + figs(po, "is-q2") +
-      `<p class="llm-p">${llmB(fmtPct(pPred))} of people accurately predicted that most others ${did} with this statement.</p>` +
-      def(A.crowdAd, `Define the statement's <strong>awareness</strong> score as the share of correct predictions, ${llmB(fmtPct(pPred))}.`));
-  }
-  if (Q.stage >= A.crowdS) {
+  // (Josh: fine)
+  let body = `<blockquote class="llm-ex-quote">${esc(s.text)}</blockquote>`;
+  body += step(A.q1, 1, "How close are people to a unanimous judgment?", A.r1, pa, "is-p",
+    sc.c < 0.3 ? `People are split: only ${llmB(fmtPct(pa))} of them agreed with this statement.` : `${llmB(fmtPct(pa))} of people agreed with this statement.`,
+    A.cDef, `Define the statement's <strong>consensus</strong> score to be how far this percentage is from a 50-50 split:<span class="llm-formula-line">2 × |${fmtPct(pa)} − 50%| = ${llmB(fmtPct(sc.c))}.</span>`);
+  body += step(A.q2, 2, "How many accurately predict the opinion of most other people?", A.r2, po, "is-q2",
+    `${llmB(fmtPct(pPred))} of people accurately predicted that most others ${sc.maj ? "would agree" : "would not agree"} with this statement.`,
+    A.aDef, `Define the statement's <strong>awareness</strong> score as the share of correct predictions, ${llmB(fmtPct(pPred))}.`);
+  if (Q.stage >= A.comb) {
     body +=
-      `<div class="llm-beat llm-calc-box${llmFresh(fresh, A.crowdS)}" id="llmPopB${A.crowdS}">` +
+      `<div class="llm-beat llm-calc-box${f(A.comb)}" id="llmPopB${A.comb}">` +
       `<p class="llm-p">We combine these two scores into a <strong>commonsensicality score</strong> by taking their geometric average.</p>` +
       `<div class="llm-calc">${llmCalcRow("Commonsensicality", sqrtHtml("consensus × awareness"))}` +
-      llmCalcRow("", sqrtHtml(`${fmtPct(sc.c)} × ${fmtPct(sc.a)}`)) + llmCalcRow("", fmtPct(sc.s), llmSqrtEq(sc.c, sc.a)) + `</div></div>`;
+      llmCalcRow("", sqrtHtml(`${fmtPct(sc.c)} × ${fmtPct(sc.a)}`)) + llmCalcRow("", fmtPct(sc.s), llmSqrtEq(sc.c, sc.a)) + `</div>` +
+      p(A.score, `Thus, statement 1 receives a commonsensicality score of ${llmB(fmtPct(sc.s))}.`) + `</div>`;
   }
-  return llmChap("llmPopC2", 2, title, true, "Consider statement 2 again.", body);
+  return llmChap("llmPopC2", 2, title, true, "Consider statement 1 again.", body);
 }
 
-// ── 3 · The model's population, beside the real raters of one statement
-// (4): Josh's lead, then each row of figures under the sentence that counts
-// it ──
+// ── 3 · Comparing the two statements (stages 16–20; Josh, October 2026):
+// chapter 2's three scores for statement 1 beside statement 2's, laid out as
+// chapter 5's table, a row per score and a column per statement, each cell
+// its value and a bar (people's blue, both columns being people's), with
+// no working under it; the lead alone (cmp),
+// then a row a click (cmpC, cmpA, cmpS; the higher commonsensicality
+// marked), then which is more commonsensical (cmpThus), paying off chapter
+// 1's "Intuitively, …" ──
 
 function llmPopCh3(m, md, fresh) {
-  const d = LLM.data, Q = LLM.pop, s = d.statements[Q.ex], name = esc(m.name), title = `${name}'s population`;
-  if (Q.stage < LLM_POP_AT.pop) return llmChap("llmPopC3", 3, title, false);
+  const d = LLM.data, Q = LLM.pop, A = LLM_POP_AT, title = llmPopChapters(m)[2];
+  if (Q.stage < A.cmp) return llmChap("llmPopC3", 3, title, false);
+  const lead = "If we score both statements in the same way, we have the following results.";
+  const shown = LLM_POP_INTRO.map((t) => d.statements.find((x) => x.raw === t)).filter(Boolean);
+  if (Q.stage < A.cmpC || shown.length < 2) return llmChap("llmPopC3", 3, title, true, lead, "");
+  const f = (st) => llmFresh(fresh, st);
+  const cols = shown.map((s) => {
+    return { s, sc: llmCrowdScore(s.k_agree / s.n, s.k_others / s.n) };
+  });
+  const win = cols[0].sc.s === cols[1].sc.s ? -1 : cols[0].sc.s > cols[1].sc.s ? 0 : 1;
+  // each cell its value and a bar, with no working under it (Josh, October
+  // 2026: chapter 2 has just shown it)
+  const cell = (v, mark, fx) =>
+    `<div class="llm-ps-cell${mark ? " is-win" : ""}${fx}"><div class="llm-ps-v">${fmtPct(v)}</div>${llmTrack(v, LLM_PCT_SCALE, "is-human")}</div>`;
+  // each row fades in on its click (the first with the table)
+  const row = (st, label, fn, total = false) => {
+    if (Q.stage < st) return "";
+    const fx = st === A.cmpC ? "" : f(st);
+    return `<div class="llm-ps-k${total ? " is-total" : ""}${fx}">${label}</div>` + cols.map((c, i) => fn(c, fx, total && i === win)).join("");
+  };
+  const th = (i) => `<div class="llm-ps-th">Statement ${i + 1}<span>“${esc(cols[i].s.text.replace(/\.$/, ""))}”</span></div>`;
+  const table =
+    `<div class="llm-ps llm-vs${f(A.cmpC)}" id="llmPopB${A.cmpC}"><div class="llm-ps-th"></div>${th(0)}${th(1)}` +
+    row(A.cmpC, "Consensus", (c, fx) => cell(c.sc.c, false, fx)) +
+    row(A.cmpA, "Awareness", (c, fx) => cell(c.sc.a, false, fx)) +
+    row(A.cmpS, "Commonsensicality", (c, fx, mark) => cell(c.sc.s, mark, fx), true) +
+    `</div>`;
+  let after = "";
+  if (Q.stage >= A.cmpThus) {
+    const [a, b] = cols, more = a.sc.s >= b.sc.s, hi = more ? a : b, lo = more ? b : a;
+    const much = Math.abs(a.sc.s - b.sc.s) >= 0.2 ? "much " : "";
+    after =
+      `<div class="llm-ps-text${f(A.cmpThus)}" id="llmPopB${A.cmpThus}"><p class="llm-p">According to humans, statement ${more ? 1 : 2} is ` +
+      `${llmB(`${much}more commonsensical`)} than statement ${more ? 2 : 1} (${llmB(`${fmtPct(hi.sc.s)} vs. ${fmtPct(lo.sc.s)}`)}).</p></div>`;
+  }
+  return llmChap("llmPopC3", 3, title, true, lead, table + after);
+}
+
+// ── 4 · The model's population, beside the real raters of one statement
+// (stages 16–20): Josh's lead alone; then "Coming back to statement 2." and
+// the statement; real people; the population's share that agrees; the
+// share that predicts most would agree. The population's column holds its
+// place, hidden, until its clicks. ──
+
+function llmPopCh4(m, md, fresh) {
+  const d = LLM.data, Q = LLM.pop, A = LLM_POP_AT, s = d.statements[Q.ex], name = esc(m.name), title = `${name}'s population`;
+  if (Q.stage < A.pop) return llmChap("llmPopC4", 4, title, false);
+  if (Q.stage < A.stmt) return llmChap("llmPopC4", 4, title, true, llmPopLead(m), "");
   const [p1, p2] = md.ratings[s.id];
   // The real raters (blue) beside the model's population (orange), each
   // answering the two questions, as shares only and the same 20 figures on
   // every row, as in chapters 1 and 2 (Josh, October 2026: the percentage
   // matters, not how many rated it). The two crowds sit side by side, each
   // only as wide as it needs (.llm-crowd-pair).
-  const FIGS = 20;
-  const figs = (share, cls) => llmFigureRow(Math.round(share * FIGS), FIGS, cls, "is-grid");
+  const FIGS = 20, f = (st) => llmFresh(fresh, st);
+  const pend = (st) => (Q.stage >= st ? f(st) : " is-pend");
+  const figs = (share, cls, more = "") => llmFigureRow(Math.round(share * FIGS), FIGS, cls, `is-grid${more}`);
   const pa = s.k_agree / s.n, po = s.k_others / s.n;
   const people =
     `<div class="llm-crowd-col">${llmWho("Real people", false, "llm-who-tag")}` +
     `<p class="llm-p">${llmB(fmtPct(pa))} agree with the statement.</p>${figs(pa, "is-p")}` +
     `<p class="llm-p">${llmB(fmtPct(po))} think most people would agree with it.</p>${figs(po, "is-q2")}</div>`;
   const pop =
-    `<div class="llm-crowd-col">${llmWho(`${name}'s population`, true, "llm-who-tag")}` +
+    `<div class="llm-crowd-col${pend(A.popAgree)}">${llmWho(`${name}'s population`, true, "llm-who-tag")}` +
     `<p class="llm-p">${llmB(llmProbFine(p1))} agree with the statement.</p>${figs(p1, "is-m")}` +
-    `<p class="llm-p">${llmB(llmProbFine(p2))} think most people would agree with it.</p>${figs(p2, "is-m")}</div>`;
-  const body = `<div class="${llmFresh(fresh, "ex").trim()}" id="llmPopB${LLM_POP_AT.pop}">` +
+    `<p class="llm-p${pend(A.popPred)}">${llmB(llmProbFine(p2))} think most people would agree with it.</p>${figs(p2, "is-m", pend(A.popPred))}</div>`;
+  const body = `<div class="${(f(A.stmt) || llmFresh(fresh, "ex")).trim()}" id="llmPopB${A.stmt}">` +
     `<p class="llm-p">Coming back to statement 2.</p><blockquote class="llm-ex-quote">${esc(s.text)}</blockquote>` +
-    `<div class="llm-crowd-cols llm-crowd-pair">${people}${pop}</div></div>`;
-  return llmChap("llmPopC3", 3, title, true, llmPopLead(m), body);
+    (Q.stage >= A.people ? `<div class="llm-crowd-cols llm-crowd-pair${f(A.people)}" id="llmPopB${A.people}">${people}${pop}</div>` : "") +
+    `</div>`;
+  return llmChap("llmPopC4", 4, title, true, llmPopLead(m), body);
 }
 
-// ── 4 · One statement, two scores (5): "as we did for statement 2",
-// the table, then Josh's closing sentence, now "Thus, …" with its key word
-// in bold, as the individual story's are ──
+// ── 5 · One statement, two scores (stages 21–25): the lead and the
+// statement; then the table a row a click, consensus, awareness and
+// commonsensicality, each against its own population's majority; then Josh's
+// closing sentence, "Thus, …" with its key word in bold, as the individual
+// story's are ──
 
 // The statement's score among its raters (h) and in the model's population (c)
 function llmPopExScores(md) {
@@ -2351,63 +2693,68 @@ function llmPopExScores(md) {
   return { s, p1, p2, h: llmCrowdScore(s.k_agree / s.n, s.k_others / s.n), c: llmCrowdScore(p1, p2) };
 }
 
-function llmPopCh4(m, md, fresh) {
-  const Q = LLM.pop, name = esc(m.name), title = "One statement, two scores", st = LLM_POP_AT.two;
-  if (Q.stage < st) return llmChap("llmPopC4", 4, title, false);
+function llmPopCh5(m, md, fresh) {
+  const Q = LLM.pop, A = LLM_POP_AT, name = esc(m.name), title = llmPopChapters(m)[4];
+  if (Q.stage < A.two) return llmChap("llmPopC5", 5, title, false);
   const { s, p1, p2, h, c } = llmPopExScores(md);
-  const pa = s.k_agree / s.n;
+  const lead = "If we score statement 2 in both populations, we have the following results.";
+  const quote = `<blockquote class="llm-ex-quote${llmFresh(fresh, "ex")}">${esc(s.text)}</blockquote>`;
+  if (Q.stage < A.cons) return llmChap("llmPopC5", 5, title, true, lead, quote);
+  const pa = s.k_agree / s.n, f = (st) => llmFresh(fresh, st);
   // One table: a row per score, a column per population; each cell its
   // value, a bar and, under them, how it is worked out
-  const cell = (calc, v, bar, total) =>
-    `<div class="llm-ps-cell${total ? " is-win" : ""}"><div class="llm-ps-v">${llmPctFine(v)}</div>${llmTrack(v, LLM_PCT_SCALE, bar)}<div class="llm-sc-calc">${calc}</div></div>`;
+  const cell = (calc, v, bar, total, fx) =>
+    `<div class="llm-ps-cell${total ? " is-win" : ""}${fx}"><div class="llm-ps-v">${llmPctFine(v)}</div>${llmTrack(v, LLM_PCT_SCALE, bar)}<div class="llm-sc-calc">${calc}</div></div>`;
   // how many predict the majority, which way it points, and a tie (half
   // agree), which counts as a majority that agrees
   const pred = (x, share, predicted) =>
     (share === 0.5 ? "Exactly half agree, which counts as a majority that agrees; " : "") +
     `${predicted} correctly predict that most would ${x.maj ? "" : "not "}agree`;
   const kPred = h.maj ? s.k_others : s.n - s.k_others;
-  const row = (label, f) => `<div class="llm-ps-k${label === "Commonsensicality" ? " is-total" : ""}">${label}</div>${f(h, pa, `${fmtNum(kPred)} out of ${fmtNum(s.n)}`, "is-human")}${f(c, p1, llmProbFine(c.maj ? p2 : 1 - p2), "is-open")}`;
-  const fx = `${llmFresh(fresh, st)}${llmFresh(fresh, "ex")}`;
+  // each row fades in on its click (the first with the table)
+  const row = (st, label, fn) => {
+    if (Q.stage < st) return "";
+    const fx = st === A.cons ? "" : f(st);
+    return `<div class="llm-ps-k${label === "Commonsensicality" ? " is-total" : ""}${fx}">${label}</div>` +
+      fn(h, pa, `${fmtNum(kPred)} out of ${fmtNum(s.n)}`, "is-human", fx) + fn(c, p1, llmProbFine(c.maj ? p2 : 1 - p2), "is-open", fx);
+  };
   const table =
-    `<div class="llm-ps llm-vs${fx}" id="llmPopB${st}">` +
+    `<div class="llm-ps llm-vs${f(A.cons)}" id="llmPopB${A.cons}">` +
     `<div class="llm-ps-th"></div><div class="llm-ps-th">${llmWho("Real people", false)}</div><div class="llm-ps-th">${llmWho(`${name}'s population`, true)}</div>` +
-    row("Consensus", (x, share, _, bar) => cell(`2 × |${llmPct2(share)} − 50%|`, x.c, bar)) +
-    row("Awareness", (x, share, predicted, bar) => cell(pred(x, share, predicted), x.a, bar)) +
+    row(A.cons, "Consensus", (x, share, _, bar, fx) => cell(`2 × |${llmPct2(share)} − 50%|`, x.c, bar, false, fx)) +
+    row(A.aware, "Awareness", (x, share, predicted, bar, fx) => cell(pred(x, share, predicted), x.a, bar, false, fx)) +
     // two decimals inside the square root, as in the consensus line, so the
     // result above can be checked from them
-    row("Commonsensicality", (x, share, _, bar) => cell(sqrtHtml(`${llmPctCalc(x.c)} × ${llmPctCalc(x.a)}`), x.s, bar, true)) +
+    row(A.css, "Commonsensicality", (x, share, _, bar, fx) => cell(sqrtHtml(`${llmPctCalc(x.c)} × ${llmPctCalc(x.a)}`), x.s, bar, true, fx)) +
     `</div>`;
-  // what the reader might stop at, said as the story goes: an even split
-  // scores 0, and two majorities that point opposite ways
-  const said = [];
-  if (h.c === 0 && c.c === 0) said.push("Since both populations are split exactly in half, the statement receives a consensus score of 0% in each, and so a commonsensicality score of 0%.");
-  else if (h.c === 0) said.push("Since real people are split exactly in half, the statement receives a consensus score of 0% among them, and so a commonsensicality score of 0%.");
-  else if (c.c === 0) said.push(`Since ${name}'s population is split exactly in half, the statement receives a consensus score of 0% in it, and so a commonsensicality score of 0%.`);
-  else if (h.maj !== c.maj) said.push(`Most real people ${h.maj ? "agree" : "disagree"} with the statement, but most of ${name}'s population ${c.maj ? "agrees" : "disagrees"}: each population is scored against its own majority.`);
-  return llmChap("llmPopC4", 4, title, true,
-    "If we score statement 2 in both populations, we have the following results.",
-    `<blockquote class="llm-ex-quote">${esc(s.text)}</blockquote>` + table +
-    `<div class="llm-ps-text${fx}">${said.map((t) => `<p class="llm-p">${t}</p>`).join("")}` +
-    `<p class="llm-p">Thus, this statement receives a <strong>commonsensicality</strong> score of ${llmB(llmPctFine(h.s))} according to humans, and ${llmB(llmPctFine(c.s))} according to the ${name}-generated population.</p></div>`);
+  let after = "";
+  if (Q.stage >= A.thus) {
+    // only the two scores (Josh, October 2026: no notes on split or
+    // opposite majorities, no "Thus")
+    after =
+      `<div class="llm-ps-text${f(A.thus)}" id="llmPopB${A.thus}">` +
+      `<p class="llm-p">This statement receives a commonsensicality score of ${llmB(`${llmPctFine(h.s)} according to humans`)}, and ${llmB(`${llmPctFine(c.s)} according to the ${name}-generated population`)}.</p></div>`;
+  }
+  return llmChap("llmPopC5", 5, title, true, lead, quote + table + after);
 }
 
-// ── 5 · Across all statements (Josh, October 2026; it follows chapter 4
-// directly): statement 2's two scores as one point, its values marked on
-// the axes (sctOne), then every statement (sctAll), then the best-fit line
-// and r (sctFit), the text in a column beside the scatter plot ──
+// ── 6 · Across all statements (stages 26–29; Josh, October 2026): built as
+// the individual story's chapter 3 builds its chart. Statement 2's two
+// scores as a sentence beside the plot, with only their values marked on
+// the axes (sctOne); its point, the guides running to it (sctPt); every
+// statement (sctAll); the best-fit line and r (sctFit) ──
 
-function llmPopCh5(m, md, fresh) {
-  const Q = LLM.pop, title = llmPopChapters(m)[4];
-  if (Q.stage < LLM_POP_AT.sctOne) return llmChap("llmPopC5", 5, title, false);
-  return llmChap("llmPopC5", 5, title, true, "", llmPopScatter(m, md, fresh));
+function llmPopCh6(m, md, fresh) {
+  const Q = LLM.pop, title = llmPopChapters(m)[5];
+  if (Q.stage < LLM_POP_AT.sctOne) return llmChap("llmPopC6", 6, title, false);
+  return llmChap("llmPopC6", 6, title, true, "", llmPopScatter(m, md, fresh));
 }
 
 // The scatter plot's steps, in Josh's words (October 2026): statement 2's
-// two scores, plotted with its coordinates marked; "Repeating this for all
-// … statements, we get a scatter plot."; then the line and "The correlation
-// between human and [the model] scores is r = …" (nothing about the line
-// itself, and no key over the plot). No "Point at a dot" note (the probe
-// still works).
+// two scores; "Repeating this for all … statements, we get a scatter
+// plot."; then the line and "The correlation between human and [the model]
+// scores is r = …" (nothing about the line itself, and no key over the
+// plot). No "Point at a dot" note (the probe still works).
 function llmPopScatter(m, md, fresh) {
   const d = LLM.data, Q = LLM.pop, A = LLM_POP_AT, n = d.n_statements, name = esc(m.name);
   const { s, h, c } = llmPopExScores(md);
@@ -2417,7 +2764,8 @@ function llmPopScatter(m, md, fresh) {
     id: "llmPopSctSvg", xs: d.statements.map((x) => x.humans), ys: md.scores, order: llmPopOrder(),
     xName: "People", yName: m.name, xLabel: "Score among humans", yLabel: `Score in ${m.name}'s population`,
     xCls: "is-people", yCls: "is-model", dot: "is-model",
-    hi: s.id, hiLabel: s.text, guides: Q.stage === A.sctOne, points: Q.stage >= A.sctAll, fit, fitNew: !!fresh && fresh.has(A.sctFit), fitKey: false,
+    hi: s.id, hiLabel: s.text, axes: Q.stage <= A.sctPt, guides: Q.stage === A.sctPt, pin: Q.stage >= A.sctPt, pinNew: !!fresh && fresh.has(A.sctPt),
+    points: Q.stage >= A.sctAll, fit, fitNew: !!fresh && fresh.has(A.sctFit), fitKey: false,
     aria: `Scatter plot of the ${fmtNum(n)} statements' commonsensicality among humans (across) and in ${m.name}'s population (up)` +
       (fit ? `, with a best-fit line; r = ${llmR(m.r)}` : ""),
   });
@@ -2430,7 +2778,7 @@ function llmPopScatter(m, md, fresh) {
   if (Q.stage >= A.sctFit) {
     text +=
       `<div class="llm-beat${llmFresh(fresh, A.sctFit)}" id="llmPopB${A.sctFit}">` +
-      `<p class="llm-p">The correlation between <strong>human</strong> and <strong>${name}</strong> scores is ${llmB(`r\u00a0=\u00a0${llmR(m.r)}`)}.</p></div>`;
+      `<p class="llm-p">The correlation between <strong>human</strong> and <strong>${name}</strong> scores is ${llmB(`r = ${llmR(m.r)}`)}.</p></div>`;
   }
   return `<div class="llm-sct-grid" id="llmPopSct"><div class="llm-sct-text">${text}</div><figure class="llm-sct${llmFresh(fresh, A.sctOne)}">${svg}</figure></div>`;
 }
@@ -2456,7 +2804,11 @@ function llmFit(xs, ys) {
 // 4,407 points stay cheap to draw and to animate (llmSctAnimate(), in the
 // order given). hi marks one statement; guides draws its coordinates; fit
 // ({a, b, r}) adds the best-fit line and r, faded in when fitNew, hidden
-// until the points are drawn when fitWait. Pointing at the plot names the
+// until the points are drawn when fitWait. For hi: axes marks its two
+// values on the axes, guides draws dashed lines from them to its point,
+// pin (default true) draws the point and its label, and pinNew fades the
+// guides and point in (the population story's chapters 5 and 6 build the
+// plot so, as the individual story's chapter 3 builds its chart). Pointing at the plot names the
 // nearest statement (llmSctProbe()); a click opens it.
 // Its text is set as the level-curve chart's (Josh, October 2026: ticks and
 // the guides' values --fs-3, axis titles --fs-4), hence its margins
@@ -2477,7 +2829,7 @@ function llmSctSvg(o) {
   LLM_SCT_DATA[o.id] = { pts: ordered, segs, xName: o.xName, yName: o.yName };
   const ticks = [0, 0.25, 0.5, 0.75, 1];
   // with guides, a tick label the guide's value would crowd is left out
-  const hv = o.guides && o.hi !== null && o.hi !== undefined && pts.get(o.hi);
+  const hv = o.axes && o.hi !== null && o.hi !== undefined && pts.get(o.hi);
   const xTick = (t) => !hv || Math.abs(t - hv[3]) >= 0.12, yTick = (t) => !hv || Math.abs(t - hv[4]) >= 0.06;
   let out =
     `<svg class="llm-sct-svg" id="${o.id}" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="${esc(o.aria)}">` +
@@ -2504,24 +2856,29 @@ function llmSctSvg(o) {
   const hp = o.hi !== null && o.hi !== undefined ? pts.get(o.hi) : null;
   if (hp) {
     const [, px, py, xv, yv] = hp;
+    const pinCls = `llm-sct-pin${o.pinNew ? " is-new" : ""}`;
     if (o.guides) {
+      out += `<g class="${pinCls}"><line class="llm-sct-guide" x1="${px}" x2="${px}" y1="${py}" y2="${T + S}"/><line class="llm-sct-guide" x1="${L}" x2="${px}" y1="${py}" y2="${py}"/></g>`;
+    }
+    if (o.axes) {
       out +=
-        `<line class="llm-sct-guide" x1="${px}" x2="${px}" y1="${py}" y2="${T + S}"/><line class="llm-sct-guide" x1="${L}" x2="${px}" y1="${py}" y2="${py}"/>` +
         `<text x="${Math.min(px, L + S + 4)}" y="${T + S + 25}" text-anchor="middle" class="llm-sct-gval ${o.xCls}">${fmtPct(xv)}</text>` +
         `<text x="${L - 9}" y="${py + 6}" text-anchor="end" class="llm-sct-gval ${o.yCls}">${fmtPct(yv)}</text>` +
         // its two values marked on the axes with a round point, as the
         // level-curve chart marks a model's
         `<circle class="llm-sct-axpt" cx="${px.toFixed(1)}" cy="${T + S}" r="5"/><circle class="llm-sct-axpt" cx="${L}" cy="${py.toFixed(1)}" r="5"/>`;
     }
-    // the label as long as fits beside the point (llm.css sets the plots'
-    // text larger on phones)
-    const left = px > L + S * 0.55, ly = py < T + 28 ? py + 22 : py - 12;
-    const room = left ? px - 11 - L : L + S - px - 11;
-    const fit = Math.max(12, Math.floor(room / (window.matchMedia("(max-width: 700px)").matches ? 10.4 : 8.6)) - 2);
-    const label = o.hiLabel.length > fit ? `${o.hiLabel.slice(0, fit - 1).replace(/\s+\S*$/, "")}…` : o.hiLabel;
-    out +=
-      `<circle class="llm-sct-hi" cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="6.5"/>` +
-      `<text x="${(left ? px - 11 : px + 11).toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="${left ? "end" : "start"}" class="llm-sct-hilab">“${esc(label)}”</text>`;
+    if (o.pin !== false) {
+      // the label as long as fits beside the point (llm.css sets the plots'
+      // text larger on phones)
+      const left = px > L + S * 0.55, ly = py < T + 28 ? py + 22 : py - 12;
+      const room = left ? px - 11 - L : L + S - px - 11;
+      const fit = Math.max(12, Math.floor(room / (window.matchMedia("(max-width: 700px)").matches ? 10.4 : 8.6)) - 2);
+      const label = o.hiLabel.length > fit ? `${o.hiLabel.slice(0, fit - 1).replace(/\s+\S*$/, "")}…` : o.hiLabel;
+      out +=
+        `<g class="${pinCls}"><circle class="llm-sct-hi" cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="6.5"/>` +
+        `<text x="${(left ? px - 11 : px + 11).toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="${left ? "end" : "start"}" class="llm-sct-hilab">“${esc(label)}”</text></g>`;
+    }
   }
   out +=
     `<g class="llm-sct-probe" style="display:none"><circle r="7" class="llm-sct-ring"/><rect class="llm-sct-tipbox" rx="5"/>` +
@@ -2588,44 +2945,49 @@ function llmSctProbe(e) {
   rect.setAttribute("x", tx - 7); rect.setAttribute("y", top); rect.setAttribute("width", tw + 14); rect.setAttribute("height", boxH);
 }
 
-// ── 6 · Setting up a baseline, laid out as chapters 3 and 5 (Josh, October
-// 2026): statement 2 in two random halves of people, side by side as
-// chapter 3's crowds (shares only, 20 figures a row), then its two scores
-// as one point on a scatter plot (split); every statement (halves); the
-// line and r (halvesFit) ──
+// ── 7 · Setting up a baseline (stages 35–43; Josh, October 2026, a click a
+// step): the question alone (split); the two halves (imagine); "Here are
+// what their ratings look like." and statement 2 (crowds); half A (halfA)
+// and half B (halfB), side by side as chapter 3's crowds (shares only, 20
+// figures a row), B held in place, hidden, until its click; then its score
+// in each half beside the scatter plot, built as chapter 5's: its values
+// on the axes (one), its point (onePt), every statement (halves), the line
+// and r (halvesFit) ──
 
-function llmPopCh6(m, md, fresh) {
+function llmPopCh7(m, md, fresh) {
   const d = LLM.data, Q = LLM.pop, n = d.n_statements, name = esc(m.name);
-  const title = llmPopChapters(m)[5];
+  const title = llmPopChapters(m)[6];
   const AT = LLM_POP_AT;
-  if (Q.stage < AT.split) return llmChap("llmPopC6", 6, title, false);
-  const lead = `How should we evaluate ${llmB(`r\u00a0=\u00a0${llmR(m.r)}`)}, the correlation between the <strong>${name}-generated population</strong> and <strong>humans</strong>?`;
+  if (Q.stage < AT.split) return llmChap("llmPopC7", 7, title, false);
+  const lead = `How should we evaluate ${llmB(`r = ${llmR(m.r)}`)}, the correlation between the <strong>${name}-generated population</strong> and <strong>humans</strong>?`;
   const tools = `<button type="button" class="llm-btn" data-story="pop-resplit">Split again</button>`;
-  if (Q.stage < AT.imagine) return llmChap("llmPopC6", 6, title, true, lead, "");
-  if (!llmPopSplitReady()) return llmChap("llmPopC6", 6, title, true, lead, '<div class="empty-row">Splitting…</div>');
+  if (Q.stage < AT.imagine) return llmChap("llmPopC7", 7, title, true, lead, "");
+  if (!llmPopSplitReady()) return llmChap("llmPopC7", 7, title, true, lead, '<div class="empty-row">Splitting…</div>');
   const sp = Q.split, s = d.statements[Q.ex];
   const FIGS = 20;
   const figs = (share, cls) => llmFigureRow(Math.round(share * FIGS), FIGS, cls, "is-grid");
-  const half = (label, raters) => {
+  const fx = (k) => llmFresh(fresh, k);
+  const half = (label, raters, st) => {
     const nr = raters.length, k = raters.filter((x) => x[0]).length, ko = raters.filter((x) => x[1]).length;
     const sc = nr ? llmCrowdScore(k / nr, ko / nr) : null;
     return {
       sc,
-      html: `<div class="llm-crowd-col">${llmWho(label, false, "llm-who-tag")}` +
+      html: `<div class="llm-crowd-col${Q.stage >= st ? fx(st) : " is-pend"}">${llmWho(label, false, "llm-who-tag")}` +
         (nr
           ? `<p class="llm-p">${llmB(fmtPct(k / nr))} agree with the statement.</p>${figs(k / nr, "is-p")}` +
             `<p class="llm-p">${llmB(fmtPct(ko / nr))} think most people would agree with it.</p>${figs(ko / nr, "is-q2")}`
           : `<p class="llm-p">No one in this half rated the statement.</p>`) + `</div>`,
     };
   };
-  const A = half("Half A", sp.example.a), B = half("Half B", sp.example.b);
-  const fx = (k) => llmFresh(fresh, k);
-  let body = `<p class="llm-p${fx(AT.imagine)}" id="llmPopB${AT.imagine}">Imagine if we split the human population into <strong>two random halves</strong>, A and B. Each half is now a separate population and rates statements as usual.</p>`;
+  // each half named with its size (Josh, October 2026: "Half A (1,023 people)")
+  const nh = d.split_half.n_half ? ` (${fmtNum(d.split_half.n_half)} people)` : "";
+  const A = half(`Half A${nh}`, sp.example.a, AT.halfA), B = half(`Half B${nh}`, sp.example.b, AT.halfB);
+  let body = `<p class="llm-p${fx(AT.imagine)}" id="llmPopB${AT.imagine}">Imagine if we split the human population into <strong>two random halves, A and B</strong>. Each half is now a separate population and rates statements as usual.</p>`;
   if (Q.stage >= AT.crowds) {
     body +=
       `<div class="llm-beat${fx(AT.crowds)}${fx("split")}" id="llmPopB${AT.crowds}">` +
       `<p class="llm-p">Here are what their ratings look like.</p><blockquote class="llm-ex-quote">${esc(s.text)}</blockquote>` +
-      `<div class="llm-crowd-cols llm-crowd-pair">${A.html}${B.html}</div></div>`;
+      (Q.stage >= AT.halfA ? `<div class="llm-crowd-cols llm-crowd-pair" id="llmPopB${AT.halfA}">${A.html}${B.html}</div>` : "") + `</div>`;
   }
   if (Q.stage >= AT.one) {
     const fit = Q.stage >= AT.halvesFit ? llmFit(sp.scores.a, sp.scores.b) : null;
@@ -2634,10 +2996,10 @@ function llmPopCh6(m, md, fresh) {
       id: "llmPopHalvesSvg", xs: sp.scores.a, ys: sp.scores.b, order: llmPopOrder(),
       xName: "Half A", yName: "Half B", xLabel: "Score in half A", yLabel: "Score in half B",
       xCls: "is-people", yCls: "is-people", dot: "is-people",
-      hi: s.id, hiLabel: s.text, guides: Q.stage === AT.one, points: Q.stage >= AT.halves,
-      fit, fitNew: !!fresh && fresh.has(AT.halvesFit), fitKey: false,
+      hi: s.id, hiLabel: s.text, axes: Q.stage <= AT.onePt, guides: Q.stage === AT.onePt, pin: Q.stage >= AT.onePt, pinNew: !!fresh && fresh.has(AT.onePt),
+      points: Q.stage >= AT.halves, fit, fitNew: !!fresh && fresh.has(AT.halvesFit), fitKey: false,
       aria: `Scatter plot of the statements' commonsensicality in half A (across) and half B (up) of random split ${Q.seed + 1}` +
-        (fit ? `, with a best-fit line; r\u00a0=\u00a0${llmR(sp.r)}` : ""),
+        (fit ? `, with a best-fit line; r = ${llmR(sp.r)}` : ""),
     });
     let text = A.sc && B.sc
       ? `<p class="llm-p">By the same calculations, statement 2 receives a commonsensicality score of <strong>${fmtPct(A.sc.s)} in half A</strong>, and <strong>${fmtPct(B.sc.s)} in half B</strong>.</p>`
@@ -2647,55 +3009,82 @@ function llmPopCh6(m, md, fresh) {
     }
     if (Q.stage >= AT.halvesFit) {
       text += `<div class="llm-beat${fx(AT.halvesFit)}" id="llmPopB${AT.halvesFit}">` +
-        `<p class="llm-p">The correlation between half A and half B scores is ${llmB(`r\u00a0=\u00a0${llmR(sp.r)}`)}.</p></div>`;
+        `<p class="llm-p">The correlation between half A and half B scores is ${llmB(`r = ${llmR(sp.r)}`)}.</p></div>`;
     }
     body +=
       // each step set off by a short rule, as in the rest of the story
       // (Josh); the grid sits inside the beat, so the rule isn't a grid item
-      `<div class="llm-beat${fx(AT.one)}" id="llmPopB${AT.one}"><div class="llm-sct-grid">` +
+      // the panel scrolls once, when this step opens: it goes to the top in
+      // the card's place (data-llm-top) and stays there while the plot's
+      // later steps (its point, every statement, the line) come in beside it
+      // (Josh, October 2026)
+      `<div class="llm-beat${fx(AT.one)}" id="llmPopB${AT.one}" data-llm-top><div class="llm-sct-grid">` +
       `<div class="llm-sct-text">${text}</div><figure class="llm-sct${fx("split")}">${svg}</figure></div></div>`;
   }
   // "Split again" once there is a split to see
-  return llmChap("llmPopC6", 6, title, true, lead, body, Q.stage >= AT.crowds ? tools : "");
+  return llmChap("llmPopC7", 7, title, true, lead, body, Q.stage >= AT.crowds ? tools : "");
 }
 
-// ── 8 · Many random splits: r over 1,000 of them, the split-half
-// reliability (14) ──
+// ── 8 · Many random splits (stages 44–49; Josh, October 30, 2026): the
+// lead alone, this split's r; the dot plot with only this split's dot,
+// which falls onto the axis; the other 999 falling onto it; their average,
+// marked on the plot as it is named; the range of 95% of splits, shaded on
+// the plot; the split-half reliability ──
 
-function llmPopCh7(m, md, fresh) {
+function llmPopCh8(m, md, fresh) {
   const d = LLM.data, Q = LLM.pop, sh = d.split_half, AT = LLM_POP_AT;
-  const title = llmPopChapters(m)[6];
-  if (Q.stage < AT.splits) return llmChap("llmPopC7", 7, title, false);
+  const title = llmPopChapters(m)[7];
+  if (Q.stage < AT.splits) return llmChap("llmPopC8", 8, title, false);
   const fx = (k) => llmFresh(fresh, k);
-  const lead = `Another random split gives a slightly different correlation. This split gave ${llmB(`r\u00a0=\u00a0${llmR(Q.split ? Q.split.r : sh.mean)}`)}.`;
+  // Josh's wording (October 30, 2026)
+  const lead = `The current split gives us a correlation score of ${llmB(`r = ${llmR(Q.split ? Q.split.r : sh.mean)}`)}.`;
   const tools = `<button type="button" class="llm-btn" data-story="pop-resplit">Split again</button>`;
-  if (Q.stage < AT.splitsHist) return llmChap("llmPopC7", 7, title, true, lead, "", tools);
-  // the text in a column beside the histogram, as chapters 5 and 6 set
-  // theirs beside the scatter plot, each step set off by a short rule
-  let text = `<p class="llm-p">Repeating this for ${fmtNum(sh.n_splits)} random splits, we get the following distribution of r. Each dot is one split; the darkest is this one.</p>`;
+  if (Q.stage < AT.splitsOne) return llmChap("llmPopC8", 8, title, true, lead, "", tools);
+  // the text in a column beside the dot plot, as chapters 6 and 7 set
+  // theirs beside the scatter plot; while the plot holds only this split's
+  // dot, the column's first sentence keeps its place, hidden, so nothing
+  // moves when it comes in. The spread joins the average's step, a click
+  // later, with no rule between
+  const all = Q.stage >= AT.splitsHist;
+  let text = `<p class="llm-p${all ? fx(AT.splitsHist) : " is-pend"}" id="llmPopB${AT.splitsHist}">Repeating this split ${fmtNum(sh.n_splits)} times, we get the following distribution.</p>`;
   if (Q.stage >= AT.splitsAvg) {
-    text += `<div class="llm-beat${fx(AT.splitsAvg)}" id="llmPopB${AT.splitsAvg}"><p class="llm-p">On average, the two halves correlate at ${llmB(`r\u00a0=\u00a0${llmR(sh.mean)}`)}, and 95% of splits fall between ${llmB(llmR(sh.lo))} and ${llmB(llmR(sh.hi))}.</p></div>`;
+    text += `<div class="llm-beat${fx(AT.splitsAvg)}" id="llmPopB${AT.splitsAvg}"><p class="llm-p">On average, the two halves correlate at ${llmB(`r = ${llmR(sh.mean)}`)}.</p>` +
+      (Q.stage >= AT.splitsRange ? `<p class="llm-p${fx(AT.splitsRange)}" id="llmPopB${AT.splitsRange}">95% of splits fall between ${llmB(llmR(sh.lo))} and ${llmB(llmR(sh.hi))}.</p>` : "") + `</div>`;
   }
   if (Q.stage >= AT.splitsThus) {
-    text += `<div class="llm-beat${fx(AT.splitsThus)}" id="llmPopB${AT.splitsThus}"><p class="llm-p">Thus, the correlation ${llmB(`r\u00a0=\u00a0${llmR(sh.mean)}`)} is the <strong>split-half reliability</strong> of the human population. It sets a baseline for what we should expect from another population that claims to be similar to humans.</p></div>`;
+    text += `<div class="llm-beat${fx(AT.splitsThus)}" id="llmPopB${AT.splitsThus}"><p class="llm-p">The correlation ${llmB(`r = ${llmR(sh.mean)}`)} is called the <strong>split-half reliability</strong> of the human population.</p>` +
+      `<p class="llm-p">It sets a baseline for what we should expect from another population that claims to be similar to humans.</p></div>`;
   }
-  const anim = !!fresh && fresh.has(AT.splitsHist);
+  // which dots fall on this click: this split's alone (splitsOne), or every
+  // other split's onto it (splitsHist)
+  const anim = fresh && fresh.has(AT.splitsOne) ? "one" : fresh && fresh.has(AT.splitsHist) ? "rest" : false;
+  const marks = {
+    all,
+    avg: Q.stage >= AT.splitsAvg, avgNew: !!fresh && fresh.has(AT.splitsAvg),
+    range: Q.stage >= AT.splitsRange, rangeNew: !!fresh && fresh.has(AT.splitsRange),
+  };
   const body =
-    `<div class="llm-sct-grid${fx(AT.splitsHist)}" id="llmPopB${AT.splitsHist}"><div class="llm-sct-text">${text}</div>` +
-    `<figure class="llm-rh-fig${anim ? " is-anim" : ""}${fx("split")}">${llmSplitDotsSvg(anim)}</figure></div>`;
-  return llmChap("llmPopC7", 7, title, true, lead, body, tools);
+    `<div class="llm-sct-grid${fx(AT.splitsOne)}" id="llmPopB${AT.splitsOne}"><div class="llm-sct-text">${text}</div>` +
+    `<figure class="llm-rh-fig${fx("split")}">${llmSplitDotsSvg(anim, marks)}</figure></div>`;
+  return llmChap("llmPopC8", 8, title, true, lead, body, tools);
 }
 
 // The 1,000 splits' r as a dot plot (Josh, October 2026: a dot per split
 // rather than bars): each split one dot, stacked in its bin from the
 // bottom, a few dots a row, so the columns read as a histogram; this
-// split's dot darkest, the splits seen darker, and the average marked.
-// Drawn in SVG; when anim, each split's dot falls from above the plot into
-// its slot, one split after another in split order (spaced out at first,
-// then quickening), each landing on the dots of earlier splits in its bin;
-// this split's dot falls last. Gravity-like: a dot's fall time grows with
-// the square root of its drop (CSS .llm-rd-fall, --d its drop).
-function llmSplitDotsSvg(anim = false) {
+// split's dot darkest, the splits seen darker. Until marks.all, only this
+// split's dot is drawn (the plot keeps its full size, so nothing moves when
+// the rest come). marks adds the average line (avg) and the band 95% of
+// splits fall in (range) once the text names them, each faded in on its
+// click (avgNew, rangeNew).
+// This split's dot sits at the foot of its bin, so it stays put while the
+// others stack on it. Drawn in SVG; anim "one" drops this split's dot onto
+// the axis; anim "rest" drops every other split's dot from above the plot
+// into its slot, one split after another in split order (spaced out at
+// first, then quickening), each landing on the dots of earlier splits in
+// its bin. Gravity-like: a dot's fall time grows with the square root of
+// its drop (CSS .llm-rd.is-fall, --d its drop).
+function llmSplitDotsSvg(anim = false, marks = {}) {
   const d = LLM.data, sh = d.split_half, Q = LLM.pop, rs = sh.rs || [];
   if (!rs.length) return "";
   const w = 0.0025, lo = Math.floor(Math.min(...rs) / w + 1e-9) * w, hi = Math.ceil(Math.max(...rs) / w - 1e-9) * w;
@@ -2705,50 +3094,69 @@ function llmSplitDotsSvg(anim = false) {
   const gap = 4, cols = Math.max(1, Math.floor((bw - gap) / 5.4)), step = (bw - gap) / cols, dot = Math.min(4.6, step - 0.8);
   const bins = Array.from({ length: nb }, () => []);
   rs.forEach((r, seed) => bins[bin(r)].push(seed));
+  const seen = new Set(Q.splits.map((x) => x.seed)), cur = Q.split ? Q.seed : -1;
+  // this split's dot first in its bin, at the foot of its column
+  if (cur >= 0) { const b = bins[bin(rs[cur])]; b.splice(b.indexOf(cur), 1); b.unshift(cur); }
+  const all = marks.all !== false;
   const rows = Math.ceil(Math.max(...bins.map((b) => b.length)) / cols), PH = rows * step;
   const W = L + PW + R, H = T + PH + B, x = (r) => L + ((r - lo) / (hi - lo)) * PW;
-  const seen = new Set(Q.splits.map((x) => x.seed)), cur = Q.split ? Q.seed : -1;
   let dots = "", curDot = "";
-  // the order the dots fall: split order, this split's last; the k-th of N
+  // the order the other dots fall: split order; the k-th of the N others
   // starts at 3.2·sqrt(k/N) s, so the first few fall one by one
-  const N = rs.length, nth = (seed) => (cur < 0 ? seed : seed === cur ? N - 1 : seed > cur ? seed - 1 : seed);
+  const N = cur < 0 ? rs.length : rs.length - 1, nth = (seed) => (cur >= 0 && seed > cur ? seed - 1 : seed);
   bins.forEach((b, i) => b.forEach((seed, k) => {
+    if (!all && seed !== cur) return;
     const row = Math.floor(k / cols), cx = L + i * bw + gap / 2 + (k % cols + 0.5) * step, cy = T + PH - (row + 0.5) * step;
     const drop = cy + 6;   // from just above the plot's top edge
-    const delay = anim
-      ? ` style="--d:${drop.toFixed(0)};animation-delay:${(3.2 * Math.sqrt(nth(seed) / Math.max(1, N - 1)) + (seed === cur ? 0.4 : 0)).toFixed(3)}s;animation-duration:${(0.12 + 0.032 * Math.sqrt(drop)).toFixed(2)}s"`
+    const falls = seed === cur ? anim === "one" : anim === "rest";
+    const delay = falls
+      ? ` style="--d:${drop.toFixed(0)};animation-delay:${(seed === cur ? 0.2 : 3.2 * Math.sqrt(nth(seed) / Math.max(1, N - 1))).toFixed(3)}s;animation-duration:${(0.12 + 0.032 * Math.sqrt(drop)).toFixed(2)}s"`
       : "";
-    const c = `<circle class="llm-rd${seed === cur ? " is-current" : seen.has(seed) ? " is-seen" : ""}" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${(seed === cur ? dot : dot / 2).toFixed(2)}"${delay}><title>Split ${seed + 1}: r = ${llmR(rs[seed], 3)}</title></circle>`;
+    const c = `<circle class="llm-rd${seed === cur ? " is-current" : seen.has(seed) ? " is-seen" : ""}${falls ? " is-fall" : ""}" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${(seed === cur ? dot : dot / 2).toFixed(2)}"${delay}><title>Split ${seed + 1}: r = ${llmR(rs[seed], 3)}</title></circle>`;
     // this split's dot, larger, drawn last so nothing covers it
     if (seed === cur) curDot = c; else dots += c;
   }));
   const ticks = [];
   for (let t = Math.ceil(lo * 100 - 1e-9); t <= Math.floor(hi * 100 + 1e-9); t++) ticks.push(t / 100);
   const mx = x(sh.mean);
+  // the band 95% of splits fall in, behind the dots
+  const band = marks.range
+    ? `<rect class="llm-rd-band${marks.rangeNew ? " is-new" : ""}" x="${x(sh.lo).toFixed(1)}" y="${T - 4}" width="${(x(sh.hi) - x(sh.lo)).toFixed(1)}" height="${(PH + 6).toFixed(1)}"/>`
+    : "";
+  const avg = marks.avg
+    ? `<g class="llm-rd-mark${marks.avgNew ? " is-new" : ""}"><line class="llm-rd-avg" x1="${mx.toFixed(1)}" x2="${mx.toFixed(1)}" y1="${T - 8}" y2="${T + PH + 2}"/>` +
+      `<text class="llm-rd-avgl" x="${mx.toFixed(1)}" y="${T - 14}" text-anchor="middle">Average ${llmR(sh.mean, 3)}</text></g>`
+    : "";
   return (
-    `<svg class="llm-dots-svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="${esc(`Dot plot of r between the two halves over ${fmtNum(sh.n_splits)} random splits, one dot a split: average ${llmR(sh.mean)}, 95% between ${llmR(sh.lo)} and ${llmR(sh.hi)}`)}">` +
+    `<svg class="llm-dots-svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="${esc((all ? `Dot plot of r between the two halves over ${fmtNum(sh.n_splits)} random splits, one dot a split` : `Dot plot of r between the two halves: this split, r = ${llmR(rs[cur])}`) + (marks.avg ? `: average ${llmR(sh.mean)}` : "") + (marks.range ? `, 95% between ${llmR(sh.lo)} and ${llmR(sh.hi)}` : ""))}">` +
+    band +
     `<line class="llm-rd-base" x1="${L}" x2="${L + PW}" y1="${T + PH + 2}" y2="${T + PH + 2}"/>` +
     ticks.map((t) => `<text class="llm-rd-tick" x="${x(t).toFixed(1)}" y="${T + PH + 26}" text-anchor="middle">${llmR(t)}</text>`).join("") +
-    `<line class="llm-rd-avg" x1="${mx.toFixed(1)}" x2="${mx.toFixed(1)}" y1="${T - 8}" y2="${T + PH + 2}"/>` +
-    `<text class="llm-rd-avgl" x="${mx.toFixed(1)}" y="${T - 14}" text-anchor="middle">Average ${llmR(sh.mean, 3)}</text>` +
-    dots + curDot + `</svg>`
+    dots + curDot + avg + `</svg>`
   );
 }
 
 
-// ── 8 · Aggregating over all LLMs, as the individual story's chapter
-// 6: chapter 9's comparison for every LLM, each model's population as one
-// bar of its r with people, sorted by r (rankR), with a dashed line at the
-// split-half human reliability; bars not significantly different from 0
-// are faint. The followed model is highlighted; a click on another follows
-// it in place (data-ind-pick, which both stories share). ──
+// ── 9 · Aggregating over all LLMs (stages 50–52), as the individual
+// story's chapter 7: the followed model against the baseline as the lead,
+// alone; then every model's population as one bar of its r with people,
+// sorted by r (rankR), with a dashed line at the split-half human
+// reliability, bars not significantly different from 0 faint; then the best
+// model, in the room kept for it over the bars (so nothing moves). The
+// followed model is highlighted; a click on another follows it in place
+// (data-ind-pick, which both stories share). ──
 
-function llmPopCh8(m, md, fresh) {
-  const d = LLM.data, Q = LLM.pop, sh = d.split_half, title = llmPopChapters(m)[7], st = LLM_POP_AT.allLlms;
-  if (Q.stage < st) return llmChap("llmPopC8", 8, title, false);
+function llmPopCh9(m, md, fresh) {
+  const d = LLM.data, Q = LLM.pop, sh = d.split_half, title = llmPopChapters(m)[8], AT = LLM_POP_AT;
+  if (Q.stage < AT.allLlms) return llmChap("llmPopC9", 9, title, false);
   const models = [...d.models].sort((a, b) => a.rankR - b.rankR), N = models.length, bench = sh.mean;
   const above = models.filter((x) => (x.r ?? -2) >= bench).length, best = models[0];
   const refs = [{ x: bench, cls: "is-half" }];
+  // In Josh's words (October 2026): the followed model against the baseline
+  const r = m.r ?? 0, rr = llmB(`r = ${llmR(m.r)}`);
+  const gap = r < bench - 0.1 ? "substantially below" : r < bench ? "below" : "at or above";
+  const lead = `${esc(m.name)}'s correlation of ${rr} is <strong>${gap}</strong> the human <strong>split-half reliability of r = ${llmR(bench)}</strong>.`;
+  if (Q.stage < AT.allBars) return llmChap("llmPopC9", 9, title, true, lead, "");
   const rows = models.map((x, i) => {
     const ns = !x.r_sig;
     const tip = `<strong>${esc(x.name)}</strong><br>r = ${llmR(x.r)}${x.ci && x.ci.r ? ` (95% interval ${llmR(x.ci.r[0])} to ${llmR(x.ci.r[1])})` : ""}` +
@@ -2761,20 +3169,16 @@ function llmPopCh8(m, md, fresh) {
       `<span class="lb-val">${llmR(x.r)}</span></div>`
     );
   }).join("");
-  // In Josh's words (October 2026): the followed model against the
-  // baseline, as the chapter's lead; a click later, the best model and every
-  // LLM's bar
-  const r = m.r ?? 0, rr = llmB(`r\u00a0=\u00a0${llmR(m.r)}`);
-  const gap = r < bench - 0.1 ? "substantially below" : r < bench ? "below" : "at or above";
-  const lead = `${esc(m.name)}'s correlation of ${rr} is <strong>${gap}</strong> the human <strong>split-half reliability of r\u00a0=\u00a0${llmR(bench)}</strong>.`;
-  if (Q.stage < LLM_POP_AT.allBars) return llmChap("llmPopC8", 8, title, true, lead, "");
-  const bestName = `<strong>${esc(best.name)}</strong>`, bestR = llmB(`r\u00a0=\u00a0${llmR(best.r)}`);
+  const bestName = `<strong>${esc(best.name)}</strong>`, bestR = llmB(`r = ${llmR(best.r)}`);
   const inFact = above === 0
     ? `In fact, no model can achieve this consistency level. The best model, ${bestName}, achieves the highest correlation of ${bestR}.`
     : `In fact, ${2 * above < N ? "only " : ""}${above} out of ${N} models achieve this consistency level. The best model, ${bestName}, achieves the highest correlation of ${bestR}.`;
-  const at = LLM_POP_AT.allBars;
+  const on = Q.stage >= AT.allBest;
   const body =
-    `<div class="${llmFresh(fresh, at).trim()}" id="llmPopB${at}"><p class="llm-p">${inFact}</p>` +
+    // the bars fade in without asking the panel to scroll to them (they run
+    // past the window), so the lead stays at the top with them
+    `<div class="${fresh && fresh.has(AT.allBars) ? "llm-in-quiet" : ""}" id="llmPopB${AT.allBars}">` +
+    `<p class="llm-p${on ? llmFresh(fresh, AT.allBest) : " is-pend"}" id="llmPopB${AT.allBest}">${inFact}</p>` +
     `<div class="llm-legend llm-h2h-legend" aria-hidden="true">` +
     `<span><i class="llm-key llm-key-open"></i>Correlation with humans (r)</span>` +
     `<span><i class="llm-key llm-key-faint"></i>Not significantly different from 0</span>` +
@@ -2782,9 +3186,9 @@ function llmPopCh8(m, md, fresh) {
     `<div class="llm-bars llm-board llm-h2h">` +
     `<div class="llm-bar-row is-head"><span class="lb-rank">#</span><span class="lb-name">LLM</span>${llmAxis(LLM_R_SCALE)}<span class="lb-val">r</span></div>` +
     rows + `</div>` +
-    // as the individual story's chapter 6 ends
+    // as the individual story's chapter 7 ends
     `<p class="llm-note">Point at a bar for its 95% interval, or click it to follow that LLM.</p></div>`;
-  return llmChap("llmPopC8", 8, title, true, lead, body);
+  return llmChap("llmPopC9", 9, title, true, lead, body);
 }
 
 // Next in the population story; chapter 7 waits for its split
@@ -2812,14 +3216,14 @@ function llmPopAction(action) {
   const fail = (err) => console.error("LLM split failed:", err);
   if (action === "pop-another" || action === "pop-paper") {
     Q.ex = action === "pop-paper" ? d.examples.population : llmRandomStatement(Q.ex);
-    const repaint = () => llmPopPaint(new Set(["ex"]), [3, 4, 5, 6]);
+    const repaint = () => llmPopPaint(new Set(["ex"]), [4, 5, 6, 7]);
     if (Q.stage >= LLM_POP_AT.split) llmPopLoadSplit().then(repaint).catch(fail);
     else repaint();
   } else if (action === "pop-resplit") {
     const used = new Set(Q.splits.map((x) => x.seed));
     const free = Array.from({ length: d.split_half.n_splits }, (_, i) => i).filter((i) => !used.has(i));
     Q.seed = free.length ? free[Math.floor(Math.random() * free.length)] : Math.floor(Math.random() * d.split_half.n_splits);
-    llmPopLoadSplit().then(() => llmPopPaint(new Set(["split"]), [6, 7])).catch(fail);
+    llmPopLoadSplit().then(() => llmPopPaint(new Set(["split"]), [7, 8])).catch(fail);
   }
 }
 
@@ -2970,10 +3374,11 @@ function llmSyncControls() {
   if (LLM.model && select.value !== LLM.model) select.value = LLM.model;
   const m = llmModel();
   if (pick && m && LLM.data) {
-    const ind = LLM.view === "individual";
     const list = llmRankList(LLM.view);
     const i = list.findIndex((x) => x.id === m.id);
-    document.getElementById("llmModelRank").textContent = `${llmOrdinal(i + 1)} of ${list.length} ${ind ? "as an individual" : "as a crowd"}`;
+    // a plain invitation rather than the model's rank, in both stories
+    // (Josh, October 2026)
+    document.getElementById("llmModelRank").textContent = "Select another model here";
     document.getElementById("llmModelPrev").disabled = i <= 0;
     document.getElementById("llmModelNext").disabled = i >= list.length - 1;
   }
@@ -3167,7 +3572,8 @@ function llmInit() {
   panel.addEventListener("pointerout", (e) => {
     const svg = e.target.closest && e.target.closest(".llm-lvl-svg, .llm-sct-svg");
     if (!svg || (e.relatedTarget && svg.contains(e.relatedTarget))) return;
-    svg.querySelector(".llm-lvl-probe, .llm-sct-probe").style.display = "none";
+    const probe = svg.querySelector(".llm-lvl-probe, .llm-sct-probe");   // none on chapter 4's chart
+    if (probe) probe.style.display = "none";
     svg.classList.remove("is-on");
   });
   panel.addEventListener("change", (e) => {
