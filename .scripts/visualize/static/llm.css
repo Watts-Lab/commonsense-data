@@ -596,12 +596,9 @@
 .llm-yn { font-size: var(--fs-3); font-weight: 600; color: var(--llm-ink); }
 .llm-answer { display: inline-flex; align-items: baseline; gap: 8px; }
 .llm-match { display: inline-block; font-size: var(--fs-3); font-weight: 700; line-height: 1; }
-.llm-match.ok { color: var(--c-good); }
-.llm-match.no { color: var(--c-bad); }
-/* In the stories every mark is the model's: a match in its orange and a
-   miss grey, as chapter 2's bars count them (never green against red) */
-.llm-story .llm-match.ok { color: var(--c-expect-ink); }
-.llm-story .llm-match.no { color: var(--c-muted); }
+/* Green and red, as every ✓ and ✗ on the site, the stories included */
+.llm-match.ok { color: var(--c-yes); }
+.llm-match.no { color: var(--c-no); }
 .llm-prob { display: grid; grid-template-columns: minmax(40px, 1fr) 3.6em; gap: 8px; align-items: center; }
 .llm-prob-track { position: relative; height: 6px; border-radius: 3px; background: var(--llm-line); }
 .llm-prob-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; background: var(--llm-model); }
@@ -979,7 +976,7 @@
 .llm-table-host .prop-filter-panel { margin: 0 0 6px; box-shadow: none; border: 1px solid var(--llm-line); }
 .llm-table-host .table-scroll-wrap { border: 1px solid var(--llm-line); border-radius: var(--r-md); }
 .llm-table { margin-top: 0; box-shadow: none; }
-.llm-table th { white-space: normal; vertical-align: bottom; }
+.llm-table th { white-space: normal; vertical-align: middle; }
 .llm-table th .prop-help-btn { margin-left: 2px; }
 .llm-table .td-statement { font-size: var(--fs-3); }
 .llm-table .col-statement { width: auto; }

@@ -360,7 +360,6 @@ let _worldMapGeo = null; // cached GeoJSON paths
 let _homeMapLoaded = false;
 let _homeCountryData = null; // {data: {country: n}, insuff: {country: n}}
 let _selectedHomeCountry = null; // currently selected server country name
-let _homeMapMode = "count"; // "count" (participants, log bins) | "continent"; toggled in home.js
 
 // Statement Scores
 let stmtScoresAllRows = [],
@@ -420,118 +419,6 @@ let DP_PW = DP_W - DP_PAD * 2; // inner plot width
 // mean score and 95% CI, plus a little slack
 const DP_FIXED_W = 70 + 6 * 64 + 68 + 120 + 16;
 
-// ── Country -> ISO 3166-1 alpha-2, for rendering flag emoji ─────────────────
-// Keys match the country_reside naming convention used throughout data/*.csv
-// (see .scripts/visualize/data/crt_rme_demo.csv).
-const COUNTRY_TO_ISO2 = {
-  "Afghanistan": "AF", "Albania": "AL", "Algeria": "DZ", "Andorra": "AD",
-  "Angola": "AO", "Antigua and Barbuda": "AG", "Argentina": "AR",
-  "Armenia": "AM", "Australia": "AU", "Austria": "AT", "Azerbaijan": "AZ",
-  "Bahamas": "BS", "Bahrain": "BH", "Bangladesh": "BD", "Barbados": "BB",
-  "Belarus": "BY", "Belgium": "BE", "Belize": "BZ", "Benin": "BJ",
-  "Bolivia": "BO", "Bosnia and Herzegovina": "BA", "Botswana": "BW",
-  "Brazil": "BR", "Brunei": "BN", "Bulgaria": "BG", "Burundi": "BI",
-  "Cambodia": "KH", "Cameroon": "CM", "Canada": "CA",
-  "Central African Republic": "CF", "Chad": "TD", "Chile": "CL",
-  "China": "CN", "Colombia": "CO", "Congo": "CG", "Costa Rica": "CR",
-  "Croatia": "HR", "Cyprus": "CY", "Czechia": "CZ", "Denmark": "DK",
-  "Dominica": "DM", "Dominican Republic": "DO", "Ecuador": "EC",
-  "Egypt": "EG", "El Salvador": "SV", "Eritrea": "ER", "Estonia": "EE",
-  "Eswatini": "SZ", "Ethiopia": "ET", "Fiji": "FJ", "Finland": "FI",
-  "France": "FR", "Gabon": "GA", "Gambia": "GM", "Georgia": "GE",
-  "Germany": "DE", "Ghana": "GH", "Greece": "GR", "Grenada": "GD",
-  "Guatemala": "GT", "Guyana": "GY", "Haiti": "HT", "Honduras": "HN",
-  "Hungary": "HU", "Iceland": "IS", "India": "IN", "Indonesia": "ID",
-  "Iran": "IR", "Iraq": "IQ", "Ireland": "IE", "Israel": "IL",
-  "Italy": "IT", "Jamaica": "JM", "Japan": "JP", "Jordan": "JO",
-  "Kazakhstan": "KZ", "Kenya": "KE", "Korea, North": "KP",
-  "Korea, South": "KR", "Kosovo": "XK", "Kyrgyzstan": "KG", "Laos": "LA",
-  "Latvia": "LV", "Lebanon": "LB", "Liberia": "LR", "Lithuania": "LT",
-  "Luxembourg": "LU", "Malawi": "MW", "Malaysia": "MY", "Malta": "MT",
-  "Mauritius": "MU", "Mexico": "MX", "Micronesia": "FM", "Moldova": "MD",
-  "Monaco": "MC", "Morocco": "MA", "Mozambique": "MZ",
-  "Myanmar (Burma)": "MM", "Namibia": "NA", "Nepal": "NP",
-  "Netherlands": "NL", "New Zealand": "NZ", "Nicaragua": "NI",
-  "Nigeria": "NG", "North Macedonia (formerly Macedonia)": "MK",
-  "Norway": "NO", "Oman": "OM", "Pakistan": "PK", "Panama": "PA",
-  "Peru": "PE", "Philippines": "PH", "Poland": "PL", "Portugal": "PT",
-  "Qatar": "QA", "Romania": "RO", "Russia": "RU", "Saint Lucia": "LC",
-  "Saint Vincent and the Grenadines": "VC", "Saudi Arabia": "SA",
-  "Serbia": "RS", "Singapore": "SG", "Slovakia": "SK", "Slovenia": "SI",
-  "Somalia": "SO", "South Africa": "ZA", "Spain": "ES", "Sri Lanka": "LK",
-  "Sudan": "SD", "Suriname": "SR", "Sweden": "SE", "Switzerland": "CH",
-  "Taiwan": "TW", "Tanzania": "TZ", "Thailand": "TH", "Togo": "TG",
-  "Trinidad and Tobago": "TT", "Turkey": "TR", "Uganda": "UG",
-  "Ukraine": "UA", "United Arab Emirates": "AE", "United Kingdom": "GB",
-  "United States": "US", "Uruguay": "UY", "Vatican City": "VA",
-  "Venezuela": "VE", "Vietnam": "VN", "Zambia": "ZM", "Zimbabwe": "ZW",
-};
-
-function countryFlagEmoji(iso2) {
-  return String.fromCodePoint(
-    ...[...iso2.toUpperCase()].map((c) => 127397 + c.charCodeAt(0)),
-  );
-}
-
-// Builds the "Country" cell markup for a scores-table row. Hovering or
-// clicking the flag shows the full country name (see the flag-popup handling
-// further down this file).
-function flagCellHtml(country) {
-  const iso2 = country ? COUNTRY_TO_ISO2[country] : null;
-  if (!iso2) {
-    return `<span class="flag-icon flag-unknown" data-country="${esc(country || "Unknown")}">?</span>`;
-  }
-  return `<span class="flag-icon" data-country="${esc(country)}">${countryFlagEmoji(iso2)}</span>`;
-}
-
-// Attaches hover/click handlers to every .flag-icon inside `root` so the
-// country name is revealed without also triggering the row's own click
-// handler (e.g. openUserDetail). Must stop propagation directly on the flag
-// element itself -- by the time a document-level delegated listener runs,
-// the row's click handler has already fired.
-let flagPopupPinned = false;
-let flagPopupActiveEl = null;
-const flagPopupEl = document.getElementById("flagPopup");
-
-function showFlagPopup(el) {
-  flagPopupEl.textContent = el.dataset.country;
-  const rect = el.getBoundingClientRect();
-  flagPopupEl.style.left = `${Math.round(rect.left)}px`;
-  flagPopupEl.style.top = `${Math.round(rect.bottom + 6)}px`;
-  flagPopupEl.classList.add("visible");
-}
-
-function hideFlagPopup() {
-  flagPopupEl.classList.remove("visible");
-  flagPopupPinned = false;
-  flagPopupActiveEl = null;
-}
-
-function attachFlagHandlers(root) {
-  root.querySelectorAll(".flag-icon").forEach((el) => {
-    el.addEventListener("mouseenter", () => {
-      if (!flagPopupPinned) showFlagPopup(el);
-    });
-    el.addEventListener("mouseleave", () => {
-      if (!flagPopupPinned) hideFlagPopup();
-    });
-    el.addEventListener("click", (e) => {
-      e.stopPropagation();
-      if (flagPopupPinned && flagPopupActiveEl === el) {
-        hideFlagPopup();
-      } else {
-        flagPopupPinned = true;
-        flagPopupActiveEl = el;
-        showFlagPopup(el);
-      }
-    });
-  });
-}
-
-document.addEventListener("click", (e) => {
-  if (flagPopupPinned && !e.target.closest(".flag-icon")) hideFlagPopup();
-});
-
 // Property filter definitions (value 1 = first label, 0 = second label)
 const PROP_DEFS = [
   {
@@ -577,50 +464,7 @@ const PROP_DEFS = [
     def0: "It refers to regularities or conclusions that cannot be observed or arrived at solely through individual experience.",
   },
 ];
-// ── Country flag / abbreviation lookup ────────────────────────────────────
-const COUNTRY_FLAGS = {
-  'Afghanistan':'🇦🇫','Albania':'🇦🇱','Algeria':'🇩🇿','Andorra':'🇦🇩',
-  'Angola':'🇦🇴','Antigua and Barbuda':'🇦🇬','Argentina':'🇦🇷','Armenia':'🇦🇲',
-  'Australia':'🇦🇺','Austria':'🇦🇹','Azerbaijan':'🇦🇿','Bahamas':'🇧🇸',
-  'Bahrain':'🇧🇭','Bangladesh':'🇧🇩','Barbados':'🇧🇧','Belarus':'🇧🇾',
-  'Belgium':'🇧🇪','Belize':'🇧🇿','Benin':'🇧🇯','Bolivia':'🇧🇴',
-  'Bosnia and Herzegovina':'🇧🇦','Botswana':'🇧🇼','Brazil':'🇧🇷','Brunei':'🇧🇳',
-  'Bulgaria':'🇧🇬','Burundi':'🇧🇮','Cambodia':'🇰🇭','Cameroon':'🇨🇲',
-  'Canada':'🇨🇦','Central African Republic':'🇨🇫','Chad':'🇹🇩','Chile':'🇨🇱',
-  'China':'🇨🇳','Colombia':'🇨🇴','Congo':'🇨🇬','Costa Rica':'🇨🇷',
-  'Croatia':'🇭🇷','Cuba':'🇨🇺','Cyprus':'🇨🇾','Czechia':'🇨🇿',
-  'Denmark':'🇩🇰','Dominica':'🇩🇲','Dominican Republic':'🇩🇴','Ecuador':'🇪🇨',
-  'Egypt':'🇪🇬','El Salvador':'🇸🇻','Eritrea':'🇪🇷','Estonia':'🇪🇪',
-  'Eswatini':'🇸🇿','Ethiopia':'🇪🇹','Fiji':'🇫🇯','Finland':'🇫🇮',
-  'France':'🇫🇷','Gabon':'🇬🇦','Gambia':'🇬🇲','Georgia':'🇬🇪',
-  'Germany':'🇩🇪','Ghana':'🇬🇭','Greece':'🇬🇷','Grenada':'🇬🇩',
-  'Guatemala':'🇬🇹','Guyana':'🇬🇾','Haiti':'🇭🇹','Honduras':'🇭🇳',
-  'Hungary':'🇭🇺','Iceland':'🇮🇸','India':'🇮🇳','Indonesia':'🇮🇩',
-  'Iran':'🇮🇷','Iraq':'🇮🇶','Ireland':'🇮🇪','Israel':'🇮🇱',
-  'Italy':'🇮🇹','Jamaica':'🇯🇲','Japan':'🇯🇵','Jordan':'🇯🇴',
-  'Kazakhstan':'🇰🇿','Kenya':'🇰🇪','Korea, North':'🇰🇵','Korea, South':'🇰🇷',
-  'Kosovo':'🇽🇰','Kuwait':'🇰🇼','Kyrgyzstan':'🇰🇬','Laos':'🇱🇦',
-  'Latvia':'🇱🇻','Lebanon':'🇱🇧','Liberia':'🇱🇷','Libya':'🇱🇾',
-  'Lithuania':'🇱🇹','Luxembourg':'🇱🇺','Malawi':'🇲🇼','Malaysia':'🇲🇾',
-  'Malta':'🇲🇹','Mauritius':'🇲🇺','Mexico':'🇲🇽','Micronesia':'🇫🇲',
-  'Moldova':'🇲🇩','Monaco':'🇲🇨','Morocco':'🇲🇦','Mozambique':'🇲🇿',
-  'Myanmar (Burma)':'🇲🇲','Namibia':'🇳🇦','Nepal':'🇳🇵','Netherlands':'🇳🇱',
-  'New Zealand':'🇳🇿','Nicaragua':'🇳🇮','Nigeria':'🇳🇬',
-  'North Macedonia (formerly Macedonia)':'🇲🇰','Norway':'🇳🇴','Oman':'🇴🇲',
-  'Pakistan':'🇵🇰','Panama':'🇵🇦','Paraguay':'🇵🇾','Peru':'🇵🇪',
-  'Philippines':'🇵🇭','Poland':'🇵🇱','Portugal':'🇵🇹','Qatar':'🇶🇦',
-  'Romania':'🇷🇴','Russia':'🇷🇺','Saint Lucia':'🇱🇨',
-  'Saint Vincent and the Grenadines':'🇻🇨','Saudi Arabia':'🇸🇦',
-  'Senegal':'🇸🇳','Serbia':'🇷🇸','Singapore':'🇸🇬','Slovakia':'🇸🇰',
-  'Slovenia':'🇸🇮','Somalia':'🇸🇴','South Africa':'🇿🇦','Spain':'🇪🇸',
-  'Sri Lanka':'🇱🇰','Sudan':'🇸🇩','Suriname':'🇸🇷','Sweden':'🇸🇪',
-  'Switzerland':'🇨🇭','Syria':'🇸🇾','Taiwan':'🇹🇼','Tanzania':'🇹🇿',
-  'Thailand':'🇹🇭','Togo':'🇹🇬','Trinidad and Tobago':'🇹🇹','Tunisia':'🇹🇳',
-  'Turkey':'🇹🇷','Uganda':'🇺🇬','Ukraine':'🇺🇦','United Arab Emirates':'🇦🇪',
-  'United Kingdom':'🇬🇧','United States':'🇺🇸','Uruguay':'🇺🇾',
-  'Uzbekistan':'🇺🇿','Vatican City':'🇻🇦','Venezuela':'🇻🇪','Vietnam':'🇻🇳',
-  'Yemen':'🇾🇪','Zambia':'🇿🇲','Zimbabwe':'🇿🇼',
-};
+// ── Country abbreviations (the Countries matrix's column heads) ────────────
 const COUNTRY_CODE = {
   'Afghanistan':'AF','Albania':'AL','Algeria':'DZ','Andorra':'AD',
   'Angola':'AO','Antigua and Barbuda':'AG','Argentina':'AR','Armenia':'AM',
@@ -664,8 +508,71 @@ const COUNTRY_CODE = {
   'Uzbekistan':'UZ','Vatican City':'VA','Venezuela':'VE','Vietnam':'VN',
   'Yemen':'YE','Zambia':'ZM','Zimbabwe':'ZW',
 };
-function countryFlag(name) { return COUNTRY_FLAGS[name] || ''; }
 function countryCode(name) { return COUNTRY_CODE[name] || name; }
+// A country's flag as an emoji, built from its ISO 3166-1 alpha-2 code (two
+// regional-indicator letters); "" for a code that isn't two letters. Brought
+// back at Josh's request (November 2026) beside the country's name or code,
+// never in its place, so the name still reads where a flag doesn't render.
+function flagEmoji(iso2) {
+  const c = String(iso2 || "").toUpperCase();
+  if (!/^[A-Z]{2}$/.test(c)) return "";
+  return String.fromCodePoint(...[...c].map((ch) => 127397 + ch.charCodeAt(0)));
+}
+function countryFlag(name) { return flagEmoji(COUNTRY_CODE[name]); }
+// The flag as a span to put before a name; hidden from screen readers, since
+// the name beside it says the same.
+function flagHtml(name, iso2) {
+  const f = iso2 ? flagEmoji(iso2) || countryFlag(name) : countryFlag(name);
+  return f ? `<span class="flag" aria-hidden="true">${f}</span>` : "";
+}
+// A flag shown in place of the country's name (tables and lists, at Josh's
+// request, November 2026): the name appears only on hover, on keyboard
+// focus, or on a tap (#flagPopup, wired once below). With no flag ("Not
+// stated", or no country), `fallback` stands in, "?" by default. `pin`
+// lets a click pin the name and stops the click there, so it doesn't also
+// open the row; leave it off where a click on the flag should go through
+// (the Countries matrix's column heads sort).
+function flagTipHtml(name, { fallback = "?", pin = true } = {}) {
+  const label = name || "Country unknown";
+  const f = countryFlag(name);
+  return `<span class="flag-tip${f ? "" : " is-none"}" tabindex="0" role="img" aria-label="${esc(label)}" data-country="${esc(label)}"${pin ? " data-flag-pin" : ""}>${f || esc(fallback)}</span>`;
+}
+(() => {
+  const pop = document.getElementById("flagPopup");
+  if (!pop) return;
+  let pinned = null;
+  const show = (el) => {
+    pop.textContent = el.dataset.country;
+    const r = el.getBoundingClientRect();
+    pop.classList.add("visible");
+    const w = pop.offsetWidth;
+    pop.style.left = `${Math.round(Math.max(8, Math.min(r.left + r.width / 2 - w / 2, innerWidth - w - 8)))}px`;
+    pop.style.top = `${Math.round(r.bottom + 6)}px`;
+  };
+  const hide = () => { pop.classList.remove("visible"); pinned = null; };
+  const tipOf = (e) => e.target instanceof Element ? e.target.closest(".flag-tip") : null;
+  document.addEventListener("mouseover", (e) => { const el = tipOf(e); if (el && !pinned) show(el); });
+  document.addEventListener("mouseout", (e) => {
+    const el = tipOf(e);
+    if (el && !pinned && !(e.relatedTarget instanceof Node && el.contains(e.relatedTarget))) hide();
+  });
+  document.addEventListener("focusin", (e) => { const el = tipOf(e); if (el) show(el); });
+  document.addEventListener("focusout", (e) => { if (tipOf(e) && !pinned) hide(); });
+  // Capture phase, so a pinning flag's click never reaches its row's handler
+  document.addEventListener("click", (e) => {
+    const el = tipOf(e);
+    if (el && el.hasAttribute("data-flag-pin")) {
+      e.stopPropagation();
+      if (pinned === el) { hide(); return; }
+      show(el); pinned = el;
+      return;
+    }
+    if (pinned && el !== pinned) hide();
+  }, true);
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && pop.classList.contains("visible")) hide(); });
+  // A fixed popup would drift from its flag as anything scrolls
+  document.addEventListener("scroll", () => { if (pop.classList.contains("visible")) hide(); }, true);
+})();
 
 // State: { v1: bool, v0: bool }. Both false OR both true = no filter.
 const ssPropFilters = Object.fromEntries(
@@ -704,22 +611,18 @@ function esc(str) {
     .replace(/"/g, "&quot;");
 }
 
-function pctBar(value) {
-  const pct = (value * 100).toFixed(1);
-  const cls = value >= 0.5 ? "pct-fill-high" : "pct-fill-low";
-  return (
-    `<div class="pct-wrap">` +
-    `<div class="pct-track"><div class="${cls}" style="width:${pct}%"></div></div>` +
-    `<span class="pct-label">${pct}%</span></div>`
-  );
+// A share in a table cell, as a number only. A share who agree under 50%
+// (the majority disagrees) is set in orange ink, as the column's "?" says.
+function pctCell(value, lowMarks = false) {
+  return `<span class="pct-num${lowMarks && value < 0.5 ? " is-low" : ""}">${fmtPct(value)}</span>`;
 }
 
+// The table's one bar: the commonsensicality score, with its number
 function pctBarScore(value) {
-  const pct = (value * 100).toFixed(1);
   return (
     `<div class="pct-wrap">` +
-    `<div class="pct-track"><div class="pct-fill-score" style="width:${pct}%"></div></div>` +
-    `<span class="pct-label">${pct}%</span></div>`
+    `<div class="pct-track"><div class="pct-fill-score" style="width:${(Math.max(0, Math.min(1, value)) * 100).toFixed(2)}%"></div></div>` +
+    `<span class="pct-label">${fmtPct(value)}</span></div>`
   );
 }
 
@@ -735,8 +638,37 @@ function sqrtHtml(inner) {
   return `<span class="sqrt"><span class="sr-only">the square root of </span><svg class="sqrt-sign" viewBox="0 0 10 20" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M0.6 11.6 L2.7 10.5 L5.3 19.3 L9.7 0.75 H10"/></svg><span class="sqrt-arg">${inner}</span></span>`;
 }
 
-function fmtPct(v) {
-  return (v * 100).toFixed(1) + "%";
+// A 0-1 value as a percent, rounded to d decimals half up on the exact value.
+// toFixed() rounds the binary value instead, so a share of exactly 62.45%
+// (1249/2000, stored as 62.4499…) printed 62.4%. The nudge, a ten-millionth
+// of the last digit's unit, is far smaller than the gap between any share
+// k/n of fewer than 100,000 ratings and a rounding boundary.
+function roundPct(v, d = 1) {
+  const f = 10 ** d;
+  return Math.round(v * 100 * f + 1e-7) / f;
+}
+function fmtPct(v, d = 1) {
+  if (v === null || v === undefined || Number.isNaN(v)) return "—";
+  return roundPct(v, d).toFixed(d) + "%";
+}
+// A number already in percent (the Countries matrix sends 0-100) to d
+// decimals, rounded the same way
+function fmtPts(x, d = 1) {
+  const f = 10 ** d;
+  return (Math.round(x * f + 1e-7) / f).toFixed(d);
+}
+// A share read against the 50% majority line, as a whole percent, but with a
+// decimal when a whole percent would show 50% for a share that isn't exactly
+// half (so a 49.6% that makes "disagree" the majority never reads 50%)
+function fmtSidePct(v) {
+  return roundPct(v, 0) === 50 && Math.abs(v - 0.5) > 1e-12 ? fmtPct(v, 1) : fmtPct(v, 0);
+}
+// A share as the explorer's sentences print it: one decimal, or as many as
+// it takes not to call a share that isn't unanimous 0% or 100%
+function fmtShare(v) {
+  let d = 1;
+  while (d < 3 && ((v < 1 && roundPct(v, d) >= 100) || (v > 0 && roundPct(v, d) <= 0))) d++;
+  return fmtPct(v, d);
 }
 
 // A correlation as the LLM panel writes it (llmR() in llm.js): two decimals,
@@ -751,23 +683,13 @@ function badge(value) {
     : '<span class="badge-no">No</span>';
 }
 
-// A participant's Yes / No, marked against the majority (maj 1 = agrees,
-// 0 = disagrees, null = the statement doesn't count): green ✓ when it matches,
-// red ✗ when it doesn't. Colour alone never says yes or no.
-function answerPill(value, maj) {
-  const word = value === 1 ? "Yes" : "No";
-  if (maj === null || maj === undefined) return `<span class="ans-pill is-off">${word}</span>`;
-  const ok = value === maj;
-  return `<span class="ans-pill ${ok ? "is-match" : "is-miss"}" title="${ok ? "Matches" : "Misses"} the majority"><span aria-hidden="true">${ok ? "✓" : "✗"}</span>${word}</span>`;
-}
-
-// The reference group's majority on a statement and the share who gave it,
-// as in the Individual Scores intro card ("Agree 94%", "Disagree 79%")
-function refAvgAgree(mean) {
-  if (mean === null || mean === undefined) return "—";
-  return mean >= 0.5
-    ? `Agree <span class="td-muted">${fmtPct(mean)}</span>`
-    : `Disagree <span class="td-muted">${fmtPct(1 - mean)}</span>`;
+// A yes / no as its glyph alone (Josh, November 18, 2026): ✓ yes in green,
+// ✗ no in red (--c-yes, --c-no, as every ✓ and ✗ on the site); used for a
+// participant's answers and the majority in the participant modal, where
+// comparing the columns shows a match or a miss
+function yesNoMark(value) {
+  const yes = value === 1;
+  return `<span class="ist-mark yn-mark ${yes ? "is-ok" : "is-no"}" role="img" aria-label="${yes ? "Yes" : "No"}" title="${yes ? "Yes" : "No"}">${yes ? "✓" : "✗"}</span>`;
 }
 
 function refAvgOthers(mean) {
@@ -801,8 +723,8 @@ async function showStmtMeta(el, statementId) {
   const { source, category } = stmtMetaCache[statementId];
   el.innerHTML = [["Source", source], ["Category", category]]
     .filter(([, v]) => v)
-    .map(([label, v]) => `<span class="stmt-meta-item"><span class="stmt-meta-label">${label}</span> <span class="stmt-meta-value">${esc(capFirst(v))}</span></span>`)
-    .join("");
+    .map(([label, v]) => `<span class="stmt-meta-item">${label}: ${esc(capFirst(v))}</span>`)
+    .join(" · ");
 }
 
 // Statement modal with only the text, source and category, plus an optional
@@ -819,39 +741,65 @@ function openStmtInfo(statement, statementId, noteHtml = "") {
 
 // Shown instead of a score for statements under the 10-rating minimum
 function notEnoughRatingsHtml(n, groupLabel) {
-  return `There are not enough ratings to calculate a commonsensicality score for this statement. ` +
-    `Within <strong>${esc(groupLabel)}</strong>, it has received <strong>${fmtNum(n)}</strong> rating${n !== 1 ? "s" : ""}; ` +
-    `at least <strong>10</strong> are required.`;
+  return `No score yet: in ${esc(groupIn(groupLabel))} this statement has ${fmtNum(n)} rating${n !== 1 ? "s" : ""}, ` +
+    `and a score needs at least 10.`;
 }
 
 // The worked calculation of one statement's score, shared by every statement
-// modal: N ratings, A = share who agree, B = share who think most others agree.
-// Same rule as utils.statement_commonsensicality (a 50/50 tie counts as agree).
-function stmtCalcHtml(row, groupLabel) {
-  const N = row.n_ratings;
-  const A = row.I_agree_mean;
-  const B = row.others_agree_mean;
-  const agrees = A >= 0.5;
-  const fp = (v) => (v * 100).toFixed(1) + "%";
-  const consensus = 2 * Math.abs(A - 0.5);
-  const awareness = agrees ? B : 1 - B;
-  const score = Math.sqrt(consensus * awareness);
+// modal and Group Comparison's statement detail, step by step from the counts
+// (n raters, k who agree, k2 who think most others would), so each line can
+// be checked by hand: consensus = |agreed − disagreed| / raters, awareness =
+// the share who predicted the majority's answer, and their geometric mean.
+// Same rule as utils.statement_commonsensicality (a 50/50 tie counts as
+// agree); the square root ends in "≈" when its one-decimal inputs don't give
+// its one-decimal result.
+function stmtCounts(row) {
+  const n = row.n_ratings;
+  const k = row.k_agree != null ? row.k_agree : Math.round(row.I_agree_mean * n);
+  const k2 = row.k_others != null ? row.k_others : Math.round(row.others_agree_mean * n);
+  return { n, k, k2 };
+}
+function calcLinesHtml(lines) {
+  return `<div class="ist-calc">` +
+    lines.map(([key, rhs, sign = "="]) => `<span class="ist-calc-k">${key}</span><span class="ist-calc-eq">${sign}</span><span class="ist-calc-v">${rhs}</span>`).join("") +
+    `</div>`;
+}
+function sqrtSign(a, b, result) {
+  return fmtPct(Math.sqrt((roundPct(a) / 100) * (roundPct(b) / 100))) === fmtPct(result) ? "=" : "≈";
+}
+function stmtCalcHtml(row, groupLabel, { compact = false } = {}) {
+  const { n, k, k2 } = stmtCounts(row);
+  const agrees = 2 * k >= n;
+  const cons = Math.abs(2 * k - n) / n;
+  const aw = agrees ? k2 / n : (n - k2) / n;
+  const m = Math.sqrt(cons * aw);
+  const maj = agrees ? k : n - k, min = agrees ? n - k : k;
+  const lines = [
+    ["Consensus", `(${fmtNum(maj)} − ${fmtNum(min)}) / ${fmtNum(n)} = ${fmtPct(cons)}`],
+    ["Awareness", `${fmtNum(agrees ? k2 : n - k2)} / ${fmtNum(n)} = ${fmtPct(aw)}`],
+    ["Commonsensicality", sqrtHtml(`${fmtPct(cons)} × ${fmtPct(aw)}`)],
+    ["", `<strong>${fmtPct(m)}</strong>`, sqrtSign(cons, aw, m)],
+  ];
+  const vote = 2 * k === n
+    ? `${fmtNum(k)} agreed and ${fmtNum(n - k)} disagreed: an even split, which counts as a majority that agrees.`
+    : `${fmtNum(k)} agreed and ${fmtNum(n - k)} disagreed, so the majority (${fmtShare(maj / n)}) ${agrees ? "agrees" : "disagrees"}.`;
+  const pred = `${fmtNum(k2)} predicted that most people would agree, and ${fmtNum(n - k2)} that they would not. ` +
+    `Since the majority ${agrees ? "agrees" : "disagrees"}, awareness is the share who predicted that most ${agrees ? "would" : "would not"} agree.`;
   return (
-    `<p class="expl-context">Computed from the <strong>${fmtNum(N)}</strong> rating${N !== 1 ? "s" : ""} ` +
-    `by participants in <strong>${esc(groupLabel)}</strong>.</p>` +
-    `<ul class="expl-list">` +
-    `<li><strong>Majority:</strong> ${fp(A)} agree, so the majority <strong>${agrees ? "agrees" : "disagrees"}</strong> ` +
-    `(${agrees ? "at least" : "under"} 50%).</li>` +
-    `<li><strong>Consensus</strong> = 2 × |${fp(A)} − 50%| = <strong>${fp(consensus)}</strong>: how one-sided the vote is.</li>` +
-    `<li><strong>Awareness</strong> = <strong>${fp(awareness)}</strong>: the share who correctly expected most people to ` +
-    `${agrees ? "agree" : "disagree"}` +
-    (agrees ? "." : ` (${fp(B)} thought most would agree, so 100% − ${fp(B)}).`) + `</li>` +
-    `<li><strong>Commonsensicality</strong> = ${sqrtHtml(`${fp(consensus)} × ${fp(awareness)}`)} = <strong>${fp(score)}</strong>.</li>` +
-    `</ul>`
+    `<p class="expl-p">Rated by ${fmtNum(n)} ${n === 1 ? "person" : "people"} in ${esc(groupIn(groupLabel))}: ${vote}` +
+    (compact ? "" : ` Consensus is how far that vote is from a 50-50 split.`) + `</p>` +
+    `<p class="expl-p">${pred}</p>` +
+    calcLinesHtml(lines)
   );
 }
 
+// "the United States", "the Netherlands", "France"; "all countries"
+const THE_COUNTRIES = new Set(["Netherlands", "Philippines", "Czech Republic", "Dominican Republic", "Bahamas", "Gambia", "Maldives", "Central African Republic", "Democratic Republic of the Congo", "Republic of the Congo", "Comoros", "Seychelles", "Solomon Islands", "Marshall Islands", "United Kingdom", "United States", "United Arab Emirates"]);
+function theCountry(c) { return THE_COUNTRIES.has(c) ? `the ${c}` : c; }
+function groupIn(g) { return !g || g === "all" || g === "all countries" ? "all countries" : theCountry(g); }
+
 function openStmtDetail(row, country) {
+  cmStmtReq++; // a Countries statement still loading must not draw over this
   document.getElementById("stmtModalText").textContent = fixStatement(
     row.statement,
   );
@@ -904,7 +852,14 @@ function tabFromPathname() {
   return SLUG_TABS[slug] !== undefined ? SLUG_TABS[slug] : "home";
 }
 
-function switchToTab(tab, pushUrl) {
+// A panel's worked example is a page of its own, at ?view=example on the
+// panel's own path (a sub-path would break the relative static/ and API
+// URLs); static/intro.js draws it and links back to the data
+function exampleFromUrl() {
+  return new URLSearchParams(window.location.search).get("view") === "example";
+}
+
+function switchToTab(tab, pushUrl, example = false) {
   document.querySelectorAll(".tab-btn").forEach((b) => {
     const on = b.dataset.tab === tab;
     b.classList.toggle("active", on);
@@ -944,8 +899,10 @@ function switchToTab(tab, pushUrl) {
   if (tab === "tsAudit" && !tsLoaded) { tsLoaded = true; tsLoad(); }
   if (pushUrl) {
     const slug = TAB_SLUGS[tab];
-    history.pushState({ tab }, "", MOUNT_PATH + (slug || ""));
+    history.pushState({ tab, example }, "", MOUNT_PATH + (slug || "") + (example ? "?view=example" : ""));
   }
+  // intro.js loads after this file: on the first call it reads the URL itself
+  if (typeof introSetMode === "function") introSetMode(tab, example);
   // llm.js loads after this file and keeps its view in the query string, so
   // it runs after the URL is set (and is undefined on the first call)
   if (tab === "llm" && typeof llmOpen === "function") llmOpen();
@@ -1080,37 +1037,39 @@ const sgStatementsCache = {};
 let sgSelectedCombo = null;
 let sgSelectedMetric = null;
 
-const SG_FEAT_DEFS = [
-  { key: 'fact', v1: 'Fact', v0: 'Opinion',
-    def1: "Something that can be demonstrated to be correct or incorrect, independently of anyone's opinion.",
-    def0: 'Something that someone might think is true, but that cannot be demonstrated to be objectively correct or incorrect.' },
-  { key: 'physical', v1: 'Physical', v0: 'Social',
-    def1: 'Refers to objective features of the world described by natural rules and measurable empirically or derived logically.',
-    def0: 'Refers to beliefs, preferences, institutions, and socially constructed rules of human origin.' },
-  { key: 'literal language', v1: 'Literal Language', v0: 'Figure of Speech',
-    def1: 'Plain and ordinary language that means exactly what it says.',
-    def0: 'Contains an aphorism, metaphor, hyperbole, or another nonliteral expression.' },
-  { key: 'positive', v1: 'Positive', v0: 'Normative',
-    def1: 'Describes something in the world, such as an empirical regularity or scientific law.',
-    def0: 'Expresses a judgment, belief, value, social norm, or convention.' },
-  { key: 'knowledge', v1: 'Knowledge', v0: 'Reasoning',
-    def1: 'States an observation about the world; it may be true or false, subjective or objective.',
-    def0: 'Presents a conclusion reached by combining knowledge and logic.' },
-  { key: 'everyday', v1: 'Everyday', v0: 'Abstract',
-    def1: 'Concerns something people encounter, or could encounter, in ordinary experience.',
-    def0: 'Concerns regularities or conclusions that cannot be observed or reached solely through individual experience.' },
-];
+// The six features as the judges' prompt defines them
+// (statement-generation/prompt.yml), which PROP_DEFS repeats word for word, so
+// these pages and the score panels say the same thing. Keys as in prompt.yml
+// ("literal language"). Until November 2026 these pages had their own
+// paraphrased definitions and Title Case labels.
+const SG_FEAT_DEFS = PROP_DEFS.map(def => ({ ...def, key: def.key.replace('_', ' ') }));
 
 const sgFeatFilter = Object.fromEntries(SG_FEAT_DEFS.map(({ key }) => [key, '']));
 // Clicking a feature header cycles its filter: both poles → 1 only → 0 only
 const SG_FILTER_CYCLE = { '': '1', '1': '0', '0': '' };
 const SG_SORT_LABELS = { existing: 'Existing', published: 'Published', calculated: 'Calculated', supplementable: 'New' };
+// Said once, in the page's "What the counts and features mean" list (and as
+// each heading's tooltip). The New count's denominator is the generated
+// statements at least one judge has rated, not every generated statement
+// (statement_coverage.py: 10,709 of 12,715 generated texts in November 2026).
 const SG_METRIC_HELP = {
-  existing: 'Total number of statements already in a design point.',
-  published: 'Number of statements that are currently being sampled.',
-  calculated: 'Number of statements that have at least 10 ratings each, regardless of being published or not.',
-  supplementable: 'Number of statements generated by some LLM according to this design point. Of these, a statement qualifies when, for every feature, at least half of the judge LLMs that rated it give the label in this design point. No single judge has to agree on all six features, and common sense is not required.',
+  existing: 'Statements on the platform whose six stored labels put them in this design point.',
+  published: 'Existing statements now being shown to participants.',
+  calculated: 'Statements with at least 10 ratings, published or not: the ones the Design Points panel scores.',
+  supplementable: 'Statements an LLM wrote for this design point that at least one judge LLM has rated, as qualifying / judged. ' +
+    'One qualifies when, for every feature, at least half of the judges who rated it give this design point\'s label. ' +
+    'No single judge has to agree on all six, and common sense is not required.',
 };
+// A definitions list, plain text: counts (if given), then the six feature pairs
+function sgDefsHtml(metrics) {
+  const item = (termHtml, text) => `<dt>${termHtml}</dt><dd>${esc(text)}</dd>`;
+  return metrics.map(([term, text]) => item(esc(term), text)).join('') +
+    SG_FEAT_DEFS.map(def => item(sgPoleHtml(def.v1, '1'), def.def1) + item(sgPoleHtml(def.v0, '0'), def.def0)).join('');
+}
+// The three pages' definitions lists (Coverage also defines its counts)
+document.getElementById('sgDefs').innerHTML = sgDefsHtml(Object.entries(SG_METRIC_HELP).map(([key, text]) => [SG_SORT_LABELS[key], text]));
+document.getElementById('auDefs').innerHTML = sgDefsHtml([]);
+document.getElementById('tsDefs').innerHTML = sgDefsHtml([]);
 let sgSortKey = 'existing';
 let sgSortDir = 'asc';
 const SG_METRIC_LABELS = { existing: 'existing', published: 'published', calculated: 'calculated', supplementable: 'new' };
@@ -1120,23 +1079,24 @@ function sgComboKey(row) {
   return SG_FEAT_DEFS.map(def => row[def.key]).join(',');
 }
 
+// Counts are plain numbers; only an empty count is set apart, in grey
 function sgStatusClass(n) {
-  if (n === 0) return 'sg-status-none';
-  if (n < 5) return 'sg-status-low';
-  return 'sg-status-good';
+  return n === 0 ? 'sg-status-none' : '';
 }
 
 function sgMetricCacheKey(key, metric) {
   return `${key}::${metric}`;
 }
 
+// A count's heading sorts by it; its definition is the tooltip and the page's
+// definitions list (no "?" buttons)
 function sgSortHeaderHtml(key) {
   const arrow = key === sgSortKey ? (sgSortDir === 'asc' ? ' ▲' : ' ▼') : '';
   const active = key === sgSortKey ? ' sg-sort-active' : '';
-  const help = `<button type="button" class="sg-help-btn sg-metric-help-btn" data-metric="${key}" aria-label="Definition of ${esc(SG_SORT_LABELS[key])}">?</button>`;
   const extra = key === 'supplementable' ? ' sg-col-new' : '';
-  return `<th class="sg-col-meta${extra} sg-sortable${active}" data-sort-key="${key}">` +
-    `<span class="sg-metric-th-label">${SG_SORT_LABELS[key]}${arrow}</span>${help}</th>`;
+  const sub = key === 'supplementable' ? '<span class="sg-th-sub">qualify / judged</span>' : '';
+  return `<th class="sg-col-meta${extra} sg-sortable${active}" data-sort-key="${key}" title="${esc(SG_METRIC_HELP[key])}">` +
+    `<span class="sg-metric-th-label">${SG_SORT_LABELS[key]}<span class="sort-icon">${arrow.trim()}</span></span>${sub}</th>`;
 }
 
 function sgBuildHeader() {
@@ -1148,19 +1108,19 @@ function sgBuildHeader() {
 }
 
 // Click-to-cycle feature headers, shared with the Published Statement Audit
+// and TypeSafe pages. The two poles' definitions are in each page's
+// definitions list, so the headings carry no "?" buttons.
 function sgFeatureHeaderCells() {
-  return SG_FEAT_DEFS.map((def, i) =>
-      `<th class="sg-th-prop${i % 2 === 0 ? ' sg-th-alt' : ''}" data-key="${esc(def.key)}" ` +
-      `title="Click to filter by ${esc(def.v1)} / ${esc(def.v0)}">` +
+  return SG_FEAT_DEFS.map(def =>
+      `<th class="sg-th-prop" data-key="${esc(def.key)}" ` +
+      `title="Click to filter: ${esc(def.v1)} only, then ${esc(def.v0)} only, then both">` +
       // All three filter states' labels are rendered; only the active one is
       // shown, but the hidden ones still set the column width (see style.css)
       `<span class="sg-prop-label">` +
-      `<span class="sg-label-variant" data-value="">${sgPoleHtml(def.v1, '1')}<span class="sg-pole-amp">&amp;</span>${sgPoleHtml(def.v0, '0')}</span>` +
+      `<span class="sg-label-variant" data-value="">${sgPoleHtml(def.v1, '1')}${sgPoleHtml(def.v0, '0')}</span>` +
       `<span class="sg-label-variant" data-value="1">${sgPoleHtml(def.v1, '1')}</span>` +
       `<span class="sg-label-variant" data-value="0">${sgPoleHtml(def.v0, '0')}</span>` +
-      `</span>` +
-      `<button type="button" class="sg-help-btn sg-prop-help-btn" data-key="${esc(def.key)}" ` +
-      `aria-label="Definitions of ${esc(def.v1)} and ${esc(def.v0)}">?</button></th>`
+      `</span></th>`
     ).join('');
 }
 
@@ -1169,6 +1129,14 @@ function sgPoleHtml(label, value) {
     ? '<span class="sg-option-dot sg-val-1">●</span>'
     : '<span class="sg-option-dot sg-val-0">○</span>';
   return `<span class="sg-pole">${esc(label)}&nbsp;${dot}</span>`;
+}
+
+// A design point's six labels as ● (first pole) and ○ (second), one cell each
+function sgFeatureCells(row) {
+  return SG_FEAT_DEFS.map(def => {
+    const isOne = row[def.key] === 1;
+    return `<td class="sg-prop-val ${isOne ? 'sg-val-1' : 'sg-val-0'}" title="${esc(isOne ? def.v1 : def.v0)}">${isOne ? '●' : '○'}</td>`;
+  }).join('');
 }
 
 function sgUpdateFilterHeaders() {
@@ -1209,20 +1177,15 @@ function sgRenderTable() {
   };
   tbody.innerHTML = sorted.map((row, index) => {
     const key = sgComboKey(row);
-    const supplementClass = row.supplementable > 0 ? 'sg-status-help' : 'sg-status-none-help';
     return `<tr data-combo="${esc(key)}"${key === sgSelectedCombo ? ' class="sg-selected"' : ''}>` +
       `<td class="sg-col-num">${index + 1}</td>` +
-      SG_FEAT_DEFS.map((def, i) => {
-        const isOne = row[def.key] === 1;
-        const alt = i % 2 === 0 ? ' sg-prop-alt' : '';
-        return `<td class="sg-prop-val ${isOne ? 'sg-val-1' : 'sg-val-0'}${alt}" title="${esc(isOne ? def.v1 : def.v0)}">${isOne ? '●' : '○'}</td>`;
-      }).join('') +
+      sgFeatureCells(row) +
       countButton(key, 'existing', row.existing, sgStatusClass(row.existing)) +
       countButton(key, 'published', row.published, sgStatusClass(row.published)) +
       countButton(key, 'calculated', row.calculated, sgStatusClass(row.calculated)) +
       countButton(key, 'supplementable',
         `<span class="sg-frac-num">${row.supplementable}</span> / <span class="sg-frac-den">${row.supplementable_total}</span>`,
-        supplementClass) +
+        sgStatusClass(row.supplementable)) +
       '</tr>';
   }).join('');
 }
@@ -1249,17 +1212,20 @@ function sgDetailHeader(metric, row) {
   }
   if (metric === 'calculated') {
     return '<th class="sg-col-num">#</th><th class="sg-col-published">Published</th><th class="sg-col-statement">Statement</th>' +
-      '<th class="sg-col-generator">N Ratings</th><th class="sg-col-num-judges">Commonsensicality</th>';
+      '<th class="sg-col-generator">Ratings</th><th class="sg-col-num-judges">Commonsensicality</th>';
   }
   // One column per feature, titled with this design point's label (every
   // listed statement claims it), then common sense
   return '<th class="sg-col-num">#</th><th class="sg-col-statement">Statement</th><th class="sg-col-generator">Generator</th>' +
     SG_FEAT_DEFS.map(def => `<th class="sg-col-num-judges">${esc(row[def.key] ? def.v1 : def.v0)}</th>`).join('') +
-    '<th class="sg-col-num-judges">Common Sense</th>';
+    '<th class="sg-col-num-judges">Common sense</th>';
 }
 
+// Yes ✓ / No ✗, as every yes/no on the site (✓ green, ✗ red)
 function sgPublishedChip(published) {
-  return published ? '<span class="sg-status-chip sg-yes">Yes</span>' : '<span class="sg-status-chip sg-no">No</span>';
+  return published
+    ? '<span class="sg-yn">Yes<span class="ist-mark is-ok" aria-hidden="true">✓</span></span>'
+    : '<span class="sg-yn is-no">No<span class="ist-mark is-no" aria-hidden="true">✗</span></span>';
 }
 
 let sgDetailRequestId = 0;
@@ -1282,12 +1248,16 @@ async function sgSelectMetric(key, metric) {
   const count = row[metric];
   const colCount = SG_METRIC_COLS[metric];
   title.textContent = label;
-  sub.textContent = metric === 'supplementable'
-    ? `There are ${row.supplementable_total} statements that have been generated by an LLM for this design point. ` +
-      `Of these, ${count} statements qualify: for each of the 6 features, at least half of the judge LLMs that ` +
-      `rated the statement give it the label in this design point. No single judge has to agree on all 6, and ` +
-      `common sense is not required.`
-    : `${count} ${SG_METRIC_LABELS[metric]} statement${count === 1 ? '' : 's'}`;
+  const nStatements = n => `${fmtNum(n)} statement${n === 1 ? '' : 's'}`;
+  sub.textContent = {
+    existing: `${nStatements(count)} on the platform.`,
+    published: `${nStatements(count)} now shown to participants.`,
+    calculated: `${nStatements(count)} with at least 10 ratings. Click one to see how its score is calculated.`,
+    supplementable: `Judges have rated ${nStatements(row.supplementable_total)} written for this design point, and ` +
+      `${fmtNum(count)} qualify: for every feature, at least half of the judges who rated it give this design point's ` +
+      'label (each cell counts them; ✗ where fewer than half do). The rest are grey. Click a statement for every ' +
+      'judge\'s labels and reasons.',
+  }[metric];
   detail.classList.remove("hidden");
   head.innerHTML = sgDetailHeader(metric, row);
   head.closest('table').dataset.metric = metric;
@@ -1323,7 +1293,7 @@ function sgRenderDetailList(cacheKey, metric) {
   if (metric === 'existing' || metric === 'calculated') {
     const publishedCount = statements.filter(s => s.published).length;
     const sub = document.getElementById('sgDetailSub');
-    sub.textContent += ` · ${publishedCount} of ${statements.length} still published`;
+    sub.textContent = sub.textContent.replace(/\.( |$)/, `, ${fmtNum(publishedCount)} of them published.$1`);
     statements = [...statements].sort((a, b) => b.published - a.published);
   }
   sgDetailStatements = statements;
@@ -1346,15 +1316,15 @@ function sgRenderDetailList(cacheKey, metric) {
       `<tr data-index="${index}"><td class="sg-col-num">${index + 1}</td>` +
       `<td class="sg-col-published">${sgPublishedChip(entry.published)}</td>` +
       `<td class="sg-col-statement"><span class="sg-statement-text">${esc(entry.statement)}</span></td>` +
-      `<td class="sg-col-generator">${entry.n_ratings}</td>` +
-      `<td class="sg-col-num-judges">${(entry.commonsensicality * 100).toFixed(1)}%</td></tr>`
+      `<td class="sg-col-generator">${fmtNum(entry.n_ratings)}</td>` +
+      `<td class="sg-col-num-judges">${fmtPct(entry.commonsensicality)}</td></tr>`
     ).join('');
     return;
   }
   body.innerHTML = statements.map((entry, index) => {
     const genLabel = entry.generations.length === 1
       ? `<span title="${esc(entry.generations[0].gen_model)}">${esc(entry.generations[0].gen_model.split('/').pop())}</span>`
-      : `<span title="${esc(entry.generations.map(g => g.gen_model).join(', '))}">${entry.generations.length} generators</span>`;
+      : `<span title="${esc(entry.generations.map(g => g.gen_model).join(', '))}">${entry.generations.length} LLMs</span>`;
     const rowClass = entry.qualifies ? '' : ' class="sg-row-dim"';
     return `<tr data-index="${index}"${rowClass}>` +
       `<td class="sg-col-num">${index + 1}</td>` +
@@ -1367,14 +1337,16 @@ function sgRenderDetailList(cacheKey, metric) {
   }).join('');
 }
 
-// An "agree / rated" pill in a statement list (Coverage and Audit). Clicking it
-// opens the statement dialog on just that section: a feature key or
-// "commonsense". fails marks a feature where fewer than half of the judges
-// agree, so the statement doesn't qualify.
+// "agree / rated" in a statement list (Coverage and Audit): judges who give
+// the label, of the judges who rated the statement. Clicking it opens the
+// statement dialog on just that section: a feature key or "commonsense".
+// fails marks a feature where fewer than half of the judges agree, so the
+// statement doesn't qualify: a red ✗ beside the count (--c-no).
 function sgVoteCell(agree, total, key, fails = false) {
   if (!total) return '<span class="au-none">—</span>';
   return `<span class="sg-judge-count au-feature-cell${fails ? ' au-no-majority' : ''}" ` +
-    `data-feature-key="${esc(key)}">${agree} / ${total}</span>`;
+    `data-feature-key="${esc(key)}"${fails ? ' title="Fewer than half of the judges agree"' : ''}>${agree} / ${total}` +
+    (fails ? '<span class="ist-mark is-no" aria-label="fewer than half">✗</span>' : '') + `</span>`;
 }
 
 // In the statement dialog, show only the section for key (a feature key or
@@ -1385,30 +1357,59 @@ function sgFocusSection(container, key) {
   sections.forEach(s => s.classList.toggle('sg-feature-hidden', s.dataset.featureKey !== key));
 }
 
-function sgAssessmentPanel(title, assessment, role, agree) {
-  const roleClass = role ? ` sg-assessment-panel--${role}` : '';
-  const agreeChip = agree === true ? ' <span class="sg-status-chip sg-yes">Agree</span>'
-    : agree === false ? ' <span class="sg-status-chip sg-no">Disagree</span>' : '';
-  if (!assessment) {
-    return `<article class="sg-assessment-panel${roleClass}"><h4>${esc(title)}${agreeChip}</h4><p class="sg-pending-label">Evaluation pending</p></article>`;
-  }
-  const confidence = assessment.confidence ?
-    `<p class="sg-feature-confidence">Confidence: ${esc(assessment.confidence)} / 4</p>` : '';
-  return `<article class="sg-assessment-panel${roleClass}"><h4>${esc(title)}${agreeChip}</h4>` +
-    `<strong>${esc(assessment.classification || 'Not provided')}</strong>` +
-    confidence +
-    `<p>${esc(assessment.explanation || 'No explanation provided.')}</p></article>`;
+// A model id as shown: batch and direct runs of a judge are one model
+function sgModelName(model) {
+  return String(model).replace(/:batch$/, '');
 }
 
-// Status line for the qualification rule (statement_coverage.feature_majority):
-// every feature needs at least half of the judges who rated the statement to
-// give its label. labels maps feature key -> 0/1.
-function sgMajorityStatus(majority, labels, nJudges) {
-  if (!nJudges) return 'Not rated by any judge yet';
-  const failing = SG_FEAT_DEFS.filter(def => !majority[def.key]).map(def => (labels[def.key] ? def.v1 : def.v0));
-  return failing.length
-    ? `Doesn't qualify: fewer than half of the judges agree on ${failing.join(', ')}`
-    : 'Qualifies: at least half of the judges agree on every feature';
+// One source's answer in the statement dialog: who gave it, its label (with
+// ✓ when it matches the label being checked, ✗ in grey when not), and its
+// reason. Plain text, nothing boxed or tinted.
+function sgAssessmentPanel(title, assessment, role, agree) {
+  const roleClass = role ? ` sg-assessment-panel--${role}` : '';
+  const mark = agree === true ? '<span class="ist-mark is-ok" aria-label="agrees">✓</span>'
+    : agree === false ? '<span class="ist-mark is-no" aria-label="disagrees">✗</span>' : '';
+  if (!assessment) {
+    return `<article class="sg-assessment-panel${roleClass}"><h4>${esc(title)}</h4><p class="sg-pending-label">Not rated yet</p></article>`;
+  }
+  const confidence = assessment.confidence ?
+    `<span class="sg-feature-confidence"> · confidence ${esc(assessment.confidence)} of 4</span>` : '';
+  const label = assessment.classification
+    ? `<p class="sg-assess-label">${esc(assessment.classification)}${mark}</p>` : '';
+  // explanation null: nothing to say (a stored label); '' or missing: none given
+  const reason = assessment.explanation === null ? ''
+    : `<p>${esc(assessment.explanation || 'No reason given.')}</p>`;
+  return `<article class="sg-assessment-panel${roleClass}"><h4>${esc(title)}${confidence}</h4>` + label + reason + '</article>';
+}
+
+// The qualification rule (statement_coverage.feature_majority) worked through
+// for one statement: per feature, the judges who give the label out of the
+// judges who rated it, against half of them (a tie counts), then the verdict.
+// votes maps feature key -> [agree, rated]; labels maps key -> 0/1; cs is
+// [judges who say common sense, rated]. how names the rule's outcome:
+// { verb: 'qualify', verbs: 'qualifies', rule: '…' }.
+function sgRuleStepsHtml(votes, labels, cs, how) {
+  const nJudges = cs[1];
+  if (!nJudges) return `<p class="expl-p">No judge has rated it yet, so it doesn't ${how.verb}.</p>`;
+  const pass = def => { const [k, n] = votes[def.key]; return n > 0 && 2 * k >= n; };
+  const name = def => (labels[def.key] ? def.v1 : def.v0);
+  const lines = SG_FEAT_DEFS.map(def => {
+    const [k, n] = votes[def.key];
+    const ok = pass(def);
+    return `<span class="sg-rule-k">${esc(name(def))}</span>` +
+      `<span class="sg-rule-v">${fmtNum(k)} of ${fmtNum(n)}</span>` +
+      `<span class="sg-rule-c">${ok ? 'at least half' : 'fewer than half'}` +
+      `<span class="ist-mark ${ok ? 'is-ok' : 'is-no'}" aria-hidden="true">${ok ? '✓' : '✗'}</span></span>`;
+  }).join('');
+  const failing = SG_FEAT_DEFS.filter(def => !pass(def)).map(name);
+  const verdict = failing.length
+    ? `So it doesn't ${how.verb}: fewer than half of the judges agree on ${failing.join(', ')}.`
+    : `So it ${how.verbs}: at least half of the judges agree on every feature.`;
+  return `<p class="expl-p">${esc(how.rule)} Judges have rated it ${fmtNum(nJudges)} time${nJudges === 1 ? '' : 's'}; ` +
+    'those that give each label:</p>' +
+    `<div class="sg-rule">${lines}</div>` +
+    `<p class="expl-p sg-rule-verdict">${esc(verdict)}</p>` +
+    `<p class="expl-note">Common sense isn't required: ${fmtNum(cs[0])} of ${fmtNum(nJudges)} judge ratings call it common sense.</p>`;
 }
 
 function sgFeatureLabel(def, classification) {
@@ -1427,19 +1428,19 @@ function sgRenderGeneration(gen, row, opts = {}) {
   const sourceTitle = opts.sourceTitle || 'Generator';
   const sources = gen.sources ||
     [{ name: null, features: gen.gen_features, rationale: gen.gen_commonsense_explanation }];
-  const titled = (base, source) => (source.name ? `${base}: ${source.name}` : base);
+  const titled = (base, source) => (source.name ? `${base}: ${sgModelName(source.name)}` : base);
+  const nJudges = gen.judges.length;
 
   const commonsensePanels = (opts.showRationale === false ? '' : sources.map(source =>
-    sgAssessmentPanel(titled('Generator rationale', source), {
-      classification: 'Provided', confidence: '', explanation: source.rationale,
-    }, 'generator')).join('')) + gen.judges.map(judge => sgAssessmentPanel(`Judge: ${judge.judge_model}`, {
+    sgAssessmentPanel(titled('Generator\'s reason', source), {
+      classification: '', confidence: '', explanation: source.rationale,
+    }, 'generator')).join('')) + gen.judges.map(judge => sgAssessmentPanel(sgModelName(judge.judge_model), {
     classification: judge.commonsense === 1 ? 'Yes' : 'No', confidence: '', explanation: judge.commonsense_explanation,
-  }, 'judge', judge.commonsense === 1)).join('');
-  // Keyed "commonsense" so the audit list's Common Sense cell can focus it
+  }, 'judge')).join('');
+  const nYes = gen.judges.filter(j => j.commonsense === 1).length;
+  // Keyed "commonsense" so the audit list's Common sense cell can focus it
   const commonsenseSection = `<section class="sg-statement-feature" data-feature-key="commonsense">` +
-    `<h3>Human common sense` +
-    (gen.majority ? ' <span class="sg-agreement-badge sg-agreement-badge--muted">Not required to qualify</span>' : '') +
-    '</h3>' +
+    `<h3>Common sense <span class="sg-agreement-badge">${fmtNum(nYes)} of ${fmtNum(nJudges)} judges say yes</span></h3>` +
     `<div class="sg-comparison-grid">${commonsensePanels}</div></section>`;
 
   const featureSections = SG_FEAT_DEFS.map(def => {
@@ -1452,22 +1453,17 @@ function sgRenderGeneration(gen, row, opts = {}) {
     const judgeAgreeCount = gen.judges.filter(j => sgFeatureLabel(def, j.features[def.key].classification) === label).length;
     const judgePanels = gen.judges.map(judge => {
       const judgeLabel = sgFeatureLabel(def, judge.features[def.key].classification);
-      return sgAssessmentPanel(`Judge: ${judge.judge_model}`, {
+      return sgAssessmentPanel(sgModelName(judge.judge_model), {
         classification: judgeLabel, confidence: judge.features[def.key].confidence, explanation: judge.features[def.key].explanation,
       }, 'judge', judgeLabel === label);
     }).join('');
-    const allAgree = judgeAgreeCount === gen.judges.length;
-    const badgeText = allAgree ? 'All agree' : `${judgeAgreeCount} / ${gen.judges.length} agree`;
-    // Under the qualification rule a feature is green once at least half agree
-    const passes = gen.majority ? gen.majority[def.key] : allAgree;
-    const badgeClass = passes ? 'sg-agreement-badge' : 'sg-agreement-badge sg-agreement-badge--partial';
     return `<section class="sg-statement-feature" data-feature-key="${esc(def.key)}">` +
-      `<h3>${esc(label)} ` +
-      `<span class="${badgeClass}">${esc(badgeText)}</span></h3>` +
+      `<h3>${esc(label)} <span class="sg-agreement-badge">${fmtNum(judgeAgreeCount)} of ${fmtNum(nJudges)} judges agree</span></h3>` +
       `<div class="sg-comparison-grid">${genPanel}${judgePanels}</div></section>`;
   }).join('');
 
-  return `<div class="sg-generation-block">${commonsenseSection}${featureSections}</div>`;
+  // The six features first (what the rule checks), then common sense
+  return `<div class="sg-generation-block">${featureSections}${commonsenseSection}</div>`;
 }
 
 // focusFeature (a feature key or "commonsense", from a clicked count) shows
@@ -1478,13 +1474,15 @@ function sgShowStatement(entry, focusFeature = null) {
   document.getElementById('sgStatementText').textContent = entry.statement;
   const generations = entry.generations;
   const multi = generations.length > 1;
-  const genSummary = multi
-    ? `Independently generated by ${generations.length} models`
-    : `Generated by ${generations[0].gen_model}`;
+  const names = generations.map(g => sgModelName(g.gen_model));
+  document.getElementById('sgStatementModel').textContent = multi
+    ? `Written independently by ${generations.length} LLMs: ${names.join(', ')}.`
+    : `Written by ${names[0]}.`;
   const labels = Object.fromEntries(SG_FEAT_DEFS.map(def => [def.key, row[def.key]]));
-  const nJudges = generations.reduce((sum, g) => sum + g.judges.length, 0);
-  document.getElementById('sgStatementModel').textContent =
-    `${genSummary} · ${sgMajorityStatus(entry.feature_majority, labels, nJudges)}`;
+  document.getElementById('sgStatementSteps').innerHTML = sgRuleStepsHtml(entry.feature_votes, labels, entry.commonsense_votes, {
+    verb: 'qualify', verbs: 'qualifies',
+    rule: 'It qualifies for this design point when, for every feature, at least half of the judges who rated it give the design point\'s label.',
+  });
   // One block for the whole text: the rule counts every rating of it, so each
   // generator's labels sit beside every judge, named by the submission it rated
   const pooled = {
@@ -1492,7 +1490,7 @@ function sgShowStatement(entry, focusFeature = null) {
       name: multi ? g.gen_model : null, features: g.gen_features, rationale: g.gen_commonsense_explanation,
     })),
     judges: generations.flatMap(g => g.judges.map(j => (multi
-      ? { ...j, judge_model: `${j.judge_model} · on ${g.gen_model.split('/').pop()}'s submission` }
+      ? { ...j, judge_model: `${sgModelName(j.judge_model)}, on ${sgModelName(g.gen_model).split('/').pop()}'s version` }
       : j))),
     majority: entry.feature_majority,
   };
@@ -1500,45 +1498,8 @@ function sgShowStatement(entry, focusFeature = null) {
   container.innerHTML = sgRenderGeneration(pooled, row);
   sgFocusSection(container, focusFeature);
 
-  sgHideFeatureHelp();
   sgStatementDialog.showModal();
   sgStatementDialog.scrollTop = 0;
-}
-
-const sgFeatPopup = document.getElementById('sgFeatPopup');
-let sgActiveHelpButton = null;
-function sgShowFeatureHelp(button) {
-  sgActiveHelpButton = button;
-  if (button.dataset.helpLabel) {
-    sgFeatPopup.innerHTML = `<div class="sg-popup-entry"><div class="sg-popup-label">${esc(button.dataset.helpLabel)}</div>` +
-      `<div class="sg-popup-def">${esc(button.dataset.helpText)}</div></div>`;
-    sgFeatPopup.classList.add('visible');
-  } else if (button.dataset.metric) {
-    const metric = button.dataset.metric;
-    sgFeatPopup.innerHTML = `<div class="sg-popup-entry"><div class="sg-popup-label">${esc(SG_SORT_LABELS[metric])}</div>` +
-      `<div class="sg-popup-def">${esc(SG_METRIC_HELP[metric])}</div></div>`;
-    sgFeatPopup.classList.add('visible');
-  } else {
-    const def = SG_FEAT_DEFS.find(item => item.key === button.dataset.key);
-    if (!def) { sgActiveHelpButton = null; return; }
-    sgFeatPopup.innerHTML = [[def.v1, def.def1], [def.v0, def.def0]].map(([label, text]) =>
-      `<div class="sg-popup-entry"><div class="sg-popup-label">${esc(label)}</div>` +
-      `<div class="sg-popup-def">${esc(text)}</div></div>`).join('');
-    sgFeatPopup.classList.add('visible');
-  }
-  const rect = button.getBoundingClientRect();
-  let left = rect.left + rect.width / 2 - 160;
-  let top = rect.bottom + 8;
-  if (left + 320 > window.innerWidth - 8) left = window.innerWidth - 328;
-  if (left < 8) left = 8;
-  if (top + sgFeatPopup.offsetHeight > window.innerHeight - 8) top = rect.top - sgFeatPopup.offsetHeight - 8;
-  sgFeatPopup.style.left = `${left}px`;
-  sgFeatPopup.style.top = `${Math.max(8, top)}px`;
-}
-
-function sgHideFeatureHelp() {
-  sgFeatPopup.classList.remove('visible');
-  sgActiveHelpButton = null;
 }
 
 document.getElementById('sgBody').addEventListener('click', event => {
@@ -1548,12 +1509,6 @@ document.getElementById('sgBody').addEventListener('click', event => {
 });
 
 document.getElementById('sgHead').addEventListener('click', event => {
-  const help = event.target.closest('.sg-help-btn');
-  if (help) {
-    event.stopPropagation();
-    sgShowFeatureHelp(help);
-    return;
-  }
   const sortTh = event.target.closest('th.sg-sortable');
   if (sortTh) {
     const key = sortTh.dataset.sortKey;
@@ -1573,13 +1528,6 @@ document.getElementById('sgHead').addEventListener('click', event => {
   sgUpdateFilterHeaders();
   sgRenderTable();
 });
-document.getElementById('sgHead').addEventListener('mouseover', event => {
-  const help = event.target.closest('.sg-help-btn');
-  if (help && help !== sgActiveHelpButton) sgShowFeatureHelp(help);
-});
-document.getElementById('sgHead').addEventListener('mouseout', event => {
-  if (event.target.closest('.sg-help-btn') && !sgFeatPopup.contains(event.relatedTarget)) sgHideFeatureHelp();
-});
 
 document.getElementById('sgDetailBody').addEventListener('click', event => {
   const tr = event.target.closest('tr[data-index]');
@@ -1591,6 +1539,9 @@ document.getElementById('sgDetailBody').addEventListener('click', event => {
   if (sgSelectedMetric === 'supplementable') {
     const cell = event.target.closest('.au-feature-cell');
     sgShowStatement(entry, cell ? cell.dataset.featureKey : null);
+  } else if (sgSelectedMetric === 'calculated') {
+    // Scored statements open the score modal, worked through from its counts
+    openStmtDetail({ ...entry, statementId: entry.id }, 'all');
   } else openStmtInfo(entry.statement, entry.id);
 });
 
@@ -1601,10 +1552,6 @@ sgStatementDialog.addEventListener('click', event => {
       (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom)) {
     sgStatementDialog.close();
   }
-});
-document.querySelector('#sgTable').closest('.sg-table-wrap').addEventListener('scroll', sgHideFeatureHelp);
-document.addEventListener('keydown', event => {
-  if (event.key === 'Escape') sgHideFeatureHelp();
 });
 
 // ══ Published Statement Audit ══════════════════════════════════════════════
@@ -1619,11 +1566,15 @@ let auSelectedCombo = null;
 let auSelectedMetric = null;
 let auDetailStatements = [];
 let auDetailRequestId = 0;
+// Heading tooltips; the table's caption says the same once in full. "At least
+// half" was "Majority" until November 2026, but a tie (e.g. 3 of 6) passes, so
+// it isn't a majority.
 const AU_METRIC_HELP = {
   published: ['Published', 'Published statements whose stored labels put them in this design point.'],
-  majority: ['Majority', 'Statements where, for every feature, at least half of the judges who rated the statement give the stored label, out of the statements rated by at least one judge. No single judge has to agree on all six features, and common sense is not required.'],
-  commonsense: ['Common sense', 'Statements that at least one judge considers common sense, out of the statements rated by at least one judge.'],
+  majority: ['At least half', 'Statements where, for every feature, at least half of the judges who rated the statement give the stored label, out of the statements rated by at least one judge. No single judge has to agree on all six features, and common sense is not required.'],
+  commonsense: ['Common sense', 'Statements that at least one judge calls common sense, out of the statements rated by at least one judge.'],
 };
+const AU_ALL_JUDGES = 'Majority of judges';  // the server's id for the at-least-half row
 
 // Batch and direct runs of a model are merged server-side under the plain id
 function auJudgeLabel(model) {
@@ -1631,17 +1582,12 @@ function auJudgeLabel(model) {
 }
 
 function auMetricHeader(label, helpLabel, helpText) {
-  return `<th class="sg-col-meta"><span class="sg-metric-th-label">${esc(label)}</span>` +
-    `<button type="button" class="sg-help-btn sg-metric-help-btn" data-help-label="${esc(helpLabel)}" ` +
-    `data-help-text="${esc(helpText)}" aria-label="Definition of ${esc(helpLabel)}">?</button></th>`;
+  return `<th class="sg-col-meta" title="${esc(helpText)}"><span class="sg-metric-th-label">${esc(label)}</span></th>`;
 }
 
-// Share of statements a judge agrees with: green from half, amber from a fifth
-function auShareClass(num, den) {
-  if (!den) return 'sg-status-none-help';
-  if (num / den >= 0.5) return 'sg-status-good';
-  if (num / den >= 0.2) return 'sg-status-low';
-  return 'sg-status-none';
+// Counts are plain numbers; only an empty count is set apart, in grey
+function auShareClass(num) {
+  return num ? '' : 'sg-status-none';
 }
 
 function auBuildHeader() {
@@ -1650,7 +1596,7 @@ function auBuildHeader() {
   head.innerHTML = '<th class="sg-col-num">#</th>' + sgFeatureHeaderCells() +
     auMetricHeader('Published', ...AU_METRIC_HELP.published) +
     judges.map(j => auMetricHeader(auJudgeLabel(j), j,
-      `Statements ${j} labels the same way as the stored labels on all six features, out of the statements it has rated in this design point.`)).join('') +
+      `Statements ${j} labels as stored on all six features, out of the statements it has rated in this design point.`)).join('') +
     auMetricHeader('Majority', ...AU_METRIC_HELP.majority) +
     auMetricHeader('Common sense', ...AU_METRIC_HELP.commonsense);
   sgApplyFilterHeaders(head, auFeatFilter);
@@ -1659,22 +1605,25 @@ function auBuildHeader() {
 function auRenderAgreement() {
   const el = document.getElementById('auAgreement');
   document.getElementById('auAgreementCaption').textContent =
-    `${fmtNum(auData.n_statements)} published statements. Each cell is the percentage of statements a judge rated ` +
-    `where its label matches the stored label; "Common sense" is the percentage it rates as common sense. In the ` +
-    `"Majority of judges" row, a statement counts when at least half of the judges who rated it agree; "All six ` +
-    `features" is then the share that passes, with each feature judged separately.`;
+    `LLM judges labelled the ${fmtNum(auData.n_statements)} published statements with the prompt used for generated ` +
+    'statements, without seeing the stored labels. Each cell is the share of the statements a judge rated where its ' +
+    'label matches the stored one (point at a cell for the count); All six is the share where it matches on every ' +
+    'feature. In the last row a statement counts when at least half of the judges who rated it give the stored label. ' +
+    'The last column is the share a judge calls common sense, which has no stored label.';
   if (!auData.agreement.length) {
     el.innerHTML = '<p class="sg-caption">No judge results yet. Run <code>judge_published.py judge</code>, then restart the server.</p>';
     return;
   }
-  const cell = v => v === null ? '<td>—</td>' : `<td class="${v < 70 ? 'au-low' : ''}">${v.toFixed(1)}%</td>`;
+  // The share from its count (k of n), rounded once; the count in the tooltip
+  const cell = (k, n) => n ? `<td title="${fmtNum(k)} of ${fmtNum(n)}">${fmtPct(k / n)}</td>` : '<td>—</td>';
   el.innerHTML = `<div class="au-agreement-wrap"><table class="au-agreement-table"><thead><tr>` +
-    `<th>Judge</th><th>Rated</th><th>Common sense</th>` +
+    `<th>Judge</th><th>Rated</th>` +
     SG_FEAT_DEFS.map(d => `<th>${esc(d.v1)} / ${esc(d.v0)}</th>`).join('') +
-    `<th>All six features</th></tr></thead><tbody>` +
-    auData.agreement.map(a => `<tr${a.judge === 'Majority of judges' ? ' class="au-any-row"' : ''}>` +
-      `<td class="au-judge">${esc(a.judge)}</td><td>${fmtNum(a.n)}</td>` + cell(a.commonsense) +
-      SG_FEAT_DEFS.map(d => cell(a.features[d.key])).join('') + cell(a.all_features) + '</tr>').join('') +
+    `<th>All six</th><th class="au-col-sep">Calls it common sense</th></tr></thead><tbody>` +
+    auData.agreement.map(a => `<tr${a.judge === AU_ALL_JUDGES ? ' class="au-any-row"' : ''}>` +
+      `<td class="au-judge">${a.judge === AU_ALL_JUDGES ? 'At least half of judges' : esc(a.judge)}</td><td>${fmtNum(a.n)}</td>` +
+      SG_FEAT_DEFS.map(d => cell(a.k.features[d.key], a.n)).join('') + cell(a.k.all_features, a.n) +
+      cell(a.k.commonsense, a.n).replace('<td', '<td class="au-col-sep"') + '</tr>').join('') +
     '</tbody></table></div>';
 }
 
@@ -1703,19 +1652,15 @@ function auRenderTable() {
     const key = sgComboKey(row);
     return `<tr data-combo="${esc(key)}"${key === auSelectedCombo ? ' class="sg-selected"' : ''}>` +
       `<td class="sg-col-num">${index + 1}</td>` +
-      SG_FEAT_DEFS.map((def, i) => {
-        const isOne = row[def.key] === 1;
-        const alt = i % 2 === 0 ? ' sg-prop-alt' : '';
-        return `<td class="sg-prop-val ${isOne ? 'sg-val-1' : 'sg-val-0'}${alt}" title="${esc(isOne ? def.v1 : def.v0)}">${isOne ? '●' : '○'}</td>`;
-      }).join('') +
-      pill(key, 'published', row.published, 'sg-status-help') +
+      sgFeatureCells(row) +
+      pill(key, 'published', row.published, '') +
       judges.map(j => {
         const r = row.judges[j];
-        return r.rated ? pill(key, `judge:${j}`, frac(r.agree, r.rated), auShareClass(r.agree, r.rated))
+        return r.rated ? pill(key, `judge:${j}`, frac(r.agree, r.rated), auShareClass(r.agree))
           : '<td class="sg-col-meta"><span class="au-none">—</span></td>';
       }).join('') +
-      pill(key, 'majority', frac(row.majority, row.rated), auShareClass(row.majority, row.rated)) +
-      pill(key, 'commonsense', frac(row.commonsense, row.rated), auShareClass(row.commonsense, row.rated)) +
+      pill(key, 'majority', frac(row.majority, row.rated), auShareClass(row.majority)) +
+      pill(key, 'commonsense', frac(row.commonsense, row.rated), auShareClass(row.commonsense)) +
       '</tr>';
   }).join('');
 }
@@ -1737,10 +1682,17 @@ async function auLoad() {
 function auMetricDescription(metric, statements) {
   const total = statements.length;
   const n = statements.filter(s => s.qualifies).length;
-  if (metric === 'published') return `${total} published statement${total === 1 ? '' : 's'}`;
+  if (metric === 'published') {
+    const pass = statements.filter(s => s.n_judges && s.majority).length;
+    const unrated = total - statements.filter(s => s.n_judges).length;
+    return `${fmtNum(total)} published statement${total === 1 ? '' : 's'}, of which ${fmtNum(pass)} pass: for every feature, ` +
+      'at least half of the judges who rated it give the stored label (each cell counts them; ✗ where fewer than ' +
+      `half do). The rest are grey${unrated ? `, except ${fmtNum(unrated)} no judge has rated yet` : ''}. ` +
+      'Click a statement for every judge\'s labels and reasons.';
+  }
   if (metric === 'majority') return `${n} of ${total} statements have at least half of their judges agreeing on every feature`;
-  if (metric === 'commonsense') return `${n} of ${total} statements are rated common sense by at least one judge`;
-  return `${n} of ${total} statements ${metric.slice(6)} agrees with`;
+  if (metric === 'commonsense') return `${n} of ${total} statements are called common sense by at least one judge`;
+  return `${n} of ${total} statements ${metric.slice(6)} labels as stored`;
 }
 
 async function auSelectMetric(key, metric) {
@@ -1761,7 +1713,7 @@ async function auSelectMetric(key, metric) {
   const colCount = 3 + SG_FEAT_DEFS.length;
   head.innerHTML = '<th class="sg-col-num">#</th><th class="sg-col-statement">Statement</th>' +
     SG_FEAT_DEFS.map(def => `<th class="sg-col-num-judges">${esc(row[def.key] ? def.v1 : def.v0)}</th>`).join('') +
-    '<th class="sg-col-num-judges">Common Sense</th>';
+    '<th class="sg-col-num-judges">Common sense</th>';
   head.closest('table').dataset.metric = 'audit';
   body.innerHTML = `<tr class="sg-empty-row"><td colspan="${colCount}">Loading…</td></tr>`;
   try {
@@ -1799,19 +1751,23 @@ function auShowStatement(entry, opts = {}) {
   document.getElementById('sgStatementText').textContent = entry.statement;
   // opts.focusFeature (a feature key or "commonsense", from a clicked cell)
   // shows just that section; otherwise every section. Always every judge.
-  document.getElementById('sgStatementModel').textContent =
-    `Published statement #${entry.statementId} · ${sgMajorityStatus(entry.feature_majority, entry.labels, entry.n_judges)}`;
+  document.getElementById('sgStatementModel').textContent = `Published statement #${entry.statementId}.`;
+  const votes = Object.fromEntries(SG_FEAT_DEFS.map(def =>
+    [def.key, [entry.judges.filter(j => j.matches[def.key]).length, entry.n_judges]]));
+  document.getElementById('sgStatementSteps').innerHTML = sgRuleStepsHtml(votes, entry.labels, [entry.n_commonsense, entry.n_judges], {
+    verb: 'pass', verbs: 'passes',
+    rule: 'It passes when, for every feature, at least half of the judges who rated it give its stored label.',
+  });
   const stored = {
     gen_model: 'Stored labels', gen_commonsense_explanation: '', judges: entry.judges, majority: entry.feature_majority,
     gen_features: Object.fromEntries(SG_FEAT_DEFS.map(def => [def.key, {
-      confidence: '', explanation: "Label stored in the platform's statement properties.",
+      confidence: '', explanation: null,
     }])),
   };
   document.getElementById('sgStatementGenerations').innerHTML = entry.judges.length
     ? sgRenderGeneration(stored, entry.labels, { sourceTitle: 'Stored label', showRationale: false })
     : '<p class="sg-pending-label">No judge has rated this statement yet.</p>';
   sgFocusSection(document.getElementById('sgStatementGenerations'), opts.focusFeature);
-  sgHideFeatureHelp();
   sgStatementDialog.showModal();
   sgStatementDialog.scrollTop = 0;
 }
@@ -1821,24 +1777,11 @@ document.getElementById('auBody').addEventListener('click', event => {
   if (tr) auSelectMetric(tr.dataset.combo, 'published');
 });
 document.getElementById('auHead').addEventListener('click', event => {
-  const help = event.target.closest('.sg-help-btn');
-  if (help) {
-    event.stopPropagation();
-    sgShowFeatureHelp(help);
-    return;
-  }
   const th = event.target.closest('th.sg-th-prop');
   if (!th) return;
   auFeatFilter[th.dataset.key] = SG_FILTER_CYCLE[auFeatFilter[th.dataset.key]];
   sgApplyFilterHeaders(document.getElementById('auHead'), auFeatFilter);
   auRenderTable();
-});
-document.getElementById('auHead').addEventListener('mouseover', event => {
-  const help = event.target.closest('.sg-help-btn');
-  if (help && help !== sgActiveHelpButton) sgShowFeatureHelp(help);
-});
-document.getElementById('auHead').addEventListener('mouseout', event => {
-  if (event.target.closest('.sg-help-btn') && !sgFeatPopup.contains(event.relatedTarget)) sgHideFeatureHelp();
 });
 document.getElementById('auDetailBody').addEventListener('click', event => {
   const tr = event.target.closest('tr[data-index]');
@@ -1847,7 +1790,7 @@ document.getElementById('auDetailBody').addEventListener('click', event => {
   const featureCell = event.target.closest('.au-feature-cell');
   auShowStatement(entry, featureCell ? { focusFeature: featureCell.dataset.featureKey } : {});
 });
-document.querySelector('#auTable').closest('.sg-table-wrap').addEventListener('scroll', sgHideFeatureHelp);
+
 
 // ══ TypeSafe Judgments ═════════════════════════════════════════════════════
 // Jev's (TypeSafe's System One model) answers for the published statements,
@@ -1872,7 +1815,7 @@ let tsDetailRequestId = 0;
 // from UI when a chart is drawn, so a theme change is picked up.
 // Jev's confidence sits mostly near 1, so the bands are finer at the top
 const TS_CONF_BANDS = [
-  { label: 'Below 0.5', lo: 0, hi: 0.5 },
+  { label: 'below 0.5', lo: 0, hi: 0.5 },
   { label: '0.5 – 0.8', lo: 0.5, hi: 0.8 },
   { label: '0.8 – 0.95', lo: 0.8, hi: 0.95 },
   { label: '0.95 and up', lo: 0.95, hi: Infinity },
@@ -1881,12 +1824,12 @@ const TS_SHOW = [
   ['all', 'All statements'],
   ['disagree', 'Disagrees on any feature'],
   ...SG_FEAT_DEFS.map(def => [`disagree:${def.key}`, `Disagrees on ${def.v1} / ${def.v0}`]),
-  ['low-cs', 'P(common sense) below 50%'],
+  ['low-cs', 'Common sense below 50%'],
   ['low-conf', 'Confidence below 0.5 on any feature'],
 ];
 const TS_SORT = [
   ['row', 'Snapshot order'],
-  ['cs', 'Lowest P(common sense) first'],
+  ['cs', 'Least likely common sense first'],
   ['disagree', 'Most disagreements first'],
   ['conf', 'Least confident first'],
 ];
@@ -1896,7 +1839,21 @@ function tsFi(key) {
 }
 
 function tsPct(v, digits = 1) {
-  return v === null ? '—' : `${(v * 100).toFixed(digits)}%`;
+  return v === null || v === undefined ? '—' : fmtPct(v, digits);
+}
+
+// A share of 0/1 values (nulls left out) as a table cell: the percentage,
+// rounded once, with "k of n" as its tooltip so it can be checked
+function tsShareCell(values, cls = '') {
+  const valid = values.filter(v => v === 0 || v === 1);
+  const k = valid.filter(v => v === 1).length;
+  const c = cls ? ` class="${cls}"` : '';
+  return valid.length ? `<td${c} title="${fmtNum(k)} of ${fmtNum(valid.length)}">${tsPct(k / valid.length)}</td>` : `<td${c}>—</td>`;
+}
+
+// "99.6% (493 of 495)": a share with the count behind it
+function tsCountShare(k, n) {
+  return n ? `${tsPct(k / n)} (${fmtNum(k)} of ${fmtNum(n)})` : '—';
 }
 
 function tsMean(values) {
@@ -1963,47 +1920,44 @@ function tsAuc(pairs) {
 function tsRenderIntro() {
   const d = tsData;
   document.getElementById('tsIntro').textContent =
-    `${d.model} (${d.response_models.join(', ')}) judged ${fmtNum(d.statements.length)} of ` +
-    `${fmtNum(d.n_statements)} published statements (${fmtNum(d.input_tokens)} input tokens). For each ` +
-    'statement it answered seven questions at once: a two-option Choice per feature pair, given both labels\' ' +
-    'definitions and examples, and a yes/no Noul, "Is the statement an example of human common sense?". ' +
-    'Jev returns probabilities rather than explanations: its label is the more probable option, and it counts as ' +
-    'rating a statement common sense at 50% or more. The first column group is the share of statements given each ' +
-    'pair\'s first label, by source; the second is how often Jev\'s label matches each source\'s, out of the ' +
-    'statements that source rated (below 70% in red).';
+    `TypeSafe's Jev (${d.response_models.join(', ')}) judged ${fmtNum(d.statements.length)} of the ` +
+    `${fmtNum(d.n_statements)} published statements (${fmtNum(d.input_tokens)} input tokens). For each feature it ` +
+    'gives a probability for each of its two labels, given their definitions and examples, and its label is the ' +
+    'likelier one; it also gives the probability that the statement is common sense, which counts as yes at 50% ' +
+    'or more. It gives no reasons. Left, the share of statements given each feature\'s first label, by each ' +
+    'source; right, how often Jev\'s label matches each source\'s, among the statements that source rated. Point ' +
+    'at a cell for the count.';
 }
 
 function tsRenderAgreement() {
   const d = tsData;
   const judges = tsReferences().filter(r => r.id.startsWith('judge:'));
   const agreeRefs = tsReferences();
-  const share = v => `<td>${tsPct(v)}</td>`;
-  const agree = (v, first) => {
-    const cls = [first ? 'ts-group-start' : '', v !== null && v < 0.7 ? 'au-low' : ''].filter(Boolean).join(' ');
-    return `<td${cls ? ` class="${cls}"` : ''}>${tsPct(v)}</td>`;
-  };
+  // Each cell is a share of 0/1 values (tsShareCell), so its count is exact
+  const share = values => tsShareCell(values);
+  const agree = (values, first) => tsShareCell(values, first ? 'ts-group-start' : '');
   const rows = SG_FEAT_DEFS.map(def => {
     const i = tsFi(def.key);
     const shares = [
-      tsMean(d.statements.map(s => s.stored[i])),
-      tsMean(d.statements.map(s => s.choice[i])),
-      ...judges.map(j => tsMean(d.statements.map(s => tsRefLabel(s, i, j.id)))),
+      d.statements.map(s => s.stored[i]),
+      d.statements.map(s => s.choice[i]),
+      ...judges.map(j => d.statements.map(s => tsRefLabel(s, i, j.id))),
     ];
-    const agreements = agreeRefs.map(r => tsMean(d.statements.map(s => {
+    const agreements = agreeRefs.map(r => d.statements.map(s => {
       const y = tsRefLabel(s, i, r.id);
       return y === null ? null : Number(s.choice[i] === y);
-    })));
+    }));
     return `<tr><td class="au-judge">${esc(def.v1)} / ${esc(def.v0)}</td>` +
       shares.map(share).join('') + agreements.map((v, k) => agree(v, k === 0)).join('') + '</tr>';
   });
-  // Common sense has no stored label; Jev counts as yes at P >= 50%
+  // Common sense has no stored label; Jev counts as yes at 50% or more
   const jevCs = s => Number(s.cs >= 0.5);
-  const csShares = [null, tsMean(d.statements.map(jevCs)),
-    ...judges.map(j => tsMean(d.statements.map(s => tsRefCommonsense(s, j.id))))];
-  const csAgree = agreeRefs.map(r => r.id === 'stored' ? null : tsMean(d.statements.map(s => {
+  const csShares = [[], d.statements.map(jevCs),
+    ...judges.map(j => d.statements.map(s => tsRefCommonsense(s, j.id)))];
+  const csAgree = agreeRefs.map(r => r.id === 'stored' ? [] : d.statements.map(s => {
     const y = tsRefCommonsense(s, r.id);
     return y === null ? null : Number(jevCs(s) === y);
-  })));
+  }));
   rows.push('<tr class="au-any-row"><td class="au-judge">Common sense</td>' +
     csShares.map(share).join('') + csAgree.map((v, k) => agree(v, k === 0)).join('') + '</tr>');
   document.getElementById('tsAgreement').innerHTML =
@@ -2035,8 +1989,9 @@ function tsRenderCommonsense() {
     'Statements by Jev\'s probability that they are common sense, stacked by how the LLM judges who rated each ' +
     `one voted. Jev gives ${tsPct(tsMean(tsData.statements.map(s => Number(s.cs >= 0.5))))} of statements 50% or ` +
     `more. Of the ${fmtNum(allYes.probs.length)} statements every LLM judge calls common sense, Jev agrees on ` +
-    `${tsPct(tsMean(allYes.probs.map(p => Number(p >= 0.5))))}; of the ${fmtNum(allNo.probs.length)} none does, ` +
-    `Jev agrees on ${tsPct(tsMean(allNo.probs.map(p => Number(p < 0.5))))}.` +
+    `${tsCountShare(allYes.probs.filter(p => p >= 0.5).length, allYes.probs.length)}; of the ` +
+    `${fmtNum(allNo.probs.length)} none does, Jev agrees on ` +
+    `${tsCountShare(allNo.probs.filter(p => p < 0.5).length, allNo.probs.length)}.` +
     (unrated ? ` ${fmtNum(unrated)} statements no LLM judge has rated are left out.` : '');
   const labels = Array.from({ length: N }, (_, k) => `${k * 5}%`);
   if (tsCsChart) tsCsChart.destroy();
@@ -2059,7 +2014,7 @@ function tsRenderCommonsense() {
         legend: { position: 'top', align: 'start', labels: { boxWidth: 12, boxHeight: 12, font: CHART_FONT.legend, padding: 14 } },
         tooltip: {
           callbacks: {
-            title: items => `P(common sense) ${items[0].dataIndex * 5}–${items[0].dataIndex * 5 + 5}%`,
+            title: items => `Probability of common sense ${items[0].dataIndex * 5}–${items[0].dataIndex * 5 + 5}%`,
             label: item => `${item.dataset.label}: ${fmtNum(item.raw)}`,
             footer: items => `${fmtNum(items.reduce((sum, item) => sum + item.raw, 0))} statements`,
           },
@@ -2069,7 +2024,7 @@ function tsRenderCommonsense() {
         x: {
           stacked: true,
           grid: { display: false },
-          title: { display: true, text: "Jev's P(common sense)", font: CHART_FONT.title },
+          title: { display: true, text: "Jev's probability that it is common sense", font: CHART_FONT.title },
           ticks: { font: CHART_FONT.tick, callback: (_, idx) => (idx % 4 === 0 ? labels[idx] : '') },
         },
         y: {
@@ -2090,11 +2045,11 @@ function tsRenderDistributions() {
   tsDistCharts = [];
   const ref = tsRefInfo();
   document.getElementById('tsDistCaption').textContent =
-    `For each feature, Jev's probability for the pair's first label, split by ${ref.id === 'stored' ? 'the stored label' : `${ref.label}'s label`}. ` +
-    'Bars are the share of each group in each 10-point band, so groups of different sizes compare directly. ' +
-    'Well-separated groups mean Jev orders statements the way the reference does, even where its 50% cut-off ' +
-    'lands differently. AUC is the chance that a statement the reference gives the first label gets a higher ' +
-    'probability than one it gives the second (0.5 = chance, 1 = perfect separation).';
+    `For each feature, Jev's probability of its first label, split by ${ref.id === 'stored' ? 'the stored label' : `${ref.label}'s label`}. ` +
+    'Each bar is a share of its group, so groups of different sizes compare directly. Groups far apart mean Jev ' +
+    'orders statements as the reference does, even where its 50% cut-off falls differently. AUC is the chance that ' +
+    'a statement the reference gives the first label gets a higher probability than one it gives the second, ' +
+    'ties counting half (0.5 is chance, 1 perfect separation); Agrees is the share where Jev\'s label matches.';
   document.getElementById('tsDistGrid').innerHTML = SG_FEAT_DEFS.map((def, k) =>
     `<div class="ts-dist-cell"><div class="ts-dist-title">${esc(def.v1)} / ${esc(def.v0)}</div>` +
     `<div class="ts-dist-sub" id="tsDistSub${k}"></div>` +
@@ -2116,7 +2071,8 @@ function tsRenderDistributions() {
     });
     const auc = tsAuc(pairs);
     document.getElementById(`tsDistSub${k}`).textContent =
-      `AUC ${auc === null ? '—' : auc.toFixed(2)} · agrees ${tsPct(tsMean(pairs.map(d => Number(d.choice === d.y))))}`;
+      `AUC ${auc === null ? '—' : auc.toFixed(2)} · Agrees ` +
+      tsCountShare(pairs.filter(d => d.choice === d.y).length, pairs.length);
     tsDistCharts.push(new Chart(document.getElementById(`tsDist${k}`), {
       type: 'bar',
       data: {
@@ -2143,7 +2099,7 @@ function tsRenderDistributions() {
           legend: { position: 'top', align: 'start', labels: { boxWidth: 10, boxHeight: 10, font: CHART_FONT.legend, padding: 8 } },
           tooltip: {
             callbacks: {
-              title: items => `P(${def.v1}) ${items[0].dataIndex * 10}–${items[0].dataIndex * 10 + 10}%`,
+              title: items => `Probability of ${def.v1} ${items[0].dataIndex * 10}–${items[0].dataIndex * 10 + 10}%`,
               label: item => `${ref.short}: ${item.dataset.pole} · ${item.raw}% (${fmtNum(item.dataset.counts[item.dataIndex])})`,
             },
           },
@@ -2151,7 +2107,7 @@ function tsRenderDistributions() {
         scales: {
           x: {
             grid: { display: false },
-            title: { display: true, text: `Jev's P(${def.v1})`, font: CHART_FONT.title },
+            title: { display: true, text: `Jev's probability of ${def.v1}`, font: CHART_FONT.title },
             ticks: { font: CHART_FONT.tick, callback: (_, idx) => (idx % 2 === 0 ? labels[idx] : '') },
           },
           y: {
@@ -2170,18 +2126,17 @@ function tsRenderDistributions() {
 function tsRenderConfidence() {
   const ref = tsRefInfo();
   document.getElementById('tsConfCaption').textContent =
-    'Jev\'s confidence summarizes how concentrated its two probabilities are: 0 is a 50/50 split and 1 is ' +
-    `certain (for two options, |2 × P − 1|). Each cell is how often Jev's label matches ` +
-    `${ref.id === 'stored' ? 'the stored label' : `${ref.label}'s label`} among the statements in that confidence ` +
-    'band, with the number of statements in brackets; below 70% in red. Where confidence is useful for routing, ' +
-    'agreement rises from left to right.';
+    'Jev\'s confidence says how far its two probabilities are from an even split: 0 at 50/50, 1 when certain ' +
+    '(|2p − 1| for a probability p, to within its rounding). Each cell is how often Jev\'s label matches ' +
+    `${ref.id === 'stored' ? 'the stored label' : `${ref.label}'s label`} among the statements in that band, with ` +
+    'their number in brackets. If confidence is worth acting on, agreement rises from left to right.';
   const rows = SG_FEAT_DEFS.map(def => {
     const i = tsFi(def.key);
     const rated = tsData.statements.filter(s => tsRefLabel(s, i) !== null);
     const cell = (members, extra = '') => {
       if (!members.length) return `<td class="au-none${extra}">—</td>`;
-      const rate = tsMean(members.map(s => Number(s.choice[i] === tsRefLabel(s, i))));
-      return `<td class="${rate < 0.7 ? 'au-low' : ''}${extra}">${tsPct(rate)} ` +
+      const k = members.filter(s => s.choice[i] === tsRefLabel(s, i)).length;
+      return `<td class="${extra.trim()}" title="${fmtNum(k)} of ${fmtNum(members.length)}">${tsPct(k / members.length)} ` +
         `<span class="ts-n">(${fmtNum(members.length)})</span></td>`;
     };
     return `<tr><td class="au-judge">${esc(def.v1)} / ${esc(def.v0)}</td>` +
@@ -2190,7 +2145,7 @@ function tsRenderConfidence() {
   });
   document.getElementById('tsConfidence').innerHTML =
     '<div class="au-agreement-wrap"><table class="au-agreement-table ts-agreement-table"><thead><tr>' +
-    '<th>Feature</th>' + TS_CONF_BANDS.map(b => `<th>Confidence ${esc(b.label)}</th>`).join('') +
+    '<th>Feature</th>' + TS_CONF_BANDS.map((b, k) => `<th>${k ? '' : 'Confidence '}${esc(b.label)}</th>`).join('') +
     `<th class="ts-group-start">All</th></tr></thead><tbody>${rows.join('')}</tbody></table></div>`;
 }
 
@@ -2206,10 +2161,9 @@ function tsRenderTable() {
   const ref = tsRefInfo();
   const refPhrase = ref.id === 'stored' ? 'the stored label' : `${ref.label}'s label`;
   document.getElementById('tsTableCaption').textContent =
-    `Each feature cell shows Jev's label (● for the pair's first label, ○ for the second, as in the column ` +
-    `headers) and its probability for that label; cells marked ≠ in red disagree with ${refPhrase}. Click a ` +
-    `column header to filter by ${refPhrase}, or a row to compare Jev with the stored labels and every LLM judge, ` +
-    'with their explanations.';
+    `Each feature cell shows Jev's label (● the first, ○ the second, as in the headings) and its probability; ` +
+    `a ✗ marks a label that differs from ${refPhrase}, and the cells that agree are grey. Click a feature's ` +
+    `heading to filter by ${refPhrase}, or a statement to compare Jev with the stored labels and every LLM judge.`;
   const tbody = document.getElementById('tsBody');
   const query = document.getElementById('tsSearch').value.trim().toLowerCase();
   const show = document.getElementById('tsShow').value;
@@ -2255,10 +2209,10 @@ function tsRenderTable() {
       const disagree = y !== null && c !== y;
       const title = `Jev: ${c ? def.v1 : def.v0} (${tsPct(pChosen, 0)}, confidence ${s.conf[i].toFixed(2)}) · ` +
         `${ref.label}: ${y === null ? 'no label' : y ? def.v1 : def.v0}`;
-      const cls = `ts-cell${k % 2 === 0 ? ' sg-prop-alt' : ''}${disagree ? ' ts-disagree' : ''}`;
+      const cls = `ts-cell${disagree ? ' ts-disagree' : ''}`;
       return `<td class="${cls}" data-feature-key="${esc(def.key)}" title="${esc(title)}">` +
-        (disagree ? '<span class="ts-ne">≠</span>' : '') +
-        `<span class="sg-option-dot ${c ? 'sg-val-1' : 'sg-val-0'}">${c ? '●' : '○'}</span>${tsPct(pChosen, 0)}</td>`;
+        `<span class="sg-option-dot ${c ? 'sg-val-1' : 'sg-val-0'}">${c ? '●' : '○'}</span>${tsPct(pChosen, 0)}` +
+        (disagree ? '<span class="ist-mark is-no" aria-label="differs">✗</span>' : '') + '</td>';
     }).join('') +
     `<td class="ts-cs" data-feature-key="commonsense">${tsPct(s.cs, 0)}</td></tr>`
   ).join('');
@@ -2320,13 +2274,13 @@ async function tsShowStatement(s, focusFeature) {
   const jev = {
     judge_model: tsData.model,
     commonsense: s.cs >= 0.5 ? 1 : 0,
-    commonsense_explanation: `P(common sense) = ${tsPct(s.cs, 0)}. Jev returns probabilities, not explanations.`,
+    commonsense_explanation: `Probability that it is common sense: ${tsPct(s.cs, 0)}. Jev gives probabilities, not reasons.`,
     features: Object.fromEntries(SG_FEAT_DEFS.map(def => {
       const i = tsFi(def.key);
       return [def.key, {
         classification: s.choice[i] ? def.key : def.v0.toLowerCase(),
         confidence: '',
-        explanation: `P(${def.v1}) = ${tsPct(s.p[i], 0)}, P(${def.v0}) = ${tsPct(1 - s.p[i], 0)} · ` +
+        explanation: `${def.v1} ${tsPct(s.p[i], 0)}, ${def.v0} ${tsPct(1 - s.p[i], 0)}, ` +
           `confidence ${s.conf[i].toFixed(2)}`,
       }];
     })),
@@ -2334,18 +2288,18 @@ async function tsShowStatement(s, focusFeature) {
   const stored = {
     gen_model: 'Stored labels', gen_commonsense_explanation: '', judges: [jev, ...judges],
     gen_features: Object.fromEntries(SG_FEAT_DEFS.map(def => [def.key, {
-      confidence: '', explanation: "Label stored in the platform's statement properties.",
+      confidence: '', explanation: null,
     }])),
   };
   const labels = Object.fromEntries(SG_FEAT_DEFS.map(def => [def.key, s.stored[tsFi(def.key)]]));
   document.getElementById('sgStatementText').textContent = s.statement;
   document.getElementById('sgStatementModel').textContent =
-    `Published statement #${s.id} · Jev and ${judges.length} LLM judge${judges.length === 1 ? '' : 's'}, ` +
-    'compared with the stored labels';
+    `Published statement #${s.id}: Jev and ${judges.length} LLM judge${judges.length === 1 ? '' : 's'}, ` +
+    'compared with the stored labels.';
+  document.getElementById('sgStatementSteps').innerHTML = '';
   const container = document.getElementById('sgStatementGenerations');
   container.innerHTML = sgRenderGeneration(stored, labels, { sourceTitle: 'Stored label', showRationale: false });
   sgFocusSection(container, focusFeature);
-  sgHideFeatureHelp();
   if (!sgStatementDialog.open) sgStatementDialog.showModal();
   sgStatementDialog.scrollTop = 0;
 }
@@ -2370,24 +2324,11 @@ document.getElementById('tsSearch').addEventListener('input', () => tsData && ts
 document.getElementById('tsShow').addEventListener('change', () => tsData && tsRenderTable());
 document.getElementById('tsSort').addEventListener('change', () => tsData && tsRenderTable());
 document.getElementById('tsHead').addEventListener('click', event => {
-  const help = event.target.closest('.sg-help-btn');
-  if (help) {
-    event.stopPropagation();
-    sgShowFeatureHelp(help);
-    return;
-  }
   const th = event.target.closest('th.sg-th-prop');
   if (!th || !tsData) return;
   tsFeatFilter[th.dataset.key] = SG_FILTER_CYCLE[tsFeatFilter[th.dataset.key]];
   sgApplyFilterHeaders(document.getElementById('tsHead'), tsFeatFilter);
   tsRenderTable();
-});
-document.getElementById('tsHead').addEventListener('mouseover', event => {
-  const help = event.target.closest('.sg-help-btn');
-  if (help && help !== sgActiveHelpButton) sgShowFeatureHelp(help);
-});
-document.getElementById('tsHead').addEventListener('mouseout', event => {
-  if (event.target.closest('.sg-help-btn') && !sgFeatPopup.contains(event.relatedTarget)) sgHideFeatureHelp();
 });
 document.getElementById('tsBody').addEventListener('click', event => {
   const tr = event.target.closest('tr[data-index]');
@@ -2396,17 +2337,17 @@ document.getElementById('tsBody').addEventListener('click', event => {
   const cell = event.target.closest('[data-feature-key]');
   tsShowStatement(entry, cell ? cell.dataset.featureKey : null);
 });
-document.querySelector('#tsTable').closest('.sg-table-wrap').addEventListener('scroll', sgHideFeatureHelp);
+
 
 // Set initial state so back/forward work, then route to the correct panel
 const _initialTab = tabFromPathname();
 // Keep the query string: the LLM Evaluations panel reads its view from it
-history.replaceState({ tab: _initialTab }, "", window.location.pathname + window.location.search);
-switchToTab(_initialTab, false);
+history.replaceState({ tab: _initialTab, example: exampleFromUrl() }, "", window.location.pathname + window.location.search);
+switchToTab(_initialTab, false, exampleFromUrl());
 
 window.addEventListener("popstate", (e) => {
   const tab = (e.state && e.state.tab) || tabFromPathname();
-  switchToTab(tab, false);
+  switchToTab(tab, false, e.state ? Boolean(e.state.example) : exampleFromUrl());
 });
 
 // ── Country dropdowns ──────────────────────────────────────────────────────
@@ -2425,7 +2366,10 @@ async function populateSelects() {
     countries.forEach(({ country, n_users }) => {
       const opt = document.createElement("option");
       opt.value = country;
-      opt.textContent = `${country} (${fmtNum(n_users)})`;
+      // The flag before the name (Josh, November 18, 2026); none for
+      // "Not stated" or a country without an ISO code
+      const flag = countryFlag(country);
+      opt.textContent = `${flag ? flag + " " : ""}${country} (${fmtNum(n_users)})`;
       sel.appendChild(opt);
     });
   });
@@ -2435,9 +2379,43 @@ async function populateSelects() {
 
 // ── User detail modal ──────────────────────────────────────────────────────
 
+// The majority's answer as ✓ (agrees) or ✗ (disagrees) and the share of
+// raters in that majority; a tie counts as agreeing, as in the score
+// The majority's answer as ✓ (agrees) or ✗ (disagrees) alone; pointing at
+// it (or focusing it) shows the shares who agree and disagree in the shared
+// #propHelpPopup (.yn-tip). A tie counts as agreeing, as in the score. The
+// disagree share is 100 minus the agree share as shown, so the two add up.
+function majorityMark(mean, nRatings, refIn) {
+  if (mean === null || mean === undefined) return "—";
+  const agrees = mean >= 0.5;
+  const pa = roundPct(mean);
+  const pd = Math.round((100 - pa) * 10) / 10;
+  const of = nRatings != null ? `, of ${fmtNum(nRatings)} ratings in ${refIn}` : ` in ${refIn}`;
+  const label = `Majority ${agrees ? "agrees" : "disagrees"}`;
+  const def = `${pa.toFixed(1)}% agree and ${pd.toFixed(1)}% disagree${of}.`;
+  return `<span class="ist-mark yn-mark yn-tip ${agrees ? "is-ok" : "is-no"}" tabindex="0" role="img" ` +
+    `aria-label="${esc(label)}: ${esc(def)}" data-col-label="${esc(label)}" data-col-def="${esc(def)}">${agrees ? "✓" : "✗"}</span>`;
+}
+
+// The participant modal's column definitions, shown from their "?" circles
+// (the shared #propHelpPopup); the majority and ratings name the reference
+function userModalHelp(refIn) {
+  const defs = {
+    agrees: "Does the participant agree with this statement?",
+    thinks: "Does the participant think most other people agree with this statement?",
+    majority: `Does the majority in ${refIn} agree with this statement? Point at a ✓ or ✗ for the shares who agree and disagree.`,
+    ratings: `How many people in ${refIn} rated this statement, over all dates.`,
+  };
+  document.querySelectorAll("#modalTable .prop-help-btn[data-help]").forEach((b) => {
+    b.dataset.colDef = defs[b.dataset.help];
+  });
+}
+
 async function openUserDetail(userRow, opts = {}) {
-  const countryLabel = userRow.country ? ` · ${userRow.country}` : "";
-  modalUserId.textContent = userRow.sessionId + countryLabel;
+  // The country's name with its flag after it, as the intro stories write it
+  const flag = userRow.country ? flagHtml(userRow.country) : "";
+  modalUserId.innerHTML = esc(userRow.sessionId) +
+    (userRow.country ? ` · ${esc(userRow.country)}${flag ? ` ${flag}` : ""}` : "");
   // Excluded users (grayed-out rows) have no scores to show
   modalUserScores.textContent =
     userRow.commonsensicality == null
@@ -2446,7 +2424,7 @@ async function openUserDetail(userRow, opts = {}) {
         `Awareness: ${fmtPct(userRow.awareness)} · ` +
         `Commonsensicality: ${fmtPct(userRow.commonsensicality)}`;
   modalBody.innerHTML =
-    '<tr><td colspan="5" class="empty-row">Loading…</td></tr>';
+    '<tr><td colspan="6" class="empty-row">Loading…</td></tr>';
   modalExplanation.classList.add("hidden");
   userModal.classList.remove("hidden");
 
@@ -2459,64 +2437,61 @@ async function openUserDetail(userRow, opts = {}) {
     data = await fetch(url).then((r) => r.json());
   } catch {
     modalBody.innerHTML =
-      '<tr><td colspan="5" class="empty-row">Failed to load.</td></tr>';
+      '<tr><td colspan="6" class="empty-row">Failed to load.</td></tr>';
     return;
   }
 
   if (!data.rows.length) {
     modalBody.innerHTML =
-      '<tr><td colspan="5" class="empty-row">No ratings found.</td></tr>';
+      '<tr><td colspan="6" class="empty-row">No ratings found.</td></tr>';
     modalExplanation.classList.add("hidden");
     return;
   }
 
-  // ── Score explanation — use server-computed values that match the scoring algorithm
-  const refLabel = reference === "all" ? "all countries" : reference;
-  const targetLabel = target === "all" ? "all countries" : target;
+  // ── How the score adds up, from the server's counts (the same rule as the
+  // score): which statements count, then consensus, awareness and their
+  // geometric mean, as the Individual Scores card works them
+  const refIn = groupIn(reference);
   const N_total = data.rows.length; // all statements the user rated
-  const N = data.n_scoring; // qualifying statements used in calculation
+  const N = data.n_scoring; // statements that count (10+ ratings in the reference group)
   const A = data.A;
   const B = data.B;
-  const consFrac = N > 0 ? A / N : 0;
-  const awareFrac = N > 0 ? B / N : 0;
-  const commsFrac = Math.sqrt(consFrac * awareFrac);
-  const fp = (v) => (v * 100).toFixed(1) + "%";
-
-  // Which statements count, then the three steps, as in the intro card
-  const countNote =
-    N_total > N
-      ? ` <strong>${N}</strong> of them count, having at least 10 ratings ` +
-        `${reference === "all" ? "overall" : `from ${esc(refLabel)}`}.`
-      : "";
+  const cons = N > 0 ? A / N : 0;
+  const aw = N > 0 ? B / N : 0;
+  const m = Math.sqrt(cons * aw);
+  const counts = N_total > N
+    ? `${fmtNum(N)} of them count: the others have fewer than 10 ratings in ${esc(refIn)}.`
+    : `All of them count, with at least 10 ratings in ${esc(refIn)}.`;
   modalExplanation.innerHTML =
-    `<p class="expl-context">Scored against the majority in <strong>${esc(refLabel)}</strong>, using its ratings from all dates.</p>` +
-    `<ul class="expl-list">` +
-    `<li>Rated <strong>${N_total}</strong> statement${N_total !== 1 ? "s" : ""}.${countNote}` +
-    (data.disqualified ? ` Fewer than 5 count, so this participant has <strong>no score</strong>.` : "") +
-    `</li>` +
-    (data.disqualified ? "" :
-    `<li><strong>Consensus</strong>: ${A} of ${N} answers match the majority = <strong>${fp(consFrac)}</strong>.</li>` +
-    `<li><strong>Awareness</strong>: ${B} of ${N} guesses about most others match the majority = <strong>${fp(awareFrac)}</strong>.</li>` +
-    `<li><strong>Commonsensicality</strong> = ${sqrtHtml(`${fp(consFrac)} × ${fp(awareFrac)}`)} = <strong>${fp(commsFrac)}</strong>.</li>`) +
-    `</ul>` +
-    (data.disqualified ? "" : `<p class="expl-context">✓ marks an answer that matches the majority: consensus is the share of ✓ under <em>Agrees?</em>, awareness the share under <em>Thinks most agree?</em></p>`);
+    `<p class="expl-p">Rated ${fmtNum(N_total)} statement${N_total !== 1 ? "s" : ""}. ${counts}` +
+    (data.disqualified ? ` A score needs at least 5 that count, so this participant has none.` :
+      ` Each answer and prediction is checked against the majority in ${esc(refIn)}, over all dates (✓ yes, ✗ no).`) + `</p>` +
+    (data.disqualified ? "" : calcLinesHtml([
+      ["Consensus", `${fmtNum(A)} / ${fmtNum(N)} = ${fmtPct(cons)}`],
+      ["Awareness", `${fmtNum(B)} / ${fmtNum(N)} = ${fmtPct(aw)}`],
+      ["Commonsensicality", sqrtHtml(`${fmtPct(cons)} × ${fmtPct(aw)}`)],
+      ["", `<strong>${fmtPct(m)}</strong>`, sqrtSign(cons, aw, m)],
+    ]) + `<p class="expl-note">Consensus counts the statements where Agrees? matches Majority agrees?, awareness those where Thinks most agree? does.</p>`);
   modalExplanation.classList.remove("hidden");
+  userModalHelp(refIn);
 
-  // ✓ / ✗ against the majority, as in the intro card's worked example; the
-  // server says which statements count (10+ reference ratings) and their
-  // majority, by the same rule as the score; the others are grey
+  // A number, the statement, each answer as ✓ yes / ✗ no, the ratings, then
+  // the majority's ✓ or ✗ (its shares on hover); the server says which
+  // statements count (10+ reference ratings) and their majority, by the
+  // same rule as the score; the others are grey
   const fragment = document.createDocumentFragment();
-  data.rows.forEach((row) => {
+  data.rows.forEach((row, i) => {
     const counted = row.counted === true && row.ref_majority != null;
     const maj = counted ? Number(row.ref_majority) : null;
     const tr = document.createElement("tr");
     if (!counted) tr.classList.add("row-uncounted");
     tr.innerHTML =
+      `<td class="td-rank">${i + 1}</td>` +
       `<td class="td-statement">${esc(fixStatement(row.statement))}</td>` +
-      `<td class="td-modal-right">${counted ? refAvgAgree(row.ref_i_agree_mean) : `<span class="td-muted" title="Fewer than 10 ratings in ${esc(refLabel)}">not counted</span>`}</td>` +
-      `<td class="td-modal-right">${answerPill(row.I_agree, maj)}</td>` +
-      `<td class="td-modal-right">${answerPill(row.others_agree, maj)}</td>` +
-      `<td class="td-modal-right">${row.ref_n_ratings != null ? fmtNum(row.ref_n_ratings) : "—"}</td>`;
+      `<td class="td-modal-mark">${yesNoMark(row.I_agree)}</td>` +
+      `<td class="td-modal-mark">${yesNoMark(row.others_agree)}</td>` +
+      `<td class="td-modal-mark">${row.ref_n_ratings != null ? fmtNum(row.ref_n_ratings) : "—"}</td>` +
+      `<td class="td-modal-mark">${counted ? majorityMark(row.ref_i_agree_mean, row.ref_n_ratings, refIn) : `<span class="td-muted" title="Fewer than 10 ratings in ${esc(refIn)}">not counted</span>`}</td>`;
     fragment.appendChild(tr);
   });
   modalBody.innerHTML = "";
@@ -2643,6 +2618,8 @@ function scoresTotalPages() {
 function renderScoresPage() {
   const start = (scoresPage - 1) * PAGE_SIZE;
   const fragment = document.createDocumentFragment();
+  // the largest rank, so tablefit.js sizes the rank column for every page
+  document.getElementById("scoresTable").dataset.fitRank = fmtNum(Math.max(1, scoresRows.filter(r => !r._excluded).length));
   const qualifyingBefore = scoresRows.slice(0, start).filter(r => !r._excluded).length;
   let qualRank = qualifyingBefore + 1;
 
@@ -2650,12 +2627,13 @@ function renderScoresPage() {
     const tr = document.createElement("tr");
     tr.style.cursor = "pointer";
     const userId = row.sessionId;
+    const countryCell = `<td class="td-country">${flagTipHtml(row.country)}</td>`;
     if (row._excluded) {
       tr.classList.add("row-excluded");
       tr.innerHTML =
         `<td class="td-rank td-dim">—</td>` +
         `<td class="td-user" title="${esc(userId)}">${esc(userId.slice(0, 14))}…</td>` +
-        `<td class="td-flag">${flagCellHtml(row.country)}</td>` +
+        countryCell +
         `<td class="td-num">${fmtNum(row.n_statements)}</td>` +
         `<td class="td-dim">—</td>` +
         `<td class="td-dim">—</td>` +
@@ -2665,15 +2643,14 @@ function renderScoresPage() {
       tr.innerHTML =
         `<td class="td-rank">${fmtNum(qualRank++)}</td>` +
         `<td class="td-user" title="${esc(userId)}">${esc(userId.slice(0, 14))}…</td>` +
-        `<td class="td-flag">${flagCellHtml(row.country)}</td>` +
+        countryCell +
         `<td class="td-num">${fmtNum(row.n_statements)}</td>` +
-        `<td>${pctBarScore(row.consensus)}</td>` +
-        `<td>${pctBarScore(row.awareness)}</td>` +
+        `<td class="td-pct">${pctCell(row.consensus)}</td>` +
+        `<td class="td-pct">${pctCell(row.awareness)}</td>` +
         `<td>${pctBarScore(row.commonsensicality)}</td>` +
         `<td class="td-last">${fmtLastDate(row.last_answer)}</td>`;
     }
     tr.addEventListener("click", () => openUserDetail(row));
-    attachFlagHandlers(tr);
     fragment.appendChild(tr);
   });
 
@@ -2725,36 +2702,10 @@ function _serverCountry(neName) { return _countryNameMapRev[neName] || neName; }
 
 
 
-const _FLAG_EMOJI = {
-  AD:"🇦🇩",AE:"🇦🇪",AF:"🇦🇫",AG:"🇦🇬",AL:"🇦🇱",AM:"🇦🇲",AO:"🇦🇴",AR:"🇦🇷",AT:"🇦🇹",AU:"🇦🇺",
-  AZ:"🇦🇿",BA:"🇧🇦",BB:"🇧🇧",BD:"🇧🇩",BE:"🇧🇪",BF:"🇧🇫",BG:"🇧🇬",BH:"🇧🇭",BI:"🇧🇮",BJ:"🇧🇯",
-  BN:"🇧🇳",BO:"🇧🇴",BR:"🇧🇷",BS:"🇧🇸",BT:"🇧🇹",BW:"🇧🇼",BY:"🇧🇾",BZ:"🇧🇿",CA:"🇨🇦",CD:"🇨🇩",
-  CF:"🇨🇫",CG:"🇨🇬",CH:"🇨🇭",CI:"🇨🇮",CL:"🇨🇱",CM:"🇨🇲",CN:"🇨🇳",CO:"🇨🇴",CR:"🇨🇷",CU:"🇨🇺",
-  CV:"🇨🇻",CY:"🇨🇾",CZ:"🇨🇿",DE:"🇩🇪",DJ:"🇩🇯",DK:"🇩🇰",DM:"🇩🇲",DO:"🇩🇴",DZ:"🇩🇿",EC:"🇪🇨",
-  EE:"🇪🇪",EG:"🇪🇬",EH:"🇪🇭",ER:"🇪🇷",ES:"🇪🇸",ET:"🇪🇹",FI:"🇫🇮",FJ:"🇫🇯",FR:"🇫🇷",GA:"🇬🇦",
-  GB:"🇬🇧",GD:"🇬🇩",GE:"🇬🇪",GH:"🇬🇭",GM:"🇬🇲",GN:"🇬🇳",GQ:"🇬🇶",GR:"🇬🇷",GT:"🇬🇹",GW:"🇬🇼",
-  GY:"🇬🇾",HN:"🇭🇳",HR:"🇭🇷",HT:"🇭🇹",HU:"🇭🇺",ID:"🇮🇩",IE:"🇮🇪",IL:"🇮🇱",IN:"🇮🇳",IQ:"🇮🇶",
-  IR:"🇮🇷",IS:"🇮🇸",IT:"🇮🇹",JM:"🇯🇲",JO:"🇯🇴",JP:"🇯🇵",KE:"🇰🇪",KG:"🇰🇬",KH:"🇰🇭",KI:"🇰🇮",
-  KM:"🇰🇲",KN:"🇰🇳",KP:"🇰🇵",KR:"🇰🇷",KW:"🇰🇼",KZ:"🇰🇿",LA:"🇱🇦",LB:"🇱🇧",LC:"🇱🇨",LI:"🇱🇮",
-  LK:"🇱🇰",LR:"🇱🇷",LS:"🇱🇸",LT:"🇱🇹",LU:"🇱🇺",LV:"🇱🇻",LY:"🇱🇾",MA:"🇲🇦",MC:"🇲🇨",MD:"🇲🇩",
-  ME:"🇲🇪",MG:"🇲🇬",MH:"🇲🇭",MK:"🇲🇰",ML:"🇲🇱",MM:"🇲🇲",MN:"🇲🇳",MR:"🇲🇷",MT:"🇲🇹",MU:"🇲🇺",
-  MV:"🇲🇻",MW:"🇲🇼",MX:"🇲🇽",MY:"🇲🇾",MZ:"🇲🇿",NA:"🇳🇦",NE:"🇳🇪",NG:"🇳🇬",NI:"🇳🇮",NL:"🇳🇱",
-  NO:"🇳🇴",NP:"🇳🇵",NR:"🇳🇷",NZ:"🇳🇿",OM:"🇴🇲",PA:"🇵🇦",PE:"🇵🇪",PG:"🇵🇬",PH:"🇵🇭",PK:"🇵🇰",
-  PL:"🇵🇱",PT:"🇵🇹",PW:"🇵🇼",PY:"🇵🇾",QA:"🇶🇦",RO:"🇷🇴",RS:"🇷🇸",RU:"🇷🇺",RW:"🇷🇼",SA:"🇸🇦",
-  SB:"🇸🇧",SC:"🇸🇨",SD:"🇸🇩",SE:"🇸🇪",SG:"🇸🇬",SI:"🇸🇮",SK:"🇸🇰",SL:"🇸🇱",SM:"🇸🇲",SN:"🇸🇳",
-  SO:"🇸🇴",SR:"🇸🇷",SS:"🇸🇸",ST:"🇸🇹",SV:"🇸🇻",SY:"🇸🇾",SZ:"🇸🇿",TD:"🇹🇩",TG:"🇹🇬",TH:"🇹🇭",
-  TJ:"🇹🇯",TL:"🇹🇱",TM:"🇹🇲",TN:"🇹🇳",TO:"🇹🇴",TR:"🇹🇷",TT:"🇹🇹",TV:"🇹🇻",TW:"🇹🇼",TZ:"🇹🇿",
-  UA:"🇺🇦",UG:"🇺🇬",US:"🇺🇸",UY:"🇺🇾",UZ:"🇺🇿",VC:"🇻🇨",VE:"🇻🇪",VN:"🇻🇳",VU:"🇻🇺",WS:"🇼🇸",
-  YE:"🇾🇪",ZA:"🇿🇦",ZM:"🇿🇲",ZW:"🇿🇼",
-};
-function _flagEmoji(iso) {
-  return _FLAG_EMOJI[(iso || "").toUpperCase()] || "";
-}
-
 async function showCountryCard(serverName, iso_a2) {
   const card = document.getElementById("homeCountryCard");
   card.classList.remove("hidden");
-  card.innerHTML = `<div class="hcc-header"><span class="hcc-flag">${_flagEmoji(iso_a2)}</span><span class="hcc-name">${serverName}</span></div><div style="color:var(--c-muted);font-size:var(--fs-3)">Loading…</div>`;
+  card.innerHTML = `<div class="hcc-header">${flagHtml(serverName, iso_a2).replace('class="flag"', 'class="flag hcc-flag"')}<span class="hcc-name">${esc(serverName)}</span></div><div style="color:var(--c-muted);font-size:var(--fs-3)">Loading…</div>`;
   card.scrollIntoView({ behavior: "smooth", block: "nearest" });
 
   let data;
@@ -2768,12 +2719,10 @@ async function showCountryCard(serverName, iso_a2) {
 }
 
 function renderCountryCard(card, serverName, iso_a2, data) {
-  const flag = _flagEmoji(iso_a2);
-
   card.innerHTML = `
     <div class="hcc-header">
-      <span class="hcc-flag">${flag}</span>
-      <span class="hcc-name">${serverName}</span>
+      ${flagHtml(serverName, iso_a2).replace('class="flag"', 'class="flag hcc-flag"')}
+      <span class="hcc-name">${esc(serverName)}</span>
     </div>
     <div class="hcc-stats">
       <div class="hcc-stat">
@@ -2786,7 +2735,7 @@ function renderCountryCard(card, serverName, iso_a2, data) {
       </div>
       <div class="hcc-stat">
         <span class="hcc-stat-value">${fmtNum(data.n_statements_qualified)}</span>
-        <span class="hcc-stat-label">Statements rated ≥10×</span>
+        <span class="hcc-stat-label">Statements with 10+ ratings</span>
       </div>
     </div>
     <div class="hcc-links">
@@ -2853,16 +2802,6 @@ function _mapCountColor(n) {
   return color;
 }
 
-// Olympic-ring-inspired continent colors (pastel via rgba; --c-cont-*)
-const CONTINENT_COLORS = {
-  "Africa":        "var(--c-cont-africa)",    // gold/yellow
-  "Asia":          "var(--c-cont-asia)",      // red
-  "Europe":        "var(--c-cont-europe)",    // blue
-  "North America": "var(--c-cont-namerica)",  // green
-  "South America": "var(--c-cont-samerica)",  // orange
-  "Oceania":       "var(--c-cont-oceania)",   // purple
-};
-
 const MAP_CROP_H = 412; // world-countries.json is 960 × 484
 
 async function renderWorldMap({ data, insuff } = {}) {
@@ -2920,10 +2859,9 @@ async function renderWorldMap({ data, insuff } = {}) {
     return p;
   }
 
-  const byCount = _homeMapMode === "count";
   // Grey (non-qualifying) layer — drawn first, behind qualifying paths
   for (const { c, ins } of nonQualifying) {
-    const path = _mkPath(c.d, byCount ? "var(--c-line)" : "var(--c-line-2)", "default");
+    const path = _mkPath(c.d, "var(--c-line)", "default");
     path.addEventListener("mousemove", (e) => {
       tooltip.hidden = false;
       const name = ins ? ins.serverName : c.name;
@@ -2938,7 +2876,7 @@ async function renderWorldMap({ data, insuff } = {}) {
 
   // Colored (qualifying) layer — drawn on top so clicks always land here
   for (const { c, entry } of qualifying) {
-    const color = byCount ? _mapCountColor(entry.n) : (CONTINENT_COLORS[c.continent] || "var(--c-line-2)");
+    const color = _mapCountColor(entry.n);
     const path = _mkPath(c.d, color, "pointer");
     pathByServerName[entry.serverName] = path;
     fillByServerName[entry.serverName] = color;
@@ -2972,25 +2910,19 @@ async function renderWorldMap({ data, insuff } = {}) {
     pathByServerName[_selectedHomeCountry].setAttribute("stroke-width", "1.5");
   }
 
-  // Render legend: participant bins as one stepped ramp, each step labelled
-  // with its lower bound (it fits one line, on phones too), or continents
+  // Legend: participant bins as one stepped ramp, each step labelled with
+  // its lower bound (it fits one line, on phones too)
   const legend = document.getElementById("worldMapLegend");
   if (legend) {
-    if (byCount) {
-      legend.innerHTML =
-        `<span class="world-map-legend-item">Participants</span>` +
-        `<span class="wm-steps">` +
-        MAP_COUNT_BINS.map((b, i) => {
-          const next = MAP_COUNT_BINS[i + 1];
-          const range = next ? `${fmtNum(b.min)}–${fmtNum(next.min - 1)}` : `${fmtNum(b.min)} or more`;
-          return `<span class="wm-step" title="${range} participants"><i style="background:${b.color}"></i>${fmtNum(b.min)}${next ? "" : "+"}</span>`;
-        }).join("") +
-        `</span>`;
-    } else {
-      legend.innerHTML = Object.entries(CONTINENT_COLORS)
-        .map(([cont, color]) => `<span class="world-map-legend-item"><span class="world-map-legend-swatch" style="background:${color}"></span>${cont}</span>`)
-        .join("");
-    }
+    legend.innerHTML =
+      `<span class="world-map-legend-item">Participants</span>` +
+      `<span class="wm-steps">` +
+      MAP_COUNT_BINS.map((b, i) => {
+        const next = MAP_COUNT_BINS[i + 1];
+        const range = next ? `${fmtNum(b.min)}–${fmtNum(next.min - 1)}` : `${fmtNum(b.min)} or more`;
+        return `<span class="wm-step" title="${range} participants"><i style="background:${b.color}"></i>${fmtNum(b.min)}${next ? "" : "+"}</span>`;
+      }).join("") +
+      `</span>`;
   }
 }
 
@@ -3346,6 +3278,7 @@ function renderStmtScoresPage(preserveScroll = false) {
   const fragment = document.createDocumentFragment();
 
   const qualifyingBeforeStmt = stmtScoresRows.slice(0, start).filter(r => !r._excluded).length;
+  document.getElementById("stmtScoresTable").dataset.fitRank = fmtNum(Math.max(1, stmtScoresRows.filter(r => !r._excluded).length));
   let qualRankStmt = qualifyingBeforeStmt + 1;
 
   stmtScoresRows.slice(start, start + PAGE_SIZE).forEach((row) => {
@@ -3367,11 +3300,11 @@ function renderStmtScoresPage(preserveScroll = false) {
         `<td class="td-rank">${fmtNum(qualRankStmt++)}</td>` +
         `<td class="td-statement" title="${esc(stmt)}">${esc(stmt)}</td>` +
         `<td class="td-num">${fmtNum(row.n_ratings)}</td>` +
-        `<td>${pctBar(row.I_agree_mean)}</td>` +
-        `<td>${pctBar(row.others_agree_mean)}</td>` +
-        `<td>${pctBarScore(row.consensus)}</td>` +
-        `<td>${pctBarScore(row.awareness)}</td>` +
-        `<td>${pctBarScore(row.commonsensicality)}</td>`;
+        `<td class="td-pct">${pctCell(row.I_agree_mean, true)}</td>` +
+        `<td class="td-pct">${pctCell(row.others_agree_mean)}</td>` +
+        `<td class="td-pct">${pctCell(row.consensus)}</td>` +
+        `<td class="td-pct">${pctCell(row.awareness)}</td>` +
+        `<td class="td-score">${pctBarScore(row.commonsensicality)}</td>`;
     }
     tr.style.cursor = "pointer";
     tr.addEventListener("click", () => openStmtCombined(row));
@@ -3508,9 +3441,9 @@ async function openStmtCombined(row) {
     : stmtCalcHtml(row, groupLabel);
   const body = document.getElementById("stmtPropsBody");
   body.innerHTML =
-    `<div class="stmt-combined-section"><div class="stmt-combined-section-title">Commonsensicality score</div>${scoreHtml}</div>` +
+    `<div class="stmt-combined-section"><div class="stmt-combined-section-title">How its score is calculated</div>${scoreHtml}</div>` +
     countriesHtml +
-    `<div class="stmt-combined-section"><div class="stmt-combined-section-title">Statement features</div><ul class="prop-detail-list">${stmtPropItemsHtml(row)}</ul></div>`;
+    `<div class="stmt-combined-section"><div class="stmt-combined-section-title">Its six features</div>${stmtPropItemsHtml(row)}</div>`;
   const more = body.querySelector(".sc-more");
   if (more) more.addEventListener("click", () => {
     body.querySelectorAll(".sc-row.is-extra").forEach((tr) => tr.classList.remove("is-extra"));
@@ -3533,11 +3466,11 @@ function stmtCountriesHtml(countries, current) {
   if (!scored.length) {
     summary = `No country has rated it 10 times yet, so there are no country scores. Shares from fewer than 10 ratings are shown in grey.`;
   } else if (scored.length === 1) {
-    summary = `Only <strong>${esc(scored[0].country)}</strong> has rated it at least 10 times; its majority ${scored[0].maj ? "agrees" : "disagrees"}.`;
+    summary = `Only ${esc(theCountry(scored[0].country))} has rated it at least 10 times; its majority ${scored[0].maj ? "agrees" : "disagrees"}.`;
   } else if (!nAgree || !nDis) {
-    summary = `The majority ${nAgree ? "agrees" : "disagrees"} in all <strong>${fmtNum(scored.length)}</strong> countries with at least 10 ratings.`;
+    summary = `The majority ${nAgree ? "agrees" : "disagrees"} in all ${fmtNum(scored.length)} countries with at least 10 ratings.`;
   } else {
-    summary = `<strong>Majorities differ:</strong> the majority agrees in ${nCountries(nAgree)} and disagrees in ${nCountries(nDis)}, of the ${fmtNum(scored.length)} with at least 10 ratings. A small country's share can be noisy.`;
+    summary = `Majorities differ: the majority agrees in ${nCountries(nAgree)} and disagrees in ${nCountries(nDis)}, of the ${fmtNum(scored.length)} with at least 10 ratings. A small country's share can be noisy.`;
   }
   // Countries with 10+ ratings first (most ratings first), then the rest
   const order = [...scored, ...countries.filter((c) => c.score === undefined || c.score === null)];
@@ -3547,12 +3480,12 @@ function stmtCountriesHtml(countries, current) {
     const cls = `sc-row${ok ? "" : " is-thin"}${c.country === current ? " is-current" : ""}${i >= SC_SHOW ? " is-extra" : ""}`;
     return (
       `<tr class="${cls}">` +
-      `<td class="sc-country">${countryFlag(c.country) ? countryFlag(c.country) + " " : ""}${esc(c.country)}</td>` +
+      `<td class="sc-country">${flagTipHtml(c.country)}</td>` +
       `<td class="sc-n">${fmtNum(c.n_ratings)}</td>` +
       `<td class="sc-agree"><span class="sc-bar"><span class="sc-fill${p < 0.5 ? " is-low" : ""}" style="width:${(p * 100).toFixed(1)}%"></span></span>` +
-        `<span class="sc-val">${(p * 100).toFixed(0)}%</span></td>` +
+        `<span class="sc-val">${fmtSidePct(p)}</span></td>` +
       `<td class="sc-maj">${ok ? (c.maj ? "Agrees" : "Disagrees") : "—"}</td>` +
-      `<td class="sc-score">${ok ? (c.score * 100).toFixed(1) : "—"}</td>` +
+      `<td class="sc-score">${ok ? fmtPct(c.score) : "—"}</td>` +
       `</tr>`
     );
   }).join("");
@@ -3567,24 +3500,15 @@ function stmtCountriesHtml(countries, current) {
   );
 }
 
-// Property definitions section of the Statement Scores modal
+// The statement's six features as one plain line (as the LLM panel's
+// statement modal lists them), each label's definition in its tooltip
 function stmtPropItemsHtml(row) {
-  return PROP_DEFS.map(({ key, v1, v0, def1, def0 }) => {
+  const parts = PROP_DEFS.map(({ key, v1, v0, def1, def0 }) => {
     const val = row[key];
-    if (val === null || val === undefined)
-      return `<li class="prop-detail-item prop-detail-unknown"><span class="prop-detail-category">${esc(v1)} / ${esc(v0)}</span><span class="prop-detail-desc">—</span></li>`;
-    const label = val === 1 ? v1 : v0;
-    const def = val === 1 ? def1 : def0;
-    const contrastLabel = val === 1 ? v0 : v1;
-    const contrastDef = val === 1 ? def0 : def1;
-    return (
-      `<li class="prop-detail-item">` +
-      `<span class="prop-detail-category">${esc(v1)} / ${esc(v0)}</span>` +
-      `<span class="prop-detail-desc">This statement is an example of <strong>${esc(label)}</strong>: ${esc(def)}</span>` +
-      `<span class="prop-detail-contrast">(This is in contrast to <strong>${esc(contrastLabel)}</strong>: ${esc(contrastDef)})</span>` +
-      `</li>`
-    );
-  }).join("");
+    if (val === null || val === undefined) return `<span class="prop-line-item is-unknown">${esc(v1)} or ${esc(v0)}: not labelled</span>`;
+    return `<span class="prop-line-item" title="${esc(val === 1 ? def1 : def0)}">${esc(val === 1 ? v1 : v0)}</span>`;
+  });
+  return `<p class="prop-line">${parts.join(" · ")}</p>`;
 }
 
 async function loadStmtScores(country) {
@@ -3836,9 +3760,10 @@ function renderDesignPoints(rows, rowsExcluded) {
   const propCols = DP_PROPS.map(() => `<col class="dp-col-prop"/>`).join("");
   const propThs = DP_PROPS.map(
     (p, i) =>
+      // The label itself opens the two poles' definitions (no "?" button)
       `<th class="dp-th-prop${i % 2 === 0 ? " dp-th-alt" : ""}">` +
-      `<span class="dp-prop-label">${p.labelHtml || esc(p.label)}</span>` +
-      `<button class="prop-help-btn dp-prop-help-btn" type="button" data-prop-key="${p.key}">?</button>` +
+      `<span class="dp-prop-label prop-help-text" tabindex="0" role="button" data-prop-key="${p.key}" ` +
+      `aria-label="Definitions: ${esc(p.label)}">${p.labelHtml || esc(p.label)}</span>` +
       `</th>`,
   ).join("");
 
@@ -4029,6 +3954,8 @@ function renderDpDetailBody() {
   const tbody = document.querySelector("#dpDetailTable tbody");
   tbody.innerHTML = "";
   let qualRank = rows.slice(0, start).filter((r) => r.qualified).length + 1;
+  const dpdt = document.getElementById("dpDetailTable");
+  if (dpdt) dpdt.dataset.fitRank = fmtNum(Math.max(1, rows.filter((r) => r.qualified).length));
   rows.slice(start, start + PAGE_SIZE).forEach((row) => {
     const tr = document.createElement("tr");
     const head =
@@ -4050,11 +3977,11 @@ function renderDpDetailBody() {
     } else {
       tr.innerHTML =
         `<td class="td-rank">${fmtNum(qualRank++)}</td>` + head +
-        `<td>${pctBar(row.I_agree_mean)}</td>` +
-        `<td>${pctBar(row.others_agree_mean)}</td>` +
-        `<td>${pctBarScore(row.consensus)}</td>` +
-        `<td>${pctBarScore(row.awareness)}</td>` +
-        `<td>${pctBarScore(row.commonsensicality)}</td>`;
+        `<td class="td-pct">${pctCell(row.I_agree_mean, true)}</td>` +
+        `<td class="td-pct">${pctCell(row.others_agree_mean)}</td>` +
+        `<td class="td-pct">${pctCell(row.consensus)}</td>` +
+        `<td class="td-pct">${pctCell(row.awareness)}</td>` +
+        `<td class="td-score">${pctBarScore(row.commonsensicality)}</td>`;
       tr.style.cursor = "pointer";
       tr.addEventListener("click", () =>
         openStmtDetail(row, dpCountrySelect.value),
@@ -4099,20 +4026,20 @@ function renderDpStatements(rows) {
     `<span id="dpDetailPageInfo" class="page-info"></span>` +
     `<button id="dpDetailBtnNext" class="page-btn" disabled>&#8250;</button>` +
     `</div></div>` +
-    `<div class="dp-detail-table-wrap"><table id="dpDetailTable" style="margin-top:4px;table-layout:fixed;width:100%;border-collapse:collapse;background:var(--c-surface)">` +
+    `<div class="dp-detail-table-wrap"><table id="dpDetailTable" data-fit-text-max="22" style="margin-top:4px;table-layout:fixed;width:100%;border-collapse:collapse;background:var(--c-surface)">` +
     `<colgroup><col class="col-rank"/><col class="col-dp-stmt"/><col class="col-dp-published"/><col class="col-num"/>` +
     `<col class="col-stmtscore"/><col class="col-stmtscore"/><col class="col-stmtscore"/>` +
     `<col class="col-stmtscore"/><col class="col-stmtscore"/></colgroup>` +
     `<thead><tr>` +
     `<th class="col-rank">#</th>` +
     `<th class="col-dp-stmt">Statement</th>` +
-    `<th class="col-dp-published sortable sort-active" data-sort="published">Published <button class="prop-help-btn" type="button" data-col-label="Published" data-col-def="Whether the statement is currently being sampled to participants.">?</button> <span class="sort-icon">▼</span></th>` +
+    `<th class="col-dp-published sortable sort-active" data-sort="published" title="Whether the statement is now being shown to participants.">Published <span class="sort-icon">▼</span></th>` +
     `<th class="col-num sortable" data-sort="n_ratings">Ratings <span class="sort-icon"></span></th>` +
-    `<th class="col-stmtscore sortable" data-sort="I_agree_mean">Agree <button class="prop-help-btn" type="button" data-col-label="Agree" data-col-def="Share of raters who agree with the statement. Orange when under 50%, so the majority disagrees.">?</button> <span class="sort-icon"></span></th>` +
-    `<th class="col-stmtscore sortable" data-sort="others_agree_mean">Think most agree <button class="prop-help-btn" type="button" data-col-label="Think most agree" data-col-def="Share of raters who think most other people would agree with the statement.">?</button> <span class="sort-icon"></span></th>` +
+    `<th class="col-stmtscore sortable" data-sort="I_agree_mean" title="Share of raters who agree with the statement, in orange when under 50%: the majority disagrees.">Agree <span class="sort-icon"></span></th>` +
+    `<th class="col-stmtscore sortable" data-sort="others_agree_mean" title="Share of raters who think most other people would agree with the statement.">Think most<br>agree <span class="sort-icon"></span></th>` +
     `<th class="col-stmtscore sortable" data-sort="consensus">Consensus <span class="sort-icon"></span></th>` +
     `<th class="col-stmtscore sortable" data-sort="awareness">Awareness <span class="sort-icon"></span></th>` +
-    `<th class="col-stmtscore sortable" data-sort="commonsensicality">Common&shy;sensicality <span class="sort-icon"></span></th>` +
+    `<th class="col-stmtscore sortable" data-sort="commonsensicality">Common-<br>sensicality <span class="sort-icon"></span></th>` +
     `</tr></thead><tbody></tbody></table></div>`;
 
   renderDpDetailBody();
@@ -4200,6 +4127,10 @@ function getSortedCmRows() {
       va = cmView === 'agree' ? a._aSd : a.sd || 0; vb = cmView === 'agree' ? b._aSd : b.sd || 0;
     } else if (cmSortKey === 'mean') {
       va = cmView === 'agree' ? a._aMean : a.mean || 0; vb = cmView === 'agree' ? b._aMean : b.mean || 0;
+    }
+    if (cmSortKey === 'sd' || cmSortKey === 'mean') {
+      if (va !== vb) return cmSortDir === 'asc' ? va - vb : vb - va;
+      return b._n - a._n; // tiebreaker: number of countries, always descending
     } else {
       const k = cmView === 'agree' ? 'a' : 's';
       va = a.scores[cmSortKey]?.[k]; vb = b.scores[cmSortKey]?.[k];
@@ -4246,14 +4177,23 @@ function updateCmSummary() {
 function cmMix(hue, t) {
   return `color-mix(in srgb, var(${hue}) ${(t * 100).toFixed(1)}%, var(--c-ramp-base))`;
 }
+// A cell's "N = …" is muted, and mixed towards --c-body only as far as the
+// cell's shade needs to keep it at 4.5:1 (d is the shade's depth, 0-1, as in
+// cmScoreBg/cmAgreeBg; muted alone falls short from about d = 0.5 in both
+// themes; checked over every depth and both hues, the least is 4.5:1)
+function cmNInk(d) {
+  const p = Math.max(0, Math.min(1, (d - 0.45) / 0.55));
+  return `${(p * 100).toFixed(1)}%`;
+}
 function cmScoreBg(score) {
   return cmMix("--c-agree", 0.03 + 0.4 * Math.max(0, Math.min(100, score)) / 100);
 }
 // "Share who agree" view: diverging, orange where the majority disagrees and
 // blue where it agrees, deeper the further the share is from 50%
-function cmAgreeBg(a) {
+function cmAgreeBg(a, m) {
   const d = Math.min(50, Math.abs(Math.max(0, Math.min(100, a)) - 50)) / 50;
-  return cmMix(a >= 50 ? "--c-agree" : "--c-expect", 0.03 + 0.4 * d);
+  const agrees = m != null ? m === 1 : a >= 50;
+  return cmMix(agrees ? "--c-agree" : "--c-expect", 0.03 + 0.4 * d);
 }
 
 // Toolbar legend, the M / SD header tooltips and the note for the current view
@@ -4280,7 +4220,7 @@ function cmSyncView() {
   if (sdTh) sdTh.title = agree ? "Standard deviation of the share who agree across those countries" : "Standard deviation of a statement's commonsensicality score among all applicable countries";
   const note = document.getElementById("cmViewNote");
   const parts = [];
-  if (agree) parts.push("Each cell is the share of that country's raters who agree: blue when most agree, orange when most disagree. <em>M</em> and <em>SD</em> summarize these shares.");
+  if (agree) parts.push("Each cell is the share of that country's raters who agree: blue when most agree, orange when most disagree. Mean and SD summarize these shares.");
   if (cmOnlyFlips) parts.push("Only statements where at least one country's majority agrees and another's disagrees, among countries with 10+ ratings. Small countries are noisy, so a share near 50% can land on either side by chance.");
   note.innerHTML = parts.join(" ");
   note.hidden = !parts.length;
@@ -4385,7 +4325,13 @@ function renderCmPage() {
 
     const tdStmt = document.createElement('td');
     tdStmt.className = 'cm-stmt-cell';
-    tdStmt.textContent = fixStatement(row.statement);
+    // the statement opens its scores across countries (openCmStmt())
+    const stmtBtn = document.createElement('button');
+    stmtBtn.type = 'button';
+    stmtBtn.className = 'cm-stmt-btn';
+    stmtBtn.title = 'Its score in the whole world and in each country';
+    stmtBtn.textContent = fixStatement(row.statement);
+    tdStmt.appendChild(stmtBtn);
     tr.appendChild(tdStmt);
 
     const tdN = document.createElement('td');
@@ -4396,12 +4342,12 @@ function renderCmPage() {
     const agreeView = cmView === 'agree';
     const tdMean = document.createElement('td');
     tdMean.className = 'cm-mean-cell';
-    tdMean.textContent = row._n > 0 ? (agreeView ? `${row._aMean.toFixed(0)}%` : row.mean.toFixed(1)) : '—';
+    tdMean.textContent = row._n > 0 ? (agreeView ? `${fmtPts(row._aMean, 0)}%` : fmtPts(row.mean)) : '—';
     tr.appendChild(tdMean);
 
     const tdSd = document.createElement('td');
     tdSd.className = 'cm-sd-cell';
-    tdSd.textContent = row._n > 1 ? (agreeView ? row._aSd.toFixed(1) : row.sd.toFixed(1)) : '—';
+    tdSd.textContent = row._n > 1 && row.sd != null ? (agreeView ? fmtPts(row._aSd) : fmtPts(row.sd)) : '—';
     tr.appendChild(tdSd);
 
     countries.forEach(c => {
@@ -4411,15 +4357,17 @@ function renderCmPage() {
         td.className = 'cm-score-cell cm-score-cell-clickable';
         td.dataset.country = c;
         if (cmView === 'agree') {
-          td.style.background = cmAgreeBg(entry.a);
+          td.style.background = cmAgreeBg(entry.a, entry.m);
+          td.style.setProperty('--cm-n-ink', cmNInk(Math.min(50, Math.abs(Math.max(0, Math.min(100, entry.a)) - 50)) / 50));
           td.innerHTML =
-            `${entry.a.toFixed(0)}%` +
-            `<div class="cm-score-n"><em>N</em> = ${fmtNum(entry.n)}</div>`;
+            fmtSidePct(entry.a / 100) +
+            `<div class="cm-score-n"><i>N</i> = ${fmtNum(entry.n)}</div>`;
         } else {
           td.style.background = cmScoreBg(entry.s);
+          td.style.setProperty('--cm-n-ink', cmNInk(Math.max(0, Math.min(100, entry.s)) / 100));
           td.innerHTML =
-            entry.s.toFixed(1) +
-            `<div class="cm-score-n"><em>N</em> = ${fmtNum(entry.n)}</div>`;
+            fmtPts(entry.s) +
+            `<div class="cm-score-n"><i>N</i> = ${fmtNum(entry.n)}</div>`;
         }
       } else {
         // Under 10 ratings: no score, but still opens the statement's info
@@ -4427,7 +4375,7 @@ function renderCmPage() {
         td.className = 'cm-score-cell cm-score-cell-sub cm-score-cell-clickable';
         td.dataset.country = c;
         td.dataset.n = n;
-        td.innerHTML = `<div class="cm-score-n"><em>N</em> = ${fmtNum(n)}</div>`;
+        td.innerHTML = `<div class="cm-score-n"><i>N</i> = ${fmtNum(n)}</div>`;
       }
       tr.appendChild(td);
     });
@@ -4447,6 +4395,91 @@ function renderCmPage() {
   cmFixStickyLefts();
   cmSyncHScroll();
   cmPinHeader();
+}
+
+// A statement's scores across countries (a click on its text in the matrix).
+// /api/statement-countries lists every country that rated it with its counts;
+// pooling them gives the statement's overall score (every rater who stated a
+// country; k_others from each country's unrounded share, sent to 10
+// decimals), worked as stmtCalcHtml() works a score. Then the countries with
+// 10+ ratings as bars, highest first, as the matrix scores them, with the
+// overall score as a row of its own where it falls and a dashed line at it
+// through every bar.
+let cmStmtReq = 0;
+async function openCmStmt(row) {
+  document.getElementById("stmtModalText").textContent = fixStatement(row.statement);
+  showStmtMeta(document.getElementById("stmtModalMeta"), row.statementId);
+  const box = document.getElementById("stmtModalExplanation");
+  box.classList.remove("hidden");
+  box.innerHTML = '<p class="expl-p" style="color:var(--c-muted)">Loading…</p>';
+  stmtModal.classList.remove("hidden");
+  const reqId = ++cmStmtReq;
+  let rated = null;
+  try {
+    const cs = await fetch(
+      `${API}/statement-countries?statementId=${encodeURIComponent(row.statementId)}${dateParams()}`,
+    ).then((r) => r.json());
+    if (Array.isArray(cs)) rated = cs;
+  } catch (_) {}
+  if (reqId !== cmStmtReq) return; // another statement was opened meanwhile
+  box.innerHTML = cmStmtHtml(row, rated);
+}
+
+function cmStmtHtml(row, rated) {
+  const countries = Object.entries(row.scores)
+    .filter(([, e]) => e.s != null)
+    .map(([c, e]) => ({ c, s: e.s, n: e.n }))
+    .sort((a, b) => b.s - a.s || b.n - a.n);
+  const nc = countries.length;
+  let w = null, nAll = 0; // the overall score (0-100) and its ratings
+  if (rated && rated.length) {
+    let k = 0, k2 = 0;
+    for (const c of rated) {
+      nAll += c.n_ratings;
+      k += c.k_agree;
+      k2 += Math.round(c.others_agree_mean * c.n_ratings);
+    }
+    const agrees = 2 * k >= nAll;
+    w = 100 * Math.sqrt((Math.abs(2 * k - nAll) / nAll) * ((agrees ? k2 : nAll - k2) / nAll));
+  }
+  const plural = (n, one, many) => `${fmtNum(n)} ${n === 1 ? one : many}`;
+  const overallP = w == null
+    ? `Its ratings could not be loaded.`
+    : `This statement received ${plural(nAll, "rating", "ratings")} from ${plural(rated.length, "country", "countries")}. ` +
+      `Overall, its commonsensicality score is ${fmtPts(w)}%.`;
+  const eachP = nc === 1
+    ? `In ${esc(theCountry(countries[0].c))}, the only country with at least 10 ratings, this statement's commonsensicality score is:`
+    : `In each of the ${fmtNum(nc)} countries for which there are at least 10 ratings, this statement's commonsensicality score is:`;
+
+  const bar = (v, cls) =>
+    `<span class="cms-track"><span class="cms-fill${cls}" style="width:${Math.max(0, Math.min(100, v)).toFixed(2)}%"></span></span>`;
+  const rowHtml = ({ c, s, n }) =>
+    `<div class="cms-row" role="listitem" aria-label="${esc(c)}: ${fmtPts(s)}%, ${fmtNum(n)} ratings">` +
+      `<span class="cms-name">${flagTipHtml(c)}</span>` + bar(s, "") +
+      `<span class="cms-val">${fmtPts(s)}%</span>` +
+      `<span class="cms-n">${fmtNum(n)}</span>` +
+    `</div>`;
+  const overallRow = w == null ? "" :
+    `<div class="cms-row is-world" role="listitem" aria-label="Overall: ${fmtPts(w)}%, ${fmtNum(nAll)} ratings">` +
+      `<span class="cms-name">Overall</span>` + bar(w, " is-world") +
+      `<span class="cms-val">${fmtPts(w)}%</span>` +
+      `<span class="cms-n">${fmtNum(nAll)}</span>` +
+    `</div>`;
+  // the overall row goes before the first country it beats (ties: after)
+  let at = countries.findIndex((x) => x.s < w);
+  if (at < 0) at = countries.length;
+  const rows = countries.map(rowHtml);
+  if (overallRow) rows.splice(at, 0, overallRow);
+
+  return (
+    `<p class="expl-p">${overallP}</p>` +
+    (nc ? `<p class="expl-p">${eachP}</p>` +
+      `<div class="cms${w == null ? "" : " has-w"}" role="list" aria-label="Commonsensicality in each country, highest first"${w == null ? "" : ` style="--cms-w:${w.toFixed(2)}%"`}>` +
+      `<div class="cms-row cms-head" aria-hidden="true"><span class="cms-name">Country</span><span>Commonsensicality</span><span></span><span class="cms-n">Ratings</span></div>` +
+      rows.join("") +
+      `<div class="cms-row cms-axis" aria-hidden="true"><span></span><span class="cms-ticks"><span>0</span><span>50</span><span>100%</span></span><span></span><span></span></div>` +
+    `</div>` : "")
+  );
 }
 
 async function loadCountryMatrix() {
@@ -4471,7 +4504,8 @@ async function loadCountryMatrix() {
     const cells = Object.values(row.scores).filter(e => e.s != null);
     row._n = cells.length;
     const a = cells.map(e => e.a);
-    const nAgree = a.filter(v => v >= 50).length;
+    // each country's majority from its unrounded share (the server's m)
+    const nAgree = cells.filter(e => (e.m != null ? e.m === 1 : e.a >= 50)).length;
     row._flip = nAgree > 0 && nAgree < a.length;
     row._aMean = a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0;
     row._aSd = a.length > 1 ? Math.sqrt(a.reduce((x, y) => x + (y - row._aMean) ** 2, 0) / (a.length - 1)) : 0;
@@ -4482,13 +4516,12 @@ async function loadCountryMatrix() {
     `<th class="cm-rank-th">#</th>` +
     `<th class="cm-stmt-th cm-th-sortable" data-sort="stmt">Statement<span class="cm-sort-icon"></span></th>` +
     `<th class="cm-n-th cm-th-sortable" data-sort="n" title="Number of countries that have at least 10 ratings for a statement">Countries<span class="cm-sort-icon"></span></th>` +
-    `<th class="cm-mean-th cm-th-sortable" data-sort="mean" title="Mean of a statement&#39;s commonsensicality score among all applicable countries"><em>M</em><span class="cm-sort-icon"></span></th>` +
-    `<th class="cm-sd-th cm-th-sortable" data-sort="sd" title="Standard deviation of a statement&#39;s commonsensicality score among all applicable countries"><em>SD</em><span class="cm-sort-icon"></span></th>` +
+    `<th class="cm-mean-th cm-th-sortable" data-sort="mean" title="Mean of a statement&#39;s commonsensicality score among all applicable countries">Mean<span class="cm-sort-icon"></span></th>` +
+    `<th class="cm-sd-th cm-th-sortable" data-sort="sd" title="Standard deviation of a statement&#39;s commonsensicality score among all applicable countries">SD<span class="cm-sort-icon"></span></th>` +
     data.countries.map(c =>
-      `<th class="cm-country-th cm-th-sortable" data-sort="${esc(c)}" title="${esc(c)}, ${fmtNum(data.country_n_statements[c])} statements">` +
+      `<th class="cm-country-th cm-th-sortable" data-sort="${esc(c)}">` +
         `<div class="cm-country-th-inner">` +
-          `<span class="cm-flag">${countryFlag(c)}</span>` +
-          `<span class="cm-country-name">${esc(countryCode(c))}</span>` +
+          `<span class="cm-flag">${flagTipHtml(c, { fallback: countryCode(c), pin: false })}</span>` +
           `<span class="cm-country-n">${fmtNum(data.country_n_statements[c])}</span>` +
         `</div>` +
       `</th>`
@@ -4512,6 +4545,13 @@ async function loadCountryMatrix() {
   updateCmSummary();
 
   document.getElementById('cmBody').onclick = async (e) => {
+    const btn = e.target.closest('.cm-stmt-btn');
+    if (btn) {
+      const id = parseInt(btn.closest('tr').dataset.stmtId);
+      const row = countryMatrixData.rows.find(r => r.statementId === id);
+      if (row) openCmStmt(row);
+      return;
+    }
     const td = e.target.closest('.cm-score-cell-clickable');
     if (!td) return;
     const stmtId = parseInt(td.closest('tr').dataset.stmtId);
@@ -4817,8 +4857,10 @@ PROP_DEFS.forEach(({ key }) => {
     pinned = false;
   }
 
+  // A "?" button, or a label that opens its own definitions (.prop-help-text:
+  // the Design Points headings and the feature filters' row labels)
   function getTarget(e) {
-    return e.target.closest(".prop-help-btn");
+    return e.target.closest(".prop-help-btn, .prop-help-text, .yn-tip");
   }
 
   document.addEventListener("click", (e) => {
@@ -4839,8 +4881,19 @@ PROP_DEFS.forEach(({ key }) => {
     if (!popup.contains(e.target)) hidePopup();
   });
 
+  // A .prop-help-text label is a span, so Enter and Space open it too
+  document.addEventListener("keydown", (e) => {
+    if ((e.key === "Enter" || e.key === " ") && e.target.classList && (e.target.classList.contains("prop-help-text") || e.target.classList.contains("yn-tip"))) {
+      e.preventDefault();
+      e.target.click();
+    }
+  });
+
   document.addEventListener("mouseover", (e) => {
     if (pinned) return;
+    // mouseover comes before mousemove, so place the popup from this event
+    mouseX = e.clientX;
+    mouseY = e.clientY;
     const el = getTarget(e);
     if (el) {
       activeBtn = el;
@@ -4872,16 +4925,14 @@ const CMP_COLOR_A = "var(--c-agree)";
 const CMP_COLOR_B = "var(--c-expect)";
 // Group names and headings in a group's hue use its -ink step
 const cmpInk = (color) => (color === CMP_COLOR_A ? "var(--c-agree-ink)" : color === CMP_COLOR_B ? "var(--c-expect-ink)" : color);
-const CMP_DETAIL_PLACEHOLDER =
-  '<p class="cmp-detail-placeholder">Click a bar or a dot on the left to list the participants or statements behind it.</p>';
 
+// A score's 5-point bin (0–19; 100% goes in the last). The bars count, and
+// the detail lists filter, by this one function, so a bar's list always holds
+// exactly its count (the nudge keeps 0.15 × 20 from landing in bin 2).
+function cmpBin(s) { return Math.min(19, Math.floor(s * 20 + 1e-9)); }
 function cmpBinScores(scores) {
-  const N = 20;
-  const counts = new Array(N).fill(0);
-  for (const s of scores) {
-    const i = Math.min(Math.floor(s * N), N - 1);
-    counts[i]++;
-  }
+  const counts = new Array(20).fill(0);
+  for (const s of scores) counts[cmpBin(s)]++;
   return counts;
 }
 
@@ -4920,9 +4971,7 @@ function pearsonR(xs, ys) {
 }
 
 function cmpMean(arr) {
-  return arr.length
-    ? ((arr.reduce((a, x) => a + x, 0) / arr.length) * 100).toFixed(1) + "%"
-    : "—";
+  return arr.length ? fmtPct(arr.reduce((a, x) => a + x, 0) / arr.length) : "—";
 }
 
 function cmpSD(arr) {
@@ -4946,14 +4995,6 @@ function cohenD(a, b) {
   const ma = a.reduce((s, x) => s + x, 0) / na;
   const mb = b.reduce((s, x) => s + x, 0) / nb;
   return (ma - mb) / pooled;
-}
-
-function effectSizeLabel(d) {
-  const abs = Math.abs(d);
-  if (abs < 0.2) return "negligible";
-  if (abs < 0.5) return "small";
-  if (abs < 0.8) return "medium";
-  return "large";
 }
 
 function makeCompareHistChart(
@@ -5014,7 +5055,7 @@ function makeCompareHistChart(
           callbacks: {
             title: (items) =>
               `Score: ${items[0].dataIndex * 5}% – ${items[0].dataIndex * 5 + 5}%`,
-            label: (item) => `${item.dataset.label}: ${item.raw.y.toFixed(1)}%`,
+            label: (item) => `${item.dataset.label}: ${fmtPts(item.raw.y)}%`,
           },
         },
       },
@@ -5143,7 +5184,7 @@ function makeScatterChart(canvasId, paired, labelA, labelB, onClickFn) {
               const side = (v) => (v ? "agrees" : "disagrees");
               return [
                 s,
-                `${labelA}: ${item.raw.x.toFixed(1)}%   ${labelB}: ${item.raw.y.toFixed(1)}%`,
+                `${labelA}: ${fmtPct(pr.score_a)}   ${labelB}: ${fmtPct(pr.score_b)}`,
                 pr.maj_a === pr.maj_b
                   ? `Both majorities ${side(pr.maj_a)}`
                   : `Majority ${side(pr.maj_a)} in ${labelA}, ${side(pr.maj_b)} in ${labelB}`,
@@ -5185,7 +5226,7 @@ function cmpGroupHtml(items, label, color, rowFn) {
   return `
     <div class="cmp-detail-group">
       <div class="cmp-detail-group-hd" style="color:${colorSolid}">
-        ${esc(label)} &mdash; ${fmtNum(items.length)} ${items.length !== 1 ? "items" : "item"}
+        ${cmpLabelHtml(label)} &mdash; ${fmtNum(items.length)} ${items.length !== 1 ? "items" : "item"}
       </div>
       ${
         items.length
@@ -5198,6 +5239,16 @@ function cmpGroupHtml(items, label, color, rowFn) {
 // ── Group Comparison detail lists ─────────────────────────────────────────
 // 25 rows a page per group (one pager drives both columns), so the panel
 // scrolls as one page instead of the list scrolling inside its card.
+// "United States: N = 9,323 individuals", one line per [label, count]
+// A group's name with its country's flag before it, as the country dropdowns
+// show it (none for "All countries"; Josh, November 18, 2026)
+function cmpLabelHtml(label) { return flagHtml(label) + esc(label); }
+
+function cmpNsHtml(rows, one, many) {
+  return `<div class="cmp-ns">` + rows.map(([label, n]) =>
+    `<div>${cmpLabelHtml(label)}: <i>N</i>&nbsp;=&nbsp;${fmtNum(n)} ${n === 1 ? one : many}</div>`).join("") + `</div>`;
+}
+
 function cmpPagerHtml(page, pages, bottom = false) {
   if (pages <= 1) return "";
   return (
@@ -5214,18 +5265,37 @@ function cmpBindPager(content, rerender) {
     b.addEventListener("click", () => {
       const fromBottom = !!b.closest(".cmp-detail-pager-bottom");
       rerender(Number(b.dataset.pg));
-      if (fromBottom) revealTableTop(document.getElementById("compareDetailTitle"));
+      if (fromBottom) content.scrollTop = 0;
     }),
   );
 }
 
-// After a click on a chart, bring the detail card into view if it is not
-function cmpRevealDetail() {
-  const sc = document.getElementById("compareWrap");
-  const card = document.querySelector("#panelCompare .compare-detail-card");
-  const r = card.getBoundingClientRect(), s = sc.getBoundingClientRect();
-  if (r.top < s.top || r.top > s.bottom - 120) sc.scrollTop += r.top - s.top - 8;
+// The detail opens in a dialog (#cmpModal) over the charts. The user and
+// statement modals that its rows open come later in the DOM, so they stack on
+// top of it, and Escape closes only the topmost (see the listener below).
+const cmpModal = document.getElementById("cmpModal");
+let cmpModalReturn = null; // where focus goes back to on close
+function openCmpModal() {
+  if (cmpModal.classList.contains("hidden")) cmpModalReturn = document.activeElement;
+  cmpModal.classList.remove("hidden");
+  document.getElementById("compareDetailContent").scrollTop = 0;
+  cmpModal.querySelector(".modal-box").focus({ preventScroll: true }); // no ring on the close button
 }
+function closeCmpModal() {
+  if (cmpModal.classList.contains("hidden")) return;
+  cmpModal.classList.add("hidden");
+  if (cmpModalReturn && document.contains(cmpModalReturn)) cmpModalReturn.focus({ preventScroll: true });
+  cmpModalReturn = null;
+}
+document.getElementById("cmpModalClose").addEventListener("click", closeCmpModal);
+cmpModal.addEventListener("click", (e) => { if (e.target === cmpModal) closeCmpModal(); });
+// Capture phase, so this runs before the shared Escape handler hides the
+// modals stacked on top: close this one only when nothing covers it
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Escape" || cmpModal.classList.contains("hidden")) return;
+  const covered = [...document.querySelectorAll(".modal-overlay:not(.hidden)")].some((m) => m !== cmpModal);
+  if (!covered) closeCmpModal();
+}, true);
 
 function renderCmpIndivDetail(binIdx, page = 1) {
   if (!cmpData) return;
@@ -5233,13 +5303,7 @@ function renderCmpIndivDetail(binIdx, page = 1) {
     lo = binIdx * 5,
     hi = lo + 5;
   const rangeLabel = binIdx === N - 1 ? `${lo}% – 100%` : `${lo}% – ${hi}%`;
-  const inBin = (arr) =>
-    arr
-      .filter((x) => {
-        const p = x.score * 100;
-        return p >= lo && (binIdx === N - 1 ? p <= 100 : p < hi);
-      })
-      .sort((a, b) => b.score - a.score);
+  const inBin = (arr) => arr.filter((x) => cmpBin(x.score) === binIdx).sort((a, b) => b.score - a.score);
   const ga = inBin(cmpData.individuals.a);
   const gb = inBin(cmpData.individuals.b);
   const pages = Math.max(1, Math.ceil(Math.max(ga.length, gb.length) / PAGE_SIZE));
@@ -5254,12 +5318,12 @@ function renderCmpIndivDetail(binIdx, page = 1) {
         (x) =>
           `<tr class="cmp-user-row" data-uid="${esc(x.userId)}" data-group="${esc(groupVal)}" data-consensus="${x.consensus}" data-awareness="${x.awareness}" data-score="${x.score}" style="cursor:pointer">` +
           `<td class="cmp-mono">${esc(x.userId.slice(0, 8))}…</td>` +
-          `<td class="cmp-score-cell">${(x.score * 100).toFixed(1)}%</td></tr>`,
+          `<td class="cmp-score-cell">${fmtPct(x.score)}</td></tr>`,
       )
       .join("");
     return `
       <div class="cmp-detail-col">
-        <div class="cmp-detail-group-hd" style="color:${colorSolid}">${esc(label)} &mdash; ${fmtNum(items.length)}</div>
+        <div class="cmp-detail-group-hd" style="color:${colorSolid}">${cmpLabelHtml(label)} &mdash; ${fmtNum(items.length)}</div>
         ${
           !items.length
             ? '<p class="cmp-detail-empty">None in this range.</p>'
@@ -5306,13 +5370,7 @@ function renderCmpStmtDetail(binIdx, page = 1) {
     lo = binIdx * 5,
     hi = lo + 5;
   const rangeLabel = binIdx === N - 1 ? `${lo}% – 100%` : `${lo}% – ${hi}%`;
-  const inBin = (arr) =>
-    arr
-      .filter((x) => {
-        const p = x.score * 100;
-        return p >= lo && (binIdx === N - 1 ? p <= 100 : p < hi);
-      })
-      .sort((a, b) => b.score - a.score);
+  const inBin = (arr) => arr.filter((x) => cmpBin(x.score) === binIdx).sort((a, b) => b.score - a.score);
   const ga = inBin(cmpData.statements.a);
   const gb = inBin(cmpData.statements.b);
   const pages = Math.max(1, Math.ceil(Math.max(ga.length, gb.length) / PAGE_SIZE));
@@ -5330,13 +5388,13 @@ function renderCmpStmtDetail(binIdx, page = 1) {
         return (
           `<tr class="cmp-stmt-row" data-idx="${i}" data-group="${esc(groupVal)}" style="cursor:pointer">` +
           `<td class="cmp-stmt-snip">${esc(snip)}</td>` +
-          `<td class="cmp-score-cell">${(x.score * 100).toFixed(1)}%</td></tr>`
+          `<td class="cmp-score-cell">${fmtPct(x.score)}</td></tr>`
         );
       })
       .join("");
     return `
       <div class="cmp-detail-col">
-        <div class="cmp-detail-group-hd" style="color:${colorSolid}">${esc(label)} &mdash; ${fmtNum(items.length)}</div>
+        <div class="cmp-detail-group-hd" style="color:${colorSolid}">${cmpLabelHtml(label)} &mdash; ${fmtNum(items.length)}</div>
         ${
           !items.length
             ? '<p class="cmp-detail-empty">None in this range.</p>'
@@ -5372,49 +5430,24 @@ function renderCmpStmtDetail(binIdx, page = 1) {
   });
 }
 
-function stmtScoreColHtml(x, label, color) {
+function stmtScoreColHtml(x, label, color, group) {
   const colorSolid = cmpInk(color);
   if (!x)
-    return `<div class="cmp-detail-col"><div class="cmp-detail-group-hd" style="color:${colorSolid}">${esc(label)}</div><p class="cmp-detail-empty">No data for this group.</p></div>`;
-  const N = x.n_ratings;
-  const A = x.I_agree_mean;
-  const B = x.others_agree_mean;
-  const majYes = A >= 0.5;
-  const fp = (v) => (v * 100).toFixed(1) + "%";
-  const consensus = 2 * Math.abs(A - 0.5);
-  const awareness = majYes ? B : 1 - B;
-  const comm = Math.sqrt(consensus * awareness);
+    return `<div class="cmp-detail-col"><div class="cmp-detail-group-hd" style="color:${colorSolid}">${cmpLabelHtml(label)}</div><p class="cmp-detail-empty">No data for this group.</p></div>`;
   return `
     <div class="cmp-detail-col">
-      <div class="cmp-detail-group-hd" style="color:${colorSolid}">${esc(label)}</div>
-      <ul class="cmp-score-expl">
-        <li><strong>N</strong> = ${fmtNum(N)} ratings</li>
-        <li><strong>Agree</strong>: ${fp(A)} &rarr; the majority <strong>${majYes ? "agrees" : "disagrees"}</strong></li>
-        <li><strong>Consensus</strong>: 2&thinsp;&times;&thinsp;|${fp(A)}&thinsp;&minus;&thinsp;50%| = <strong>${fp(consensus)}</strong></li>
-        <li><strong>Think most agree</strong>: ${fp(B)} &rarr; <strong>awareness</strong> = <strong>${fp(awareness)}</strong></li>
-        <li><strong>Commonsensicality</strong>: ${sqrtHtml(`${fp(consensus)}&thinsp;&times;&thinsp;${fp(awareness)}`)} = <strong>${fp(comm)}</strong></li>
-      </ul>
+      <div class="cmp-detail-group-hd" style="color:${colorSolid}">${cmpLabelHtml(label)}</div>
+      <div class="cmp-score-steps">${stmtCalcHtml(x, group, { compact: true })}</div>
     </div>`;
 }
 
 function stmtPropsHtml(statementId) {
   const row = stmtScoresAllRows.find((r) => r.statementId === statementId);
   if (!row) return "";
-  const rows = PROP_DEFS.map(({ key, v1, v0 }) => {
-    const val = row[key];
-    if (val === null || val === undefined)
-      return `<tr><td class="cmp-prop-name">${esc(v1)} / ${esc(v0)}</td><td class="cmp-prop-val">—</td></tr>`;
-    const label = val === 1 ? v1 : v0;
-    const dot =
-      val === 1
-        ? `<span class="popup-circle-filled">●</span>`
-        : `<span class="popup-circle-empty">○</span>`;
-    return `<tr><td class="cmp-prop-name">${esc(v1)} / ${esc(v0)}</td><td class="cmp-prop-val">${dot} ${esc(label)}</td></tr>`;
-  }).join("");
   return `
     <div class="cmp-props-section">
-      <div class="cmp-props-title">Statement features</div>
-      <table class="cmp-props-table"><tbody>${rows}</tbody></table>
+      <div class="cmp-props-title">Its six features</div>
+      ${stmtPropItemsHtml(row)}
     </div>`;
 }
 
@@ -5429,7 +5462,7 @@ function renderCmpOppDetail(page = 1) {
   const start = (page - 1) * PAGE_SIZE;
   const bar = (v, color) =>
     `<span class="cmp-opp-bar"><span class="cmp-opp-fill" style="width:${(v * 100).toFixed(1)}%;background:${color}"></span></span>` +
-    `<span class="cmp-opp-val">${(v * 100).toFixed(0)}%</span>`;
+    `<span class="cmp-opp-val">${fmtSidePct(v)}</span>`;
   const rows = items.slice(start, start + PAGE_SIZE).map((p, j) =>
     `<tr class="cmp-opp-row" data-idx="${start + j}" style="cursor:pointer">` +
     `<td class="cmp-stmt-snip">${esc(fixStatement(p.statement))}</td>` +
@@ -5442,29 +5475,105 @@ function renderCmpOppDetail(page = 1) {
     `<p class="cmp-opp-intro">The share who agree in each group; the line marks 50%, and an exact 50/50 split counts as agreeing, as everywhere in the explorer. Click a statement for both calculations. With few ratings, a share near 50% can land on either side by chance.</p>` +
     cmpPagerHtml(page, pages) +
     `<table class="cmp-detail-table cmp-opp-table"><colgroup><col><col style="width:30%"><col style="width:30%"></colgroup>` +
-    `<thead><tr><th>Statement</th><th>${esc(cmpLabelA)}</th><th>${esc(cmpLabelB)}</th></tr></thead><tbody>${rows}</tbody></table>` +
+    `<thead><tr><th>Statement</th><th>${cmpLabelHtml(cmpLabelA)}</th><th>${cmpLabelHtml(cmpLabelB)}</th></tr></thead><tbody>${rows}</tbody></table>` +
     cmpPagerHtml(page, pages, true);
   cmpBindPager(content, (pg) => renderCmpOppDetail(pg));
   content.querySelectorAll(".cmp-opp-row").forEach((tr) =>
-    tr.addEventListener("click", () => renderScatterDetail(items[+tr.dataset.idx])),
+    tr.addEventListener("click", () => {
+      renderScatterDetail(items[+tr.dataset.idx], page);
+      content.scrollTop = 0;
+    }),
   );
 }
 
-function renderScatterDetail(point) {
+// One statement's calculation in each group. backPage: the page of the
+// opposite-majorities list it was opened from, for a link back to it.
+function renderScatterDetail(point, backPage = null) {
   const findStmt = (arr, sid) => arr.find((x) => x.statementId === sid);
   const xa = cmpData ? findStmt(cmpData.statements.a, point.statementId) : null;
   const xb = cmpData ? findStmt(cmpData.statements.b, point.statementId) : null;
   const stmt = fixStatement(point.statement || "");
-  document.getElementById("compareDetailTitle").textContent =
-    "Statement score comparison";
-  document.getElementById("compareDetailContent").innerHTML = `
-    <p class="cmp-detail-stmt-text">${esc(stmt)}</p>
+  document.getElementById("compareDetailTitle").textContent = stmt;
+  const content = document.getElementById("compareDetailContent");
+  content.innerHTML = `
+    ${backPage != null ? `<p class="cmp-back"><button type="button" class="cmp-opp-btn" data-cmp-back>&larr; Back to the list</button></p>` : ""}
     <div class="cmp-detail-cols">
-      ${stmtScoreColHtml(xa, cmpLabelA, CMP_COLOR_A)}
-      ${stmtScoreColHtml(xb, cmpLabelB, CMP_COLOR_B)}
+      ${stmtScoreColHtml(xa, cmpLabelA, CMP_COLOR_A, cmpGroupA)}
+      ${stmtScoreColHtml(xb, cmpLabelB, CMP_COLOR_B, cmpGroupB)}
     </div>
     ${stmtPropsHtml(point.statementId)}`;
+  const back = content.querySelector("[data-cmp-back]");
+  if (back) back.addEventListener("click", () => { renderCmpOppDetail(backPage); content.scrollTop = 0; });
 }
+
+// ── Where the two groups disagree most ───────────────────────────────────
+// Every statement scored in both groups (10+ ratings in each), ranked by the
+// gap between the shares who agree, 25 a page. The gap is the difference of
+// the two one-decimal shares shown, so a row's numbers add up; the order
+// follows that shown gap, ties broken by the exact one.
+let cmpGapRows = [];
+let cmpGapPage = 1;
+const cmpGapBody = document.getElementById("cmpGapBody");
+const cmpGapPageInfo = document.getElementById("cmpGapPageInfo");
+const btnCmpGapPrev = document.getElementById("btnCmpGapPrev");
+const btnCmpGapNext = document.getElementById("btnCmpGapNext");
+
+function cmpGapBuild(data, groupA, groupB) {
+  if (groupA === groupB) return [];
+  const byId = (arr) => new Map(arr.map((x) => [x.statementId, x]));
+  const ma = byId(data.statements.a), mb = byId(data.statements.b);
+  return data.statements.paired
+    .map((p) => {
+      const gap = Math.abs(roundPct(p.p_a) - roundPct(p.p_b));
+      return { ...p, gap, gapExact: Math.abs(p.p_a - p.p_b), xa: ma.get(p.statementId), xb: mb.get(p.statementId) };
+    })
+    .sort((x, y) => y.gap - x.gap || y.gapExact - x.gapExact);
+}
+
+function renderCmpGapPage(reveal = false) {
+  const rows = cmpGapRows;
+  const pages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+  cmpGapPage = Math.min(Math.max(1, cmpGapPage), pages);
+  const start = (cmpGapPage - 1) * PAGE_SIZE;
+  document.getElementById("cmpGapTable").dataset.fitRank = fmtNum(Math.max(1, rows.length));
+  // A share as a bar against the 50% line, in its group's colour, with
+  // "k of n agree" as its tooltip
+  const share = (v, x, color) =>
+    `<span class="cmp-opp-bar"><span class="cmp-opp-fill" style="width:${(v * 100).toFixed(1)}%;background:${color}"></span></span>` +
+    `<span class="cmp-gap-val"${x ? ` title="${fmtNum(x.k_agree)} of ${fmtNum(x.n_ratings)} agree"` : ""}>${fmtPct(v)}</span>`;
+  cmpGapBody.innerHTML = rows.length
+    ? rows.slice(start, start + PAGE_SIZE).map((p, j) => {
+        const stmt = fixStatement(p.statement || "");
+        return `<tr class="cmp-gap-row" data-idx="${start + j}" tabindex="0">` +
+          `<td class="td-rank">${fmtNum(start + j + 1)}</td>` +
+          `<td class="td-statement">${esc(stmt)}</td>` +
+          `<td class="cmp-gap-cell">${share(p.p_a, p.xa, CMP_COLOR_A)}</td>` +
+          `<td class="cmp-gap-cell">${share(p.p_b, p.xb, CMP_COLOR_B)}</td>` +
+          `<td class="td-num">${p.gap.toFixed(1)}</td></tr>`;
+      }).join("")
+    : `<tr><td colspan="5" class="empty-row">${
+        cmpGroupA === cmpGroupB ? "Choose two different groups to see where they disagree." : "No statement is scored in both groups."
+      }</td></tr>`;
+  cmpGapPageInfo.textContent = rows.length ? `Page ${fmtNum(cmpGapPage)} of ${fmtNum(pages)}` : "";
+  btnCmpGapPrev.disabled = cmpGapPage <= 1;
+  btnCmpGapNext.disabled = cmpGapPage >= pages;
+  if (reveal) revealTableTop(cmpGapPageInfo.closest(".table-nav-row"));
+}
+
+cmpGapBody.addEventListener("click", (e) => {
+  const tr = e.target.closest(".cmp-gap-row");
+  if (!tr) return;
+  renderScatterDetail(cmpGapRows[+tr.dataset.idx]);
+  openCmpModal();
+});
+cmpGapBody.addEventListener("keydown", (e) => {
+  if ((e.key === "Enter" || e.key === " ") && e.target.matches(".cmp-gap-row")) {
+    e.preventDefault();
+    e.target.click();
+  }
+});
+btnCmpGapPrev.addEventListener("click", () => { cmpGapPage--; renderCmpGapPage(true); });
+btnCmpGapNext.addEventListener("click", () => { cmpGapPage++; renderCmpGapPage(true); });
 
 async function loadGroupCompare() {
   const groupA = compareGroupAEl.value;
@@ -5493,6 +5602,7 @@ async function loadGroupCompare() {
   cmpLabelB = labelB;
   cmpGroupA = groupA;
   cmpGroupB = groupB;
+  notifyIntro("compare", data, { groupA, groupB });
 
   // Helper: extract plain score arrays from enriched objects
   const scores = (arr) => arr.map((x) => x.score);
@@ -5502,46 +5612,17 @@ async function loadGroupCompare() {
     ib = data.individuals.b;
   const iaS = scores(ia),
     ibS = scores(ib);
-  const rawNA = data.individuals.raw_n_a;
-  const rawNB = data.individuals.raw_n_b;
-  const swatch = (c) => `<span style="color:${c}" aria-hidden="true">■</span>`;
-  const cmpLine = (color, label, n, noun, mean) =>
-    `${swatch(color)} <strong>${esc(label)}</strong>: ${fmtNum(n)} ${noun}, mean ${mean}`;
-  // Who has no score in each group (fewer than 5 statements with 10+ ratings there)
-  const outA = rawNA != null ? rawNA - ia.length : 0;
-  const outB = rawNB != null ? rawNB - ib.length : 0;
-  const outParts = [];
-  if (outA > 0) outParts.push(`${fmtNum(outA)} in ${esc(labelA)}`);
-  if (outB > 0) outParts.push(`${fmtNum(outB)} in ${esc(labelB)}`);
-  const cmpOutNote = outParts.length
-    ? ` Not shown: ${outParts.join(" and ")}, with fewer than 5 statements that count (10+ ratings) in their own group.`
-    : "";
-  // "All countries" contains the other group whenever it is compared with a single country
-  const cmpOverlap =
-    (groupA === "all") !== (groupB === "all")
-      ? ` All countries includes everyone in ${esc(groupA === "all" ? labelB : labelA)}, so the groups overlap.`
-      : "";
-  // A person's score depends on which statements they rated; say so when
-  // the groups' statements differ (the Statement Scores card compares them)
-  const nPaired = data.statements.paired.length;
-  const nSa = data.statements.a.length, nSb = data.statements.b.length;
-  const cmpItemsNote = groupA !== groupB && nPaired < Math.max(nSa, nSb)
-    ? ` The groups rated different statements (${fmtNum(nPaired)} are scored in both), so part of a gap can come from which statements each saw.`
-    : "";
+  const inA = groupIn(groupA), inB = groupIn(groupB);
+  // Each card's text: one "Group: N = …" line per group, then who the
+  // figure includes (Josh, November 2026; the rule is utils.py's
+  // min_statements_per_user and min_ratings_per_statement)
   document.getElementById("compareIndivSub").innerHTML =
-    cmpLine(CMP_COLOR_A, labelA, ia.length, "participants", cmpMean(iaS)) + " &nbsp;·&nbsp; " +
-    cmpLine(CMP_COLOR_B, labelB, ib.length, "participants", cmpMean(ibS)) +
-    `<span class="cmp-filter-note">Each group is scored against its own majority` +
-    (groupA === "all" || groupB === "all" ? " (for All countries, everyone's pooled majority)" : "") +
-    `.${cmpOverlap}${cmpOutNote}${cmpItemsNote}</span>`;
+    cmpNsHtml([[labelA, ia.length], [labelB, ib.length]], "individual", "individuals") +
+    `<p class="cmp-rule">This figure shows only individuals who rated at least 5 statements, each rated by at least 10 people in their group.</p>`;
   const dIndiv = cohenD(iaS, ibS);
-  // Say which group is higher, and how big the gap is (Cohen's conventions)
+  // Its magnitude only, with no verbal label (Josh, November 2026)
   document.getElementById("compareIndivEffect").innerHTML =
-    dIndiv === null
-      ? ""
-      : Math.abs(dIndiv) < 0.2
-        ? `Gap between the means: Cohen's <em>d</em> = ${Math.abs(dIndiv).toFixed(2)} (negligible)`
-        : `<strong>${esc(dIndiv > 0 ? labelA : labelB)}</strong> scores higher: Cohen's <em>d</em> = <strong>${Math.abs(dIndiv).toFixed(2)}</strong> (${effectSizeLabel(dIndiv)})`;
+    dIndiv === null ? "" : `Cohen's d = ${Math.abs(dIndiv).toFixed(2)}`;
   if (compareIndivChartInst) compareIndivChartInst.destroy();
   compareIndivChartInst = makeCompareHistChart(
     "compareIndivChart",
@@ -5549,7 +5630,7 @@ async function loadGroupCompare() {
     cmpBinScores(ibS),
     labelA,
     labelB,
-    (binIdx) => { renderCmpIndivDetail(binIdx); cmpRevealDetail(); },
+    (binIdx) => { renderCmpIndivDetail(binIdx); openCmpModal(); },
   );
 
   // Section 2: Statement commonsensicality distributions
@@ -5561,13 +5642,12 @@ async function loadGroupCompare() {
   // means above mix a difference in views with a difference in statements
   const pairedAll = data.statements.paired;
   const likeForLike = pairedAll.length && (pairedAll.length < sa.length || pairedAll.length < sb.length)
-    ? `On the <strong>${fmtNum(pairedAll.length)}</strong> statements scored in both, the mean is ` +
-      `<strong>${cmpMean(pairedAll.map((p) => p.score_a))}</strong> in ${esc(labelA)} and <strong>${cmpMean(pairedAll.map((p) => p.score_b))}</strong> in ${esc(labelB)}.`
+    ? `On the ${fmtNum(pairedAll.length)} statements scored in both, the average is ` +
+      `${cmpMean(pairedAll.map((p) => p.score_a))} in ${esc(inA)} and ${cmpMean(pairedAll.map((p) => p.score_b))} in ${esc(inB)}.`
     : "";
   document.getElementById("compareStmtSub").innerHTML =
-    cmpLine(CMP_COLOR_A, labelA, sa.length, "statements", cmpMean(saS)) + " &nbsp;·&nbsp; " +
-    cmpLine(CMP_COLOR_B, labelB, sb.length, "statements", cmpMean(sbS)) +
-    `<span class="cmp-filter-note">A statement is scored in a group once it has at least 10 ratings there.</span>`;
+    cmpNsHtml([[labelA, sa.length], [labelB, sb.length]], "statement", "statements") +
+    `<p class="cmp-rule">This figure shows only statements rated by at least 10 people in the group.</p>`;
   document.getElementById("compareStmtEffect").innerHTML = likeForLike;
   if (compareStmtChartInst) compareStmtChartInst.destroy();
   compareStmtChartInst = makeCompareHistChart(
@@ -5576,7 +5656,7 @@ async function loadGroupCompare() {
     cmpBinScores(sbS),
     labelA,
     labelB,
-    (binIdx) => { renderCmpStmtDetail(binIdx); cmpRevealDetail(); },
+    (binIdx) => { renderCmpStmtDetail(binIdx); openCmpModal(); },
   );
 
   // Section 3: Scatter plot of paired statement scores, with the statements
@@ -5596,32 +5676,41 @@ async function loadGroupCompare() {
       : null;
   const nOpp = cmpOpposite.length;
   document.getElementById("compareScatterSub").innerHTML =
-    `${fmtNum(paired.length)} statements scored in both groups` +
-    (r !== null
-      ? ` &nbsp;·&nbsp; Pearson <em>r</em> = <strong>${fmtR(r)}</strong>`
-      : "") +
+    cmpNsHtml([["Both groups", paired.length]], "statement", "statements") +
+    `<p class="cmp-rule">This figure shows only statements rated by at least 10 people in each group.` +
+    (r !== null ? ` Their scores in the two groups correlate at r&nbsp;=&nbsp;${fmtR(r)}.` : "") +
+    ` Dots above the dashed line score higher in ${esc(inB)}.</p>` +
     (paired.length
       ? `<span class="cmp-opp-line"><span class="cmp-opp-key" aria-hidden="true"></span>` +
         (nOpp
-          ? `On <strong>${fmtNum(nOpp)}</strong> of them (${(100 * nOpp / paired.length).toFixed(1)}%) the two majorities point opposite ways. ` +
+          ? `On ${fmtNum(nOpp)} of them (${fmtPct(nOpp / paired.length)}), in red, the two majorities point opposite ways. ` +
             `<button type="button" class="cmp-opp-btn" id="cmpOppBtn">List them</button>`
           : `On none of them do the two majorities point opposite ways.`) +
         `</span>`
-      : "") +
-    `<span class="cmp-filter-note">Dots above the dashed line score higher in ${esc(labelB)}. Click a dot to compare the two majorities.</span>`;
+      : "");
   const oppBtn = document.getElementById("cmpOppBtn");
-  if (oppBtn) oppBtn.addEventListener("click", () => { renderCmpOppDetail(); cmpRevealDetail(); });
+  if (oppBtn) oppBtn.addEventListener("click", () => { renderCmpOppDetail(); openCmpModal(); });
   if (compareScatterChartInst) compareScatterChartInst.destroy();
   compareScatterChartInst = paired.length
     ? makeScatterChart("compareScatterChart", paired, labelA, labelB, (point) => {
         renderScatterDetail(point);
-        cmpRevealDetail();
+        openCmpModal();
       })
     : null;
 
-  // Reset detail panel when groups change
-  document.getElementById("compareDetailTitle").textContent = "Details";
-  document.getElementById("compareDetailContent").innerHTML = CMP_DETAIL_PLACEHOLDER;
+  // Section 4: where the two groups disagree most
+  cmpGapRows = cmpGapBuild(data, groupA, groupB);
+  cmpGapPage = 1;
+  document.getElementById("cmpGapHeadA").innerHTML = `Agree in<br>${cmpLabelHtml(labelA)}`;
+  document.getElementById("cmpGapHeadB").innerHTML = `Agree in<br>${cmpLabelHtml(labelB)}`;
+  document.getElementById("compareGapSub").innerHTML =
+    cmpNsHtml([["Both groups", cmpGapRows.length]], "statement", "statements") +
+    `<p class="cmp-rule">This list shows only statements rated by at least 10 people in each group, ` +
+    `ranked by the difference between the shares who agree in the two groups. The line in each bar marks 50%.</p>`;
+  renderCmpGapPage();
+
+  // The groups changed: a detail open for the old ones no longer applies
+  closeCmpModal();
 }
 
 compareGroupAEl.addEventListener("change", loadGroupCompare);
@@ -5636,6 +5725,7 @@ document.getElementById('btnCmNext').addEventListener('click', () => {
 
 mirrorPager(btnScoresPrev.parentElement, document.querySelector("#panelScores .table-scroll-wrap"));
 mirrorPager(btnStmtScoresPrev.parentElement, document.querySelector("#panelStmtScores .table-scroll-wrap"));
+mirrorPager(btnCmpGapPrev.parentElement, document.querySelector("#panelCompare .cmp-gap-card .table-scroll-wrap"));
 cmInitScroll();
 
 async function init() {

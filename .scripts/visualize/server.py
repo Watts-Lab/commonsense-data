@@ -19,7 +19,7 @@ PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8080
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE_DIR)
-from utils import individual_commonsensicality, statement_commonsensicality
+from utils import individual_commonsensicality, keep_participants, statement_commonsensicality
 import statement_coverage
 import statement_audit
 import typesafe_audit
@@ -47,16 +47,14 @@ demo = pd.read_csv(os.path.join(DATA_DIR, "crt_rme_demo.csv"))
 NO_COUNTRY = "Not stated"
 demo["country_reside"] = demo["country_reside"].replace({"item1": NO_COUNTRY})
 
-# A participant is someone who rated at least MIN_PARTICIPANT_RATINGS
+# A participant is someone who rated at least MIN_PARTICIPANT_RATINGS (utils.py)
 # statements (Josh, October 2026). Anyone with fewer is dropped here, answers
 # and all, so every count, map and score on the site uses the same people.
 # This is a floor on raw ratings, separate from utils.py's
 # min_statements_per_user, which counts only statements with 10+ ratings.
-MIN_PARTICIPANT_RATINGS = 5
-_n_rated = answers.groupby("sessionId")["statementId"].nunique()
-_participants = _n_rated.index[_n_rated >= MIN_PARTICIPANT_RATINGS]
-answers = answers[answers["sessionId"].isin(_participants)]
-demo = demo[demo["sessionId"].isin(_participants)]
+# keep_participants() (utils.py) is shared with statement_coverage.py.
+answers = keep_participants(answers)
+demo = demo[demo["sessionId"].isin(answers["sessionId"].unique())]
 
 
 def _in_countries(df: pd.DataFrame, col: str = "country_reside") -> pd.DataFrame:
@@ -124,11 +122,14 @@ def _filter_date(df: pd.DataFrame, date_from: str, date_to: str) -> pd.DataFrame
 
 # ── Score histogram (Individual Scores, Statement Scores) ──────────────────
 
-# Decimals of the 0-1 scores and shares sent by /api/scores and
-# /api/statement-scores. The page rounds them again to one decimal of a
-# percent, so 4 decimals double-rounded (68.853% -> 0.6885 -> "68.8%"); 5 keep
-# that to a rare tie. _score_histogram() bins the same rounded values.
-SCORE_DP = 5
+# Decimals of every 0-1 score, share, mean and interval the API sends. The
+# page rounds them again to one decimal of a percent, so too few decimals
+# misprint values that sit near a rounding boundary: with 4, 68.853% went out
+# as 0.6885 and read 68.8%; with 5, sqrt(2/3) = 81.6497% went out as 0.81650
+# and read 81.7% (126 participants on Individual Scores, November 2026). 10
+# decimals leave the page's rounding the only one, as in llm_evals.py (DP).
+# _score_histogram() bins the same rounded values the client filters on.
+SCORE_DP = 10
 
 
 def _score_histogram(scores: pd.Series, n_bins: int = 20) -> tuple[list, list]:
@@ -147,6 +148,19 @@ def _score_histogram(scores: pd.Series, n_bins: int = 20) -> tuple[list, list]:
         upper = values <= hi if i == n_bins - 1 else values < hi
         counts.append(int(((values >= lo) & upper).sum()))
     return counts, edges
+
+
+def _with_counts(df: pd.DataFrame) -> pd.DataFrame:
+    """Adds k_agree and k_others, how many of a statement's n_ratings raters
+    agree and think most others would, from the unrounded shares (a share of
+    0/1 answers times their number is a whole number to within float error).
+    The page's worked calculations start from these counts, so every step
+    can be checked by hand: consensus = |k_agree - (n - k_agree)| / n."""
+    df = df.copy()
+    n = df["n_ratings"].astype(float)
+    df["k_agree"] = (df["I_agree_mean"] * n).round().astype(int)
+    df["k_others"] = (df["others_agree_mean"] * n).round().astype(int)
+    return df
 
 
 # ── Participants per country (Home map, dropdowns) ─────────────────────────
@@ -204,8 +218,8 @@ def get_statements(country: str, date_from: str = "", date_to: str = "") -> byte
         .merge(statements, on="statementId", how="left")
     )
 
-    agg["i_agree_pct"] = agg["i_agree_pct"].round(4)
-    agg["others_agree_pct"] = agg["others_agree_pct"].round(4)
+    agg["i_agree_pct"] = agg["i_agree_pct"].round(SCORE_DP)
+    agg["others_agree_pct"] = agg["others_agree_pct"].round(SCORE_DP)
     agg["statementId"] = agg["statementId"].astype(int)
     agg["n_ratings"] = agg["n_ratings"].astype(int)
     agg["statement"] = agg["statement"].fillna("")
@@ -337,7 +351,7 @@ def get_scores(target: str, reference: str, date_from: str = "", date_to: str = 
             .reset_index()
         )
         country_avg = {
-            row["country"]: {"mean": round(float(row["mean"]), 4), "n": int(row["n"])}
+            row["country"]: {"mean": round(float(row["mean"]), SCORE_DP), "n": int(row["n"])}
             for _, row in ca.iterrows()
             if row["n"] >= 10
         }
@@ -412,7 +426,7 @@ def get_country_summary(country: str, date_from: str = "", date_to: str = "") ->
         "n_users": n_users,
         "n_statements_total": n_statements_total,
         "n_statements_qualified": n_statements_qualified,
-        "avg_i_agree": round(avg_i_agree, 4),
+        "avg_i_agree": round(avg_i_agree, SCORE_DP),
         "top_categories": top_categories,
     }
     encoded = json.dumps(payload, ensure_ascii=False).encode("utf-8")
@@ -452,7 +466,7 @@ def get_statement_scores(country: str, date_from: str = "", date_to: str = "") -
         "awareness",
         "commonsensicality",
     ]
-    rows_df = scores.reset_index().sort_values("commonsensicality", ascending=False)
+    rows_df = _with_counts(scores.reset_index()).sort_values("commonsensicality", ascending=False)
     rows_df[float_cols] = rows_df[float_cols].round(SCORE_DP)
     rows = rows_df.to_dict(orient="records")
 
@@ -475,8 +489,9 @@ def get_statement_scores(country: str, date_from: str = "", date_to: str = "") -
     excl_agg["statement"] = excl_agg["statement"].fillna("")
     for col in PROP_COLS:
         excl_agg[col] = excl_agg[col].apply(lambda x: int(x) if pd.notna(x) else None)
-    excl_agg["I_agree_mean"] = excl_agg["I_agree_mean"].round(4)
-    excl_agg["others_agree_mean"] = excl_agg["others_agree_mean"].round(4)
+    excl_agg = _with_counts(excl_agg)
+    excl_agg["I_agree_mean"] = excl_agg["I_agree_mean"].round(SCORE_DP)
+    excl_agg["others_agree_mean"] = excl_agg["others_agree_mean"].round(SCORE_DP)
     excl_agg["n_ratings"] = excl_agg["n_ratings"].astype(int)
     excl_agg["statementId"] = excl_agg["statementId"].astype(int)
     excl_agg = excl_agg.sort_values("n_ratings", ascending=False)
@@ -553,16 +568,22 @@ def get_design_points(country: str, date_from: str = "", date_to: str = "") -> b
         n = int(len(group))
 
         props = {col: int(v) for col, v in zip(PROP_COLS, vals)}
-        row = {**props, "n": n, "mean": None, "ci_lo": None, "ci_hi": None}
+        row = {**props, "n": n, "mean": None, "ci_lo": None, "ci_hi": None, "sd": None, "t": None}
 
         if n >= 1:
             m = float(group.mean())
-            row["mean"] = round(m, 4)
+            row["mean"] = round(m, SCORE_DP)
         if n >= 2:
+            # mean ± t × SD / √n, with the sample SD and Student's t for n - 1
+            # degrees of freedom; sd and t go out too, so the Design Points
+            # card can work the interval through
             s = float(group.std())
-            margin = _t_crit(n - 1) * s / np.sqrt(n)
-            row["ci_lo"] = round(max(0.0, m - margin), 4)
-            row["ci_hi"] = round(min(1.0, m + margin), 4)
+            t = _t_crit(n - 1)
+            margin = t * s / np.sqrt(n)
+            row["sd"] = round(s, SCORE_DP)
+            row["t"] = round(t, SCORE_DP)
+            row["ci_lo"] = round(max(0.0, m - margin), SCORE_DP)
+            row["ci_hi"] = round(min(1.0, m + margin), SCORE_DP)
 
         (rows_with_data if n >= 5 else rows_no_data).append(row)
 
@@ -600,6 +621,11 @@ def get_dp_statements(country: str, props: dict, date_from: str = "", date_to: s
     rows_df["n_ratings"] = (
         ratings["statementId"].value_counts().reindex(rows_df.index).fillna(0)
     )
+    # how many raters agree, and think most others would (for the worked
+    # calculation in the statement modal)
+    sums = ratings.groupby("statementId")[["I_agree", "others_agree"]].sum()
+    rows_df["k_agree"] = sums["I_agree"].reindex(rows_df.index).fillna(0).astype(int)
+    rows_df["k_others"] = sums["others_agree"].reindex(rows_df.index).fillna(0).astype(int)
     rows_df["qualified"] = rows_df.index.isin(scores.index)
     rows_df["statement"] = rows_df["statement"].fillna("")
     rows_df["published"] = rows_df["published"].fillna(0).astype(int)
@@ -614,14 +640,14 @@ def get_dp_statements(country: str, props: dict, date_from: str = "", date_to: s
     rows_df = rows_df.reset_index().sort_values(
         ["qualified", "n_ratings"], ascending=False
     )
-    rows_df[float_cols] = rows_df[float_cols].round(4)
+    rows_df[float_cols] = rows_df[float_cols].round(SCORE_DP)
     rows_df["n_ratings"] = rows_df["n_ratings"].astype(int)
     rows_df["statementId"] = rows_df["statementId"].astype(int)
     # NaN is not valid JSON; unqualified statements have no scores
     rows_df = rows_df.astype(object).where(rows_df.notna(), None)
 
     rows = rows_df[
-        ["statementId", "statement", "published", "qualified", "n_ratings"] + float_cols
+        ["statementId", "statement", "published", "qualified", "n_ratings", "k_agree", "k_others"] + float_cols
     ].to_dict(orient="records")
 
     n_qualified = sum(r["qualified"] for r in rows)
@@ -666,8 +692,12 @@ def get_country_matrix(date_from: str = "", date_to: str = "") -> bytes:
         agg["others_agree_mean"],
         1 - agg["others_agree_mean"],
     )
-    # Store as percentage 0–100, 2 dp
-    agg["score"] = (np.sqrt(agg["consensus"] * agg["awareness"]) * 100).round(2)
+    # As a percentage, 0–100, unrounded here: the mean and SD below are taken
+    # from the exact scores, and every value goes out to SCORE_DP - 2 decimals
+    # of a percent (2 decimals, as before, misprinted 291 cells, 97 means and
+    # 84 SDs by 0.1 once the page rounded them again, November 2026)
+    agg["score"] = np.sqrt(agg["consensus"] * agg["awareness"]) * 100
+    PCT_DP = SCORE_DP - 2
 
     # Columns: countries sorted by number of qualifying statements (desc)
     country_counts = agg.groupby("country_reside").size().sort_values(ascending=False)
@@ -683,15 +713,18 @@ def get_country_matrix(date_from: str = "", date_to: str = "") -> bytes:
     )
     stmt_order = stmt_counts.sort_values(ascending=False).index
 
-    score_lookup = agg.set_index(["statementId", "country_reside"])["score"].to_dict()
+    score_lookup = agg.set_index(["statementId", "country_reside"])["score"].round(PCT_DP).to_dict()
     n_lookup     = agg.set_index(["statementId", "country_reside"])["n_ratings"].to_dict()
     # Share who agree, 0–100: the Countries panel's "% agree" view, which shows
     # the direction of each country's majority that the score leaves out
     agree_lookup = (
-        (agg.set_index(["statementId", "country_reside"])["I_agree_mean"] * 100).round(2).to_dict()
+        (agg.set_index(["statementId", "country_reside"])["I_agree_mean"] * 100).round(PCT_DP).to_dict()
     )
-    stmt_mean    = agg.groupby("statementId")["score"].mean().round(2)
-    stmt_sd      = agg.groupby("statementId")["score"].std().fillna(0.0).round(2)
+    # each country's majority, from the unrounded share (a tie counts as agree)
+    maj_lookup   = agg.set_index(["statementId", "country_reside"])["maj_vote"].to_dict()
+    stmt_mean    = agg.groupby("statementId")["score"].mean().round(PCT_DP)
+    # sample SD across the countries that score the statement (none for one)
+    stmt_sd      = agg.groupby("statementId")["score"].std().round(PCT_DP)
 
     # Sub-threshold lookup: cells with 0 < n < MIN_RATINGS (score hidden, n shown)
     sub = agg_all[agg_all["n_ratings"] < MIN_RATINGS]
@@ -714,6 +747,7 @@ def get_country_matrix(date_from: str = "", date_to: str = "") -> bytes:
                     "s": float(v),
                     "n": int(n_lookup[(stmt_id, c)]),
                     "a": float(agree_lookup[(stmt_id, c)]),
+                    "m": int(maj_lookup[(stmt_id, c)]),
                 }
             else:
                 sub_n = sub_n_lookup.get((stmt_id, c))
@@ -729,7 +763,7 @@ def get_country_matrix(date_from: str = "", date_to: str = "") -> bytes:
             "statement": str(stmt_texts.get(stmt_id, "")),
             "scores": scores,
             "mean": float(stmt_mean.get(stmt_id, 0.0)),
-            "sd": float(stmt_sd.get(stmt_id, 0.0)),
+            "sd": None if pd.isna(stmt_sd.get(stmt_id)) else float(stmt_sd[stmt_id]),
             **props,
         })
 
@@ -753,8 +787,10 @@ def get_country_cell(stmt_id: int, country: str, date_from: str = "", date_to: s
     if len(sub) < 10:
         return json.dumps({"error": "not enough ratings"}).encode("utf-8")
     n = int(len(sub))
-    I_agree_mean = float(sub["I_agree"].mean())
-    others_agree_mean = float(sub["others_agree"].mean())
+    k_agree = int(sub["I_agree"].sum())
+    k_others = int(sub["others_agree"].sum())
+    I_agree_mean = k_agree / n
+    others_agree_mean = k_others / n
     stmt_rows = statements[statements["statementId"] == stmt_id]
     stmt_text = str(stmt_rows["statement"].iloc[0]) if len(stmt_rows) > 0 else ""
     return json.dumps(
@@ -762,6 +798,8 @@ def get_country_cell(stmt_id: int, country: str, date_from: str = "", date_to: s
             "statementId": stmt_id,
             "statement": stmt_text,
             "n_ratings": n,
+            "k_agree": k_agree,
+            "k_others": k_others,
             "I_agree_mean": I_agree_mean,
             "others_agree_mean": others_agree_mean,
         },
@@ -826,12 +864,14 @@ def get_user_detail(user_id: str, reference: str, date_from: str = "", date_to: 
         .groupby("statementId")
         .agg(
             ref_n_ratings=("I_agree", "count"),
+            ref_k_agree=("I_agree", "sum"),
             ref_i_agree_mean=("I_agree", "mean"),
             ref_others_agree_mean=("others_agree", "mean"),
         )
         .reset_index()
-        .round(4)
+        .round(SCORE_DP)
     )
+    ref_agg["ref_k_agree"] = ref_agg["ref_k_agree"].astype(int)
 
     # Whether each statement counts (10+ reference ratings) and the reference
     # majority (1 = agrees; from the unrounded share), so the modal marks
@@ -886,7 +926,7 @@ def get_group_compare(group_a: str, group_b: str, date_from: str = "", date_to: 
             df = individual_commonsensicality(data, ref)[
                 ["consensus", "awareness", "commonsensicality"]
             ]
-            df = df.round(4)
+            df = df.round(SCORE_DP)
             items = [
                 {
                     "userId": str(uid),
@@ -928,9 +968,11 @@ def get_group_compare(group_a: str, group_b: str, date_from: str = "", date_to: 
                     "statementId": int(r["statementId"]),
                     "statement": str(r["statement"]),
                     "n_ratings": int(r["n_ratings"]),
-                    "I_agree_mean": round(float(r["I_agree_mean"]), 4),
-                    "others_agree_mean": round(float(r["others_agree_mean"]), 4),
-                    "score": round(float(r["commonsensicality"]), 4),
+                    "k_agree": int(round(float(r["I_agree_mean"]) * int(r["n_ratings"]))),
+                    "k_others": int(round(float(r["others_agree_mean"]) * int(r["n_ratings"]))),
+                    "I_agree_mean": round(float(r["I_agree_mean"]), SCORE_DP),
+                    "others_agree_mean": round(float(r["others_agree_mean"]), SCORE_DP),
+                    "score": round(float(r["commonsensicality"]), SCORE_DP),
                 }
                 for _, r in detail.iterrows()
             ]
@@ -967,7 +1009,7 @@ def get_group_compare(group_a: str, group_b: str, date_from: str = "", date_to: 
             df["maj_a"] = (df["p_a"] >= 0.5).astype(int)
             df["maj_b"] = (df["p_b"] >= 0.5).astype(int)
             for col in ("score_a", "score_b", "p_a", "p_b"):
-                df[col] = df[col].round(4)
+                df[col] = df[col].round(SCORE_DP)
             df["statement"] = df["statement"].fillna("")
             paired = df[
                 ["statementId", "statement", "score_a", "score_b", "p_a", "p_b", "maj_a", "maj_b"]
@@ -1006,6 +1048,7 @@ def get_statement_countries(stmt_id: str, date_from: str = "", date_to: str = ""
         sub.groupby("country_reside")
         .agg(
             n_ratings=("I_agree", "size"),
+            k_agree=("I_agree", "sum"),
             I_agree_mean=("I_agree", "mean"),
             others_agree_mean=("others_agree", "mean"),
         )
@@ -1014,14 +1057,14 @@ def get_statement_countries(stmt_id: str, date_from: str = "", date_to: str = ""
     )
     scored = statement_commonsensicality(sub.rename(columns={"country_reside": "statementId"}))["commonsensicality"]
     rows = []
-    for c, n, p, q in agg.itertuples(index=False):
+    for c, n, k, p, q in agg.itertuples(index=False):
         row = {
-            "country": c, "n_ratings": int(n),
-            "I_agree_mean": round(float(p), 4), "others_agree_mean": round(float(q), 4),
+            "country": c, "n_ratings": int(n), "k_agree": int(k),
+            "I_agree_mean": round(float(p), SCORE_DP), "others_agree_mean": round(float(q), SCORE_DP),
             "maj": int(p >= 0.5),  # from the unrounded share; a tie counts as agree
         }
         if c in scored.index:
-            row["score"] = round(float(scored[c]), 4)
+            row["score"] = round(float(scored[c]), SCORE_DP)
         rows.append(row)
     return json.dumps(rows, ensure_ascii=False).encode("utf-8")
 
@@ -1064,7 +1107,7 @@ _HOME_SCALE_TARGETS = (0.95, 0.75, 0.5, 0.25, 0.05)
 _HOME_COMPOSITION_MAX = 30
 
 
-def _round_or_none(x, nd: int = 4):
+def _round_or_none(x, nd: int = SCORE_DP):
     return None if x is None or pd.isna(x) else round(float(x), nd)
 
 
@@ -1073,9 +1116,11 @@ def _home_stmt(row) -> dict:
         "id": int(row["statementId"]),
         "text": row["statement"],
         "n": int(row["n_ratings"]),
-        "p": round(float(row["I_agree_mean"]), 4),
-        "q": round(float(row["others_agree_mean"]), 4),
-        "m": round(float(row["commonsensicality"]), 4),
+        "k": int(row["k_agree"]),
+        "k2": int(row["k_others"]),
+        "p": round(float(row["I_agree_mean"]), SCORE_DP),
+        "q": round(float(row["others_agree_mean"]), SCORE_DP),
+        "m": round(float(row["commonsensicality"]), SCORE_DP),
     }
 
 
@@ -1115,7 +1160,7 @@ def get_home_summary(date_from: str = "", date_to: str = "") -> bytes:
     individual = {"n": int(len(cs)), "histogram": indiv["histogram"]}
     if len(cs):
         q1, med, q3 = np.quantile(cs, [0.25, 0.5, 0.75])
-        individual.update(median=round(float(med), 4), q1=round(float(q1), 4), q3=round(float(q3), 4))
+        individual.update(median=round(float(med), SCORE_DP), q1=round(float(q1), SCORE_DP), q3=round(float(q3), SCORE_DP))
 
     # ── Statement scores ──
     df = pd.DataFrame(stmt["rows"])
@@ -1124,7 +1169,7 @@ def get_home_summary(date_from: str = "", date_to: str = "") -> bytes:
     scale = []
     if len(df):
         q1, med, q3 = np.quantile(df["commonsensicality"].to_numpy(dtype=float), [0.25, 0.5, 0.75])
-        statement.update(median=round(float(med), 4), q1=round(float(q1), 4), q3=round(float(q3), 4))
+        statement.update(median=round(float(med), SCORE_DP), q1=round(float(q1), SCORE_DP), q3=round(float(q3), SCORE_DP))
 
         for n_min in _HOME_EXAMPLE_MIN_RATINGS:
             pool = df[df["n_ratings"] >= n_min]

@@ -10,7 +10,8 @@ statementproperties/ tables (see .scripts/statement-generation/gap_analysis.py
 for the verified property-name mapping).
 
 "Calculated" counts replicate get_design_points() in server.py exactly (this
-app's own answers.csv INNER-joined to crt_rme_demo.csv, statements needing
+app's own answers.csv, kept to people with MIN_PARTICIPANT_RATINGS ratings and
+INNER-joined to crt_rme_demo.csv, statements needing
 >= 10 ratings via statement_commonsensicality, tagged via this app's own
 statement_properties.csv snapshot) so the number matches the Design Points
 panel itself, snapshot staleness and all.
@@ -45,7 +46,7 @@ from pathlib import Path
 import pandas as pd
 import yaml
 
-from utils import statement_commonsensicality
+from utils import keep_participants, statement_commonsensicality
 
 VISUALIZE_DIR = Path(__file__).resolve().parent
 # Default to the in-repo sibling directory for local dev; override with
@@ -135,7 +136,9 @@ def _calculated_by_combo() -> dict:
         gap_analysis.REPO_ROOT / "statements" / "statements_1.csv", usecols=["id", "statement", "published"]
     ).rename(columns={"id": "statementId"})
 
-    merged = answers.merge(demo, on="sessionId", how="inner")
+    # The same participants as server.py: people who rated at least
+    # MIN_PARTICIPANT_RATINGS statements, kept before the join, as server.py does
+    merged = keep_participants(answers).merge(demo, on="sessionId", how="inner")
     ratings = merged[["statementId", "I_agree", "others_agree"]]
     scores = statement_commonsensicality(ratings)
     scores = scores.join(stmt_props.set_index("statementId")[FEAT_KEYS], how="left")
@@ -154,7 +157,11 @@ def _calculated_by_combo() -> dict:
                 "id": int(row["statementId"]),
                 "statement": row["statement"] if pd.notna(row["statement"]) else "(statement text unavailable)",
                 "n_ratings": int(row["n_ratings"]),
-                "commonsensicality": round(float(row["commonsensicality"]), 4),
+                # Exact counts, so the statement modal can work the score
+                # through from them (agreed, and predicted most would agree)
+                "k_agree": int(round(row["I_agree_mean"] * row["n_ratings"])),
+                "k_others": int(round(row["others_agree_mean"] * row["n_ratings"])),
+                "commonsensicality": round(float(row["commonsensicality"]), 10),
                 "published": int(row["published"]) if pd.notna(row["published"]) else 0,
             }
             for _, row in scores[mask].iterrows()

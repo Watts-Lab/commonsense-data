@@ -88,15 +88,13 @@
 .hs-btn-primary:hover { background: var(--c-accent-ink); }
 .hs-btn-ghost { background: transparent; color: #fff !important; border-color: rgba(255,255,255,0.4); }
 .hs-btn-ghost:hover { background: rgba(255,255,255,0.08); border-color: #fff; }
-.hs-btn:focus-visible, .hs-choice-btn:focus-visible, .hs-seg-btn:focus-visible, .hs-link-btn:focus-visible,
+.hs-btn:focus-visible, .hs-choice-btn:focus-visible, .hs-link-btn:focus-visible,
 .hs-score-card:focus-visible, .hs-ticker-btn:focus-visible, .hs-fdot:focus-visible {
   outline: 2px solid var(--c-focus);
   outline-offset: 2px;
 }
 
 .hs-stamp { margin-top: 18px; font-size: var(--fs-2); color: rgba(255,255,255,0.65); display: flex; align-items: center; gap: 8px; }
-.hs-dot { width: 8px; height: 8px; border-radius: 50%; background: #4ADE80; box-shadow: 0 0 0 3px rgba(74,222,128,0.2); flex-shrink: 0; }
-.hs-dot-warn { background: #FBBF24; box-shadow: 0 0 0 3px rgba(251,191,36,0.2); }
 
 /* Statement ticker: a fixed-size card, so the arrows stay put as statements
    rotate. The quote is centred vertically in the stage, which takes all the
@@ -254,13 +252,6 @@ blockquote.hs-quote::after { content: "”"; }
 /* ── 2 Who took part ── */
 .hs-where-grid { display: grid; grid-template-columns: minmax(0, 2.2fr) minmax(250px, 1fr); gap: var(--panel-gap); align-items: start; margin-bottom: var(--panel-gap); }
 .hs-map-card { margin: 0; }
-.hs-map-toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; justify-content: flex-end; }
-.hs-seg-label { font-size: var(--fs-2); color: var(--hs-muted); }
-.hs-seg { display: inline-flex; border: 1px solid var(--c-line-2); border-radius: var(--r-sm); overflow: hidden; background: var(--c-surface); }
-.hs-seg-btn { font: inherit; font-size: var(--fs-2); font-weight: 600; min-height: var(--tap); padding: 6px 14px; border: none; background: transparent; color: var(--hs-muted); cursor: pointer; }
-.hs-seg-btn + .hs-seg-btn { border-left: 1px solid var(--c-line-2); }
-.hs-seg-btn:hover { background: var(--hs-bg-alt); color: var(--hs-text); }
-.hs-seg-btn[aria-pressed="true"] { background: var(--hs-navy); color: var(--c-on-fill); }
 .hs-composition { margin: 0; display: flex; flex-direction: column; }
 .hs-barlist { display: flex; flex-direction: column; justify-content: space-between; gap: 9px; flex: 1 1 auto; min-height: 0; }
 .hs-bl-row { display: grid; grid-template-columns: minmax(7em, 10em) minmax(0, 1fr) 3em; gap: 10px; align-items: center; font-size: var(--fs-2); }
@@ -288,7 +279,6 @@ blockquote.hs-quote::after { content: "”"; }
 .hs-ladder { display: flex; flex-direction: column; gap: 6px; flex: 1; }
 .hs-rung { display: grid; grid-template-columns: 3.6em minmax(0, 1fr); gap: 10px; align-items: center; font-size: var(--fs-3); }
 .hs-rung-score { font-family: inherit; font-size: var(--fs-3); font-weight: 700; text-align: center; border-radius: 6px; padding: 3px 0; font-variant-numeric: tabular-nums; }
-.hs-rung .hs-quote { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .hs-mini-hist { display: block; flex: 1; min-height: 160px; }
 .hs-score-foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 10px; padding-top: 12px; border-top: 1px solid var(--hs-line); font-size: var(--fs-2); color: var(--hs-muted); }
 .hs-score-foot strong { color: var(--hs-ink); }
@@ -336,15 +326,6 @@ blockquote.hs-quote::after { content: "”"; }
 .hs-feat-gap { font-size: var(--fs-5); font-weight: 600; color: var(--hs-ink); font-variant-numeric: tabular-nums; }
 .hs-feat-gap span { font-size: var(--fs-1); font-weight: 600; color: var(--hs-muted); }
 
-/* Section 5's three takeaways: a short numbered list, each a lead
-   sentence in ink and its gloss, with no box around them */
-.hs-reveals { margin: 40px 0 8px; max-width: 52em; }
-.hs-reveals:empty { display: none; }
-.hs-reveals .hs-h3 { font-size: var(--fs-5); margin-bottom: 12px; }
-.hs-takes { margin: 0; padding-left: 1.4em; display: flex; flex-direction: column; gap: 12px; font-size: var(--fs-4); line-height: 1.55; color: var(--hs-body); }
-.hs-takes li::marker { color: var(--hs-muted); }
-.hs-take-lead { color: var(--hs-ink); }
-
 .hs-intro-after { margin-top: 28px; margin-bottom: 18px; }
 .hs-corner { display: flex; flex-direction: column; gap: 10px; }
 .hs-corner-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
@@ -356,29 +337,20 @@ blockquote.hs-quote::after { content: "”"; }
 .hs-corner-ex li { display: flex; justify-content: space-between; gap: 12px; font-size: var(--fs-3); padding: 8px 0; border-top: 1px solid var(--hs-line); }
 .hs-corner-ex-score { font-size: var(--fs-2); color: var(--hs-muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
 
-/* ── 5 LLM evaluations (people blue, models orange, as in the LLM panel) ── */
-.hs-llm-chart { display: block; min-height: 150px; margin-bottom: 12px; }
-/* The finding under each chart; the cards' slack goes above it */
-.hs-llm-finding { display: block; margin-top: auto; padding-top: 12px; border-top: 1px solid var(--hs-line); font-size: var(--fs-3); color: var(--hs-body); }
-.hs-llm-finding strong { color: var(--hs-ink); }
-.hs-llm-legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: var(--fs-2); color: var(--hs-muted); margin-bottom: 10px; }
-.hs-llm-legend > span { display: inline-flex; align-items: center; gap: 6px; }
-.hs-llm-key { display: inline-block; width: 10px; height: 10px; }
-.hs-llm-key-people { background: var(--hs-agree); border-radius: 2px; }
-.hs-llm-key-model-bar { background: var(--hs-expect); border-radius: 2px; }
-.hs-llm-key-model-bar.is-faint { opacity: 0.35; }
-.hs-hist-bar-llm { fill: var(--hs-expect); }
-.hs-hist-bar-llm.is-faint { opacity: 0.35; }
-.hs-grid-line { stroke: var(--c-line-soft); stroke-width: 1; }
-#hs-llm .hs-reveals { margin-bottom: 0; }
+/* ── 5 LLM evaluations (concise headline-number teaser; full charts live in
+   the LLM Evaluations panel's Overview) ── */
+.hs-llm-teaser .hs-score-text { margin-bottom: 0; flex: 1; }
+.hs-llm-stat { display: flex; flex-direction: column; gap: 3px; margin: 8px 0 6px; }
+.hs-llm-num { font-size: var(--fs-8); font-weight: 700; line-height: 1.05; letter-spacing: -0.02em; color: var(--hs-ink); font-variant-numeric: tabular-nums; }
+.hs-llm-of { font-size: var(--fs-5); font-weight: 600; color: var(--hs-muted); letter-spacing: 0; }
+.hs-llm-sub { font-size: var(--fs-2); color: var(--hs-muted); line-height: 1.4; }
 
-/* ── 6 Explore: one card per panel ── */
-.hs-explore-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--panel-gap); }
+/* ── 6 Across countries: the two panels not linked in sections 3–5 ── */
 .home-scroll a.hs-explore-card {
-  display: flex; flex-direction: column; gap: 4px;
+  display: flex; flex-direction: column; gap: 6px;
   background: var(--c-surface); color: var(--hs-text); text-decoration: none;
   border: var(--card-border); border-radius: var(--r-lg);
-  padding: 20px 22px 18px;
+  padding: 22px 24px 20px;
   box-shadow: var(--shadow-1);
   transition: border-color var(--ease), box-shadow var(--ease), transform var(--ease);
 }
@@ -388,10 +360,8 @@ blockquote.hs-quote::after { content: "”"; }
 }
 .hs-explore-name { font-size: var(--fs-4); font-weight: 600; color: var(--hs-ink); }
 .hs-explore-name::after { content: " →"; color: var(--hs-muted); }
-.hs-explore-q { font-size: var(--fs-3); color: var(--hs-body); line-height: 1.4; }
-.hs-explore-text { font-size: var(--fs-2); color: var(--hs-body); }
-@media (max-width: 1100px) { .hs-explore-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 640px) { .hs-explore-grid { grid-template-columns: minmax(0, 1fr); } }
+.hs-explore-q { font-size: var(--fs-3); color: var(--hs-ink); line-height: 1.4; }
+.hs-explore-text { font-size: var(--fs-2); color: var(--hs-muted); line-height: 1.5; }
 
 /* ── Footer ── */
 .hs-footer { background: var(--c-chrome-2); border-top: 1px solid rgba(255,255,255,0.06); color: rgba(255,255,255,0.8); padding: 48px max(20px, 6vw) 56px; font-size: var(--fs-2); scroll-margin-top: 44px; }
@@ -434,7 +404,6 @@ blockquote.hs-quote::after { content: "”"; }
   .hs-dbar { grid-template-columns: 8.5em minmax(0, 1fr) 3em; }
   .hs-features { padding: 14px 16px; }
   .hs-corner-ex li { flex-direction: column; gap: 2px; }
-  .hs-rung .hs-quote { white-space: normal; }
 }
 /* Phones: the bar labels wrap, so the fixed card needs a little more height,
    and the narrower stage leaves room for one more line of a long statement */
