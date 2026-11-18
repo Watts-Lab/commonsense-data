@@ -1,6 +1,20 @@
 import pandas as pd
 import numpy as np
 
+# A participant is someone who rated at least this many statements (Josh,
+# October 2026). server.py drops everyone else, answers and all, when it loads
+# the data, and statement_coverage.py applies the same floor to its
+# "Calculated" counts, so both pages score the same people. It counts raw
+# ratings, unlike min_statements_per_user below, which counts only statements
+# with 10+ ratings.
+MIN_PARTICIPANT_RATINGS = 5
+
+
+def keep_participants(answers: pd.DataFrame) -> pd.DataFrame:
+    """Answers of people who rated at least MIN_PARTICIPANT_RATINGS statements."""
+    n_rated = answers.groupby("sessionId")["statementId"].nunique()
+    return answers[answers["sessionId"].isin(n_rated.index[n_rated >= MIN_PARTICIPANT_RATINGS])]
+
 
 def individual_commonsensicality(
     target_ratings: pd.DataFrame,

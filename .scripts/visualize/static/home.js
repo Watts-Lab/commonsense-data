@@ -3,7 +3,7 @@
 // ══ Home / landing page ════════════════════════════════════════════════════
 // Loaded after app.js and uses its globals: API, esc, fmtNum, dateParams,
 // fixStatement, PROP_DEFS, switchToTab, renderWorldMap, _homeCountryData,
-// _homeMapMode, _positionTooltip. Every live number comes from one request,
+// _positionTooltip. Every live number comes from one request,
 // /api/home-summary (get_home_summary() in server.py), which reads its scores
 // back from the Individual Scores, Statement Scores and Design Points
 // endpoints so the numbers here match those panels. The exception is section
@@ -232,9 +232,9 @@ function hsRenderStamp(d) {
   const t = d.totals;
   const stamp = document.getElementById("hsStamp");
   if (!t.ratings) { stamp.textContent = "No ratings in the selected date range."; return; }
-  stamp.innerHTML = d.date_from || d.date_to
-    ? `<span class="hs-dot hs-dot-warn"></span>Date filter on: ratings from ${hsDate(t.first_date)} to ${hsDate(t.last_date)}.`
-    : `<span class="hs-dot"></span>Live data: ratings from ${hsDate(t.first_date)} to ${hsDate(t.last_date)}.`;
+  stamp.textContent = d.date_from || d.date_to
+    ? `Date filter on: ratings from ${hsDate(t.first_date)} to ${hsDate(t.last_date)}.`
+    : `Ratings from ${hsDate(t.first_date)} to ${hsDate(t.last_date)}, updated every other day.`;
 }
 
 function hsRenderTicker(d) {
@@ -487,16 +487,6 @@ function hsInitCompositionFit() {
   }).observe(map);
 }
 
-function hsInitMapToggle() {
-  document.querySelectorAll("[data-map-mode]").forEach((b) => {
-    b.addEventListener("click", () => {
-      _homeMapMode = b.dataset.mapMode;
-      document.querySelectorAll("[data-map-mode]").forEach((o) => o.setAttribute("aria-pressed", String(o === b)));
-      if (_homeCountryData) renderWorldMap(_homeCountryData);
-    });
-  });
-}
-
 // ── 3 The scores ───────────────────────────────────────────────────────────
 
 function hsRenderLadder(d) {
@@ -645,11 +635,9 @@ function hsRenderDataNote(d) {
 
 // ── 5 LLM evaluations ──────────────────────────────────────────────────────
 // Nguyen, Watts & Whiting (2026): a separate study with fixed data, read
-// through llm.js's llmGet() and llmSummaryStats(). The two cards aren't
-// links: the reader carries on to the takeaways and the button under them.
-// Their numbers are computed; the wording follows the data's shape where it
-// could change (how many models beat the median human, how far the best
-// crowd falls short of two halves of people).
+// through llm.js's llmGet() and llmSummaryStats(). Teased here with headline
+// numbers and direct links into the individual and population stories; the
+// full summary charts live in the LLM Evaluations panel's Overview.
 
 async function hsLoadLlm() {
   if (HS.llm || HS.llmLoading || typeof llmGet !== "function") return;
@@ -660,12 +648,15 @@ async function hsLoadLlm() {
   } catch (err) {
     console.error("Home: LLM evaluations failed to load:", err);
     HS.llm = null;
-    document.getElementById("hsLlmReveals").innerHTML = `<p class="hs-empty">The LLM results could not be loaded. Try refreshing the page.</p>`;
+    for (const id of ["hsLlmIndivStat", "hsLlmPopStat"]) {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = `<span class="hs-empty">The LLM results could not be loaded. Try refreshing the page.</span>`;
+    }
     return;
   } finally {
     HS.llmLoading = false;
   }
-  for (const fn of [hsFillLlmFields, hsRenderLlmIndiv, hsRenderLlmPop, hsRenderLlmReveals]) {
+  for (const fn of [hsFillLlmFields, hsRenderLlmIndiv, hsRenderLlmPop]) {
     try { fn(HS.llm); } catch (err) { console.error(`Home: ${fn.name} failed:`, err); }
   }
 }
@@ -678,132 +669,53 @@ function hsFillLlmFields(d) {
   });
 }
 
-// Humans and LLMs as two histograms on one grid of 5-point bins, each bar the
-// share of its own group (2,046 people, 44 LLMs), with the median human marked
 function hsRenderLlmIndiv(d) {
-  const el = document.getElementById("hsLlmIndiv");
-  el.innerHTML = "";
   const n = d.models.length;
   const above = d.models.filter((m) => m.commonsensicality > d.humanMedian).length;
-  document.getElementById("hsLlmIndivFoot").textContent = above * 2 < n
-    ? `We found a modest result: only ${above} out of ${n} LLMs score above the median human.`
-    : `${above} out of ${n} LLMs score above the median human.`;
-  const people = d.participants.map((p) => p.scores[2]);
-  // Bins in whole points, so float error can't push a score across an edge
-  const lo = Math.min(30, Math.floor(Math.min(...people, ...d.models.map((m) => m.commonsensicality)) * 20) * 5), hi = 100, step = 5;
-  const nb = (hi - lo) / step;
-  const binOf = (v) => Math.min(nb - 1, Math.max(0, Math.floor((v * 100 - lo) / step + 1e-9)));
-  const pc = Array(nb).fill(0), mc = Array(nb).fill(0), names = Array.from({ length: nb }, () => []);
-  for (const v of people) pc[binOf(v)]++;
-  d.models.forEach((m) => { const i = binOf(m.commonsensicality); mc[i]++; names[i].push(m.name); });
-  const pShare = pc.map((c) => c / people.length), mShare = mc.map((c) => c / n);
-  const ystep = 0.05, ymax = Math.max(ystep, Math.ceil(Math.max(...pShare, ...mShare) / ystep - 1e-9) * ystep);
+  const share = above / n;
+  const few = share < 0.25 ? "fewer than a quarter of models" : share < 1 / 3 ? "fewer than a third of models" : share < 0.5 ? "fewer than half of the models" : "only some models";
+  const topInd = [...d.models].sort((a, b) => b.commonsensicality - a.commonsensicality)[0];
+  const defInd = (typeof LLM_DEFAULT_MODEL === "string" && d.models.find((m) => m.id === LLM_DEFAULT_MODEL))
+    || [...d.models].sort((a, b) => a.rankInd - b.rankInd)[0];
 
-  const W = Math.max(260, Math.round(el.clientWidth || 480)), L = 34, R = 6, T = 26, PH = 132, B = 22;
-  const PW = W - L - R, base = T + PH, H = base + B;
-  const xS = (pts) => L + ((pts - lo) / (hi - lo)) * PW;
-  const yS = (share) => base - (share / ymax) * PH;
-  const svg = hsSvg("svg", {
-    viewBox: `0 0 ${W} ${H}`, class: "hs-hist-svg", role: "img",
-    "aria-label": `Histograms of commonsensicality for the study's ${fmtNum(people.length)} humans and ${n} LLMs, as a share of each group; ${above} of ${n} LLMs score above the median human`,
-  });
-  // y axis: gridlines and % labels
-  for (let k = 0; k * ystep <= ymax + 1e-9; k++) {
-    const y = yS(k * ystep);
-    if (k) svg.appendChild(hsSvg("line", { x1: L, x2: L + PW, y1: y, y2: y, class: "hs-grid-line" }));
-    svg.appendChild(hsSvg("text", { x: L - 6, y: y + 3.5, class: "hs-axis-tick", "text-anchor": "end" }, `${Math.round(k * ystep * 100)}%`));
+  document.getElementById("hsLlmIndivStat").innerHTML =
+    `<span class="hs-llm-num">${above} <span class="hs-llm-of">of ${n}</span></span>` +
+    `<span class="hs-llm-sub">models score above the median human (${hsPct(d.humanMedian)})</span>`;
+  document.getElementById("hsLlmIndivText").textContent =
+    `Scored as individual test-takers across all ${fmtNum(d.n_statements)} statements, ` +
+    (above * 2 < n ? `${few} surpass the typical human participant.` : `${above} of ${n} models surpass the typical human participant.`);
+  document.getElementById("hsLlmIndivFoot").textContent = topInd
+    ? `Highest model: ${topInd.name} (${hsPct(topInd.commonsensicality)})`
+    : "";
+  const go = document.getElementById("hsLlmIndivGo");
+  if (go && defInd) {
+    go.dataset.llmModel = defInd.id;
+    go.setAttribute("href", `llm_evaluations?view=individual&model=${encodeURIComponent(defInd.id)}`);
   }
-  // bars: humans (blue) and LLMs (orange) side by side in each bin
-  const bw = PW / nb, gap = Math.min(3, bw * 0.12), barW = Math.max(2, (bw - 2 * gap) / 2);
-  const bar = (x, share, cls) => {
-    const h = base - yS(share);
-    if (h <= 0) return;
-    const y = base - h, rr = Math.min(2.5, h / 2, barW / 2);
-    svg.appendChild(hsSvg("path", { d: `M${x},${base}V${y + rr}Q${x},${y} ${x + rr},${y}H${x + barW - rr}Q${x + barW},${y} ${x + barW},${y + rr}V${base}Z`, class: cls }));
-  };
-  for (let i = 0; i < nb; i++) {
-    const x0 = L + i * bw + gap;
-    bar(x0, pShare[i], "hs-hist-bar");
-    bar(x0 + barW, mShare[i], "hs-hist-bar-llm");
-    const a = lo + i * step;
-    const listed = names[i].length > 4 ? `${names[i].slice(0, 4).join(", ")} and ${names[i].length - 4} more` : names[i].join(", ");
-    const hit = hsSvg("rect", { x: L + i * bw, y: T, width: bw, height: PH, fill: "transparent" });
-    hit.addEventListener("mousemove", (e) => hsTipShow(
-      `<strong>Commonsensicality ${a}–${a + step}%</strong><br>` +
-      `Humans: ${hsPct(pShare[i], 1)} (${fmtNum(pc[i])})<br>LLMs: ${hsPct(mShare[i], 1)} (${mc[i]} of ${n})` +
-      (listed ? `<br><span style="opacity:.8">${esc(listed)}</span>` : ""), e));
-    hit.addEventListener("mouseleave", hsTipHide);
-    svg.appendChild(hit);
-  }
-  svg.appendChild(hsSvg("line", { x1: L, x2: L + PW, y1: base, y2: base, class: "hs-axis-line" }));
-  const mx = xS(d.humanMedian * 100);
-  svg.appendChild(hsSvg("line", { x1: mx, x2: mx, y1: T - 6, y2: base, class: "hs-marker" }));
-  svg.appendChild(hsSvg("text", { x: mx - 5, y: T - 10, class: "hs-marker-label", "text-anchor": "end" }, `Median human ${hsPct(d.humanMedian)}`));
-  const every = W < 400 ? 20 : 10;
-  for (let t = Math.ceil(lo / every) * every; t <= hi; t += every) {
-    svg.appendChild(hsSvg("text", { x: xS(t), y: H - 5, class: "hs-axis-tick", "text-anchor": t >= hi ? "end" : "middle" }, `${t}%`));
-  }
-  el.appendChild(svg);
 }
 
-// Every model's correlation with people as a column, from lowest to highest
-// r; the sentence under the chart sets the best against the paper's
-// split-half reliability (two random halves of the people)
 function hsRenderLlmPop(d) {
-  const el = document.getElementById("hsLlmPop");
-  el.innerHTML = "";
   const models = d.models.filter((m) => m.r !== null).sort((a, b) => a.r - b.r);
   const best = models.at(-1);
   const half = d.split_half ? d.split_half.mean : (d.paper ? d.paper.split_half_r : null);
   const gap = !best || half === null ? "" : best.r < half - 0.1 ? "substantially below" : best.r < half ? "below" : "at or above";
-  document.getElementById("hsLlmPopFoot").innerHTML = !best ? ""
-    : half !== null
-      ? `The best model has a correlation of r&nbsp;=&nbsp;${llmR(best.r)}, ${gap} the human split-half reliability of r&nbsp;=&nbsp;${llmR(half)}.`
-      : `The best model has a correlation of r&nbsp;=&nbsp;${llmR(best.r)}.`;
-  if (!best) return;
-  const lo = Math.min(-0.2, Math.floor(models[0].r * 10) / 10), hi = Math.max(0.6, Math.ceil(best.r * 10) / 10 + 0.1);
-  const W = Math.max(260, Math.round(el.clientWidth || 480)), L = 30, R = 6, T = 22, PH = 140, B = 22;
-  const PW = W - L - R, H = T + PH + B;
-  const yS = (v) => T + ((hi - v) / (hi - lo)) * PH;
-  const svg = hsSvg("svg", {
-    viewBox: `0 0 ${W} ${H}`, class: "hs-hist-svg", role: "img",
-    "aria-label": `Bar chart of each LLM's correlation with humans, from lowest to highest; the best is ${llmR(best.r)}` + (half !== null ? `, against ${llmR(half)} between two random halves of humans` : ""),
-  });
-  for (let t = Math.ceil(lo * 5) / 5; t <= hi + 1e-9; t += 0.2) {
-    const y = yS(t);
-    if (Math.abs(t) > 1e-9) svg.appendChild(hsSvg("line", { x1: L, x2: L + PW, y1: y, y2: y, class: "hs-grid-line" }));
-    svg.appendChild(hsSvg("text", { x: L - 6, y: y + 3.5, class: "hs-axis-tick", "text-anchor": "end" }, llmRTick(Math.round(t * 10) / 10)));
-  }
-  const bw = PW / models.length, gap2 = Math.min(2, bw * 0.18), y0 = yS(0);
-  models.forEach((m, i) => {
-    const x = L + i * bw + gap2 / 2, y = yS(Math.max(0, m.r)), h = Math.abs(yS(m.r) - y0);
-    svg.appendChild(hsSvg("rect", { x, y: m.r >= 0 ? y : y0, width: Math.max(1, bw - gap2), height: Math.max(0.5, h), rx: Math.min(2, (bw - gap2) / 2), class: `hs-hist-bar-llm${m.r_sig === false ? " is-faint" : ""}` }));
-    const hit = hsSvg("rect", { x: L + i * bw, y: T, width: bw, height: PH, fill: "transparent" });
-    hit.addEventListener("mousemove", (e) => hsTipShow(`<strong>${esc(m.name)}</strong><br>r = ${llmR(m.r)} (${llmOrdinal(m.rankR)} of ${d.models.length})${m.r_sig === false ? "<br>Not significantly different from 0" : ""}`, e));
-    hit.addEventListener("mouseleave", hsTipHide);
-    svg.appendChild(hit);
-  });
-  svg.appendChild(hsSvg("line", { x1: L, x2: L + PW, y1: y0, y2: y0, class: "hs-axis-line" }));
-  svg.appendChild(hsSvg("text", { x: L, y: H - 5, class: "hs-axis-tick" }, "← Lowest r"));
-  svg.appendChild(hsSvg("text", { x: L + PW, y: H - 5, class: "hs-axis-tick", "text-anchor": "end" }, "Highest r →"));
-  el.appendChild(svg);
-}
 
-function hsRenderLlmReveals(d) {
-  const n = d.models.length;
-  const above = d.models.filter((m) => m.commonsensicality > d.humanMedian).length;
-  const share = above / n;
-  const few = share < 0.25 ? "Fewer than a quarter of models" : share < 1 / 3 ? "Fewer than a third of models" : share < 0.5 ? "Fewer than half of the models" : "Only some models";
-  // Josh's three takeaways: each a lead sentence (in ink) and its gloss
-  const take = (lead, rest) => `<li><span class="hs-take-lead">${lead}</span> ${rest}</li>`;
-  const parts = [
-    take("There is no need for a predefined “correct” answer.", "Consensus and awareness arise from the independent judgments of humans and LLMs. These signals can be used to measure their commonsensicality, or “performance,” directly."),
-    above * 2 < n
-      ? take("Most LLMs fall short of the typical person.", `The median human participant received a commonsensicality score of ${hsPct(d.humanMedian)}. ${few} (${above}&nbsp;/&nbsp;${n}) managed to surpass this.`)
-      : take(`${above} of ${n} LLMs surpass the typical person.`, `The median human participant received a commonsensicality score of ${hsPct(d.humanMedian)}.`),
-    take("LLM-simulated crowds are very different from humans.", "Judging by the way they rate statements, there are substantial differences in how human and LLM-generated populations determine what common sense is."),
-  ];
-  document.getElementById("hsLlmReveals").innerHTML = `<h3 class="hs-h3">What this means for evaluating LLMs</h3><ol class="hs-takes">${parts.join("")}</ol>`;
+  document.getElementById("hsLlmPopStat").innerHTML =
+    `<span class="hs-llm-num">r&nbsp;=&nbsp;${best ? llmR(best.r) : "—"}</span>` +
+    `<span class="hs-llm-sub">${best && half !== null
+      ? `best model correlation with human scores, ${gap} human split-half reliability (r&nbsp;=&nbsp;${llmR(half)})`
+      : "best model correlation with human statement scores"}</span>`;
+  document.getElementById("hsLlmPopText").textContent = best && half !== null && best.r < half
+    ? "Viewed as generators of synthetic populations via their answer probabilities, even the closest model falls short of how well two groups of people agree with each other."
+    : "Viewed as generators of synthetic populations via their answer probabilities, each model's statement scores can be compared directly with those of human raters.";
+  document.getElementById("hsLlmPopFoot").innerHTML = best
+    ? `Best crowd: ${esc(best.name)}${d.medianR !== null ? ` · Median: r&nbsp;=&nbsp;${llmR(d.medianR)}` : ""}`
+    : "";
+  const go = document.getElementById("hsLlmPopGo");
+  if (go && best) {
+    go.dataset.llmModel = best.id;
+    go.setAttribute("href", `llm_evaluations?view=population&model=${encodeURIComponent(best.id)}`);
+  }
 }
 
 // ── Navigation, scrolling, reveal, resize ───────────────────────────────────
@@ -824,6 +736,11 @@ function hsBindTabLinks(root) {
     a.addEventListener("click", (e) => {
       if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; // new tab: let the href work
       e.preventDefault();
+      if (a.dataset.llmModel && typeof LLM === "object") {
+        LLM.model = a.dataset.llmModel;
+        const gm = typeof llmModel === "function" && llmModel(a.dataset.llmModel);
+        if (gm && gm.features) LLM.featModel = gm.id;
+      }
       // Set the LLM panel's view first, so the panel opens on it
       if (a.dataset.llmView && typeof llmShowView === "function") llmShowView(a.dataset.llmView);
       switchToTab(a.dataset.tabLink, true);
@@ -880,9 +797,6 @@ function hsOnResize() {
     if (!HS.data || !w || Math.abs(w - HS.lastWidth) < 24) return;
     HS.lastWidth = w;
     try { hsRenderIndivHist(HS.data); } catch (err) { console.error("Home: histogram resize failed:", err); }
-    if (HS.llm) {
-      try { hsRenderLlmIndiv(HS.llm); hsRenderLlmPop(HS.llm); } catch (err) { console.error("Home: LLM chart resize failed:", err); }
-    }
   }, 200);
 }
 
@@ -890,7 +804,6 @@ function hsInit() {
   const panel = document.getElementById("panelHome");
   hsBindScrollLinks(panel);
   hsBindTabLinks(panel);
-  hsInitMapToggle();
   hsInitTicker();
   hsInitCompositionFit();
   hsInitObservers();

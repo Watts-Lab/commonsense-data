@@ -82,7 +82,21 @@ def _load_judgments(statements: pd.DataFrame) -> tuple[list[str], dict]:
 
 
 def _pct(numerator: int, denominator: int):
-    return round(100 * numerator / denominator, 1) if denominator else None
+    """Percentage to one decimal, halves rounded up in exact integer arithmetic
+    (round() on the float can round a true .x5 down)."""
+    return (2000 * numerator + denominator) // (2 * denominator) / 10 if denominator else None
+
+
+def _agreement_row(judge: str, n: int, commonsense: int, features: dict, all_features: int) -> dict:
+    """One row of the agreement table: percentages, plus the counts behind them
+    ("k") so the page can show each one as k of n."""
+    return {
+        "judge": judge, "n": n,
+        "commonsense": _pct(commonsense, n),
+        "features": {key: _pct(v, n) for key, v in features.items()},
+        "all_features": _pct(all_features, n),
+        "k": {"commonsense": commonsense, "features": features, "all_features": all_features},
+    }
 
 
 def get_audit() -> dict:
@@ -139,21 +153,21 @@ def get_audit() -> dict:
     agreement = []
     for judge_model in judges:
         rated = [j for e in all_entries for j in e["judges"] if j["judge_model"] == judge_model]
-        n = len(rated)
-        agreement.append({
-            "judge": judge_model, "n": n,
-            "commonsense": _pct(sum(j["commonsense"] for j in rated), n),
-            "features": {key: _pct(sum(j["matches"][key] for j in rated), n) for key in FEAT_KEYS},
-            "all_features": _pct(sum(j["agrees"] for j in rated), n),
-        })
+        agreement.append(_agreement_row(
+            judge_model, len(rated),
+            sum(j["commonsense"] for j in rated),
+            {key: sum(j["matches"][key] for j in rated) for key in FEAT_KEYS},
+            sum(j["agrees"] for j in rated),
+        ))
+    # At least half of the judges who rated a statement (a tie counts), so the
+    # page calls this row "At least half of judges", not "majority"
     voted = [e for e in all_entries if e["n_judges"]]
-    n = len(voted)
-    agreement.append({
-        "judge": "Majority of judges", "n": n,
-        "commonsense": _pct(sum(at_least_half(e["n_commonsense"], e["n_judges"]) for e in voted), n),
-        "features": {key: _pct(sum(e["feature_majority"][key] for e in voted), n) for key in FEAT_KEYS},
-        "all_features": _pct(sum(e["majority"] for e in voted), n),
-    })
+    agreement.append(_agreement_row(
+        "Majority of judges", len(voted),
+        sum(at_least_half(e["n_commonsense"], e["n_judges"]) for e in voted),
+        {key: sum(e["feature_majority"][key] for e in voted) for key in FEAT_KEYS},
+        sum(e["majority"] for e in voted),
+    ))
 
     _cache = {"feature_keys": FEAT_KEYS, "judges": judges, "rows": rows, "agreement": agreement,
               "n_statements": len(statements), "by_combo": entries_by_combo}
